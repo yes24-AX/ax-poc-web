@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>리뷰 AI 요약 — YES24</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- Consumer header -->
+  <header class="consumer-header">
+    <div class="container">
+      <div class="consumer-brand">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider" style="width:1px;height:16px;background:#E2E8F0;margin:0 10px;display:inline-block;"></span>
+        <span class="sub" style="font-size:11px;font-weight:700;color:#0E498D;letter-spacing:0.08em;text-transform:uppercase;">AI 리뷰 요약</span>
+      </div>
+      <span class="ai-header-badge">AI 분석</span>
+    </div>
+  </header>
+
+  <!-- Hero section (product info) -->
+  <div class="summary-hero">
+    <div class="container">
+      <div class="summary-hero-inner">
+        <div class="summary-cover">
+          <img id="heroCoverImg" src="" alt="" />
+          <div id="heroCoverPlaceholder" class="summary-cover-placeholder" style="display:none">📚</div>
+        </div>
+        <div class="summary-hero-meta">
+          <h1 id="heroTitle">로딩 중...</h1>
+          <p class="author" id="heroAuthor"></p>
+          <div class="summary-rating-row">
+            <span class="rating-big" id="heroRating"></span>
+            <span class="review-cnt" id="heroReviewCnt"></span>
+          </div>
+          <div class="hero-actions">
+            <a href="https://www.yes24.com/product/goods/101375755" target="_blank" rel="noopener" class="btn-hero-primary">YES24에서 구매하기</a>
+            <a href="admin.html" class="btn-hero-ghost">← 관리자 페이지</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary content -->
+  <div class="summary-body" id="summaryContent">
+    <div class="container">
+
+      <!-- AI analysis intro -->
+      <div class="summary-section">
+        <div id="aiBadge" class="ai-analysis-badge"></div>
+        <div id="summaryText" class="summary-text-block"></div>
+      </div>
+
+      <!-- Key themes -->
+      <div class="summary-section">
+        <div class="section-label">Key Themes</div>
+        <h2 class="section-h2">독자들이 많이 언급한 키워드</h2>
+        <div id="themesGrid" class="themes-grid"></div>
+      </div>
+
+      <!-- Pros / Cons -->
+      <div class="summary-section">
+        <div class="section-label">Insights</div>
+        <h2 class="section-h2">독자 반응 분석</h2>
+        <div class="proscons-grid">
+          <div class="proscons-block pros-block">
+            <div class="proscons-block-title">✨ 독자들이 좋아한 점</div>
+            <ul id="prosList"></ul>
+          </div>
+          <div class="proscons-block cons-block">
+            <div class="proscons-block-title">🔸 아쉬운 점</div>
+            <ul id="consList"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Representative Quotes -->
+      <div class="summary-section">
+        <div class="section-label">Highlights</div>
+        <h2 class="section-h2">대표 리뷰</h2>
+        <div id="quotesList" class="quotes-list"></div>
+      </div>
+
+      <!-- Rating Distribution -->
+      <div class="summary-section">
+        <div class="section-label">Ratings</div>
+        <h2 class="section-h2">평점 분포</h2>
+        <div id="ratingDist" class="rating-dist"></div>
+      </div>
+
+      <!-- CTA -->
+      <div style="text-align:center; padding: 40px 0 20px; border-top: 1px solid #E2E8F0; margin-top: 8px;">
+        <p style="font-size:13px; color:#94A3B8; margin-bottom:16px;">이 요약은 YES24 고객 리뷰를 Claude AI로 분석한 결과입니다.</p>
+        <a href="https://www.yes24.com/product/goods/101375755" target="_blank" rel="noopener" class="btn btn-primary btn-lg">YES24에서 직접 리뷰 보기</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/summary.js"></script>
+</body>
+</html>

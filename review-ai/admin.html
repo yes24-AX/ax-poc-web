@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>리뷰 AI 요약 — 관리자 · YES24</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <header class="admin-header">
+    <div class="container">
+      <a class="brand" href="#">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider"></span>
+        <span class="sub">리뷰 AI 요약</span>
+        <span class="badge-admin">ADMIN</span>
+      </a>
+      <div class="header-meta">
+        <span class="model-badge">claude-haiku-4-5-20251001</span>
+        <a href="summary.html" target="_blank" class="btn btn-sm btn-outline" style="border-color:#2D3748; color:#94A3B8; background:transparent;">고객 페이지 미리보기</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+
+      <div class="page-title">
+        <h1>리뷰 AI 요약 <span class="accent">POC</span></h1>
+        <p>상품번호를 입력하면 YES24 리뷰를 수집하고 Claude AI로 핵심 인사이트를 요약합니다.</p>
+      </div>
+
+      <!-- STEP 1: API Key -->
+      <div class="card" id="cardApiKey">
+        <div class="card-head">
+          <div class="step-badge">1</div>
+          <div>
+            <h3>Claude API 키 설정</h3>
+            <p>Anthropic API 키를 입력하면 실제 Claude AI 분석이 실행됩니다. 없으면 데모 모드로 진행됩니다.</p>
+          </div>
+        </div>
+        <div class="api-key-input-row">
+          <div class="key-input-wrap">
+            <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off" />
+            <button type="button" id="toggleKeyVisibility" class="toggle-vis">👁</button>
+          </div>
+          <button type="button" id="saveApiKey" class="btn btn-primary btn-sm">저장</button>
+          <button type="button" id="clearApiKey" class="btn btn-ghost btn-sm">지우기</button>
+        </div>
+        <div id="apiKeyStatus" class="key-status demo">데모 모드: 미리 생성된 분석 결과를 사용합니다.</div>
+        <p class="hint">API 키는 브라우저 세션에만 임시 저장되며 외부로 전송되지 않습니다. (실제 분석 시 Anthropic API 서버에만 전송)</p>
+      </div>
+
+      <!-- STEP 2: Product Lookup -->
+      <div class="card">
+        <div class="card-head">
+          <div class="step-badge">2</div>
+          <div>
+            <h3>상품 조회</h3>
+            <p>YES24 상품번호를 입력하세요. 리뷰 샘플이 자동으로 로드됩니다.</p>
+          </div>
+        </div>
+        <div class="product-lookup-row">
+          <div class="input-group">
+            <label for="productId">상품번호</label>
+            <input type="text" id="productId" value="101375755" placeholder="예: 101375755" />
+          </div>
+          <button type="button" id="fetchProductBtn" class="btn btn-primary">상품 불러오기</button>
+        </div>
+        <p class="hint" style="margin-top:8px;">※ 현재 POC에서는 상품번호 <strong>101375755</strong> (프로젝트 헤일메리)만 지원합니다.</p>
+      </div>
+
+      <!-- Product Info Card (shown after fetch) -->
+      <div class="card hidden" id="productCard">
+        <div class="card-head">
+          <div class="step-badge step-done">✓</div>
+          <div><h3>상품 정보</h3></div>
+        </div>
+        <div id="productInfo"></div>
+      </div>
+
+      <!-- Reviews Card (shown after fetch) -->
+      <div class="card hidden" id="reviewsCard">
+        <div class="card-head">
+          <div class="step-badge step-done">✓</div>
+          <div>
+            <h3>리뷰 샘플 <span id="reviewCount" class="count-badge"></span></h3>
+            <p>분석에 사용할 대표 리뷰 샘플입니다. 실제 서비스에서는 전체 리뷰가 분석됩니다.</p>
+          </div>
+        </div>
+        <div id="reviewsList"></div>
+      </div>
+
+      <!-- STEP 3: Analyze -->
+      <div class="card hidden" id="analyzeCard">
+        <div class="card-head">
+          <div class="step-badge">3</div>
+          <div>
+            <h3>AI 리뷰 분석 실행</h3>
+            <p>수집된 리뷰를 Claude AI가 분석하여 핵심 인사이트를 추출합니다.</p>
+          </div>
+        </div>
+        <div class="analyze-action">
+          <button type="button" id="analyzeBtn" class="btn btn-primary btn-lg">
+            <span class="btn-icon">✨</span> AI 요약 생성하기
+          </button>
+          <p id="analyzeMode" class="mode-note"></p>
+        </div>
+      </div>
+
+      <!-- Analysis Result (shown after analyze) -->
+      <div class="card hidden" id="resultCard">
+        <div class="card-head">
+          <div class="step-badge step-done">✓</div>
+          <div>
+            <h3>분석 완료</h3>
+            <p id="resultMeta"></p>
+          </div>
+        </div>
+        <div id="resultPreview"></div>
+        <div class="result-actions">
+          <button type="button" id="previewBtn" class="btn btn-primary btn-lg">고객 페이지 미리보기 →</button>
+          <button type="button" id="reAnalyzeBtn" class="btn btn-ghost">다시 분석</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
