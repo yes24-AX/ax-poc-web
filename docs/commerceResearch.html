@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>국내 이커머스 주요 쇼핑몰 AI 적용 현황</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #5f6b7a;
+      --line: #e4e8ef;
+      --brand: #2f6fed;
+      --brand-weak: #eaf1ff;
+      --green: #138a52;
+      --yellow: #b7791f;
+      --red: #c2410c;
+      --shadow: 0 12px 28px rgba(18, 32, 56, .08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
+        "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 300px);
+      line-height: 1.65;
+    }
+
+    a { color: var(--brand); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 42px 22px 72px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 38px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: var(--brand);
+      background: var(--brand-weak);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(30px, 5vw, 48px);
+      letter-spacing: -0.05em;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      max-width: 860px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f3f6fa;
+      color: #344054;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 6px 18px rgba(18, 32, 56, .045);
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .metric {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+    }
+
+    .metric-label {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      font-size: 26px;
+      letter-spacing: -0.04em;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 19px;
+      letter-spacing: -0.03em;
+    }
+
+    .section { margin-top: 34px; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+    }
+
+    .highlight {
+      border-left: 5px solid var(--brand);
+      background: #f8fbff;
+      padding: 18px 20px;
+      border-radius: 14px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .status {
+      display: inline-flex;
+      min-width: 32px;
+      justify-content: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .on { color: var(--green); background: #e8f7ef; }
+    .partial { color: var(--yellow); background: #fff5dc; }
+    .none { color: #667085; background: #eef1f5; }
+
+    .table-scroll {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 14px 13px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      color: #344054;
+      font-size: 13px;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    .platform { font-weight: 800; white-space: nowrap; }
+
+    .bars {
+      display: grid;
+      gap: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 54px;
+      gap: 12px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #edf1f7;
+      overflow: hidden;
+    }
+
+    .bar > i {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--brand);
+    }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .platform-card {
+      border-top: 5px solid var(--brand);
+    }
+
+    .tagline {
+      color: var(--brand);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .bullets {
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+
+    .bullets li { margin: 6px 0; }
+
+    .source-list {
+      columns: 2;
+      column-gap: 28px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .source-list li {
+      break-inside: avoid;
+      margin: 0 0 8px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .callout {
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 22px;
+      padding: 26px;
+    }
+
+    .callout h2 { color: #fff; }
+    .callout p { color: #d1d5db; margin-bottom: 0; }
+
+    @media (max-width: 900px) {
+      .summary, .platform-grid { grid-template-columns: 1fr; }
+      .span-3, .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .hero { padding: 26px; }
+      .source-list { columns: 1; }
+      .bar-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .wrap { max-width: none; padding: 20px; }
+      .card, .hero { box-shadow: none; }
+      th { position: static; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">AI Commerce Research · 2026 기준 공개자료 정리</div>
+      <h1>국내 이커머스 주요 쇼핑몰의 AI 활용 기능 적용 현황</h1>
+      <p class="subtitle">
+        네이버쇼핑, 쿠팡, 11번가, G마켓·옥션, SSG닷컴, 카카오 커머스, 위메프, 티몬을 대상으로
+        공개된 AI 기능을 고객경험형 AI와 운영최적화형 AI 관점에서 재구성했다.
+      </p>
+      <div class="meta">
+        <span class="chip">조사 대상 8개 플랫폼</span>
+        <span class="chip">기능군 9개</span>
+        <span class="chip">공개자료 기준</span>
+        <span class="chip">비공개 추정 제외</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card span-3">
+        <div class="metric">5/8</div>
+        <div class="metric-label">추천·개인화 AI 공개 확인 플랫폼</div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">4/8</div>
+        <div class="metric-label">검색·자연어 또는 챗봇·고객응대 AI 확인</div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">1/8</div>
+        <div class="metric-label">물류·재고 최적화 AI 공개 확인</div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">3/8</div>
+        <div class="metric-label">가격·수요예측 AI 공개 확인</div>
+      </article>
+    </section>
+
+    <section class="section summary">
+      <article class="card">
+        <h2>핵심 요약</h2>
+        <div class="highlight">
+          <strong>국내 주요 이커머스의 AI 적용은 크게 두 축으로 나뉜다.</strong>
+          네이버·11번가·카카오·SSG닷컴은 추천, 대화형 탐색, 리뷰 요약 등
+          <strong>고객경험형 AI</strong>를 전면에 내세운다. 반면 쿠팡은 검색, 수요예측,
+          재고, 배송, 고객센터까지 이어지는 <strong>운영 최적화형 AI</strong> 공개가 강하다.
+        </div>
+        <p>
+          G마켓·옥션은 현재 공개자료 기준으로 판매자 광고 자동화가 중심이며,
+          위메프·티몬은 구조조정·정상화 이슈로 인해 최신 AI 운영 현황을 동등 비교하기 어렵다.
+          따라서 단순히 “AI 기능 수”가 아니라, 각 플랫폼의 핵심 가치사슬 어디에 AI를 붙였는지가
+          경쟁력 판단의 핵심이다.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>플랫폼별 포지셔닝</h2>
+        <ul class="bullets">
+          <li><strong>네이버</strong>: 에이전트형 쇼핑 인터페이스</li>
+          <li><strong>쿠팡</strong>: 운영·풀필먼트 AI</li>
+          <li><strong>11번가</strong>: 구매자·판매자 양면시장형 AI</li>
+          <li><strong>SSG닷컴</strong>: 실용적 생성형 AI</li>
+          <li><strong>카카오</strong>: 관계·선물 맥락형 AI</li>
+          <li><strong>G마켓·옥션</strong>: 광고 수익화형 AI</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section card span-12">
+      <h2>기능 적용 현황 매트릭스</h2>
+      <div class="legend">
+        <span class="dot"><span class="status on">◎</span> 운영 중 또는 핵심 기능 확인</span>
+        <span class="dot"><span class="status partial">△</span> 파일럿·부분 적용·판매자용 중심</span>
+        <span class="dot"><span class="status none">—</span> 최신 공개자료 기준 확인 어려움</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>플랫폼</th>
+              <th>추천·개인화</th>
+              <th>검색·자연어</th>
+              <th>이미지검색</th>
+              <th>챗봇·고객응대</th>
+              <th>가격·수요예측</th>
+              <th>물류·재고</th>
+              <th>태깅·분류</th>
+              <th>생성·요약</th>
+              <th>사기탐지·리뷰분석</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="platform">네이버쇼핑</td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+            </tr>
+            <tr>
+              <td class="platform">쿠팡</td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+            </tr>
+            <tr>
+              <td class="platform">11번가</td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+            </tr>
+            <tr>
+              <td class="platform">G마켓·옥션</td>
+              <td><span class="status partial">△</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+            </tr>
+            <tr>
+              <td class="platform">SSG닷컴</td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status partial">△</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status partial">△</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+            </tr>
+            <tr>
+              <td class="platform">위메프</td>
+              <td><span class="status none">—</span></td><td><span class="status none">—</span></td><td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td><td><span class="status none">—</span></td><td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td><td><span class="status none">—</span></td><td><span class="status none">—</span></td>
+            </tr>
+            <tr>
+              <td class="platform">티몬</td>
+              <td><span class="status none">—</span></td><td><span class="status none">—</span></td><td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td><td><span class="status none">—</span></td><td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td><td><span class="status none">—</span></td><td><span class="status none">—</span></td>
+            </tr>
+            <tr>
+              <td class="platform">카카오 커머스</td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status partial">△</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status none">—</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status on">◎</span></td>
+              <td><span class="status none">—</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">표는 공개자료 기준이며, 비공개 내부 활용 가능성은 집계하지 않았다.</p>
+    </section>
+
+    <section class="section grid">
+      <article class="card span-6">
+        <h2>기능군별 채택률</h2>
+        <div class="bars">
+          <div class="bar-row"><strong>추천·개인화</strong><div class="bar"><i style="width:62.5%"></i></div><span>62.5%</span></div>
+          <div class="bar-row"><strong>검색·자연어</strong><div class="bar"><i style="width:50%"></i></div><span>50.0%</span></div>
+          <div class="bar-row"><strong>챗봇·고객응대</strong><div class="bar"><i style="width:50%"></i></div><span>50.0%</span></div>
+          <div class="bar-row"><strong>태깅·분류</strong><div class="bar"><i style="width:50%"></i></div><span>50.0%</span></div>
+          <div class="bar-row"><strong>생성·요약</strong><div class="bar"><i style="width:50%"></i></div><span>50.0%</span></div>
+          <div class="bar-row"><strong>가격·수요예측</strong><div class="bar"><i style="width:37.5%"></i></div><span>37.5%</span></div>
+          <div class="bar-row"><strong>사기탐지·리뷰분석</strong><div class="bar"><i style="width:37.5%"></i></div><span>37.5%</span></div>
+          <div class="bar-row"><strong>이미지검색</strong><div class="bar"><i style="width:12.5%"></i></div><span>12.5%</span></div>
+          <div class="bar-row"><strong>물류·재고</strong><div class="bar"><i style="width:12.5%"></i></div><span>12.5%</span></div>
+        </div>
+      </article>
+
+      <article class="card span-6">
+        <h2>해석 포인트</h2>
+        <ul class="bullets">
+          <li>가장 보편화된 AI는 <strong>추천·개인화</strong>다.</li>
+          <li>두 번째 축은 <strong>검색·대화형 탐색</strong>과 <strong>생성형 요약</strong>이다.</li>
+          <li><strong>물류·재고 최적화</strong>는 공개자료 기준 쿠팡의 차별성이 가장 크다.</li>
+          <li>AI 채택 여부보다 <strong>비즈니스 모델의 어느 지점에 AI가 결합됐는지</strong>가 더 중요하다.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section">
+      <h2>플랫폼별 상세 요약</h2>
+      <div class="platform-grid">
+        <article class="card platform-card">
+          <h3>네이버쇼핑</h3>
+          <div class="tagline">전면적인 고객경험형 AI</div>
+          <p>AiTEMS 기반 추천, 네이버플러스 스토어 앱, 쇼핑 AI 에이전트, 선물 에이전트, 리뷰 분석 기반 비교·추천, 상품 카테고리 자동분류까지 고객 접점 AI 범위가 넓다.</p>
+          <ul class="bullets">
+            <li>기술: HyperCLOVA X, 쇼핑 인텔리전스, 멀티 에이전트 구조</li>
+            <li>공개 성과: AI 추천·탐색 영역 거래 비중 개선, 브랜드 충성고객 증가 등</li>
+          </ul>
+        </article>
+
+        <article class="card platform-card">
+          <h3>쿠팡</h3>
+          <div class="tagline">운영 최적화형 AI</div>
+          <p>검색 ML, 카테고리 추천 API, AI 상담원 매칭, 수요예측 기반 재고 전진배치, 랜덤 스토우, 배송경로·순서 최적화 등 풀필먼트 중심의 AI 활용이 강하다.</p>
+          <ul class="bullets">
+            <li>강점: 검색–수요예측–재고–배송–CS 연결성</li>
+            <li>공개 성과: 고객센터 CSAT 2022년 90% 육박</li>
+          </ul>
+        </article>
+
+        <article class="card platform-card">
+          <h3>11번가</h3>
+          <div class="tagline">구매자·판매자 양면시장형 AI</div>
+          <p>Ai홈, Ai 피드, AI MD 실시간 대화, AI셀링코치 등을 통해 구매자 추천과 판매자 의사결정 지원을 동시에 전개한다.</p>
+          <ul class="bullets">
+            <li>공개 성과: Ai 피드 UV 49% 증가, 댓글 작성 28% 증가</li>
+            <li>판매자 성과: AI셀링코치 구독 수 54% 증가 사례</li>
+          </ul>
+        </article>
+
+        <article class="card platform-card">
+          <h3>SSG닷컴</h3>
+          <div class="tagline">실용적 생성형 AI</div>
+          <p>AI PICK, 쓱렌즈 이미지 검색, GPT 리뷰 요약, 가격최적화, AI 품질관리·OCR 기반 허위정보 및 금지어 탐지 등 실무 적용형 AI가 많다.</p>
+          <ul class="bullets">
+            <li>공개 성과: 식품 상위 상품 1천 개 중 85%에 리뷰 요약 제공</li>
+            <li>품질관리 검토 속도 300배 이상, 정보 수정 건수 18배 이상 개선</li>
+          </ul>
+        </article>
+
+        <article class="card platform-card">
+          <h3>카카오 커머스</h3>
+          <div class="tagline">관계·선물 맥락형 AI</div>
+          <p>카카오톡 선물하기 추천, AI 선물탐험, AI 와인탐험 챗봇, AI 상품 태그, 한 줄 요약 등 “누구에게 어떤 상황에서 줄 것인가”에 집중한다.</p>
+          <ul class="bullets">
+            <li>강점: 카카오톡 기반 관계 맥락과 선물 의사결정</li>
+            <li>제한: 종합몰형 탐색·물류·재고 AI 공개는 상대적으로 약함</li>
+          </ul>
+        </article>
+
+        <article class="card platform-card">
+          <h3>G마켓·옥션</h3>
+          <div class="tagline">광고 수익화형 AI</div>
+          <p>AI매출업은 고객 필요·취향 분석 기반 초개인화 광고, 자동 입찰가 조정, 리타게팅·유사고객 노출을 제공하는 판매자 광고 자동화 기능이다.</p>
+          <ul class="bullets">
+            <li>강점: 판매자 마케팅 자동화와 ROAS 최적화</li>
+            <li>제한: 소비자 전면 UX 혁신 사례는 공개자료 기준 제한적</li>
+          </ul>
+        </article>
+
+        <article class="card platform-card">
+          <h3>위메프</h3>
+          <div class="tagline">비교 곤란</div>
+          <p>최근 공개자료는 파산 절차와 관련된 내용이 중심이다. 정상 운영 중인 주요 플랫폼과 같은 기준으로 AI 기능 적용 현황을 비교하기 어렵다.</p>
+        </article>
+
+        <article class="card platform-card">
+          <h3>티몬</h3>
+          <div class="tagline">정상화 단계</div>
+          <p>오아시스 인수 이후 시스템 개편과 영업 정상화가 우선 과제로 보인다. 최신 공개자료 기준 핵심 AI 기능 공개는 제한적이다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section callout">
+      <h2>시사점</h2>
+      <p>
+        국내 이커머스 AI 경쟁은 “추천을 누가 더 잘하느냐”에서
+        “플랫폼의 핵심 경제모델에 AI가 얼마나 깊게 결합되어 있느냐”로 이동하고 있다.
+        네이버는 에이전트형 쇼핑, 쿠팡은 풀필먼트 운영, 11번가는 양면시장 지원,
+        SSG닷컴은 실용적 생성형 AI, 카카오는 선물 맥락, G마켓은 광고 최적화로 각기 다른 방향을 택하고 있다.
+      </p>
+    </section>
+
+    <section class="section card">
+      <h2>주요 출처</h2>
+      <ol class="source-list">
+        <li><a href="https://www.navercorp.com/media/pressReleasesDetail?seq=32113" target="_blank" rel="noopener">NAVER 보도자료: 네이버플러스 스토어 앱</a></li>
+        <li><a href="https://www.navercorp.com/media/pressReleasesDetail?seq=34353" target="_blank" rel="noopener">NAVER 보도자료: 쇼핑 AI 에이전트</a></li>
+        <li><a href="https://d2.naver.com/helloworld/1264836" target="_blank" rel="noopener">NAVER D2: 상품 카테고리 자동분류</a></li>
+        <li><a href="https://news.coupang.com/archives/29410/?print=print" target="_blank" rel="noopener">쿠팡 뉴스룸: 검색·고객센터 AI</a></li>
+        <li><a href="https://news.coupang.com/archives/52524/?print=print" target="_blank" rel="noopener">쿠팡 뉴스룸: 물류·수요예측 AI</a></li>
+        <li><a href="https://developers.coupangcorp.com/hc/ko/articles/360033509234-%EC%B9%B4%ED%85%8C%EA%B3%A0%EB%A6%AC-%EC%B6%94%EC%B2%9C" target="_blank" rel="noopener">쿠팡 개발자 문서: 카테고리 추천 API</a></li>
+        <li><a href="https://www.11stcorp.com/pr/detail?contentId=1532" target="_blank" rel="noopener">11번가 보도자료: Ai홈</a></li>
+        <li><a href="https://www.11stcorp.com/pr/detail?contentId=1617" target="_blank" rel="noopener">11번가 보도자료: Ai 피드</a></li>
+        <li><a href="https://www.11stcorp.com/pr/detail?contentId=1525" target="_blank" rel="noopener">11번가 보도자료: AI셀링코치</a></li>
+        <li><a href="https://marketinghub.esmplus.com/ad-guide/ai-sales/introduction.html" target="_blank" rel="noopener">G마켓 ESM 마케팅허브: AI매출업</a></li>
+        <li><a href="https://www.shinsegaegroupnewsroom.com/ssg-dotcom-gpt-review-summary" target="_blank" rel="noopener">신세계그룹 뉴스룸: SSG닷컴 GPT 리뷰 요약</a></li>
+        <li><a href="https://www.shinsegaegroupnewsroom.com/ssgdotcom-ai-multimodal-lens-seo/" target="_blank" rel="noopener">신세계그룹 뉴스룸: 멀티모달 쓱렌즈</a></li>
+        <li><a href="https://www.shinsegaegroupnewsroom.com/ssg-quality-management-rpa-introduction" target="_blank" rel="noopener">신세계그룹 뉴스룸: 품질관리 AI/RPA</a></li>
+        <li><a href="https://www.kakaocorp.com/page/detail/10878" target="_blank" rel="noopener">카카오 보도자료: AI 선물탐험</a></li>
+        <li><a href="https://www.kakaocorp.com/page/detail/11905" target="_blank" rel="noopener">카카오 보도자료: AI 상품 태그·요약</a></li>
+        <li><a href="https://tech.kakao.com/posts/527" target="_blank" rel="noopener">카카오 기술 블로그: 추천 기술</a></li>
+        <li><a href="https://www.yna.co.kr/view/AKR20251110140451004" target="_blank" rel="noopener">연합뉴스: 위메프 파산 관련 보도</a></li>
+        <li><a href="https://v.daum.net/v/20250704192735458" target="_blank" rel="noopener">티몬 인수·정상화 관련 보도</a></li>
+        <li><a href="https://www.law.go.kr/lsInfoP.do?lsiSeq=268543" target="_blank" rel="noopener">국가법령정보센터: 인공지능기본법</a></li>
+        <li><a href="https://www.pipc.go.kr/np/cop/bbs/selectBoardArticle.do?bbsId=BS217&mCode=D010030000&nttId=11439" target="_blank" rel="noopener">개인정보보호위원회: 생성형 AI 개인정보 처리 안내서</a></li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
