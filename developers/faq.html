@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ — YES24 Developers</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider"></span><span class="sub">DEVELOPERS</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴">☰</button>
+      <nav class="nav">
+        <a data-nav="index.html" href="index.html">홈</a>
+        <a data-nav="reference.html" href="reference.html">API Reference</a>
+        <a data-nav="guide.html" href="guide.html">호출 가이드</a>
+        <a data-nav="faq.html" href="faq.html">FAQ</a>
+        <a data-nav="changelog.html" href="changelog.html">변경 이력</a>
+        <a data-nav="apply.html" href="apply.html" class="nav-cta">API Key 신청</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">FAQ</span>
+        <h2>자주 묻는 질문</h2>
+      </div>
+
+      <div class="faq-cats">
+        <button class="active" data-cat="all">전체</button>
+        <button data-cat="apply">신청 / 발급</button>
+        <button data-cat="auth">인증 / 사용</button>
+        <button data-cat="quota">한도 / 요금</button>
+        <button data-cat="addon">애드온 / 정산</button>
+        <button data-cat="tech">기술 이슈</button>
+      </div>
+
+      <div class="faq-list">
+
+        <div class="faq-item" data-cat="apply">
+          <div class="faq-q">API Key 발급에는 얼마나 걸리나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>영업일 기준 1일 이내 검토 후 발급됩니다. 개인/학습용은 즉시 자동 발급되며, 상업용은 신청 정보 확인 절차가 포함됩니다.
+            발급이 완료되면 신청 시 입력하신 이메일로 키가 전송됩니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="apply">
+          <div class="faq-q">API Key 신청에 비용이 드나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>API Key 신청과 Free 플랜 사용은 무료입니다. 월 100,000 호출까지 무료로 제공되며, 그 이상은 사용량 기반 요금제(Pro)
+            또는 협의 기반(Enterprise) 으로 자동 전환됩니다. 자세한 요금은 발급 후 콘솔에서 확인하실 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="apply">
+          <div class="faq-q">신청을 반려당하는 경우는 어떤 경우인가요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>아래에 해당할 경우 신청이 반려될 수 있습니다.</p>
+            <ul>
+              <li>사용 목적이 불분명하거나 짧게 작성된 경우</li>
+              <li>YES24 데이터를 그대로 재판매·재배포할 의도가 명시된 경우</li>
+              <li>유사한 키를 이미 다수 보유하고 있는 경우</li>
+              <li>이메일 도메인이 유효하지 않은 경우</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="auth">
+          <div class="faq-q">API Key를 잃어버렸어요. <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>발급된 API Key는 보안상 다시 확인할 수 없습니다. <a href="mailto:openapi@yes24.com">openapi@yes24.com</a>으로 키 재발급을 요청해 주세요. 재발급 시 기존 키는 즉시 폐기되며, 5분 이내에 모든 서버에 반영됩니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="auth">
+          <div class="faq-q">하나의 키를 여러 환경(개발/운영)에서 사용해도 되나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>가능하지만 권장하지 않습니다. 환경별로 별도 키를 발급받아 사용하시면 한도·이상호출 모니터링을 분리해서 운영하실 수 있습니다.
+            콘솔에서 키 별도 발급(최대 3개)이 가능합니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="quota">
+          <div class="faq-q">분당 호출 한도를 초과하면 어떻게 되나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>HTTP <code>429 Too Many Requests</code> 응답이 반환되며, 응답 헤더 <code>Retry-After</code>에 다시 시도 가능한 초가 안내됩니다.
+            지속적으로 한도를 초과하는 경우 자동 차단되거나 상위 요금제로 안내드릴 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="quota">
+          <div class="faq-q">무료 한도(100,000회/월)에 거의 도달하면 알려주나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>네. 일일 호출량이 한도의 80%, 95%에 도달하면 자동으로 이메일 알림이 발송됩니다. 알림 임계치는 콘솔에서 조정할 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="quota">
+          <div class="faq-q">한도 초과 시 자동으로 유료 플랜으로 전환되나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>기본 설정은 <strong>전환되지 않음</strong> 입니다. Free 플랜에서 한도 초과 시 일일 호출이 차단되며, 다음 날 자동 복원됩니다.
+            콘솔에서 "자동 업그레이드" 옵션을 켜시면 한도 초과 시 Pro 플랜으로 자동 전환됩니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="addon">
+          <div class="faq-q">애드온 연동은 어떤 경우에 적합한가요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>자사 사이트·앱에서 도서를 추천·소개하고, 사용자가 해당 도서를 YES24에서 구매할 때 일정 수익을 정산받고자 할 때 적합합니다.
+            추천 위젯, 큐레이션 미디어, 독서 SNS 등이 대표적인 시나리오입니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="addon">
+          <div class="faq-q">애드온 수익 정산은 어떻게 이루어지나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>매월 1일부터 말일까지 발생한 유효 매출에 대해 익월 25일에 정산됩니다. 정산 비율은 상품 카테고리·매출 규모에 따라 다르며,
+            상세 비율은 애드온 파트너 약관에서 확인하실 수 있습니다. 정산 내역은 콘솔의 "정산" 탭에서 실시간으로 확인 가능합니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="addon">
+          <div class="faq-q">애드온 신청에 필요한 서류가 있나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>법인의 경우 사업자등록증, 통장 사본이 필요합니다. 개인 정산일 경우 신분증, 통장 사본이 필요하며 콘솔 또는 담당자 이메일로 제출하시면 됩니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="tech">
+          <div class="faq-q">응답 데이터를 캐싱해도 되나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>네, 권장됩니다. 상품 상세는 최소 10분, 카테고리 트리는 최소 1일, 베스트셀러는 최소 1시간 캐싱을 권장합니다.
+            <code>Cache-Control</code> 응답 헤더에 권장 TTL이 안내됩니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="tech">
+          <div class="faq-q">CORS는 어떻게 설정되어 있나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>기본적으로 <strong>CORS는 차단</strong>되어 있습니다. 브라우저에서 직접 호출하는 것을 막아 키 유출을 방지하기 위함입니다.
+            반드시 자사 서버에서 프록시 방식으로 호출해 주세요. 별도 화이트리스트가 필요한 경우 콘솔에서 도메인 등록을 요청하실 수 있습니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="tech">
+          <div class="faq-q">한글 검색어로 호출 시 결과가 깨집니다. <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p>URL에 포함되는 한글 검색어는 반드시 <code>encodeURIComponent</code> 로 인코딩한 뒤 전송해야 합니다.
+            응답 본문은 UTF-8 이므로 클라이언트에서 별도 디코딩이 필요 없습니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="tech">
+          <div class="faq-q">장애 발생 시 어디에서 확인하나요? <span class="ic">+</span></div>
+          <div class="faq-a">
+            <p><a href="https://status.yes24.com" target="_blank" rel="noopener">status.yes24.com</a>에서 실시간 상태를 확인하실 수 있으며,
+            구독 시 장애 발생·복구 시점에 이메일과 RSS로 안내됩니다.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container">
+      <h2>아직 답을 찾지 못하셨나요?</h2>
+      <p>운영팀에 직접 문의해 주세요. 영업일 기준 1일 이내 답변드립니다.</p>
+      <div class="hero-actions" style="justify-content:center;">
+        <a class="btn btn-primary btn-lg" href="mailto:openapi@yes24.com">이메일로 문의하기</a>
+        <a class="btn btn-outline btn-lg" href="guide.html">호출 가이드 다시 보기</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+          <p>도서·콘텐츠 데이터의 표준,<br />YES24 OpenAPI로 더 좋은 서비스를 만드세요.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <a href="reference.html">API Reference</a>
+          <a href="guide.html">호출 가이드</a>
+          <a href="changelog.html">변경 이력</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>계정</h4>
+          <a href="apply.html">API Key 신청</a>
+          <a href="terms.html">이용약관</a>
+        </div>
+        <div class="footer-col">
+          <h4>지원</h4>
+          <a href="mailto:openapi@yes24.com">openapi@yes24.com</a>
+          <a href="https://www.yes24.com" target="_blank" rel="noopener">YES24.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> YES24 Corp. 본 페이지는 프로토타입입니다.</span>
+        <span>developers.yes24.com</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+</body>
+</html>

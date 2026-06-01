@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>호출 가이드 — YES24 Developers</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider"></span><span class="sub">DEVELOPERS</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴">☰</button>
+      <nav class="nav">
+        <a data-nav="index.html" href="index.html">홈</a>
+        <a data-nav="reference.html" href="reference.html">API Reference</a>
+        <a data-nav="guide.html" href="guide.html">호출 가이드</a>
+        <a data-nav="faq.html" href="faq.html">FAQ</a>
+        <a data-nav="changelog.html" href="changelog.html">변경 이력</a>
+        <a data-nav="apply.html" href="apply.html" class="nav-cta">API Key 신청</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container docs">
+    <aside class="docs-side">
+      <h4>시작하기</h4>
+      <a href="#quickstart">5분 안에 시작하기</a>
+      <a href="#install">SDK 설치</a>
+
+      <h4>인증</h4>
+      <a href="#auth">API Key 보관</a>
+      <a href="#headers">필수 헤더</a>
+
+      <h4>요청 / 응답</h4>
+      <a href="#requests">요청 형식</a>
+      <a href="#pagination">페이지네이션</a>
+      <a href="#filtering">필드 선택</a>
+
+      <h4>안정성</h4>
+      <a href="#ratelimit">Rate Limit 처리</a>
+      <a href="#retry">재시도 전략</a>
+      <a href="#errors">에러 처리</a>
+
+      <h4>운영</h4>
+      <a href="#caching">캐싱 권장</a>
+      <a href="#monitoring">모니터링</a>
+      <a href="#security">보안 체크리스트</a>
+    </aside>
+
+    <main class="docs-main">
+
+      <section id="quickstart">
+        <h1>호출 가이드</h1>
+        <p>YES24 Open API를 처음 사용하는 개발자를 위한 호출 가이드입니다.
+        실제 코드 예제와 함께 인증, 요청, 응답, 에러 처리까지 한 번에 정리했습니다.</p>
+
+        <h2>5분 안에 시작하기</h2>
+        <ol>
+          <li><a href="apply.html">API Key 신청 페이지</a>에서 키를 발급받습니다.</li>
+          <li>아래 cURL을 복사해 터미널에서 실행합니다. <code>YOUR_API_KEY</code> 만 교체하세요.</li>
+          <li>응답 JSON을 확인하면 끝! 이제 자유롭게 호출하실 수 있습니다.</li>
+        </ol>
+
+        <div class="codeblock">
+<pre>curl -X GET "https://api.yes24.com/v1/products/9788960778795" \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>SDK 설치 (선택)</h2>
+        <p>공식 SDK를 사용하면 인증·재시도·페이지네이션을 직접 구현하지 않아도 됩니다.</p>
+        <div class="codeblock">
+          <div class="codeblock-tabs">
+            <button class="active">Node.js</button>
+            <button>Python</button>
+            <button>Java</button>
+          </div>
+<pre>npm install @yes24/openapi
+# 또는
+yarn add @yes24/openapi</pre>
+<pre class="hidden">pip install yes24-openapi</pre>
+<pre class="hidden">// build.gradle
+implementation 'com.yes24:openapi-client:1.0.0'</pre>
+        </div>
+
+        <h3>최초 호출 예제</h3>
+        <div class="codeblock">
+          <div class="codeblock-tabs">
+            <button class="active">Node.js</button>
+            <button>Python</button>
+          </div>
+<pre>import { Yes24Client } from '@yes24/openapi';
+
+const client = new Yes24Client({ apiKey: process.env.YES24_API_KEY });
+const book = await client.products.get('9788960778795');
+console.log(book.title);</pre>
+<pre class="hidden">from yes24 import Yes24Client
+
+client = Yes24Client(api_key=os.environ['YES24_API_KEY'])
+book = client.products.get('9788960778795')
+print(book.title)</pre>
+        </div>
+      </section>
+
+      <section id="auth">
+        <h2>API Key 보관 원칙</h2>
+        <ul>
+          <li><strong>절대 클라이언트에 노출하지 마세요.</strong> 브라우저·모바일 앱 코드에 직접 박지 말고, 자사 서버에서 프록시 형태로 호출하세요.</li>
+          <li>환경변수 또는 Secret Manager(AWS Secrets Manager, GCP Secret Manager 등)에 저장하는 것을 권장합니다.</li>
+          <li>유출이 의심되면 즉시 이메일(<a href="mailto:openapi@yes24.com">openapi@yes24.com</a>)로 키 재발급을 요청해 주세요.</li>
+        </ul>
+      </section>
+
+      <section id="headers">
+        <h2>필수 헤더</h2>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>헤더</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>Authorization</code></td><td><span class="req-badge">필수</span></td><td><code>Bearer {API_KEY}</code></td></tr>
+            <tr><td><code>Accept</code></td><td><span class="opt-badge">권장</span></td><td><code>application/json</code></td></tr>
+            <tr><td><code>User-Agent</code></td><td><span class="opt-badge">권장</span></td><td>서비스명/버전 형태 (예: <code>my-app/1.2.0</code>) — 운영 추적에 사용됩니다.</td></tr>
+            <tr><td><code>X-Request-Id</code></td><td><span class="opt-badge">선택</span></td><td>클라이언트 측 trace ID. 응답 헤더로 그대로 반환됩니다.</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </section>
+
+      <section id="requests">
+        <h2>요청 형식</h2>
+        <ul>
+          <li>모든 요청은 <strong>HTTPS</strong>로 전송해야 합니다.</li>
+          <li>GET 요청의 파라미터는 쿼리스트링으로, POST/PUT 요청의 페이로드는 JSON Body로 전송합니다.</li>
+          <li>한글 파라미터는 <code>encodeURIComponent</code>로 URL 인코딩 후 전송하세요.</li>
+        </ul>
+        <div class="codeblock">
+<pre>const q = encodeURIComponent('파이썬');
+const url = `https://api.yes24.com/v1/search?query=${q}&size=10`;</pre>
+        </div>
+      </section>
+
+      <section id="pagination">
+        <h2>페이지네이션</h2>
+        <p>목록 형태의 응답은 <code>page</code>·<code>size</code> 파라미터로 페이징합니다. 응답에는 <code>total</code> 필드가 함께 반환됩니다.</p>
+        <div class="codeblock">
+<pre>{
+  "total": 1284,
+  "page": 3,
+  "size": 20,
+  "items": [ /* ... */ ]
+}</pre>
+        </div>
+        <p>대용량 데이터는 <code>page</code> 방식보다 <code>cursor</code> 방식(향후 v2 지원)을 권장합니다.</p>
+      </section>
+
+      <section id="filtering">
+        <h2>응답 필드 선택</h2>
+        <p>응답 본문 크기를 줄이고 싶다면 <code>fields</code> 파라미터로 필요한 필드만 받을 수 있습니다.</p>
+        <div class="codeblock">
+<pre>GET /v1/products/9788960778795?fields=title,author,price</pre>
+        </div>
+      </section>
+
+      <section id="ratelimit">
+        <h2>Rate Limit 처리</h2>
+        <p>응답 헤더에 다음 정보가 함께 반환됩니다.</p>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>헤더</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>X-RateLimit-Limit</code></td><td>현재 윈도우의 호출 한도</td></tr>
+            <tr><td><code>X-RateLimit-Remaining</code></td><td>남은 호출 수</td></tr>
+            <tr><td><code>X-RateLimit-Reset</code></td><td>한도 리셋되는 Unix 타임스탬프</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>한도 초과 시 HTTP <code>429 Too Many Requests</code>가 반환되며, <code>Retry-After</code> 헤더에 다시 시도할 시간이 초 단위로 안내됩니다.</p>
+      </section>
+
+      <section id="retry">
+        <h2>재시도 전략 (권장)</h2>
+        <ul>
+          <li><strong>5xx</strong> 응답과 <strong>429</strong> 응답에 한해 재시도합니다. 4xx는 재시도하지 마세요.</li>
+          <li>지수 백오프(Exponential Backoff) + Jitter 를 적용합니다. 예: 1s → 2s → 4s → 8s, 각 단계에 ±20% jitter</li>
+          <li>최대 재시도 횟수는 3회를 넘기지 않습니다.</li>
+        </ul>
+        <div class="codeblock">
+<pre>async function callWithRetry(url, options, retries = 3) {
+  for (let i = 0; i &lt;= retries; i++) {
+    const res = await fetch(url, options);
+    if (res.ok) return res.json();
+    if (res.status !== 429 &amp;&amp; res.status &lt; 500) {
+      throw new Error(`API error ${res.status}`);
+    }
+    const wait = Math.pow(2, i) * 1000 * (0.8 + Math.random() * 0.4);
+    await new Promise(r =&gt; setTimeout(r, wait));
+  }
+  throw new Error('Retries exhausted');
+}</pre>
+        </div>
+      </section>
+
+      <section id="errors">
+        <h2>에러 처리</h2>
+        <p>모든 에러 응답은 동일한 포맷을 가집니다. <code>requestId</code> 는 지원팀 문의 시 함께 전달해 주세요.</p>
+        <div class="codeblock">
+<pre>{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "분당 호출 한도를 초과했습니다.",
+    "requestId": "req_01HZE7K9X2Y..."
+  }
+}</pre>
+        </div>
+      </section>
+
+      <section id="caching">
+        <h2>캐싱 권장</h2>
+        <ul>
+          <li>상품 상세·카테고리 트리 같은 변경 빈도가 낮은 응답은 <strong>최소 10분 이상</strong> 캐시하세요.</li>
+          <li>베스트셀러는 1시간 이상, 신간은 30분 이상이 적절합니다.</li>
+          <li>응답 헤더의 <code>Cache-Control</code> 값을 그대로 따르는 것이 가장 안전합니다.</li>
+        </ul>
+      </section>
+
+      <section id="monitoring">
+        <h2>모니터링</h2>
+        <ul>
+          <li>호출량·에러율·평균 지연 시간은 별도 모니터링 도구(Datadog, Grafana 등)로 추적하거나, 응답 헤더의 <code>X-RateLimit-*</code> 값을 로깅해 관리하세요.</li>
+          <li>일일 호출량의 80% 도달 시 등록된 이메일로 자동 알림이 발송됩니다.</li>
+          <li>장애 발생 시 상태 페이지(status.yes24.com)에서 공지됩니다.</li>
+        </ul>
+      </section>
+
+      <section id="security">
+        <h2>보안 체크리스트</h2>
+        <ul>
+          <li>✅ API Key를 클라이언트에 노출하지 않았는가</li>
+          <li>✅ HTTPS로만 호출하는가</li>
+          <li>✅ 응답 데이터에 출처(YES24) 를 명시했는가</li>
+          <li>✅ 이상 호출이 감지되었을 때 키를 즉시 재발급할 수 있는 절차가 있는가</li>
+          <li>✅ 운영(Live)과 개발(Sandbox) 키를 분리해 관리하는가</li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+          <p>도서·콘텐츠 데이터의 표준,<br />YES24 OpenAPI로 더 좋은 서비스를 만드세요.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <a href="reference.html">API Reference</a>
+          <a href="guide.html">호출 가이드</a>
+          <a href="changelog.html">변경 이력</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>계정</h4>
+          <a href="apply.html">API Key 신청</a>
+          <a href="terms.html">이용약관</a>
+        </div>
+        <div class="footer-col">
+          <h4>지원</h4>
+          <a href="mailto:openapi@yes24.com">openapi@yes24.com</a>
+          <a href="https://www.yes24.com" target="_blank" rel="noopener">YES24.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> YES24 Corp. 본 페이지는 프로토타입입니다.</span>
+        <span>developers.yes24.com</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+</body>
+</html>

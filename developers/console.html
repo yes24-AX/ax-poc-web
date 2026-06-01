@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>개발자 콘솔 — YES24 Developers</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .console-hero {
+      padding: 36px 0 8px;
+    }
+    .console-hero h1 { font-size: 26px; margin-bottom: 6px; }
+    .console-hero p { color: var(--y24-text-mute); margin: 0; }
+    .key-actions { display: flex; gap: 6px; }
+    .key-actions button {
+      background: transparent;
+      border: 1px solid var(--y24-border-strong);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--y24-text-sub);
+    }
+    .key-actions button:hover { border-color: var(--y24-primary); color: var(--y24-primary); }
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .log-table th, .log-table td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--y24-border);
+    }
+    .log-table th {
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--y24-text-mute);
+      font-weight: 600;
+      background: var(--y24-bg-soft);
+    }
+    .log-table code { font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 12px; }
+    .status-200 { color: var(--y24-success); font-weight: 600; }
+    .status-4xx { color: var(--y24-warn); font-weight: 600; }
+    .status-5xx { color: var(--y24-danger); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider"></span><span class="sub">DEVELOPERS</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴">☰</button>
+      <nav class="nav">
+        <a data-nav="index.html" href="index.html">홈</a>
+        <a data-nav="reference.html" href="reference.html">API Reference</a>
+        <a data-nav="guide.html" href="guide.html">호출 가이드</a>
+        <a data-nav="faq.html" href="faq.html">FAQ</a>
+        <a data-nav="changelog.html" href="changelog.html">변경 이력</a>
+        <a data-nav="console.html" href="console.html" class="btn btn-ghost btn-sm">콘솔</a>
+        <a data-nav="apply.html" href="apply.html" class="nav-cta">API Key 신청</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container console-hero">
+    <h1>개발자 콘솔</h1>
+    <p>현재 발급된 API Key, 사용량 통계, 호출 로그를 확인할 수 있는 모의 화면입니다.</p>
+  </div>
+
+  <section class="section section-tight">
+    <div class="container">
+
+      <!-- Stats -->
+      <div class="console-grid">
+        <div class="stat">
+          <div class="label">금일 호출</div>
+          <div class="value">12,438</div>
+          <div class="delta">▲ 8.2% vs 어제</div>
+        </div>
+        <div class="stat">
+          <div class="label">이번 달 호출</div>
+          <div class="value">284,512</div>
+          <div class="delta">28.4% / 1,000,000 (Pro)</div>
+        </div>
+        <div class="stat">
+          <div class="label">평균 응답</div>
+          <div class="value">94ms</div>
+          <div class="delta down">▼ 12ms 개선</div>
+        </div>
+        <div class="stat">
+          <div class="label">에러율 (24h)</div>
+          <div class="value">0.21%</div>
+          <div class="delta">정상 범위</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="panel">
+        <div class="panel-head">
+          <h3>일일 호출량 (최근 14일)</h3>
+          <div>
+            <button class="btn btn-ghost btn-sm">14일</button>
+            <button class="btn btn-ghost btn-sm">30일</button>
+            <button class="btn btn-outline btn-sm">CSV 내보내기</button>
+          </div>
+        </div>
+        <svg id="usageChart" width="100%" height="220" role="img" aria-label="usage chart"></svg>
+      </div>
+
+      <!-- API Keys -->
+      <div class="panel">
+        <div class="panel-head">
+          <h3>발급된 API Key</h3>
+          <button class="btn btn-primary btn-sm">+ 새 키 발급</button>
+        </div>
+
+        <div class="key-row">
+          <div>
+            <div class="name">Production Key</div>
+            <div style="font-size:12px; color:var(--y24-text-mute); margin-top:2px;">생성: 2026-02-14 · 마지막 사용: 방금 전</div>
+          </div>
+          <div class="key-val" data-key="yes24_live_8f4c2a91b3d7e6f5a2c9b1d4e3f7a8c2"></div>
+          <span class="tag-pill active">활성</span>
+          <span class="tag-pill addon">애드온</span>
+          <div class="key-actions">
+            <button data-action="reveal" type="button">표시</button>
+            <button data-action="copy" type="button">복사</button>
+            <button type="button">재발급</button>
+          </div>
+        </div>
+
+        <div class="key-row">
+          <div>
+            <div class="name">Sandbox Key</div>
+            <div style="font-size:12px; color:var(--y24-text-mute); margin-top:2px;">생성: 2026-01-08 · 마지막 사용: 어제</div>
+          </div>
+          <div class="key-val" data-key="yes24_test_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"></div>
+          <span class="tag-pill active">활성</span>
+          <div class="key-actions">
+            <button data-action="reveal" type="button">표시</button>
+            <button data-action="copy" type="button">복사</button>
+            <button type="button">재발급</button>
+          </div>
+        </div>
+
+        <div class="key-row">
+          <div>
+            <div class="name">CI / Build Key</div>
+            <div style="font-size:12px; color:var(--y24-text-mute); margin-top:2px;">생성: 2025-11-22 · 검토 대기 중</div>
+          </div>
+          <div class="key-val" data-key="yes24_live_z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4"></div>
+          <span class="tag-pill pending">대기</span>
+          <div class="key-actions">
+            <button data-action="reveal" type="button">표시</button>
+            <button data-action="copy" type="button">복사</button>
+            <button type="button">취소</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent calls -->
+      <div class="panel">
+        <div class="panel-head">
+          <h3>최근 호출 로그 (최근 10건)</h3>
+          <a href="#" class="btn btn-outline btn-sm">전체 로그 다운로드</a>
+        </div>
+        <div style="overflow-x:auto;">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>시각</th>
+              <th>메서드</th>
+              <th>경로</th>
+              <th>상태</th>
+              <th>응답</th>
+              <th>키</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>14:32:08</td><td><code>GET</code></td><td><code>/v1/products/9788960778795</code></td><td class="status-200">200</td><td>74ms</td><td>Production</td></tr>
+            <tr><td>14:32:01</td><td><code>GET</code></td><td><code>/v1/search?query=파이썬</code></td><td class="status-200">200</td><td>112ms</td><td>Production</td></tr>
+            <tr><td>14:31:54</td><td><code>POST</code></td><td><code>/v1/products:batch</code></td><td class="status-200">200</td><td>148ms</td><td>Production</td></tr>
+            <tr><td>14:31:42</td><td><code>GET</code></td><td><code>/v1/rankings?period=week</code></td><td class="status-200">200</td><td>62ms</td><td>Production</td></tr>
+            <tr><td>14:30:58</td><td><code>GET</code></td><td><code>/v1/products/123</code></td><td class="status-4xx">404</td><td>21ms</td><td>Sandbox</td></tr>
+            <tr><td>14:30:31</td><td><code>GET</code></td><td><code>/v1/products/9791162241813</code></td><td class="status-200">200</td><td>81ms</td><td>Production</td></tr>
+            <tr><td>14:30:12</td><td><code>POST</code></td><td><code>/v1/addon/affiliate-links</code></td><td class="status-200">200</td><td>96ms</td><td>Production</td></tr>
+            <tr><td>14:29:48</td><td><code>GET</code></td><td><code>/v1/categories</code></td><td class="status-200">200</td><td>43ms</td><td>Production</td></tr>
+            <tr><td>14:29:21</td><td><code>GET</code></td><td><code>/v1/search/autocomplete?q=클</code></td><td class="status-200">200</td><td>18ms</td><td>Production</td></tr>
+            <tr><td>14:28:55</td><td><code>GET</code></td><td><code>/v1/products/9999999999999</code></td><td class="status-4xx">404</td><td>23ms</td><td>Sandbox</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- Settings card -->
+      <div class="console-grid" style="grid-template-columns: 1fr 1fr; gap:20px;">
+        <div class="panel" style="margin-bottom:0;">
+          <div class="panel-head">
+            <h3>알림 설정</h3>
+          </div>
+          <label class="checkbox"><input type="checkbox" checked /><span>일일 호출량 80% 도달 시 이메일 알림</span></label>
+          <label class="checkbox"><input type="checkbox" checked /><span>이상 호출(스파이크) 감지 시 즉시 알림</span></label>
+          <label class="checkbox"><input type="checkbox" /><span>장애·점검 공지 RSS/이메일 구독</span></label>
+        </div>
+        <div class="panel" style="margin-bottom:0;">
+          <div class="panel-head">
+            <h3>요금 정보</h3>
+          </div>
+          <p style="margin-bottom:6px;"><strong>현재 플랜:</strong> <span class="tag-pill active" style="vertical-align:middle;">Pro</span></p>
+          <p style="font-size:13px; color:var(--y24-text-mute);">월 1,000,000 호출 포함 · 초과 시 호출당 0.005원<br />다음 청구: 2026-07-01 (예상 ₩148,000)</p>
+          <a href="#" class="btn btn-outline btn-sm">청구 내역 보기</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+          <p>도서·콘텐츠 데이터의 표준,<br />YES24 OpenAPI로 더 좋은 서비스를 만드세요.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <a href="reference.html">API Reference</a>
+          <a href="guide.html">호출 가이드</a>
+          <a href="changelog.html">변경 이력</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>계정</h4>
+          <a href="apply.html">API Key 신청</a>
+          <a href="console.html">개발자 콘솔</a>
+          <a href="terms.html">이용약관</a>
+        </div>
+        <div class="footer-col">
+          <h4>지원</h4>
+          <a href="mailto:openapi@yes24.com">openapi@yes24.com</a>
+          <a href="https://www.yes24.com" target="_blank" rel="noopener">YES24.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> YES24 Corp. 본 페이지는 프로토타입입니다.</span>
+        <span>developers.yes24.com</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/console.js"></script>
+</body>
+</html>

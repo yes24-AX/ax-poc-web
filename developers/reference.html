@@ -1,0 +1,505 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference — YES24 Developers</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider"></span><span class="sub">DEVELOPERS</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴">☰</button>
+      <nav class="nav">
+        <a data-nav="index.html" href="index.html">홈</a>
+        <a data-nav="reference.html" href="reference.html">API Reference</a>
+        <a data-nav="guide.html" href="guide.html">호출 가이드</a>
+        <a data-nav="faq.html" href="faq.html">FAQ</a>
+        <a data-nav="changelog.html" href="changelog.html">변경 이력</a>
+        <a data-nav="apply.html" href="apply.html" class="nav-cta">API Key 신청</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container docs">
+    <aside class="docs-side">
+      <h4>시작하기</h4>
+      <a href="#intro">개요</a>
+      <a href="#auth">인증</a>
+      <a href="#errors">에러 코드</a>
+
+      <h4>상품</h4>
+      <a href="#products">상품 상세 조회</a>
+      <a href="#products-batch">상품 일괄 조회</a>
+
+      <h4>검색</h4>
+      <a href="#search">통합 검색</a>
+      <a href="#autocomplete">자동완성</a>
+
+      <h4>집계</h4>
+      <a href="#ranking">베스트셀러</a>
+      <a href="#new-releases">신간 / 스테디</a>
+
+      <h4>분류</h4>
+      <a href="#categories">카테고리 트리</a>
+
+      <h4>저자 · 출판사</h4>
+      <a href="#authors">저자 프로필</a>
+
+      <h4>리뷰</h4>
+      <a href="#reviews">리뷰 / 평점</a>
+
+      <h4>애드온</h4>
+      <a href="#addon-link">제휴 링크 생성</a>
+    </aside>
+
+    <main class="docs-main">
+
+      <section id="intro">
+        <h1>YES24 OpenAPI v1</h1>
+        <p>YES24 Open API는 도서·음반·DVD 등 YES24가 보유한 상품 데이터에 RESTful 방식으로 접근할 수 있는 인터페이스입니다.
+        모든 요청은 HTTPS로만 수신하며, 응답은 기본 <code>application/json; charset=utf-8</code> 형식입니다.</p>
+
+        <h3>Base URL</h3>
+        <div class="endpoint">
+          <span class="method get">BASE</span>
+          <span class="path">https://api.yes24.com/v1</span>
+        </div>
+
+        <h3>요청 형식</h3>
+        <ul>
+          <li>모든 호출은 <strong>HTTPS</strong> 만 지원합니다.</li>
+          <li>요청 헤더에 <code>Authorization: Bearer {API_KEY}</code> 를 반드시 포함합니다.</li>
+          <li>POST 요청의 Body는 JSON(<code>application/json</code>) 형식을 사용합니다.</li>
+          <li>모든 응답은 <code>UTF-8</code> 인코딩의 JSON으로 반환됩니다.</li>
+        </ul>
+      </section>
+
+      <section id="auth">
+        <h2>인증</h2>
+        <p>발급받은 API Key를 <code>Authorization</code> 헤더에 Bearer Token 방식으로 첨부합니다.
+        키 유출 방지를 위해 클라이언트(브라우저·앱)에 직접 노출하지 말고, 서버 사이드에서 호출하는 것을 권장합니다.</p>
+
+        <div class="codeblock">
+          <div class="codeblock-tabs">
+            <button class="active">cURL</button>
+            <button>JavaScript</button>
+            <button>Python</button>
+          </div>
+<pre>curl -X GET "https://api.yes24.com/v1/products/9788960778795" \
+  -H "Authorization: Bearer yes24_live_xxxxxxxxxxxxxxxx" \
+  -H "Accept: application/json"</pre>
+<pre class="hidden">const res = await fetch('https://api.yes24.com/v1/products/9788960778795', {
+  headers: {
+    'Authorization': 'Bearer yes24_live_xxxxxxxxxxxxxxxx',
+    'Accept': 'application/json'
+  }
+});
+const data = await res.json();
+console.log(data);</pre>
+<pre class="hidden">import requests
+
+resp = requests.get(
+    'https://api.yes24.com/v1/products/9788960778795',
+    headers={
+        'Authorization': 'Bearer yes24_live_xxxxxxxxxxxxxxxx',
+        'Accept': 'application/json'
+    }
+)
+print(resp.json())</pre>
+        </div>
+
+        <h3>Rate Limit</h3>
+        <table class="params">
+          <thead><tr><th>플랜</th><th>분당 호출</th><th>일일 호출</th></tr></thead>
+          <tbody>
+            <tr><td>Free</td><td>60</td><td>100,000</td></tr>
+            <tr><td>Pro</td><td>600</td><td>1,000,000</td></tr>
+            <tr><td>Enterprise</td><td>협의</td><td>협의</td></tr>
+          </tbody>
+        </table>
+        <p>응답 헤더 <code>X-RateLimit-Remaining</code>, <code>X-RateLimit-Reset</code> 으로 남은 호출 수와 리셋 시각을 확인할 수 있습니다.</p>
+      </section>
+
+      <section id="errors">
+        <h2>에러 코드</h2>
+        <p>모든 에러 응답은 다음과 같은 공통 포맷을 가집니다.</p>
+        <div class="codeblock">
+<pre>{
+  "error": {
+    "code": "INVALID_API_KEY",
+    "message": "유효하지 않은 API Key 입니다.",
+    "requestId": "req_01HZE7K9X2Y..."
+  }
+}</pre>
+        </div>
+        <table class="params">
+          <thead><tr><th>HTTP</th><th>code</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td>400</td><td><code>INVALID_PARAMETER</code></td><td>필수 파라미터 누락 또는 형식 오류</td></tr>
+            <tr><td>401</td><td><code>INVALID_API_KEY</code></td><td>인증 키 누락 또는 만료</td></tr>
+            <tr><td>403</td><td><code>FORBIDDEN</code></td><td>해당 API 호출 권한 없음</td></tr>
+            <tr><td>404</td><td><code>NOT_FOUND</code></td><td>요청한 리소스를 찾을 수 없음</td></tr>
+            <tr><td>429</td><td><code>RATE_LIMIT_EXCEEDED</code></td><td>분당/일일 호출 한도 초과</td></tr>
+            <tr><td>500</td><td><code>INTERNAL_ERROR</code></td><td>서버 내부 오류 — requestId와 함께 문의</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 상품 상세 -->
+      <section id="products">
+        <h2>상품 상세 조회</h2>
+        <p>ISBN13(13자리) 또는 YES24 상품번호(8자리)로 단일 상품의 상세 정보를 조회합니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/products/{id}</span>
+        </div>
+
+        <h3>Path Parameters</h3>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>이름</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>string</td><td><span class="req-badge">필수</span></td><td>ISBN13 (13자리) 또는 YES24 상품번호 (8자리)</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h3>Query Parameters</h3>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>이름</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>fields</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td>응답 필드 화이트리스트. 쉼표 구분. 예: <code>title,author,price</code></td></tr>
+            <tr><td><code>include</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td>확장 필드 포함. <code>toc</code>(목차) · <code>review_summary</code>(리뷰요약)</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h3>요청 예제</h3>
+        <div class="codeblock">
+          <div class="codeblock-tabs">
+            <button class="active">cURL</button>
+            <button>JavaScript</button>
+            <button>Python</button>
+          </div>
+<pre>curl -X GET "https://api.yes24.com/v1/products/9788960778795?include=toc" \
+  -H "Authorization: Bearer yes24_live_xxxxxxxxxxxxxxxx"</pre>
+<pre class="hidden">const id = '9788960778795';
+const res = await fetch(
+  `https://api.yes24.com/v1/products/${id}?include=toc`,
+  { headers: { 'Authorization': 'Bearer ' + API_KEY } }
+);
+const product = await res.json();</pre>
+<pre class="hidden">resp = requests.get(
+    f'https://api.yes24.com/v1/products/{isbn}',
+    params={'include': 'toc'},
+    headers={'Authorization': f'Bearer {API_KEY}'}
+)
+product = resp.json()</pre>
+        </div>
+
+        <h3>응답 예제</h3>
+        <div class="codeblock">
+<pre>{
+  "isbn13": "9788960778795",
+  "productNo": "76661016",
+  "title": "클린 코드",
+  "subtitle": "애자일 소프트웨어 장인 정신",
+  "author": "로버트 C. 마틴",
+  "translator": "박재호, 이해영",
+  "publisher": "인사이트",
+  "publishedAt": "2013-12-24",
+  "price": 33000,
+  "salePrice": 29700,
+  "discountRate": 10,
+  "saleStatus": "on_sale",
+  "stockStatus": "in_stock",
+  "category": {
+    "id": "001001003028005",
+    "path": ["국내도서", "IT/모바일", "프로그래밍 언어"]
+  },
+  "cover": {
+    "small": "https://image.yes24.com/goods/.../S.jpg",
+    "large": "https://image.yes24.com/goods/.../L.jpg"
+  },
+  "rating": { "average": 9.4, "count": 1843 },
+  "toc": "1장 깨끗한 코드 ... 17장 ..."
+}</pre>
+        </div>
+      </section>
+
+      <!-- 상품 일괄 -->
+      <section id="products-batch">
+        <h2>상품 일괄 조회</h2>
+        <p>최대 50건의 ISBN/상품번호를 한 번에 조회합니다. 추천·위시리스트 등 다건 호출 시나리오에 적합합니다.</p>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="path">/v1/products:batch</span>
+        </div>
+
+        <h3>Body</h3>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>이름</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>ids</code></td><td>string[]</td><td><span class="req-badge">필수</span></td><td>ISBN13 또는 상품번호 배열. 최대 50개</td></tr>
+            <tr><td><code>fields</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td>응답 필드 화이트리스트</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="codeblock">
+<pre>curl -X POST "https://api.yes24.com/v1/products:batch" \
+  -H "Authorization: Bearer yes24_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ids": ["9788960778795", "9791162241813", "9788966262335"],
+    "fields": "title,author,price,cover"
+  }'</pre>
+        </div>
+      </section>
+
+      <!-- 검색 -->
+      <section id="search">
+        <h2>통합 검색</h2>
+        <p>키워드 기반으로 도서를 검색합니다. 저자·출판사·카테고리 필터, 정렬, 페이지네이션을 지원합니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/search</span>
+        </div>
+
+        <h3>Query Parameters</h3>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>이름</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>query</code></td><td>string</td><td><span class="req-badge">필수</span></td><td>검색어. 1자 이상 50자 이하</td></tr>
+            <tr><td><code>field</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td>검색 대상 필드. <code>all</code>(기본), <code>title</code>, <code>author</code>, <code>publisher</code>, <code>isbn</code></td></tr>
+            <tr><td><code>category</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td>카테고리 ID로 결과 한정</td></tr>
+            <tr><td><code>sort</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td><code>relevance</code>(기본) · <code>recent</code> · <code>sales</code> · <code>price_asc</code> · <code>price_desc</code></td></tr>
+            <tr><td><code>page</code></td><td>number</td><td><span class="opt-badge">선택</span></td><td>페이지 번호. 기본 1</td></tr>
+            <tr><td><code>size</code></td><td>number</td><td><span class="opt-badge">선택</span></td><td>페이지당 결과 수. 기본 20, 최대 50</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h3>응답 예제</h3>
+        <div class="codeblock">
+<pre>{
+  "total": 1284,
+  "page": 1,
+  "size": 20,
+  "items": [
+    {
+      "isbn13": "9788960778795",
+      "title": "클린 코드",
+      "author": "로버트 C. 마틴",
+      "publisher": "인사이트",
+      "price": 33000,
+      "salePrice": 29700,
+      "cover": "https://image.yes24.com/goods/.../S.jpg"
+    },
+    { "isbn13": "9791162241813", "title": "이펙티브 자바", "...": "..." }
+  ]
+}</pre>
+        </div>
+      </section>
+
+      <!-- 자동완성 -->
+      <section id="autocomplete">
+        <h2>자동완성</h2>
+        <p>검색창에 입력 중인 키워드에 대한 추천 검색어 목록을 반환합니다. 키 입력 단위로 호출하는 것을 권장합니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/search/autocomplete</span>
+        </div>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>이름</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>q</code></td><td>string</td><td><span class="req-badge">필수</span></td><td>입력 중인 키워드 (1자 이상)</td></tr>
+            <tr><td><code>limit</code></td><td>number</td><td><span class="opt-badge">선택</span></td><td>최대 결과 수. 기본 8, 최대 20</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </section>
+
+      <!-- 베스트셀러 -->
+      <section id="ranking">
+        <h2>베스트셀러 / 집계</h2>
+        <p>일·주·월간 단위 베스트셀러 순위, 카테고리별 순위 등 집계 데이터를 제공합니다. 결과는 1시간 단위로 캐싱됩니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/rankings</span>
+        </div>
+
+        <h3>Query Parameters</h3>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>이름</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>period</code></td><td>string</td><td><span class="req-badge">필수</span></td><td><code>day</code> · <code>week</code> · <code>month</code> · <code>year</code></td></tr>
+            <tr><td><code>category</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td>카테고리 ID. 미입력 시 전체</td></tr>
+            <tr><td><code>date</code></td><td>string</td><td><span class="opt-badge">선택</span></td><td>YYYY-MM-DD 기준일. 미입력 시 최신</td></tr>
+            <tr><td><code>limit</code></td><td>number</td><td><span class="opt-badge">선택</span></td><td>반환 순위 수. 기본 50, 최대 200</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="codeblock">
+<pre>{
+  "period": "week",
+  "date": "2026-05-26",
+  "items": [
+    { "rank": 1, "isbn13": "9788937473135", "title": "...", "author": "...", "salesGrowth": 12.4 },
+    { "rank": 2, "isbn13": "9788960770331", "title": "...", "author": "..." }
+  ]
+}</pre>
+        </div>
+      </section>
+
+      <!-- 신간 -->
+      <section id="new-releases">
+        <h2>신간 / 스테디 셀러</h2>
+        <p>신간 도서(최근 N일 출간) 및 스테디 셀러(장기 베스트) 집계를 조회합니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/rankings/new-releases</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/rankings/steady-sellers</span>
+        </div>
+      </section>
+
+      <!-- 카테고리 -->
+      <section id="categories">
+        <h2>카테고리 트리</h2>
+        <p>YES24 표준 카테고리 분류 체계를 트리 구조로 받아옵니다. 일 1회 캐싱하여 사용하는 것을 권장합니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/categories</span>
+        </div>
+        <div class="codeblock">
+<pre>{
+  "categories": [
+    {
+      "id": "001",
+      "name": "국내도서",
+      "children": [
+        { "id": "001001", "name": "소설/시/희곡", "children": [...] },
+        { "id": "001002", "name": "에세이", "children": [...] }
+      ]
+    },
+    { "id": "002", "name": "외국도서" }
+  ]
+}</pre>
+        </div>
+      </section>
+
+      <!-- 저자 -->
+      <section id="authors">
+        <h2>저자 프로필</h2>
+        <p>저자 ID로 프로필 정보와 출간 도서 목록을 조회합니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/authors/{id}</span>
+        </div>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/authors/{id}/books</span>
+        </div>
+      </section>
+
+      <!-- 리뷰 -->
+      <section id="reviews">
+        <h2>리뷰 / 평점</h2>
+        <p>특정 상품의 평균 평점, 별점 분포, 리뷰 요약 등을 제공합니다. 개별 회원 리뷰 텍스트는 동의 회원의 것만 노출됩니다.</p>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/v1/products/{id}/reviews</span>
+        </div>
+        <div class="table-wrap">
+        <table class="params">
+          <thead><tr><th>이름</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+          <tbody>
+            <tr><td><code>summary</code></td><td>boolean</td><td><span class="opt-badge">선택</span></td><td>AI 리뷰 요약 포함 여부. 기본 false</td></tr>
+            <tr><td><code>page</code></td><td>number</td><td><span class="opt-badge">선택</span></td><td>페이지 번호</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </section>
+
+      <!-- 애드온 -->
+      <section id="addon-link">
+        <h2>제휴 링크 생성 (애드온)</h2>
+        <p><span class="tag-pill addon">PARTNER</span> 애드온 연동 신청자만 사용할 수 있는 API입니다. 추천 결과의 상품 링크에 자동으로 제휴 파라미터를 부착해 줍니다.</p>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="path">/v1/addon/affiliate-links</span>
+        </div>
+        <div class="codeblock">
+<pre>curl -X POST "https://api.yes24.com/v1/addon/affiliate-links" \
+  -H "Authorization: Bearer yes24_live_xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "isbn13s": ["9788960778795", "9791162241813"],
+    "placement": "recommend_card"
+  }'
+
+# 응답
+{
+  "links": [
+    {
+      "isbn13": "9788960778795",
+      "url": "https://www.yes24.com/Product/Goods/76661016?affId=YR-XXXX"
+    }
+  ]
+}</pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+          <p>도서·콘텐츠 데이터의 표준,<br />YES24 OpenAPI로 더 좋은 서비스를 만드세요.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <a href="reference.html">API Reference</a>
+          <a href="guide.html">호출 가이드</a>
+          <a href="changelog.html">변경 이력</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>계정</h4>
+          <a href="apply.html">API Key 신청</a>
+          <a href="terms.html">이용약관</a>
+        </div>
+        <div class="footer-col">
+          <h4>지원</h4>
+          <a href="mailto:openapi@yes24.com">openapi@yes24.com</a>
+          <a href="https://www.yes24.com" target="_blank" rel="noopener">YES24.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> YES24 Corp. 본 페이지는 프로토타입입니다.</span>
+        <span>developers.yes24.com</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem D:\\\\ax-poc-web\\\\developers -Recurse -File | Select-Object @{N='Path';E={$_.FullName.Substring\\('D:\\\\ax-poc-web\\\\'.Length\\)}}, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}} | Format-Table -AutoSize)"
+    ]
+  }
+}

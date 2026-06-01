@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Key 신청 — YES24 Developers</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider"></span><span class="sub">DEVELOPERS</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴">☰</button>
+      <nav class="nav">
+        <a data-nav="index.html" href="index.html">홈</a>
+        <a data-nav="reference.html" href="reference.html">API Reference</a>
+        <a data-nav="guide.html" href="guide.html">호출 가이드</a>
+        <a data-nav="faq.html" href="faq.html">FAQ</a>
+        <a data-nav="changelog.html" href="changelog.html">변경 이력</a>
+        <a data-nav="apply.html" href="apply.html" class="nav-cta">API Key 신청</a>
+      </nav>
+    </div>
+  </header>
+
+  <div style="background:linear-gradient(135deg, var(--y24-primary-dark) 0%, var(--y24-primary) 60%, var(--y24-accent) 100%); padding:56px 0 48px;">
+    <div class="container">
+      <span style="display:inline-block; font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.65); margin-bottom:12px;">Apply</span>
+      <h1 style="font-size:36px; font-weight:800; color:#fff; margin:0 0 14px; line-height:1.2;">YES24 Open API Key 신청</h1>
+      <p style="color:rgba(255,255,255,0.82); font-size:16px; margin:0; max-width:560px;">
+        아래 정보를 입력하시면 영업일 기준 1일 이내 검토 후 등록하신 이메일로 API Key가 발급됩니다.
+        <strong style="color:#fff;">*</strong> 표시는 필수 입력입니다.
+      </p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <!-- Form -->
+      <div id="formSection">
+        <div class="form-wrap">
+          <form id="applyForm" class="form-card" novalidate>
+
+            <!-- Basic Info -->
+            <div class="form-section">
+              <div class="form-section-head">
+                <span class="form-section-num">1</span>
+                <div>
+                  <h3>기본 정보</h3>
+                  <p>발급된 API Key와 검토 결과는 입력하신 이메일로 안내드립니다.</p>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="name">이름 또는 회사명<span class="req">*</span></label>
+                <input id="name" type="text" placeholder="예: 김예스 / 예스컴퍼니(주)" autocomplete="name" />
+                <span class="err"></span>
+              </div>
+
+              <div class="field">
+                <label for="email">이메일<span class="req">*</span></label>
+                <input id="email" type="email" placeholder="dev@example.com" autocomplete="email" />
+                <span class="hint">발급 결과와 사용 안내 메일이 발송됩니다.</span>
+                <span class="err"></span>
+              </div>
+
+              <div class="field">
+                <label for="purpose">사용 목적<span class="req">*</span></label>
+                <textarea id="purpose" placeholder="예: 자사 도서 추천 서비스에서 ISBN 기반 메타데이터 조회 용도로 사용 예정입니다."></textarea>
+                <span class="hint">서비스 도메인, 활용 시나리오, 예상 사용 API 등을 간단히 작성해 주세요. (10자 이상)</span>
+                <span class="err"></span>
+              </div>
+
+              <div class="field">
+                <label>연동 유형<span class="req">*</span></label>
+                <label class="radio">
+                  <input type="radio" name="appType" value="personal" />
+                  <span><strong>개인/학습용</strong> — 사이드 프로젝트, 학습, 해커톤 등 비상업적 사용</span>
+                </label>
+                <label class="radio">
+                  <input type="radio" name="appType" value="commercial" />
+                  <span><strong>상업/사업용</strong> — 운영 중인 서비스에서 상용 트래픽으로 사용</span>
+                </label>
+                <label class="radio">
+                  <input type="radio" name="appType" value="internal" />
+                  <span><strong>사내 도구</strong> — 회사 내부 시스템 연동, 데이터 분석 용도</span>
+                </label>
+                <span id="appTypeErr" class="err"></span>
+              </div>
+
+              <div class="field">
+                <label for="trafficLevel">예상 일일 호출량</label>
+                <select id="trafficLevel">
+                  <option value="">선택해 주세요 (선택)</option>
+                  <option value="low">3,000회 미만</option>
+                  <option value="mid">3,000 ~ 30,000회</option>
+                  <option value="high">30,000회 이상</option>
+                </select>
+                <span id="trafficHint" class="hint">예상 트래픽에 따라 적절한 요금제를 안내해 드립니다.</span>
+              </div>
+            </div>
+
+            <!-- Add-on Toggle -->
+            <div class="form-section">
+              <div class="form-section-head">
+                <span class="form-section-num" style="background:var(--y24-accent);">2</span>
+                <div>
+                  <h3>애드온 연동 <span style="font-weight:400; color:var(--y24-text-mute); font-size:13px;">(선택)</span></h3>
+                  <p>YES24와의 수익 연계가 가능한 파트너 모드입니다. 활성화 시 추가 정보 입력이 필요합니다.</p>
+                </div>
+              </div>
+
+              <label id="useAddonCard" class="checkbox-card" for="useAddon">
+                <div class="cc-head">
+                  <input id="useAddon" type="checkbox" />
+                  <strong>YES24 애드온 연동 활성화</strong>
+                  <span class="tag-pill addon">PARTNER</span>
+                </div>
+                <p class="cc-desc">
+                  추천 결과·검색 결과에 자동으로 제휴 링크가 삽입되며, 발생한 매출의 일정 비율을 매월 정산해 드립니다.
+                  사업자 등록증 또는 사이트 운영 증빙이 추가로 필요할 수 있습니다.
+                </p>
+              </label>
+
+              <div id="addonFields" class="hidden" style="margin-top:18px;">
+                <div class="field">
+                  <label for="serviceName">서비스명<span class="req">*</span></label>
+                  <input id="serviceName" type="text" placeholder="예: 북마크 큐레이션" />
+                  <span class="err"></span>
+                </div>
+                <div class="field">
+                  <label for="serviceUrl">서비스 URL<span class="req">*</span></label>
+                  <input id="serviceUrl" type="url" placeholder="https://example.com" />
+                  <span class="hint">실제 운영 도메인을 입력해 주세요. 도메인 미보유 시 출시 예정 도메인을 적어 주세요.</span>
+                  <span class="err"></span>
+                </div>
+                <div class="field">
+                  <label for="memberNo">YES24 회원번호<span class="req">*</span></label>
+                  <input id="memberNo" type="text" inputmode="numeric" placeholder="예: 12345678" maxlength="12" />
+                  <span class="hint">정산 대상이 되는 YES24 계정의 회원번호를 입력해 주세요.</span>
+                  <span class="err"></span>
+                </div>
+                <div class="field">
+                  <label for="businessNo">사업자 등록번호 (해당 시)</label>
+                  <input id="businessNo" type="text" placeholder="000-00-00000" maxlength="12" />
+                  <span class="hint">법인·개인사업자만 입력. 미입력 시 개인 정산으로 처리됩니다.</span>
+                </div>
+                <div class="field">
+                  <label for="targetMarket">타겟 사용자 / 시장</label>
+                  <input id="targetMarket" type="text" placeholder="예: 20~30대 도서 큐레이션 사용자, 월 활성 1만명" />
+                  <span class="hint">사용자 규모·연령대 등 정산 모델 설계에 참고됩니다.</span>
+                </div>
+                <div class="field">
+                  <label class="checkbox">
+                    <input id="agreeAddon" type="checkbox" />
+                    <span>YES24 애드온 파트너 이용약관 및 수익 정산 정책에 동의합니다. (<a href="terms.html#addon" target="_blank">전문 보기</a>)<span class="req">*</span></span>
+                  </label>
+                  <span id="agreeAddonErr" class="err"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Agreements -->
+            <div class="form-section">
+              <div class="form-section-head">
+                <span class="form-section-num" style="background:#374151;">3</span>
+                <div>
+                  <h3>약관 동의</h3>
+                  <p>YES24 Open API를 사용하기 위해 필수 약관에 동의해 주세요.</p>
+                </div>
+              </div>
+
+              <div class="terms-box">
+                <h4>YES24 Open API 이용약관 (요약)</h4>
+                <p>1. 발급된 API Key는 신청자 본인 또는 신청 시 기재한 서비스에 한해 사용되어야 합니다.</p>
+                <p>2. API 응답 데이터는 출처 표기와 함께 사용해야 하며, 데이터 자체를 재판매하거나 대량 추출·복제하여 별도 서비스를 구축할 수 없습니다.</p>
+                <p>3. 분당 또는 일일 호출 한도를 초과하는 비정상 호출이 감지될 경우 사전 통보 없이 키 사용이 중단될 수 있습니다.</p>
+                <p>4. YES24는 비상업적 사용을 우선으로 하며, 상업적 사용은 적정 한도 내에서 허용됩니다.</p>
+                <p>5. 본 약관의 자세한 내용은 <a href="terms.html" target="_blank">이용약관 전문</a>을 참고해 주세요.</p>
+              </div>
+
+              <div class="field">
+                <label class="checkbox">
+                  <input id="agreeTos" type="checkbox" />
+                  <span>(필수) YES24 Open API 이용약관에 동의합니다.<span class="req">*</span></span>
+                </label>
+                <span id="agreeTosErr" class="err"></span>
+              </div>
+              <div class="field">
+                <label class="checkbox">
+                  <input id="agreePrivacy" type="checkbox" />
+                  <span>(필수) 개인정보의 수집·이용에 동의합니다. (수집항목: 이름, 이메일, 회원번호 등 / 보유기간: 키 유효기간 + 1년)<span class="req">*</span></span>
+                </label>
+                <span id="agreePrivacyErr" class="err"></span>
+              </div>
+              <div class="field">
+                <label class="checkbox">
+                  <input id="agreeMarketing" type="checkbox" />
+                  <span>(선택) API 업데이트·이벤트 등 마케팅 정보 수신에 동의합니다.</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <a href="index.html" class="btn btn-ghost">취소</a>
+              <button id="submitBtn" type="submit" class="btn btn-primary btn-lg">API Key 신청하기</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div id="successSection" class="hidden">
+        <div class="success-card">
+          <div class="success-icon">✓</div>
+          <h2>신청이 정상적으로 접수되었습니다</h2>
+          <p>실제 운영 환경에서는 영업일 기준 1일 이내 검토 후 <strong id="issuedEmail">이메일</strong>로 발급 안내가 전송됩니다.<br />아래는 본 프로토타입에서 임시로 발급된 Sandbox API Key 입니다.</p>
+
+          <div class="api-key-box" id="issuedKey">yes24_live_***</div>
+
+          <div class="hero-actions" style="justify-content:center; margin-top:24px;">
+            <button id="copyKeyBtn" type="button" class="btn btn-primary">키 복사</button>
+            <a href="guide.html" class="btn btn-outline">호출 가이드 보기</a>
+          </div>
+
+          <p id="addonStatusNote" class="hidden" style="margin-top:24px; font-size:13px; color:var(--y24-text-mute);">
+            ※ 애드온 연동을 신청하셨습니다. 별도 담당자가 영업일 2일 이내 정산 계약을 위해 연락드릴 예정입니다.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+          <p>도서·콘텐츠 데이터의 표준,<br />YES24 OpenAPI로 더 좋은 서비스를 만드세요.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <a href="reference.html">API Reference</a>
+          <a href="guide.html">호출 가이드</a>
+          <a href="changelog.html">변경 이력</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>계정</h4>
+          <a href="apply.html">API Key 신청</a>
+          <a href="terms.html">이용약관</a>
+        </div>
+        <div class="footer-col">
+          <h4>지원</h4>
+          <a href="mailto:openapi@yes24.com">openapi@yes24.com</a>
+          <a href="https://www.yes24.com" target="_blank" rel="noopener">YES24.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> YES24 Corp. 본 페이지는 프로토타입입니다.</span>
+        <span>developers.yes24.com</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/apply.js"></script>
+</body>
+</html>

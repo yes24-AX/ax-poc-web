@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이용약관 — YES24 Developers</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .legal { max-width: 880px; margin: 0 auto; }
+    .legal h2 { margin-top: 40px; font-size: 20px; }
+    .legal h3 { margin-top: 24px; font-size: 16px; color: var(--y24-text); }
+    .legal p, .legal li { color: var(--y24-text-sub); font-size: 14.5px; line-height: 1.75; }
+    .legal ul, .legal ol { padding-left: 22px; }
+    .legal .meta { color: var(--y24-text-mute); font-size: 13px; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="index.html">
+        <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+        <span class="divider"></span><span class="sub">DEVELOPERS</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴">☰</button>
+      <nav class="nav">
+        <a data-nav="index.html" href="index.html">홈</a>
+        <a data-nav="reference.html" href="reference.html">API Reference</a>
+        <a data-nav="guide.html" href="guide.html">호출 가이드</a>
+        <a data-nav="faq.html" href="faq.html">FAQ</a>
+        <a data-nav="changelog.html" href="changelog.html">변경 이력</a>
+        <a data-nav="apply.html" href="apply.html" class="nav-cta">API Key 신청</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="container">
+      <div class="legal">
+        <div class="section-head" style="text-align:left;">
+          <span class="eyebrow">Legal</span>
+          <h2 style="font-size:28px;">YES24 Open API 이용약관</h2>
+        </div>
+        <p class="meta">시행일자: 2026년 1월 1일 · 본 약관은 프로토타입 데모용 예시입니다.</p>
+
+        <h2>제1조 (목적)</h2>
+        <p>본 약관은 ㈜예스이십사(이하 "회사")가 제공하는 YES24 Open API(이하 "API")의 이용과 관련하여 회사와 이용자의 권리·의무 및 책임 사항을 규정함을 목적으로 합니다.</p>
+
+        <h2>제2조 (용어의 정의)</h2>
+        <ol>
+          <li>"이용자"란 본 약관에 동의하고 API Key를 발급받아 API를 이용하는 개인 또는 법인을 말합니다.</li>
+          <li>"API Key"란 이용자를 식별하고 호출을 인증하기 위해 회사가 발급하는 고유 문자열을 말합니다.</li>
+          <li>"애드온"이란 이용자가 자사 서비스에서 발생시킨 매출 일부를 정산받을 수 있는 파트너 연동 프로그램을 말합니다.</li>
+        </ol>
+
+        <h2>제3조 (API Key 발급 및 관리)</h2>
+        <ol>
+          <li>API Key는 신청서 기재 사항이 사실이며 본 약관 및 관련 정책을 준수할 것을 동의한 이용자에게 발급됩니다.</li>
+          <li>이용자는 API Key를 제3자에게 양도·대여·공유할 수 없으며, 키의 유출로 인해 발생한 모든 책임은 이용자에게 있습니다.</li>
+          <li>회사는 비정상 호출·약관 위반이 감지될 경우 사전 통보 없이 키 사용을 중단·폐기할 수 있습니다.</li>
+        </ol>
+
+        <h2>제4조 (이용자의 의무)</h2>
+        <ol>
+          <li>이용자는 API 응답으로 받은 데이터를 사용할 때 출처(YES24)를 명시해야 합니다.</li>
+          <li>이용자는 API 응답 데이터를 그대로 또는 가공하여 제3자에게 재판매·재배포할 수 없습니다.</li>
+          <li>이용자는 회사의 사전 서면 동의 없이 API를 통해 받은 데이터로 YES24와 동종 또는 유사한 서비스를 구축할 수 없습니다.</li>
+          <li>이용자는 분당·일일 호출 한도를 준수해야 하며, 우회 시도를 하여서는 안 됩니다.</li>
+        </ol>
+
+        <h2>제5조 (회사의 의무)</h2>
+        <ol>
+          <li>회사는 안정적인 API 서비스 제공을 위하여 합리적인 수준의 가용성(99.95% 이상)을 유지하도록 노력합니다.</li>
+          <li>회사는 정기 점검 또는 긴급 점검 시 사전 또는 즉시 이를 공지합니다.</li>
+          <li>회사는 이용자의 개인정보를 별도 처리방침에 따라 안전하게 관리합니다.</li>
+        </ol>
+
+        <h2>제6조 (이용 요금)</h2>
+        <ol>
+          <li>회사는 무료(Free) / 사용량 기반(Pro) / 협의(Enterprise) 의 세 가지 플랜을 제공합니다.</li>
+          <li>각 플랜의 호출 한도·단가는 본 사이트의 요금 안내 페이지를 따릅니다.</li>
+          <li>요금은 매월 1일 자동 청구되며, 미납 시 키 사용이 정지될 수 있습니다.</li>
+        </ol>
+
+        <h2 id="addon">제7조 (애드온 / 파트너 정산)</h2>
+        <ol>
+          <li>애드온 이용자는 별도의 파트너 약관을 함께 준수해야 합니다.</li>
+          <li>정산은 매월 발생한 유효 매출을 기준으로 익월 25일에 지급됩니다.</li>
+          <li>정산 비율은 카테고리별로 다르며, 자세한 비율은 콘솔의 "정산" 메뉴에서 확인할 수 있습니다.</li>
+          <li>회사는 부정한 방법으로 발생한 매출에 대해서는 정산을 보류·취소할 수 있습니다.</li>
+        </ol>
+
+        <h2>제8조 (지적재산권)</h2>
+        <p>API 및 응답 데이터에 대한 저작권 등 일체의 지적재산권은 회사에 귀속됩니다. 이용자는 본 약관이 허용하는 범위 내에서만 데이터를 사용할 수 있습니다.</p>
+
+        <h2>제9조 (서비스 변경 및 종료)</h2>
+        <ol>
+          <li>회사는 API 명세를 사전 공지 후 변경할 수 있으며, 중대한 변경의 경우 최소 30일 전 공지합니다.</li>
+          <li>회사는 사업 운영상의 사유로 API 제공을 중단할 수 있으며, 이 경우 60일 전에 공지합니다.</li>
+        </ol>
+
+        <h2>제10조 (책임 제한)</h2>
+        <p>회사는 천재지변·전쟁·파업 등 불가항력 사유로 인해 발생한 손해, 또는 이용자의 약관 위반·키 유출로 인한 손해에 대하여 책임을 지지 않습니다.</p>
+
+        <h2>제11조 (약관의 변경)</h2>
+        <p>회사는 필요한 경우 본 약관을 변경할 수 있으며, 변경 시 시행일 7일 전(이용자에게 불리한 변경은 30일 전)에 공지합니다.</p>
+
+        <h2>부칙</h2>
+        <p>본 약관은 2026년 1월 1일부터 시행됩니다.</p>
+
+        <div style="margin-top:48px; padding-top:24px; border-top:1px solid var(--y24-border);">
+          <a href="apply.html" class="btn btn-primary">동의하고 API Key 신청하기</a>
+          <a href="index.html" class="btn btn-ghost">홈으로</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="https://image.yes24.com/sysimage/renew/gnb/logoN4.svg" alt="YES24" />
+          <p>도서·콘텐츠 데이터의 표준,<br />YES24 OpenAPI로 더 좋은 서비스를 만드세요.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Developers</h4>
+          <a href="reference.html">API Reference</a>
+          <a href="guide.html">호출 가이드</a>
+          <a href="changelog.html">변경 이력</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+        <div class="footer-col">
+          <h4>계정</h4>
+          <a href="apply.html">API Key 신청</a>
+          <a href="terms.html">이용약관</a>
+        </div>
+        <div class="footer-col">
+          <h4>지원</h4>
+          <a href="mailto:openapi@yes24.com">openapi@yes24.com</a>
+          <a href="https://www.yes24.com" target="_blank" rel="noopener">YES24.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> YES24 Corp. 본 페이지는 프로토타입입니다.</span>
+        <span>developers.yes24.com</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/common.js"></script>
+</body>
+</html>
