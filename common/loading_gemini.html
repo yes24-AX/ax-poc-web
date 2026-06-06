@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>YES24 AI Loader - 4 Concepts</title>
+<style>
+  :root {
+    --yes24-blue: #1967d2;
+    --yes24-blue-2: #0b84ff;
+    --yes24-red: #ff4b55;
+  }
+  
+  body { 
+    margin: 0; 
+    min-height: 100vh; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f7f9fc; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+  }
+
+  /* 그리드 레이아웃 */
+  .container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    padding: 40px;
+    max-width: 800px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .card-title {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  /* 공통 텍스트 및 점 애니메이션 */
+  .text {
+    margin: 0; font-size: 13px; font-weight: 600; color: #26364d; display: flex; align-items: center; gap: 4px;
+  }
+  .text strong { color: var(--yes24-blue); }
+  .dots i {
+    display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: #aab4c2; opacity: 0.4;
+    animation: common-dot 1.2s infinite; margin: 0 1px;
+  }
+  .dots i:nth-child(2) { animation-delay: 0.2s; }
+  .dots i:nth-child(3) { animation-delay: 0.4s; }
+  .dots.blue-red i { background: var(--yes24-blue-2); }
+  .dots.blue-red i:nth-child(3) { background: var(--yes24-red); }
+
+  @keyframes common-dot { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-3px); opacity: 1; } }
+
+
+  /* =========================================
+     1안: 플로팅 링 (Floating Ring)
+     ========================================= */
+  .loader-ring { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .loader-ring .stage { position: relative; width: 80px; height: 80px; display: grid; place-items: center; }
+  .loader-ring .stage::before {
+    content: ""; position: absolute; inset: 10px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(25, 103, 210, 0.15) 0%, rgba(25, 103, 210, 0) 70%);
+    animation: ring-pulse 1.6s ease-in-out infinite;
+  }
+  .loader-ring .stage::after {
+    content: ""; position: absolute; width: 60px; height: 60px; border-radius: 50%;
+    border: 2px solid transparent; border-top-color: var(--yes24-blue-2); border-right-color: var(--yes24-red);
+    animation: ring-spin 1.2s linear infinite;
+  }
+  .loader-ring .character { position: relative; z-index: 1; width: 44px; height: auto; animation: ring-float 1.4s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+  
+  @keyframes ring-spin { to { transform: rotate(360deg); } }
+  @keyframes ring-pulse { 0%, 100% { transform: scale(0.9); opacity: 0.7; } 50% { transform: scale(1.1); opacity: 1; } }
+  @keyframes ring-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+
+  /* =========================================
+     2안: 미니멀 생각 전구 (Knowledge Bulb)
+     ========================================= */
+  .loader-bulb { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .loader-bulb .stage { position: relative; width: 60px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .loader-bulb .bulb {
+    position: absolute; top: 10px; width: 12px; height: 12px; background: var(--yes24-blue-2); border-radius: 50%;
+    animation: bulb-pulse 1.5s ease-in-out infinite; opacity: 0;
+  }
+  .loader-bulb .bulb::before, .loader-bulb .bulb::after {
+    content: ""; position: absolute; left: 50%; transform: translateX(-50%); background: var(--yes24-blue-2); border-radius: 50%; opacity: 0.6;
+  }
+  .loader-bulb .bulb::before { width: 6px; height: 6px; bottom: -10px; }
+  .loader-bulb .bulb::after { width: 4px; height: 4px; bottom: -18px; }
+  .loader-bulb .character { width: 44px; height: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
+  
+  @keyframes bulb-pulse {
+    0% { transform: translateY(5px) scale(0.8); opacity: 0; box-shadow: 0 0 0 rgba(11, 132, 255, 0); }
+    50% { transform: translateY(0) scale(1); opacity: 1; box-shadow: 0 0 12px rgba(11, 132, 255, 0.6); }
+    100% { transform: translateY(-3px) scale(1.1); opacity: 0; box-shadow: 0 0 20px rgba(11, 132, 255, 0); }
+  }
+
+
+  /* =========================================
+     3안: 지식의 바다 (Sea of Knowledge)
+     ========================================= */
+  .loader-stream { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .loader-stream .stage { position: relative; width: 90px; height: 90px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; }
+  .loader-stream .character { position: relative; z-index: 2; width: 44px; height: auto; animation: stream-swim 2.5s ease-in-out infinite; }
+  .loader-stream .stream { position: absolute; inset: 0; z-index: 1; }
+  .loader-stream .stream i { position: absolute; background: var(--yes24-blue-2); border-radius: 2px; opacity: 0; animation: stream-flow 2s linear infinite; }
+  .loader-stream .stream i:nth-child(1) { width: 12px; height: 4px; top: 25%; left: 10%; transform: rotate(-15deg); animation-delay: 0s; --dx: 30px; --dy: 10px; }
+  .loader-stream .stream i:nth-child(2) { width: 6px; height: 6px; top: 65%; right: 10%; background: var(--yes24-red); transform: rotate(15deg); animation-delay: 0.4s; --dx: -25px; --dy: -15px; }
+  .loader-stream .stream i:nth-child(3) { width: 8px; height: 10px; bottom: 20%; left: 20%; transform: rotate(5deg); animation-delay: 0.8s; --dx: 20px; --dy: -25px; }
+  .loader-stream .stream i:nth-child(4) { width: 14px; height: 3px; top: 35%; right: 25%; animation-delay: 1.2s; --dx: -35px; --dy: 5px; opacity: 0.3; }
+
+  @keyframes stream-swim {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(3px, -4px) rotate(4deg); }
+    50% { transform: translate(0, -6px) rotate(0deg); }
+    75% { transform: translate(-3px, -4px) rotate(-4deg); }
+  }
+  @keyframes stream-flow {
+    0% { transform: translate(0, 0) scale(1); opacity: 0; }
+    20% { opacity: 0.6; }
+    80% { opacity: 0.6; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.5); opacity: 0; }
+  }
+
+
+  /* =========================================
+     4안: 뉴럴 신경망 코어 (Neural Network)
+     ========================================= */
+  .loader-neural { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .loader-neural .stage { position: relative; width: 60px; height: 60px; display: grid; place-items: center; }
+  .loader-neural .core { width: 16px; height: 16px; background: var(--yes24-blue); border-radius: 50%; position: relative; z-index: 2; box-shadow: 0 0 15px rgba(25, 103, 210, 0.5); animation: neural-pulse 1.5s infinite; }
+  .loader-neural .orbit { position: absolute; inset: 0; animation: neural-spin 4s linear infinite; }
+  .loader-neural .node { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--yes24-blue-2); }
+  .loader-neural .node::before { content: ""; position: absolute; top: 50%; left: 50%; width: 30px; height: 1px; background: linear-gradient(90deg, rgba(11, 132, 255, 0.4) 0%, rgba(11, 132, 255, 0) 100%); transform-origin: left center; z-index: -1; }
+  
+  .loader-neural .node:nth-child(1) { top: 0; left: 50%; transform: translate(-50%, -50%); }
+  .loader-neural .node:nth-child(1)::before { transform: rotate(90deg); }
+  .loader-neural .node:nth-child(2) { top: 50%; right: 0; transform: translate(50%, -50%); background: var(--yes24-red); }
+  .loader-neural .node:nth-child(2)::before { transform: rotate(180deg); background: linear-gradient(90deg, rgba(255, 75, 85, 0.4) 0%, rgba(255, 75, 85, 0) 100%);}
+  .loader-neural .node:nth-child(3) { bottom: 0; left: 50%; transform: translate(-50%, 50%); }
+  .loader-neural .node:nth-child(3)::before { transform: rotate(270deg); }
+  .loader-neural .node:nth-child(4) { top: 50%; left: 0; transform: translate(-50%, -50%); }
+  .loader-neural .node:nth-child(4)::before { transform: rotate(0deg); }
+
+  @keyframes neural-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.8; box-shadow: 0 0 20px rgba(25, 103, 210, 0.7); } }
+  @keyframes neural-spin { to { transform: rotate(360deg); } }
+
+  /* 반응형 처리 */
+  @media (max-width: 600px) {
+    .container { grid-template-columns: 1fr; padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <div class="card">
+      <h2 class="card-title">1안: 플로팅 링 (Floating Ring)</h2>
+      <div class="loader-ring">
+        <div class="stage">
+          <img src="ico_ai02.svg" class="character" alt="YES24 AI">
+        </div>
+        <p class="text"><strong>AI</strong> 생각 중<span class="dots blue-red"><i></i><i></i><i></i></span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">2안: 미니멀 생각 전구 (Knowledge Bulb)</h2>
+      <div class="loader-bulb">
+        <div class="stage">
+          <div class="bulb"></div>
+          <img src="ico_ai02.svg" class="character" alt="YES24 AI">
+        </div>
+        <p class="text"><strong>AI</strong> 지식을 탐색 중<span class="dots"><i></i><i></i><i></i></span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">3안: 지식의 바다 (Sea of Knowledge)</h2>
+      <div class="loader-stream">
+        <div class="stage">
+          <div class="stream"><i></i><i></i><i></i><i></i></div>
+          <img src="ico_ai02.svg" class="character" alt="YES24 AI">
+        </div>
+        <p class="text"><strong>AI</strong> 지식을 유영 중<span class="dots"><i></i><i></i><i></i></span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">4안: 뉴럴 신경망 코어 (Neural Network)</h2>
+      <div class="loader-neural">
+        <div class="stage">
+          <div class="core"></div>
+          <div class="orbit">
+            <i class="node"></i>
+            <i class="node"></i>
+            <i class="node"></i>
+            <i class="node"></i>
+          </div>
+        </div>
+        <p class="text"><strong>AI</strong> 계산 중<span class="dots"><i></i><i></i><i></i></span></p>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
