@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>YES24 AI Thinking Loader - Compact</title>
+<title>YES24 AI Thinking Loader</title>
 <style>
   :root {
     --yes24-blue: #1967d2;
@@ -21,6 +21,14 @@
     place-items: center;
     background: #f7f9fc;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  }
+
+  .loader-showcase {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   /* 실제 페이지에 넣을 때는 .yes24-ai-loader 블록만 복사해서 사용하면 됩니다. */
@@ -44,7 +52,8 @@
     place-items: center;
   }
 
-  .yes24-ai-loader__mark::before {
+  /* --- Option 1 (기본) --- */
+  .yes24-ai-loader--default .yes24-ai-loader__mark::before {
     content: "";
     position: absolute;
     inset: 7px;
@@ -53,7 +62,7 @@
     animation: yes24-loader-pulse 1.6s ease-in-out infinite;
   }
 
-  .yes24-ai-loader__mark::after {
+  .yes24-ai-loader--default .yes24-ai-loader__mark::after {
     content: "";
     position: absolute;
     width: 52px;
@@ -127,23 +136,137 @@
     40% { transform: translateY(-3px); opacity: 1; }
   }
 
+  @keyframes yes24-loader-spin-reverse {
+    to { transform: rotate(-360deg); }
+  }
+
+  @keyframes yes24-loader-scan {
+    0% { left: -45%; }
+    100% { left: 100%; }
+  }
+
+  /* --- Option 2: 링 + 빨간 도트 --- */
+  .yes24-ai-loader--option2 .yes24-ai-loader__mark::before {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(25, 103, 210, .12), rgba(25, 103, 210, 0) 70%);
+    animation: yes24-loader-pulse 1.7s ease-in-out infinite;
+  }
+
+  .yes24-ai-loader--option2 .yes24-ai-loader__ring {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    border: 1px solid rgba(25, 103, 210, .18);
+    border-top-color: rgba(25, 103, 210, .72);
+    border-right-color: rgba(255, 75, 85, .62);
+    animation: yes24-loader-spin 1.25s linear infinite;
+  }
+
+  .yes24-ai-loader--option2 .yes24-ai-loader__ring::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    top: 6px;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--yes24-red);
+    box-shadow: 0 0 0 3px rgba(255, 75, 85, .10);
+  }
+
+  /* --- Option 3: 점선 궤도 + 스캔 바 --- */
+  .yes24-ai-loader--option3 .yes24-ai-loader__mark::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(25, 103, 210, .12), rgba(25, 103, 210, 0) 70%);
+    animation: yes24-loader-pulse 1.8s ease-in-out infinite;
+  }
+
+  .yes24-ai-loader--option3 .yes24-ai-loader__orbit {
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    border: 1px dashed rgba(25, 103, 210, .32);
+    animation: yes24-loader-spin-reverse 2.8s linear infinite;
+  }
+
+  .yes24-ai-loader--option3 .yes24-ai-loader__bar {
+    position: relative;
+    width: 34px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(25, 103, 210, .12);
+    overflow: hidden;
+  }
+
+  .yes24-ai-loader--option3 .yes24-ai-loader__bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -45%;
+    width: 45%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--yes24-blue), var(--yes24-blue-2), var(--yes24-red));
+    animation: yes24-loader-scan 1.15s ease-in-out infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .yes24-ai-loader__mark::before,
-    .yes24-ai-loader__mark::after,
-    .yes24-ai-loader__character,
-    .yes24-ai-loader__dots i {
-      animation: none;
-    }
+    .yes24-ai-loader *,
+    .yes24-ai-loader *::before,
+    .yes24-ai-loader *::after { animation: none !important; }
   }
 </style>
 </head>
 <body>
-  <div class="yes24-ai-loader" role="status" aria-live="polite" aria-label="YES24 AI가 생각하는 중입니다">
+  <div class="loader-showcase">
+
+  <!-- Option 1: 기본 스피너 -->
+  <div class="yes24-ai-loader yes24-ai-loader--default" role="status" aria-live="polite" aria-label="YES24 AI가 생각하는 중입니다">
     <div class="yes24-ai-loader__mark" aria-hidden="true">
       <img class="yes24-ai-loader__character" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCI+Cgk8c3R5bGU+CgkJQGtleWZyYW1lcyBleWUtbW92ZS1ibGluayB7CgkJCS8qIOyghOyytCDsi5zqsIQgN+y0iCDquLDspIAgKi8KCQkJCgkJCS8qIC0tLSAxLiDriIjrj5nsnpAg7JuA7KeB7J6EICgwIH4gMy4w7LSIIOycoOyngCkgLS0tICovCgkJCS8qIOqzhOyCsDogKOygiOuMgOyLnOqwhCAvIDfstIgpICogMTAwICovCgkJCTAlIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUoMCwgMCkgc2NhbGVZKDEpOyB9CgkJCTcuMTQlIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUoMCwgLTIuNXB4KSBzY2FsZVkoMSk7IH0gIC8qIDAuNey0iCAqLwoJCQkxNC4yOCUgeyB0cmFuc2Zvcm06IHRyYW5zbGF0ZSgwLCAyLjVweCkgc2NhbGVZKDEpOyB9ICAvKiAxLjDstIggKi8KCQkJMjEuNDIlIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUoMCwgMCkgc2NhbGVZKDEpOyB9ICAgICAgLyogMS417LSIICovCgkJCTI4LjU3JSB7IHRyYW5zZm9ybTogdHJhbnNsYXRlKC0yLjVweCwgMCkgc2NhbGVZKDEpOyB9IC8qIDIuMOy0iCAqLwoJCQkzNS43MSUgeyB0cmFuc2Zvcm06IHRyYW5zbGF0ZSgyLjVweCwgMCkgc2NhbGVZKDEpOyB9ICAvKiAyLjXstIggKi8KCQkJNDIuODUlIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUoMCwgMCkgc2NhbGVZKDEpOyB9ICAgICAgLyogMy4w7LSIICjsm4Dsp4HsnoQg64GdKSAqLwoKCQkJLyogLS0tIDIuIOq5nOu5oeyehCAoMy4wIH4gMy4z7LSIIOycoOyngCkgLS0tICovCgkJCTQ1JSB7IHRyYW5zZm9ybTogdHJhbnNsYXRlKDAsIDApIHNjYWxlWSgwLjEpOyB9ICAgICAgIC8qIDMuMTXstIggKOuIiCDqsJDsnYwpICovCgkJCTQ3LjE0JSB7IHRyYW5zZm9ybTogdHJhbnNsYXRlKDAsIDApIHNjYWxlWSgxKTsgfSAgICAgIC8qIDMuMzDstIggKOuIiCDrnLgpICovCgoJCQkvKiAtLS0gMy4g64yA6riwICgzLjMgfiA3LjDstIgpIC0tLSAqLwoJCQkxMDAlIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUoMCwgMCkgc2NhbGVZKDEpOyB9ICAgICAgICAvKiDrgpjrqLjsp4Ag7Iuc6rCEIOuMgOq4sCAqLwoJCX0KCgkJLmFuaW0tZXllIHsKCQkJdHJhbnNmb3JtLWJveDogZmlsbC1ib3g7CgkJCXRyYW5zZm9ybS1vcmlnaW46IGNlbnRlcjsKCQkJYW5pbWF0aW9uOiBleWUtbW92ZS1ibGluayA3cyBpbmZpbml0ZTsgLyogNXMgLT4gN3ProZwg67OA6rK9ICovCgkJfQoJPC9zdHlsZT4KCTxkZWZzPgoJCTxjbGlwUGF0aCBpZD0iY2xpcC1wYXRoIj4KCQkJPHBhdGggaWQ9Im1hc2siIGQ9Ik0yNSwwQTI1LDI1LDAsMSwxLDAsMjUsMjUsMjUsMCwwLDEsMjUsMFoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDI2MyA1KSIgZmlsbD0iI2NlZTZmZiIvPgoJCTwvY2xpcFBhdGg+Cgk8L2RlZnM+Cgk8ZyBpZD0iaWNvbiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTI2MyAtNSkiPgoJCTxyZWN0IGlkPSJib3giIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcng9IjI1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNjMgNSkiIGZpbGw9IiNmZmYiLz4KCQk8ZyBpZD0i66eI7Iqk7YGsX+q3uOujuV8zMSIgZGF0YS1uYW1lPSLrp4jsiqTtgawg6re466O5IDMxIiBjbGlwLXBhdGg9InVybCgjY2xpcC1wYXRoKSI+CgkJCTxnIGlkPSLqt7jro7lfMTE0MDIiIGRhdGEtbmFtZT0i6re466O5IDExNDAyIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyNjcgNS43NTIpIj4KCQkJCTxwYXRoIGlkPSLtjKjsiqRfMzA2MyIgZGF0YS1uYW1lPSLtjKjsiqQgMzA2MyIgZD0iTTE3LjQxOCw4LjJTMTkuNSw4LjA2NCwyMiw4LjE1MWMxMy4zNjguNDY1LDIwLjI3LDkuNDUsMTkuODQ0LDIxLjY4NEM0MS40MSw0Mi4zMjcsMzIuNSw1MC40LDIwLjU0Myw0OS45ODUsNi41NTgsNDkuNS0uMzgyLDM4Ljg3My4wMTYsMjcuNDcxLjcwNiw3LjY2OSwxNS41MzgtLjI4NiwyMy45NjQuMDA4YzUuODgxLjIsMTAuNjMzLDIuNDgzLDEwLjQyNSw1Ljc0OUMzNC4zLDcuMTY0LDMzLjIsOC4yMjUsMzAuNTMyLDguMDhjLTIuOTU2LS4xNi00LjkyOC0xLjgtNS4zLTMuMTIyYTIuNDE4LDIuNDE4LDAsMCwxLDEuMDgzLTIuOTQxYy4zOC0uMiwxLjI2OS0uNSwxLjEwOC0uNTYtMi4yLS43NzQtNS45MDgtLjU1MS03Ljg3NywxLjE4NUE3LjIsNy4yLDAsMCwwLDE3LjQxOCw4LjIiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgMCkiLz4KCQkJCTxwYXRoIGlkPSLtjKjsiqRfMzA2NCIgZGF0YS1uYW1lPSLtjKjsiqQgMzA2NCIgZD0iTTIyLjksMi40ODNDMTQuMDIyLDIuOSw3LjUxMyw5LjYsNi4wNzgsMTEuNzVhNDguMzA3LDQ4LjMwNywwLDAsMC01LDExLjE1QTI2LjMyNCwyNi4zMjQsMCwwLDAsLjAxNiwyOC44NDhRMCwyOS4yNzcsMCwyOS43di4xMzlhMjQuODc0LDI0Ljg3NCwwLDAsMCwuODQsNi40MSwyMi4wMTUsMjIuMDE1LDAsMCwwLDEuNjM4LDQuMjc0QTE5Ljc4LDE5Ljc4LDAsMCwwLDUuNSw0NC45MDYsMTguOTMxLDE4LjkzMSwwLDAsMCw5LjA2Myw0Ny45NGEyMS45NzQsMjEuOTc0LDAsMCwwLDExLjQ4LDMuNDIzbC4yNTIuMDA4YTIyLjY3OSwyMi42NzksMCwwLDAsNy4yNTUtLjk1OCwxOS42MTYsMTkuNjE2LDAsMCwwLDQuNDIyLTEuOTc5LDE4LjQ2OCwxOC40NjgsMCwwLDAsMS43LTEuMTY0cS43MDgtLjU0NSwxLjM2MS0xLjE1NmExOC42NDUsMTguNjQ1LDAsMCwwLDIuMjg4LTIuNTgxQTE5LjMxMSwxOS4zMTEsMCwwLDAsMzkuNCw0MC45ODlhMjIuMDEsMjIuMDEsMCwwLDAsMi4yNjMtNy40NDJxLjE0My0xLjEzOS4xODUtMi4zMzRhMjYuOTM0LDI2LjkzNCwwLDAsMC0uNTEtNi40MTksMjEuMiwyMS4yLDAsMCwwLTEuMzg1LTQuMzM5QTE3Ljg2LDE3Ljg2LDAsMCwwLDM2Ljc3NSwxNS42cS0uMzYyLS4zOTEtLjc0OC0uNzYxLS40NDQtLjQyNS0uOTIxLS44MTlhMTcuNTYzLDE3LjU2MywwLDAsMC0yLjM4MS0xLjY1NSwxOS41ODIsMTkuNTgyLDAsMCwwLTMuOTYzLTEuNzMzQTI1LjQzMywyNS40MzMsMCwwLDAsMjIsOS41MjljLS42MzEtLjAyMi0xLjIzNC0uMDMtMS43ODUtLjAyOC0uOSwwLTEuNjYxLjAyNi0yLjE1OS4wNDgtLjQuMDE4LS42MzguMDM0LS42MzguMDM0QTcuMiw3LjIsMCwwLDEsMTkuNDc0LDQuMjcsNy44MjgsNy44MjgsMCwwLDEsMjMsMi40OGwtLjA5MywwIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIC0xLjM3OCkiIGZpbGw9Im5vbmUiLz4KCQkJCTxwYXRoIGlkPSLtjKjsiqRfMzA2NSIgZGF0YS1uYW1lPSLtjKjsiqQgMzA2NSIgZD0iTTM2LjAxNiwzOS4zNDVjNy4wMTUuMjQ0LDkuMDg2LDEuNjM3LDguNzM5LDExLjZTNDIuMjQ1LDYyLjE1MSwzNS4yMyw2MS45MDZzLTkuMDg2LTEuNjM3LTguNzM5LTExLjZTMjksMzkuMSwzNi4wMTYsMzkuMzQ1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTQuNjk3IC0yMS44NDMpIiBmaWxsPSIjZmZmIi8+CgkJCQkKCQkJCTxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yNy4zNzUgLTMzLjE5NSkiPgoJCQkJCTxwYXRoIGlkPSLtjKjsiqRfMzA2NiIgZGF0YS1uYW1lPSLtjKjsiqQgMzA2NiIgY2xhc3M9ImFuaW0tZXllIiBkPSJNNDkuNTg5LDYxLjM1OGMuNS0xLjU0NiwxLjI5MS0xLjcsMi0xLjU2NiwxLjE3NC4yMjguODIsMS43LjYsMi41NDNzLS44MDksMi4zLTEuOTY4LDIuMDA5Yy0xLjM3MS0uMzQ0LS45NDQtMi4wNDQtLjYzNy0yLjk4NiIgZmlsbD0iIzAwODBmZiIvPgoJCQkJPC9nPgoJCQkJCgkJCQk8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMjEuMDIgLTMyLjk3MykiPgoJCQkJCTxwYXRoIGlkPSLtjKjsiqRfMzA2NyIgZGF0YS1uYW1lPSLtjKjsiqQgMzA2NyIgY2xhc3M9ImFuaW0tZXllIiBkPSJNMzguMTUsNjAuOTU5Yy41LTEuNTQ2LDEuMjkxLTEuNywyLTEuNTY2LDEuMTc0LjIyOC44MiwxLjcuNiwyLjU0M3MtLjgwOSwyLjMtMS45NjgsMi4wMDljLTEuMzcxLS4zNDQtLjk0NC0yLjA0NC0uNjM3LTIuOTg2IiBmaWxsPSIjMDA4MGZmIi8+CgkJCQk8L2c+CgoJCQkJPHBhdGggaWQ9Iu2MqOyKpF8zMDY4IiBkYXRhLW5hbWU9Iu2MqOyKpCAzMDY4IiBkPSJNNTksMi4zOTRjLS40NTQuMi0uODA3LjM4Ny0xLjE0Mi41NjNhMi4zOTQsMi4zOTQsMCwwLDAtMS4xNjUsMS4yQTIuNywyLjcsMCwwLDAsNTYuNiw1Ljg4MmEyLjY3MSwyLjY3MSwwLDAsMCwuMzgzLjgzNyw0LjEsNC4xLDAsMCwwLC42NjkuNzUzLDUuMzE2LDUuMzE2LDAsMCwwLC40OTEuMzg5LDYuMTU2LDYuMTU2LDAsMCwwLC41ODUuMzY0LDcuMTkxLDcuMTkxLDAsMCwwLDIuMDQ5LjcyOSw4LjI1Miw4LjI1MiwwLDAsMCwxLjE0Mi4xNDIsNy41LDcuNSwwLDAsMCwxLjItLjAyNCw0LjM2NSw0LjM2NSwwLDAsMCwxLjEzMi0uMjYzLDIuNjYzLDIuNjYzLDAsMCwwLC43MzYtLjQyNSwyLjExNywyLjExNywwLDAsMCwuNDE5LS40NjQsMi4xNTgsMi4xNTgsMCwwLDAsLjI0My0uNSwyLjc1MSwyLjc1MSwwLDAsMCwuMTI2LTEuMDIsMy4xNzUsMy4xNzUsMCwwLDAtLjI0Ni0xLjA2NCw0LjM2LDQuMzYsMCwwLDAtMS4xNi0xLjU1MXEtLjE4OC0uMTY3LS40LS4zMjRjLS4xNTQtLjExNi0uMzE3LS4yMjktLjQ4OC0uMzM4YTkuNTY1LDkuNTY1LDAsMCwwLS45ODQtLjU0NmMtLjM0Ni0uMTY2LS43MTQtLjMyMS0xLjEtLjQ2NC0uMTM5LS4wNTEtLjI4LS4xLS40MjQtLjE0OHMtLjI4NC0uMDkyLS40My0uMTM2YzAsMC0xLjAzNS4zMzgtMS41NTUuNTY0IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMzEuMzg5IC0xLjAxNikiIGZpbGw9Im5vbmUiLz4KCQkJPC9nPgoJCTwvZz4KCTwvZz4KPC9zdmc+" alt="" />
     </div>
     <span class="yes24-ai-loader__dots" aria-hidden="true"><i></i><i></i><i></i></span>
     <p class="yes24-ai-loader__text"><strong>AI</strong> 생각 중</p>
   </div>
+
+  <!-- Option 2: 링 + 빨간 도트 -->
+  <div class="yes24-ai-loader yes24-ai-loader--option2" role="status" aria-live="polite" aria-label="YES24 AI가 생각하는 중입니다">
+    <div class="yes24-ai-loader__mark" aria-hidden="true">
+      <span class="yes24-ai-loader__ring"></span>
+      <img class="yes24-ai-loader__character yes24-ai-loader__character--clone" src="" alt="" />
+    </div>
+    <span class="yes24-ai-loader__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <p class="yes24-ai-loader__text"><strong>AI</strong> 생각 중</p>
+  </div>
+
+  <!-- Option 3: 점선 궤도 + 스캔 바 -->
+  <div class="yes24-ai-loader yes24-ai-loader--option3" role="status" aria-live="polite" aria-label="YES24 AI가 생각하는 중입니다">
+    <div class="yes24-ai-loader__mark" aria-hidden="true">
+      <span class="yes24-ai-loader__orbit"></span>
+      <img class="yes24-ai-loader__character yes24-ai-loader__character--clone" src="" alt="" />
+    </div>
+    <span class="yes24-ai-loader__bar" aria-hidden="true"></span>
+    <p class="yes24-ai-loader__text"><strong>AI</strong> 분석 중</p>
+  </div>
+
+  </div><!-- /.loader-showcase -->
+
+  <script>
+    // Option 1의 SVG 이미지를 Option 2, 3에도 동일하게 적용
+    const srcImg = document.querySelector('.yes24-ai-loader__character:not(.yes24-ai-loader__character--clone)');
+    if (srcImg) {
+      document.querySelectorAll('.yes24-ai-loader__character--clone').forEach(function(img) {
+        img.src = srcImg.src;
+      });
+    }
+  </script>
 </body>
 </html>
