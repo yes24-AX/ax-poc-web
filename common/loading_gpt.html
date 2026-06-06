@@ -65,8 +65,7 @@
   .yes24-ai-loader--default .yes24-ai-loader__mark::after {
     content: "";
     position: absolute;
-    width: 52px;
-    height: 52px;
+    inset: 10px;
     border-radius: 999px;
     border: 1px solid rgba(25, 103, 210, .18);
     border-top-color: rgba(25, 103, 210, .7);
@@ -157,8 +156,7 @@
 
   .yes24-ai-loader--option2 .yes24-ai-loader__ring {
     position: absolute;
-    width: 52px;
-    height: 52px;
+    inset: 10px;
     border-radius: 999px;
     border: 1px solid rgba(25, 103, 210, .18);
     border-top-color: rgba(25, 103, 210, .72);
@@ -190,8 +188,7 @@
 
   .yes24-ai-loader--option3 .yes24-ai-loader__orbit {
     position: absolute;
-    width: 54px;
-    height: 54px;
+    inset: 9px;
     border-radius: 999px;
     border: 1px dashed rgba(25, 103, 210, .32);
     animation: yes24-loader-spin-reverse 2.8s linear infinite;
@@ -218,11 +215,7 @@
     animation: yes24-loader-scan 1.15s ease-in-out infinite;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .yes24-ai-loader *,
-    .yes24-ai-loader *::before,
-    .yes24-ai-loader *::after { animation: none !important; }
-  }
+
 </style>
 </head>
 <body>
