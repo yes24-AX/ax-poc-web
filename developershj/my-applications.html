@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Applications — YES24 Developers</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>.hidden { display: none !important; }</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">Developers</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="api-explorer.html">API Explorer</a></li>
+      <li><a href="my-applications.html" class="active">My Applications</a></li>
+      <li><a href="support.html">Support</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span class="nav-version-badge">v1.0</span>
+      <button class="btn btn-ghost btn-sm" onclick="toggleLogin()" id="login-btn">로그인 (데모)</button>
+      <span id="user-info" style="display:none;font-size:13px;color:var(--color-text-secondary);align-items:center;gap:8px;">
+        <span style="width:28px;height:28px;background:var(--color-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;">K</span>
+        <span>kim@example.com</span>
+        <button class="btn btn-ghost btn-sm" onclick="toggleLogin()">로그아웃</button>
+      </span>
+    </div>
+  </div>
+</nav>
+
+<!-- 비로그인: grid 바깥에서 전체 폭 사용 -->
+<div id="login-gate" class="login-gate">
+  <div class="login-gate-icon">🔐</div>
+  <h2>로그인이 필요합니다</h2>
+  <p>My Applications는 로그인 후 이용할 수 있습니다.<br>YES24 계정으로 로그인하여 발급받은 API Key를 관리하세요.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="toggleLogin()">로그인 (데모)</button>
+    <a href="api-key-apply.html" class="btn btn-secondary">API Key 신청하기</a>
+  </div>
+</div>
+
+<!-- 로그인 후: sidebar + content grid -->
+<div class="myapp-layout" id="myapp-main" style="display:none;">
+
+  <aside class="myapp-sidebar" id="myapp-sidebar">
+    <div class="myapp-sidebar-title">My Applications</div>
+    <ul class="myapp-nav">
+      <li><a href="#" data-panel="panel-app-list" class="active" onclick="switchPanel(event,'panel-app-list')"><span class="nav-icon">📱</span> 앱 목록</a></li>
+      <li><a href="#" data-panel="panel-api-keys" onclick="switchPanel(event,'panel-api-keys')"><span class="nav-icon">🔑</span> API Keys</a></li>
+      <li><a href="#" data-panel="panel-usage" onclick="switchPanel(event,'panel-usage')"><span class="nav-icon">📊</span> Usage</a></li>
+    </ul>
+  </aside>
+
+  <div style="min-width:0;">
+
+    <div id="logged-in-content">
+
+      <!-- 앱 목록 -->
+      <div id="panel-app-list" class="myapp-panel myapp-content">
+        <div class="myapp-content-header">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div><h1>앱 목록</h1><p>등록된 애플리케이션과 API Key를 관리합니다.</p></div>
+            <a href="api-key-apply.html" class="btn btn-primary btn-sm">+ 새 API Key 신청</a>
+          </div>
+        </div>
+
+        <div class="app-card">
+          <div class="app-card-header">
+            <div><div class="app-card-name">나의 독서 앱</div><div class="app-card-meta">신청일: 2026-05-01 · 마지막 호출: 2026-06-06</div></div>
+            <div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-success">활성</span><button class="btn btn-ghost btn-sm">설정</button></div>
+          </div>
+          <div class="app-card-keys">
+            <div class="key-field">
+              <label>API Key</label>
+              <div class="key-value">
+                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••4f2a" data-real="yk_live_a3f8c2d1e9b74f2acd81e9b7c2d14f2a" data-revealed="0">yk_live_••••••••••••••••••••••••••••4f2a</span>
+                <button class="key-reveal-btn">👁</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-card">
+          <div class="app-card-header">
+            <div><div class="app-card-name">도서 추천 서비스</div><div class="app-card-meta">신청일: 2026-04-12 · 마지막 호출: 2026-06-05</div></div>
+            <div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-success">활성</span><button class="btn btn-ghost btn-sm">설정</button></div>
+          </div>
+          <div class="app-card-keys">
+            <div class="key-field">
+              <label>API Key</label>
+              <div class="key-value">
+                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••9c3b" data-real="yk_live_b1e4d7f2a8c59c3bd7f2a8c5b1e49c3b" data-revealed="0">yk_live_••••••••••••••••••••••••••••9c3b</span>
+                <button class="key-reveal-btn">👁</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Keys -->
+      <div id="panel-api-keys" class="myapp-panel myapp-content hidden">
+        <div class="myapp-content-header"><h1>API Keys</h1><p>앱별 API Key를 확인하고 관리합니다.</p></div>
+        <div class="callout callout-warning">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-content"><p class="callout-title">API Key 보안 주의</p><p>API Key는 서버사이드에서만 사용하세요. 클라이언트 코드나 공개 저장소에 절대 노출되어서는 안 됩니다.</p></div>
+        </div>
+        <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;margin-top:20px;">
+          <div style="padding:16px 20px;background:var(--color-bg-subtle);border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;">
+            <div><span style="font-size:15px;font-weight:600;color:var(--color-text);">나의 독서 앱</span><span class="badge badge-success" style="margin-left:8px;">활성</span></div>
+            <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);">Key 재발급</button>
+          </div>
+          <div style="padding:20px;display:grid;gap:16px;">
+            <div class="key-field">
+              <label>API Key</label>
+              <div class="key-value">
+                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••4f2a" data-real="yk_live_a3f8c2d1e9b74f2acd81e9b7c2d14f2a" data-revealed="0">yk_live_••••••••••••••••••••••••••••4f2a</span>
+                <button class="key-reveal-btn">👁</button>
+              </div>
+              <div style="font-size:12px;color:var(--color-text-muted);margin-top:6px;">헤더: <code>X-API-Key: yk_live_...</code></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;margin-top:16px;">
+          <div style="padding:16px 20px;background:var(--color-bg-subtle);border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;">
+            <div><span style="font-size:15px;font-weight:600;color:var(--color-text);">도서 추천 서비스</span><span class="badge badge-success" style="margin-left:8px;">활성</span></div>
+            <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);">Key 재발급</button>
+          </div>
+          <div style="padding:20px;display:grid;gap:16px;">
+            <div class="key-field">
+              <label>API Key</label>
+              <div class="key-value">
+                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••9c3b" data-real="yk_live_b1e4d7f2a8c59c3bd7f2a8c5b1e49c3b" data-revealed="0">yk_live_••••••••••••••••••••••••••••9c3b</span>
+                <button class="key-reveal-btn">👁</button>
+              </div>
+              <div style="font-size:12px;color:var(--color-text-muted);margin-top:6px;">헤더: <code>X-API-Key: yk_live_...</code></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <a href="api-key-apply.html" class="btn btn-primary">+ 새 API Key 신청</a>
+        </div>
+      </div>
+
+      <!-- Usage -->
+      <div id="panel-usage" class="myapp-panel myapp-content hidden">
+        <div class="myapp-content-header">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div><h1>Usage Dashboard</h1><p>API 호출량 및 오류율을 확인합니다.</p></div>
+            <select class="btn btn-secondary btn-sm" style="padding:6px 12px;cursor:pointer;"><option>나의 독서 앱</option><option>도서 추천 서비스</option></select>
+          </div>
+        </div>
+        <div class="usage-stat-grid">
+          <div class="usage-stat">
+            <div class="usage-stat-label">오늘 호출량</div>
+            <div class="usage-stat-value">2,847</div>
+            <div class="usage-stat-sub">어제 대비 +12%</div>
+            <div class="usage-bar"><div class="usage-bar-fill" style="width:28.5%;"></div></div>
+            <div style="font-size:11px;color:var(--color-text-muted);margin-top:4px;">일 한도 10,000회 중 28.5%</div>
+          </div>
+          <div class="usage-stat">
+            <div class="usage-stat-label">오류율 (24h)</div>
+            <div class="usage-stat-value" style="color:var(--color-success);">0.3%</div>
+            <div class="usage-stat-sub">9건 / 2,847건</div>
+            <div class="usage-bar"><div class="usage-bar-fill" style="width:0.3%;background:var(--color-success);"></div></div>
+          </div>
+          <div class="usage-stat">
+            <div class="usage-stat-label">Rate Limit 사용률</div>
+            <div class="usage-stat-value">42%</div>
+            <div class="usage-stat-sub">분당 42 / 100 요청</div>
+            <div class="usage-bar"><div class="usage-bar-fill" style="width:42%;"></div></div>
+          </div>
+        </div>
+        <h3 style="font-size:15px;font-weight:600;color:var(--color-text);margin-bottom:12px;">Endpoint별 호출량 (오늘)</h3>
+        <div class="param-table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Endpoint</th><th>Method</th><th>호출 수</th><th>평균 응답시간</th><th>오류율</th></tr></thead>
+            <tbody>
+              <tr><td><code>/v1/books</code></td><td><span class="method-badge method-get">GET</span></td><td>1,824</td><td>142ms</td><td style="color:var(--color-success);">0.1%</td></tr>
+              <tr><td><code>/v1/books/{id}</code></td><td><span class="method-badge method-get">GET</span></td><td>743</td><td>98ms</td><td style="color:var(--color-success);">0.0%</td></tr>
+              <tr><td><code>/v1/products</code></td><td><span class="method-badge method-get">GET</span></td><td>280</td><td>201ms</td><td style="color:var(--color-warning);">1.4%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /logged-in-content -->
+  </div><!-- /content col -->
+</div><!-- /myapp-layout -->
+
+<script src="assets/js/main.js"></script>
+<script>
+let isLoggedIn = false;
+function toggleLogin() {
+  isLoggedIn = !isLoggedIn;
+  document.getElementById('login-gate').style.display = isLoggedIn ? 'none' : 'flex';
+  document.getElementById('myapp-main').style.display = isLoggedIn ? 'grid' : 'none';
+  document.getElementById('login-btn').style.display = isLoggedIn ? 'none' : 'inline-flex';
+  document.getElementById('user-info').style.display = isLoggedIn ? 'flex' : 'none';
+}
+function switchPanel(e, id) {
+  if (e) e.preventDefault();
+  document.querySelectorAll('.myapp-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.myapp-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id)?.classList.remove('hidden');
+  document.querySelector(`.myapp-nav a[data-panel="${id}"]`)?.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started — YES24 Developers</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">Developers</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html" class="active">Docs</a></li>
+      <li><a href="api-explorer.html">API Explorer</a></li>
+      <li><a href="my-applications.html">My Applications</a></li>
+      <li><a href="support.html">Support</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="search-bar">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M10.68 11.74a6 6 0 01-7.922-8.982 6 6 0 018.982 7.922l3.04 3.04a.749.749 0 01-.326 1.275.749.749 0 01-.734-.215l-3.04-3.04zm-5.44-1.19a4.5 4.5 0 100-9 4.5 4.5 0 000 9z"/></svg>
+        <span>문서 검색...</span>
+        <span class="search-bar-kbd">⌘K</span>
+      </div>
+      <span class="nav-version-badge">v1.0</span>
+      <a href="my-applications.html" class="btn btn-ghost btn-sm">로그인</a>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm">API Key 신청</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-docs" style="max-width:none;">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <ul class="sidebar-nav">
+        <li><a href="docs.html" class="active">개요</a></li>
+        <li><a href="docs-auth.html">인증</a></li>
+        <li><a href="docs-apikey.html">API Key 발급</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">API Reference</div>
+      <ul class="sidebar-nav">
+        <li><a href="api-catalog.html">API Catalog</a></li>
+        <li>
+          <a href="api-detail.html">Books API</a>
+          <ul class="sub-nav">
+            <li><a href="api-detail.html">GET /books</a></li>
+            <li><a href="api-detail.html#books-id">GET /books/{id}</a></li>
+            <li><a href="api-detail.html#books-preview">GET /books/{id}/preview</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-catalog.html#products">Products API</a>
+          <ul class="sub-nav">
+            <li><a href="#">GET /products</a></li>
+            <li><a href="#">GET /products/{id}</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-catalog.html#search">Search API</a>
+          <ul class="sub-nav">
+            <li><a href="#">GET /search</a></li>
+            <li><a href="#">GET /search/suggest</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-catalog.html#codes">Common Codes API</a>
+          <ul class="sub-nav">
+            <li><a href="#">GET /codes/categories</a></li>
+            <li><a href="#">GET /codes/publishers</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Support</div>
+      <ul class="sidebar-nav">
+        <li><a href="support.html#error-codes">Error Codes</a></li>
+        <li><a href="support.html">공지사항</a></li>
+        <li><a href="support.html#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="doc-content">
+    <nav class="doc-breadcrumb">
+      <a href="index.html">Home</a>
+      <span>/</span>
+      <span>Getting Started</span>
+      <span>/</span>
+      <span>개요</span>
+    </nav>
+
+    <div class="doc-page-title">
+      <h1>YES24 Open API 개요</h1>
+      <p>YES24 Open API를 사용하여 도서, 상품, 검색 데이터를 애플리케이션에 통합하세요.</p>
+      <div class="doc-last-updated">최종 업데이트: 2026년 6월</div>
+    </div>
+
+    <h2 id="what-is">YES24 Open API란?</h2>
+    <p>YES24 Open API는 외부 개발자가 YES24의 도서, 상품, 검색 데이터를 활용하여 서비스를 구축할 수 있도록 제공하는 공식 API입니다.</p>
+    <p>REST 방식으로 설계되었으며, JSON 형식으로 응답합니다. OAuth 2.0 기반의 인증을 사용합니다.</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <div class="callout-content">
+        <p class="callout-title">현재 버전: v1.0 (오픈 베타)</p>
+        <p>Open Beta 기간 중입니다. API 스펙은 변경될 수 있으며, 변경 사항은 공지사항을 통해 사전 안내됩니다.</p>
+      </div>
+    </div>
+
+    <h2 id="api-list">제공 API</h2>
+    <table class="doc-table">
+      <thead>
+        <tr><th>API</th><th>설명</th><th>Endpoint</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Books API</td><td>도서 검색, 상세 정보, 미리보기</td><td><code>/v1/books</code></td></tr>
+        <tr><td>Products API</td><td>상품 조회, 가격, 재고</td><td><code>/v1/products</code></td></tr>
+        <tr><td>Search API</td><td>통합 검색, 자동완성, 연관 검색어</td><td><code>/v1/search</code></td></tr>
+        <tr><td>Common Codes API</td><td>카테고리, 출판사, 공통 코드 조회</td><td><code>/v1/codes</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="base-url">Base URL</h2>
+    <p>모든 API 요청은 아래 Base URL을 사용합니다.</p>
+    <div class="endpoint-block">
+      <span class="endpoint-url">
+        <span class="url-base">https://api.yes24.com</span>
+        <span class="url-path">/v1</span>
+      </span>
+    </div>
+
+    <h2 id="authentication">인증</h2>
+    <p>YES24 Open API는 <strong>OAuth 2.0 Client Credentials</strong> 방식을 사용합니다. 모든 API 요청에는 Access Token이 필요합니다.</p>
+    <ol>
+      <li>My Applications에서 앱을 생성하여 <strong>Client ID</strong>와 <strong>Client Secret</strong>을 발급받습니다.</li>
+      <li>Token Endpoint에 요청하여 <strong>Access Token</strong>을 발급받습니다.</li>
+      <li>API 요청 헤더에 <code>Authorization: Bearer {token}</code>을 포함합니다.</li>
+    </ol>
+    <p><a href="docs-apikey.html">→ API Key 발급 가이드 보기</a></p>
+
+    <h2 id="rate-limit">Rate Limit</h2>
+    <table class="doc-table">
+      <thead>
+        <tr><th>플랜</th><th>분당 요청</th><th>일일 요청</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Free</td><td>100회</td><td>10,000회</td></tr>
+        <tr><td>Standard</td><td>500회</td><td>100,000회</td></tr>
+        <tr><td>Enterprise</td><td>협의</td><td>협의</td></tr>
+      </tbody>
+    </table>
+    <p>Rate Limit 초과 시 HTTP <code>429 Too Many Requests</code>가 반환됩니다. 응답 헤더의 <code>X-RateLimit-Reset</code>에서 초기화 시각을 확인할 수 있습니다.</p>
+
+    <h2 id="response-format">응답 형식</h2>
+    <p>모든 응답은 <code>Content-Type: application/json</code>으로 반환됩니다.</p>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">json — 성공 응답</span>
+        <button class="copy-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="code-block-body">
+        <pre><code>{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "total": 120,
+    "page": 1,
+    "size": 20
+  }
+}</code></pre>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">json — 오류 응답</span>
+        <button class="copy-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="code-block-body">
+        <pre><code>{
+  "success": false,
+  "error": {
+    "code": "AUTH_001",
+    "message": "Invalid or expired access token.",
+    "docs": "https://developers.yes24.com/support#error-codes"
+  }
+}</code></pre>
+      </div>
+    </div>
+
+    <h2 id="sdk">SDK 및 라이브러리</h2>
+    <p>공식 SDK는 현재 준비 중입니다. REST API를 직접 호출하거나 <a href="api-explorer.html">API Explorer</a>에서 테스트할 수 있습니다.</p>
+    <div class="callout callout-warning">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-content">
+        <p>공식 SDK가 출시되기 전까지는 직접 HTTP 요청을 사용하세요. 서드파티 라이브러리 사용 시 YES24는 지원을 보장하지 않습니다.</p>
+      </div>
+    </div>
+
+    <div class="doc-nav-footer">
+      <div></div>
+      <a href="docs-apikey.html" class="doc-nav-link next">
+        <div class="dir">다음 <span>→</span></div>
+        <div class="title">API Key 발급</div>
+      </a>
+    </div>
+  </main>
+
+  <aside class="toc-panel">
+    <div class="toc-title">이 페이지에서</div>
+    <ul class="toc-nav">
+      <li><a href="#what-is">YES24 Open API란?</a></li>
+      <li><a href="#api-list">제공 API</a></li>
+      <li><a href="#base-url">Base URL</a></li>
+      <li><a href="#authentication">인증</a></li>
+      <li><a href="#rate-limit">Rate Limit</a></li>
+      <li><a href="#response-format">응답 형식</a></li>
+      <li><a href="#sdk">SDK 및 라이브러리</a></li>
+    </ul>
+  </aside>
+
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

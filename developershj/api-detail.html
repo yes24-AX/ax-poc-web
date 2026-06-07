@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GET /v1/books — YES24 Developers</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">Developers</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html" class="active">Docs</a></li>
+      <li><a href="api-explorer.html">API Explorer</a></li>
+      <li><a href="my-applications.html">My Applications</a></li>
+      <li><a href="support.html">Support</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="search-bar">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M10.68 11.74a6 6 0 01-7.922-8.982 6 6 0 018.982 7.922l3.04 3.04a.749.749 0 01-.326 1.275.749.749 0 01-.734-.215l-3.04-3.04zm-5.44-1.19a4.5 4.5 0 100-9 4.5 4.5 0 000 9z"/></svg>
+        <span>문서 검색...</span>
+        <span class="search-bar-kbd">⌘K</span>
+      </div>
+      <span class="nav-version-badge">v1.0</span>
+      <a href="my-applications.html" class="btn btn-ghost btn-sm">로그인</a>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm">API Key 신청</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-docs" style="max-width:none;">
+
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <ul class="sidebar-nav">
+        <li><a href="docs.html">개요</a></li>
+        <li><a href="docs-auth.html">인증</a></li>
+        <li><a href="docs-apikey.html">API Key 발급</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">API Reference</div>
+      <ul class="sidebar-nav">
+        <li><a href="api-catalog.html">API Catalog</a></li>
+        <li>
+          <a href="api-detail.html" style="color:var(--color-text);font-weight:600;">Books API</a>
+          <ul class="sub-nav">
+            <li><a href="api-detail.html" class="active">GET /books</a></li>
+            <li><a href="api-detail.html#books-id">GET /books/{id}</a></li>
+            <li><a href="api-detail.html#books-preview">GET /books/{id}/preview</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-catalog.html#products">Products API</a>
+          <ul class="sub-nav">
+            <li><a href="#">GET /products</a></li>
+            <li><a href="#">GET /products/{id}</a></li>
+            <li><a href="#">GET /products/bestseller</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-catalog.html#search">Search API</a>
+          <ul class="sub-nav">
+            <li><a href="#">GET /search</a></li>
+            <li><a href="#">GET /search/suggest</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-catalog.html#codes">Common Codes API</a>
+          <ul class="sub-nav">
+            <li><a href="#">GET /codes/categories</a></li>
+            <li><a href="#">GET /codes/publishers</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Support</div>
+      <ul class="sidebar-nav">
+        <li><a href="support.html#error-codes">Error Codes</a></li>
+        <li><a href="support.html">공지사항</a></li>
+        <li><a href="support.html#faq">FAQ</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="doc-content">
+    <nav class="doc-breadcrumb">
+      <a href="index.html">Home</a>
+      <span>/</span>
+      <a href="docs.html">Docs</a>
+      <span>/</span>
+      <a href="api-catalog.html">Books API</a>
+      <span>/</span>
+      <span>GET /books</span>
+    </nav>
+
+    <div class="doc-page-title">
+      <div class="api-detail-header">
+        <span class="method-badge method-get" style="font-size:14px;padding:4px 12px;">GET</span>
+        <h1 style="font-family:var(--font-mono);font-size:24px;">/v1/books</h1>
+      </div>
+      <p class="api-detail-subtitle">키워드, ISBN, 저자, 출판사 등 다양한 조건으로 도서를 검색합니다.</p>
+      <div class="doc-last-updated">최종 업데이트: 2026년 6월 · Books API v2.1</div>
+    </div>
+
+    <h2 id="overview">개요</h2>
+    <p>도서 목록을 검색하고 결과를 반환합니다. 키워드 기반 풀텍스트 검색 외에도 ISBN, 저자명, 출판사, 카테고리 코드로 필터링할 수 있습니다. 결과는 관련도 순, 출판일 순, 판매량 순으로 정렬 가능합니다.</p>
+
+    <h2 id="endpoint">Endpoint</h2>
+    <div class="endpoint-block">
+      <span class="method-badge method-get">GET</span>
+      <span class="endpoint-url">
+        <span class="url-base">https://api.yes24.com</span><span class="url-path">/v1/books</span>
+      </span>
+    </div>
+
+    <h2 id="auth">인증</h2>
+    <p>모든 요청에 <strong>Bearer Token</strong>이 필요합니다. <a href="docs-apikey.html">Access Token 발급 방법</a>을 먼저 확인하세요.</p>
+    <div class="code-block" style="margin-top:12px;">
+      <div class="code-block-header">
+        <span class="code-lang">Request Header</span>
+        <button class="copy-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="code-block-body">
+        <pre><code>Authorization: Bearer {access_token}
+Content-Type: application/json</code></pre>
+      </div>
+    </div>
+
+    <h2 id="rate-limit">Rate Limit</h2>
+    <table class="doc-table">
+      <thead><tr><th>플랜</th><th>분당 요청</th><th>응답 헤더</th></tr></thead>
+      <tbody>
+        <tr><td>Free</td><td>100</td><td><code>X-RateLimit-Limit: 100</code></td></tr>
+        <tr><td>Standard</td><td>500</td><td><code>X-RateLimit-Limit: 500</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="request-headers">Request Headers</h2>
+    <div class="param-table-wrap">
+      <table class="doc-table">
+        <thead>
+          <tr><th>헤더</th><th>타입</th><th>필수</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">Authorization</span></td>
+            <td><span class="type-badge">string</span></td>
+            <td><span class="param-required">Required</span></td>
+            <td><p class="param-desc">Bearer {access_token} 형식</p></td>
+          </tr>
+          <tr>
+            <td><span class="param-name">Accept-Language</span></td>
+            <td><span class="type-badge">string</span></td>
+            <td><span class="param-optional">Optional</span></td>
+            <td><p class="param-desc">응답 언어 설정. 기본값: <code>ko</code></p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="query-params">Query Parameters</h2>
+    <div class="param-table-wrap">
+      <table class="doc-table">
+        <thead>
+          <tr><th>파라미터</th><th>타입</th><th>필수</th><th>설명</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-name">query</span></td>
+            <td><span class="type-badge">string</span></td>
+            <td><span class="param-required">Required</span></td>
+            <td><p class="param-desc">검색 키워드. 제목, 저자, 출판사에서 풀텍스트 검색.</p></td>
+          </tr>
+          <tr>
+            <td><span class="param-name">isbn</span></td>
+            <td><span class="type-badge">string</span></td>
+            <td><span class="param-optional">Optional</span></td>
+            <td><p class="param-desc">ISBN-10 또는 ISBN-13으로 특정 도서 조회.<div class="param-default">예: 9788996044246</div></p></td>
+          </tr>
+          <tr>
+            <td><span class="param-name">category</span></td>
+            <td><span class="type-badge">string</span></td>
+            <td><span class="param-optional">Optional</span></td>
+            <td><p class="param-desc">카테고리 코드. <code>/v1/codes/categories</code>에서 조회.<div class="param-default">예: IT001</div></p></td>
+          </tr>
+          <tr>
+            <td><span class="param-name">sort</span></td>
+            <td><span class="type-badge">string</span></td>
+            <td><span class="param-optional">Optional</span></td>
+            <td><p class="param-desc">정렬 기준. <code>relevance</code> | <code>pubdate</code> | <code>sales</code><div class="param-default">기본값: relevance</div></p></td>
+          </tr>
+          <tr>
+            <td><span class="param-name">page</span></td>
+            <td><span class="type-badge">integer</span></td>
+            <td><span class="param-optional">Optional</span></td>
+            <td><p class="param-desc">페이지 번호 (1 이상)<div class="param-default">기본값: 1</div></p></td>
+          </tr>
+          <tr>
+            <td><span class="param-name">size</span></td>
+            <td><span class="type-badge">integer</span></td>
+            <td><span class="param-optional">Optional</span></td>
+            <td><p class="param-desc">페이지당 결과 수 (1~100)<div class="param-default">기본값: 20</div></p></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="request-example">Request Example</h2>
+    <div class="code-tabs">
+      <div class="code-tab-nav">
+        <button class="active">cURL</button>
+        <button>JavaScript</button>
+        <button>C#</button>
+        <button>Java</button>
+        <button class="tab-copy-btn">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="code-tab-panel active">
+        <pre><code>curl -X GET "https://api.yes24.com/v1/books?query=클린코드&size=10&sort=sales" \
+  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Accept-Language: ko"</code></pre>
+      </div>
+      <div class="code-tab-panel">
+        <pre><code>const response = await fetch(
+  'https://api.yes24.com/v1/books?query=클린코드&size=10&sort=sales',
+  {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept-Language': 'ko',
+    },
+  }
+);
+const data = await response.json();
+console.log(data);</code></pre>
+      </div>
+      <div class="code-tab-panel">
+        <pre><code>using System.Net.Http;
+using System.Net.Http.Headers;
+
+var client = new HttpClient();
+client.DefaultRequestHeaders.Authorization =
+    new AuthenticationHeaderValue("Bearer", accessToken);
+
+var response = await client.GetAsync(
+    "https://api.yes24.com/v1/books?query=클린코드&size=10&sort=sales");
+
+var json = await response.Content.ReadAsStringAsync();
+Console.WriteLine(json);</code></pre>
+      </div>
+      <div class="code-tab-panel">
+        <pre><code>OkHttpClient client = new OkHttpClient();
+
+Request request = new Request.Builder()
+    .url("https://api.yes24.com/v1/books?query=클린코드&size=10&sort=sales")
+    .addHeader("Authorization", "Bearer " + accessToken)
+    .addHeader("Accept-Language", "ko")
+    .build();
+
+try (Response response = client.newCall(request).execute()) {
+    System.out.println(response.body().string());
+}</code></pre>
+      </div>
+    </div>
+
+    <h2 id="response-example">Response Example</h2>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span class="response-status status-2xx"><span class="status-dot"></span>200 OK</span>
+    </div>
+    <div class="code-block">
+      <div class="code-block-header">
+        <span class="code-lang">json — 200 OK</span>
+        <button class="copy-btn">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="code-block-body">
+        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "id": "BK0001234",
+      "isbn": "9788966262250",
+      "title": "클린 코드",
+      "subtitle": "애자일 소프트웨어 장인 정신",
+      "author": "로버트 C. 마틴",
+      "publisher": "인사이트",
+      "pubdate": "2013-12-24",
+      "price": 33000,
+      "salePrice": 29700,
+      "discount": 10,
+      "coverImage": "https://image.yes24.com/goods/11681152/L",
+      "category": { "code": "IT001", "name": "IT > 개발/프로그래밍" },
+      "salesRank": 12,
+      "rating": 4.7,
+      "reviewCount": 482
+    }
+  ],
+  "meta": { "total": 47, "page": 1, "size": 10, "totalPages": 5 }
+}</code></pre>
+      </div>
+    </div>
+
+    <h2 id="response-schema">Response Schema</h2>
+    <div class="param-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>필드</th><th>타입</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><span class="param-name">id</span></td><td><span class="type-badge">string</span></td><td>YES24 도서 고유 ID</td></tr>
+          <tr><td><span class="param-name">isbn</span></td><td><span class="type-badge">string</span></td><td>ISBN-13</td></tr>
+          <tr><td><span class="param-name">title</span></td><td><span class="type-badge">string</span></td><td>도서 제목</td></tr>
+          <tr><td><span class="param-name">author</span></td><td><span class="type-badge">string</span></td><td>저자명 (공저: 쉼표 구분)</td></tr>
+          <tr><td><span class="param-name">publisher</span></td><td><span class="type-badge">string</span></td><td>출판사명</td></tr>
+          <tr><td><span class="param-name">pubdate</span></td><td><span class="type-badge">string</span></td><td>출판일 (YYYY-MM-DD)</td></tr>
+          <tr><td><span class="param-name">price</span></td><td><span class="type-badge">integer</span></td><td>정가 (원)</td></tr>
+          <tr><td><span class="param-name">salePrice</span></td><td><span class="type-badge">integer</span></td><td>판매가 (원)</td></tr>
+          <tr><td><span class="param-name">discount</span></td><td><span class="type-badge">integer</span></td><td>할인율 (%)</td></tr>
+          <tr><td><span class="param-name">coverImage</span></td><td><span class="type-badge">string</span></td><td>표지 이미지 URL</td></tr>
+          <tr><td><span class="param-name">salesRank</span></td><td><span class="type-badge">integer</span></td><td>카테고리 내 판매 순위</td></tr>
+          <tr><td><span class="param-name">rating</span></td><td><span class="type-badge">number</span></td><td>평균 평점 (0.0~5.0)</td></tr>
+          <tr><td><span class="param-name">meta.total</span></td><td><span class="type-badge">integer</span></td><td>전체 검색 결과 수</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="error-codes">Error Codes</h2>
+    <div class="param-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>HTTP</th><th>에러 코드</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-warning">400</span></td><td><code>BOOKS_001</code></td><td>query 파라미터가 없거나 비어있음</td></tr>
+          <tr><td><span class="badge badge-warning">400</span></td><td><code>BOOKS_002</code></td><td>size 값이 유효 범위(1~100)를 벗어남</td></tr>
+          <tr><td><span class="badge badge-danger">401</span></td><td><code>AUTH_001</code></td><td>유효하지 않거나 만료된 Access Token</td></tr>
+          <tr><td><span class="badge badge-danger">403</span></td><td><code>AUTH_003</code></td><td>해당 API에 대한 권한 없음</td></tr>
+          <tr><td><span class="badge badge-warning">429</span></td><td><code>RATE_001</code></td><td>Rate Limit 초과. X-RateLimit-Reset 헤더 확인</td></tr>
+          <tr><td><span class="badge badge-danger">500</span></td><td><code>SERVER_001</code></td><td>서버 내부 오류. 재시도 후 지속 시 지원팀 문의</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><a href="support.html#error-codes">→ 전체 Error Codes 참조</a></p>
+
+    <div class="doc-nav-footer">
+      <a href="docs-apikey.html" class="doc-nav-link prev">
+        <div class="dir"><span>←</span> 이전</div>
+        <div class="title">API Key 발급</div>
+      </a>
+      <a href="api-detail.html#books-id" class="doc-nav-link next">
+        <div class="dir">다음 <span>→</span></div>
+        <div class="title">GET /v1/books/{id}</div>
+      </a>
+    </div>
+  </main>
+
+  <aside class="toc-panel">
+    <div class="toc-title">이 페이지에서</div>
+    <ul class="toc-nav">
+      <li><a href="#overview">개요</a></li>
+      <li><a href="#endpoint">Endpoint</a></li>
+      <li><a href="#auth">인증</a></li>
+      <li><a href="#rate-limit">Rate Limit</a></li>
+      <li><a href="#request-headers">Request Headers</a></li>
+      <li><a href="#query-params">Query Parameters</a></li>
+      <li><a href="#request-example">Request Example</a></li>
+      <li><a href="#response-example">Response Example</a></li>
+      <li><a href="#response-schema">Response Schema</a></li>
+      <li><a href="#error-codes">Error Codes</a></li>
+    </ul>
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--color-border);">
+      <a href="api-explorer.html" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;">
+        🧪 Explorer에서 테스트
+      </a>
+    </div>
+  </aside>
+
+</div>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Explorer — YES24 Developers</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">Developers</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="api-explorer.html" class="active">API Explorer</a></li>
+      <li><a href="my-applications.html">My Applications</a></li>
+      <li><a href="support.html">Support</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span class="nav-version-badge">v1.0</span>
+      <a href="my-applications.html" class="btn btn-ghost btn-sm">로그인</a>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm">API Key 신청</a>
+    </div>
+  </div>
+</nav>
+
+<div class="explorer-layout">
+
+  <aside class="explorer-sidebar">
+    <div class="explorer-sidebar-search">
+      <input type="text" placeholder="Endpoint 검색..." oninput="filterEndpoints(this.value)">
+    </div>
+    <div id="endpoint-list">
+      <div class="explorer-group-title">Books API</div>
+      <div class="explorer-endpoint-item active" data-method="GET" data-path="/v1/books" data-desc="도서 검색" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/books</span>
+      </div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/books/{id}" data-desc="도서 상세 조회" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/books/{id}</span>
+      </div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/books/{id}/preview" data-desc="도서 미리보기" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/books/{id}/preview</span>
+      </div>
+      <div class="explorer-group-title" style="margin-top:8px;">Products API</div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/products" data-desc="상품 목록 조회" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/products</span>
+      </div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/products/{id}" data-desc="상품 상세 조회" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/products/{id}</span>
+      </div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/products/bestseller" data-desc="베스트셀러 목록" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/products/bestseller</span>
+      </div>
+      <div class="explorer-group-title" style="margin-top:8px;">Search API</div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/search" data-desc="통합 검색" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/search</span>
+      </div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/search/suggest" data-desc="자동완성" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/search/suggest</span>
+      </div>
+      <div class="explorer-group-title" style="margin-top:8px;">Common Codes API</div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/codes/categories" data-desc="카테고리 코드 목록" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/codes/categories</span>
+      </div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/codes/publishers" data-desc="출판사 코드 목록" onclick="selectEndpoint(this)">
+        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
+        <span class="ep-path">/v1/codes/publishers</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="explorer-main">
+    <div class="explorer-endpoint-header">
+      <div class="explorer-endpoint-title">
+        <span class="method-badge method-get" id="ep-method-badge" style="font-size:13px;padding:3px 10px;">GET</span>
+        <h2 id="ep-title">/v1/books</h2>
+      </div>
+      <p id="ep-desc" style="font-size:14px;color:var(--color-text-secondary);margin:0;">도서 검색 — 키워드, ISBN, 저자, 출판사 등으로 도서를 검색합니다.</p>
+      <a id="ep-docs-link" href="api-detail.html" style="font-size:13px;color:var(--color-brand);margin-top:8px;display:inline-block;">→ 상세 문서 보기</a>
+    </div>
+
+    <div class="explorer-form-section">
+      <div class="explorer-form-title">Authorization</div>
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;">
+        <label style="font-size:13px;color:var(--color-text-secondary);">Bearer Token</label>
+        <input type="password" id="auth-token" placeholder="Access Token을 입력하세요" style="padding:7px 10px;font-size:13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-bg);color:var(--color-text);font-family:var(--font-mono);outline:none;width:100%;transition:border-color 0.15s;">
+      </div>
+      <p style="font-size:12px;color:var(--color-text-muted);margin-top:6px;">
+        Token이 없으신가요? <a href="api-key-apply.html">API Key 신청하기</a>에서 즉시 발급받으세요.
+      </p>
+    </div>
+
+    <div class="explorer-url-bar">
+      <span class="explorer-url-method" id="url-method">GET</span>
+      <input type="text" class="explorer-url-input" id="url-input" value="https://api.yes24.com/v1/books" readonly>
+      <button class="explorer-url-btn" onclick="executeRequest()">Execute</button>
+    </div>
+
+    <div class="explorer-form-section" id="params-section">
+      <div class="explorer-form-title">Query Parameters</div>
+      <div id="params-container">
+        <div class="explorer-param-row">
+          <label>query <span style="color:var(--color-danger);font-size:11px;">*</span></label>
+          <input type="text" placeholder="검색 키워드 (예: 클린코드)" id="param-query">
+          <span style="font-size:12px;color:var(--color-text-muted);">string</span>
+        </div>
+        <div class="explorer-param-row">
+          <label>isbn</label>
+          <input type="text" placeholder="예: 9788966262250" id="param-isbn">
+          <span style="font-size:12px;color:var(--color-text-muted);">string</span>
+        </div>
+        <div class="explorer-param-row">
+          <label>sort</label>
+          <select id="param-sort">
+            <option value="">-- 선택 --</option>
+            <option value="relevance">relevance</option>
+            <option value="pubdate">pubdate</option>
+            <option value="sales">sales</option>
+          </select>
+          <span style="font-size:12px;color:var(--color-text-muted);">enum</span>
+        </div>
+        <div class="explorer-param-row">
+          <label>page</label>
+          <input type="number" placeholder="1" min="1" id="param-page">
+          <span style="font-size:12px;color:var(--color-text-muted);">integer</span>
+        </div>
+        <div class="explorer-param-row">
+          <label>size</label>
+          <input type="number" placeholder="20" min="1" max="100" id="param-size">
+          <span style="font-size:12px;color:var(--color-text-muted);">integer</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="explorer-response" id="response-panel">
+      <div class="explorer-response-header">
+        <h4>Response</h4>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="response-status-badge" style="display:none;" class="response-status"></span>
+          <span id="response-time" style="font-size:12px;color:var(--color-text-muted);display:none;"></span>
+          <button class="btn btn-ghost btn-sm" onclick="clearResponse()" id="clear-btn" style="display:none;">Clear</button>
+        </div>
+      </div>
+      <div class="explorer-response-body">
+        <div class="explorer-placeholder" id="response-placeholder">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
+          <span>Execute를 눌러 API를 호출하세요.</span>
+        </div>
+        <pre id="response-output" style="display:none;margin:0;background:transparent;border:none;color:#C9D1D9;font-size:13px;"></pre>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/main.js"></script>
+<script>
+const ENDPOINTS = {
+  '/v1/books': { method:'GET', desc:'도서 검색 — 키워드, ISBN, 저자, 출판사 등으로 도서를 검색합니다.', docs:'api-detail.html',
+    mock:{ success:true, data:[{ id:"BK0001234", isbn:"9788966262250", title:"클린 코드", author:"로버트 C. 마틴", publisher:"인사이트", pubdate:"2013-12-24", price:33000, salePrice:29700, discount:10, salesRank:12, rating:4.7, reviewCount:482 }], meta:{ total:47, page:1, size:20, totalPages:3 } }},
+  '/v1/books/{id}': { method:'GET', desc:'도서 상세 조회 — 특정 도서의 상세 정보를 반환합니다.', docs:'api-detail.html#books-id',
+    mock:{ success:true, data:{ id:"BK0001234", isbn:"9788966262250", title:"클린 코드", author:"로버트 C. 마틴", publisher:"인사이트", pages:584 } }},
+  '/v1/books/{id}/preview': { method:'GET', desc:'도서 미리보기 — 도서 본문 미리보기 페이지를 반환합니다.', docs:'api-detail.html#books-preview',
+    mock:{ success:true, data:{ id:"BK0001234", previewPages:[{ page:1, content:"1장. 깨끗한 코드..." }], totalPreviewPages:10 } }},
+  '/v1/products': { method:'GET', desc:'상품 목록 조회 — YES24 판매 상품의 가격 및 재고 정보를 조회합니다.', docs:'#',
+    mock:{ success:true, data:[{ id:"PROD001", name:"클린 코드", price:33000, salePrice:29700, stock:50, status:"ON_SALE" }], meta:{ total:120, page:1, size:20 } }},
+  '/v1/products/{id}': { method:'GET', desc:'상품 상세 조회 — 특정 상품의 상세 가격 및 재고 정보를 반환합니다.', docs:'#',
+    mock:{ success:true, data:{ id:"PROD001", name:"클린 코드", price:33000, salePrice:29700, stock:50, status:"ON_SALE" } }},
+  '/v1/products/bestseller': { method:'GET', desc:'베스트셀러 목록 — 카테고리별 베스트셀러 상품 목록을 반환합니다.', docs:'#',
+    mock:{ success:true, data:[{ rank:1, id:"BK0001234", title:"클린 코드", author:"로버트 C. 마틴", salePrice:29700 }, { rank:2, id:"BK0005678", title:"리팩터링 2판", author:"마틴 파울러", salePrice:36000 }] }},
+  '/v1/search': { method:'GET', desc:'통합 검색 — YES24 상품 전체를 대상으로 검색합니다.', docs:'#',
+    mock:{ success:true, data:{ books:[], products:[], total:0 }, meta:{ query:"클린코드", took:12 } }},
+  '/v1/search/suggest': { method:'GET', desc:'자동완성 — 입력 키워드에 대한 자동완성 후보어를 반환합니다.', docs:'#',
+    mock:{ success:true, data:["클린 코드", "클린 아키텍처", "클린 코딩"] }},
+  '/v1/codes/categories': { method:'GET', desc:'카테고리 코드 목록 — YES24 상품 카테고리 분류 체계를 반환합니다.', docs:'#',
+    mock:{ success:true, data:[{ code:"IT001", name:"IT > 개발/프로그래밍", depth:2 }, { code:"IT002", name:"IT > 데이터베이스", depth:2 }] }},
+  '/v1/codes/publishers': { method:'GET', desc:'출판사 코드 목록 — YES24 등록 출판사 코드와 이름을 반환합니다.', docs:'#',
+    mock:{ success:true, data:[{ code:"PUB001", name:"인사이트" }, { code:"PUB002", name:"한빛미디어" }, { code:"PUB003", name:"위키북스" }] }}
+};
+
+function selectEndpoint(el) {
+  document.querySelectorAll('.explorer-endpoint-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  const ep = ENDPOINTS[el.dataset.path];
+  if (!ep) return;
+  document.getElementById('ep-title').textContent = el.dataset.path;
+  document.getElementById('ep-method-badge').textContent = ep.method;
+  document.getElementById('ep-method-badge').className = `method-badge method-${ep.method.toLowerCase()}`;
+  document.getElementById('url-method').textContent = ep.method;
+  document.getElementById('url-input').value = `https://api.yes24.com${el.dataset.path}`;
+  document.getElementById('ep-desc').textContent = ep.desc;
+  document.getElementById('ep-docs-link').href = ep.docs;
+  clearResponse();
+}
+
+function executeRequest() {
+  const token = document.getElementById('auth-token').value.trim();
+  if (!token) {
+    showResponse({ success:false, error:{ code:"AUTH_001", message:"Access Token이 필요합니다.", docs:"https://developers.yes24.com/docs-apikey.html" } }, 401, 0);
+    return;
+  }
+  const path = document.querySelector('.explorer-endpoint-item.active')?.dataset.path || '/v1/books';
+  const ep = ENDPOINTS[path];
+  document.getElementById('response-placeholder').style.display = 'none';
+  document.getElementById('response-output').style.display = 'block';
+  document.getElementById('response-output').textContent = '요청 중...';
+  const start = Date.now();
+  setTimeout(() => showResponse(ep.mock, 200, Date.now() - start), 600 + Math.random() * 400);
+}
+
+function showResponse(data, status, ms) {
+  const out = document.getElementById('response-output');
+  document.getElementById('response-placeholder').style.display = 'none';
+  out.style.display = 'block';
+  out.textContent = JSON.stringify(data, null, 2);
+  const badge = document.getElementById('response-status-badge');
+  badge.style.display = 'inline-flex';
+  badge.className = `response-status ${status < 300 ? 'status-2xx' : status < 500 ? 'status-4xx' : 'status-5xx'}`;
+  badge.innerHTML = `<span class="status-dot"></span>${status} ${status === 200 ? 'OK' : status === 401 ? 'Unauthorized' : 'Error'}`;
+  if (ms > 0) { const t = document.getElementById('response-time'); t.style.display = 'inline'; t.textContent = `${ms}ms`; }
+  document.getElementById('clear-btn').style.display = 'inline-flex';
+}
+
+function clearResponse() {
+  document.getElementById('response-output').style.display = 'none';
+  document.getElementById('response-output').textContent = '';
+  document.getElementById('response-placeholder').style.display = 'flex';
+  document.getElementById('response-status-badge').style.display = 'none';
+  document.getElementById('response-time').style.display = 'none';
+  document.getElementById('clear-btn').style.display = 'none';
+}
+
+function filterEndpoints(val) {
+  document.querySelectorAll('.explorer-endpoint-item').forEach(item => {
+    item.style.display = (item.dataset.path || '').toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

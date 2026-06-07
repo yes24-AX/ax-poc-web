@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Key 신청 — YES24 Developers</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    .apply-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .apply-card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 40px 48px;
+    }
+
+    @media (max-width: 600px) {
+      .apply-card { padding: 24px 20px; }
+    }
+    .apply-header {
+      margin-bottom: 40px;
+    }
+    .apply-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 8px;
+    }
+    .apply-header p {
+      font-size: 15px;
+      color: var(--color-text-secondary);
+    }
+
+    /* Steps indicator */
+    .apply-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+    .apply-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+    }
+    .apply-step.active {
+      color: var(--color-brand);
+      font-weight: 600;
+    }
+    .apply-step.done {
+      color: var(--color-success);
+    }
+    .apply-step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--color-bg-subtle);
+      border: 1.5px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .apply-step.active .apply-step-num {
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+      color: #fff;
+    }
+    .apply-step.done .apply-step-num {
+      background: var(--color-success);
+      border-color: var(--color-success);
+      color: #fff;
+    }
+    .apply-step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--color-border);
+      margin: 0 12px;
+    }
+
+    /* Form sections */
+    .form-section {
+      margin-bottom: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .form-section:last-of-type {
+      border-bottom: none;
+    }
+    .form-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+    .form-section-desc {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Form fields */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-row.single {
+      grid-template-columns: 1fr;
+    }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .form-field:last-child {
+      margin-bottom: 0;
+    }
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .form-label .required {
+      color: var(--color-danger);
+      font-size: 14px;
+    }
+    .form-label .optional {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--color-text-muted);
+      background: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      padding: 1px 6px;
+    }
+    .form-input,
+    .form-textarea,
+    .form-select {
+      padding: 9px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      color: var(--color-text);
+      background: var(--color-bg);
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+      border-color: var(--color-brand);
+      box-shadow: 0 0 0 3px rgba(20,85,170,0.08);
+    }
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: var(--color-text-muted);
+    }
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--color-text-muted);
+    }
+
+    /* Agree items */
+    .agree-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .agree-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg);
+    }
+    .agree-item:last-child {
+      border-bottom: none;
+    }
+    .agree-item.all {
+      background: var(--color-bg-subtle);
+      font-weight: 600;
+    }
+    .agree-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      accent-color: var(--color-brand);
+      cursor: pointer;
+    }
+    .agree-item-content {
+      flex: 1;
+    }
+    .agree-item-label {
+      font-size: 14px;
+      color: var(--color-text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .agree-item-desc {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 3px;
+    }
+    .agree-detail-btn {
+      font-size: 12px;
+      color: var(--color-brand);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      align-self: center;
+    }
+    .agree-detail-btn:hover {
+      text-decoration: underline;
+    }
+    .badge-required-agree {
+      font-size: 11px;
+      color: var(--color-danger);
+      font-weight: 600;
+    }
+    .badge-optional-agree {
+      font-size: 11px;
+      color: var(--color-text-muted);
+      font-weight: 400;
+    }
+
+    /* Submit area */
+    .form-submit-area {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .form-submit-area .btn-primary {
+      width: 100%;
+      max-width: 400px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .form-submit-area .submit-note {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      text-align: center;
+    }
+
+    /* Result panel */
+    .result-panel {
+      display: none;
+      background: var(--color-bg-subtle);
+      border: 1.5px solid var(--color-brand);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      text-align: center;
+      margin-top: 40px;
+    }
+    .result-panel.show {
+      display: block;
+    }
+    .result-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+    .result-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 8px;
+    }
+    .result-desc {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin-bottom: 24px;
+    }
+    .key-display-wrap {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .key-display-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .key-display-value {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-brand);
+      word-break: break-all;
+      flex: 1;
+    }
+    .key-copy-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .key-warning {
+      background: #FFF3CD;
+      border: 1px solid #FFCA28;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #856404;
+      text-align: left;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">Developers</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="api-explorer.html">API Explorer</a></li>
+      <li><a href="my-applications.html">My Applications</a></li>
+      <li><a href="support.html">Support</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span class="nav-version-badge">v1.0</span>
+    </div>
+  </div>
+</nav>
+
+<div class="apply-wrap">
+
+  <div class="apply-header">
+    <h1>API Key 신청</h1>
+    <p>신청 정보를 입력하시면 즉시 API Key가 발급됩니다. 발급된 Key는 최초 1회만 노출되니 반드시 안전한 곳에 보관하세요.</p>
+  </div>
+
+  <!-- Steps -->
+  <div class="apply-steps">
+    <div class="apply-step active" id="step-indicator-1">
+      <div class="apply-step-num">1</div>
+      <span>신청 정보 입력</span>
+    </div>
+    <div class="apply-step-line"></div>
+    <div class="apply-step" id="step-indicator-2">
+      <div class="apply-step-num">2</div>
+      <span>API Key 발급 완료</span>
+    </div>
+  </div>
+
+  <div class="apply-card">
+
+  <!-- Form -->
+  <form id="apply-form" onsubmit="submitApply(event)">
+
+    <!-- YES24 계정 정보 -->
+    <div class="form-section">
+      <div class="form-section-title">YES24 계정 정보</div>
+      <div class="form-section-desc">YES24 계정이 있으신 경우 입력해주세요. 계정 연동으로 추후 포털 로그인이 가능합니다.</div>
+      <div class="form-field">
+        <label class="form-label" for="yes24-id">
+          YES24 아이디 <span class="optional">선택</span>
+        </label>
+        <input type="text" id="yes24-id" name="yes24_id" class="form-input" placeholder="YES24 로그인 아이디 입력">
+        <span class="form-hint">입력하시면 YES24 계정과 연동하여 관리할 수 있습니다.</span>
+      </div>
+    </div>
+
+    <!-- 서비스 정보 -->
+    <div class="form-section">
+      <div class="form-section-title">서비스 정보</div>
+      <div class="form-section-desc">API를 사용할 서비스에 대해 입력해주세요.</div>
+
+      <div class="form-field">
+        <label class="form-label" for="service-name">
+          서비스명 <span class="required">*</span>
+        </label>
+        <input type="text" id="service-name" name="service_name" class="form-input" placeholder="예: 독서 추천 앱" required>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="service-domain">
+          서비스 URL <span class="required">*</span>
+        </label>
+        <input type="url" id="service-domain" name="domain" class="form-input" placeholder="예: https://myapp.example.com" required>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="service-desc">
+          서비스 설명 <span class="required">*</span>
+        </label>
+        <textarea id="service-desc" name="description" class="form-textarea" placeholder="서비스의 주요 기능과 목적을 간략히 설명해주세요." required></textarea>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="use-purpose">
+          API 사용 목적 <span class="required">*</span>
+        </label>
+        <textarea id="use-purpose" name="use_purpose" class="form-textarea" placeholder="YES24 Open API를 어떤 용도로 활용할 계획인지 설명해주세요." required></textarea>
+      </div>
+    </div>
+
+    <!-- 담당자 정보 -->
+    <div class="form-section">
+      <div class="form-section-title">담당자 정보</div>
+      <div class="form-section-desc">API Key 발급 결과 및 공지 수신에 사용됩니다.</div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label" for="contact-name">
+            담당자명 <span class="required">*</span>
+          </label>
+          <input type="text" id="contact-name" name="contact_name" class="form-input" placeholder="홍길동" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="contact-phone">
+            연락처 <span class="optional">선택</span>
+          </label>
+          <input type="tel" id="contact-phone" name="contact_phone" class="form-input" placeholder="010-0000-0000">
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="contact-email">
+          이메일 <span class="required">*</span>
+        </label>
+        <input type="email" id="contact-email" name="contact_email" class="form-input" placeholder="contact@example.com" required>
+        <span class="form-hint">발급된 API Key는 이 이메일로도 전송됩니다.</span>
+      </div>
+    </div>
+
+    <!-- 약관 동의 -->
+    <div class="form-section">
+      <div class="form-section-title">약관 동의</div>
+      <div class="form-section-desc">서비스 이용을 위한 약관에 동의해주세요.</div>
+
+      <div class="agree-list">
+
+        <!-- 전체 동의 -->
+        <div class="agree-item all">
+          <input type="checkbox" id="agree-all" onchange="toggleAllAgree(this)">
+          <div class="agree-item-content">
+            <label class="agree-item-label" for="agree-all">
+              전체 동의
+            </label>
+            <div class="agree-item-desc">필수 및 선택 항목 모두 동의합니다.</div>
+          </div>
+        </div>
+
+        <!-- 이용약관 -->
+        <div class="agree-item">
+          <input type="checkbox" id="agree-terms" name="agree_terms" onchange="updateAllAgree()" required>
+          <div class="agree-item-content">
+            <label class="agree-item-label" for="agree-terms">
+              <span class="badge-required-agree">[필수]</span> 이용약관 동의
+            </label>
+            <div class="agree-item-desc">YES24 Open API 서비스 이용약관에 동의합니다.</div>
+          </div>
+          <a href="#" class="agree-detail-btn" onclick="showModal('terms'); return false;">내용 보기</a>
+        </div>
+
+        <!-- 개인정보 수집·이용 -->
+        <div class="agree-item">
+          <input type="checkbox" id="agree-privacy" name="agree_privacy" onchange="updateAllAgree()" required>
+          <div class="agree-item-content">
+            <label class="agree-item-label" for="agree-privacy">
+              <span class="badge-required-agree">[필수]</span> 개인정보 수집·이용 동의
+            </label>
+            <div class="agree-item-desc">
+              수집 항목: 이름, 이메일, 연락처, YES24 아이디<br>
+              수집 목적: API Key 발급 및 서비스 운영<br>
+              보유 기간: 서비스 탈퇴 시까지
+            </div>
+          </div>
+          <a href="#" class="agree-detail-btn" onclick="showModal('privacy'); return false;">내용 보기</a>
+        </div>
+
+        <!-- 제3자 제공 -->
+        <div class="agree-item">
+          <input type="checkbox" id="agree-third-party" name="agree_third_party" onchange="updateAllAgree()" required>
+          <div class="agree-item-content">
+            <label class="agree-item-label" for="agree-third-party">
+              <span class="badge-required-agree">[필수]</span> 개인정보 제3자 제공 동의
+            </label>
+            <div class="agree-item-desc">
+              제공 대상: YES24 주식회사 계열사<br>
+              제공 항목: 이메일, 서비스명<br>
+              제공 목적: 파트너십 및 API 운영 지원
+            </div>
+          </div>
+          <a href="#" class="agree-detail-btn" onclick="showModal('third-party'); return false;">내용 보기</a>
+        </div>
+
+        <!-- 마케팅 -->
+        <div class="agree-item">
+          <input type="checkbox" id="agree-marketing" name="agree_marketing" onchange="updateAllAgree()">
+          <div class="agree-item-content">
+            <label class="agree-item-label" for="agree-marketing">
+              <span class="badge-optional-agree">[선택]</span> 마케팅 정보 수신 동의
+            </label>
+            <div class="agree-item-desc">API 업데이트, 새로운 서비스, 이벤트 안내 등 마케팅 정보를 이메일로 받습니다.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-submit-area">
+      <button type="submit" class="btn btn-primary">API Key 즉시 발급받기</button>
+      <p class="submit-note">신청 즉시 API Key가 발급됩니다. 발급된 Key는 이메일로도 전송됩니다.</p>
+    </div>
+
+  </form>
+
+  <!-- 발급 완료 결과 패널 -->
+  <div class="result-panel" id="result-panel">
+    <div class="result-icon">✅</div>
+    <div class="result-title">API Key 발급 완료</div>
+    <div class="result-desc">아래 API Key를 복사하여 안전한 곳에 보관하세요.<br>보안을 위해 이 화면에서만 원문이 표시됩니다.</div>
+
+    <div class="key-display-wrap">
+      <div style="flex:1;">
+        <div class="key-display-label">API Key</div>
+        <div class="key-display-value" id="issued-key">yk_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</div>
+      </div>
+      <button class="btn btn-outline key-copy-btn" onclick="copyKey()">복사</button>
+    </div>
+
+    <div class="key-warning">
+      <span>⚠️</span>
+      <div>
+        <strong>주의:</strong> API Key는 지금 이 화면에서만 확인 가능합니다. 분실 시 재발급이 필요하며, 재발급하면 기존 Key는 즉시 무효화됩니다.
+      </div>
+    </div>
+
+    <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="docs-apikey.html" class="btn btn-outline">API 사용 가이드 보기</a>
+      <a href="api-explorer.html" class="btn btn-primary">API Explorer에서 테스트</a>
+    </div>
+  </div>
+
+  </div><!-- /apply-card -->
+
+</div>
+
+<!-- 약관 모달 -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:var(--color-bg);border-radius:var(--radius-lg);width:90%;max-width:560px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;">
+      <span id="modal-title" style="font-size:16px;font-weight:700;color:var(--color-text);">약관</span>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--color-text-muted);">×</button>
+    </div>
+    <div id="modal-body" style="padding:24px;overflow-y:auto;font-size:13px;color:var(--color-text-secondary);line-height:1.8;"></div>
+    <div style="padding:16px 24px;border-top:1px solid var(--color-border);text-align:right;">
+      <button onclick="closeModal()" class="btn btn-primary btn-sm">확인</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/main.js"></script>
+<script>
+  // 전체 동의 토글
+  function toggleAllAgree(allChk) {
+    const checkboxes = document.querySelectorAll('#agree-terms, #agree-privacy, #agree-third-party, #agree-marketing');
+    checkboxes.forEach(chk => chk.checked = allChk.checked);
+  }
+
+  // 개별 체크 시 전체 동의 상태 갱신
+  function updateAllAgree() {
+    const required = ['agree-terms', 'agree-privacy', 'agree-third-party', 'agree-marketing'];
+    const allChecked = required.every(id => document.getElementById(id).checked);
+    document.getElementById('agree-all').checked = allChecked;
+  }
+
+  // 폼 제출 (Mock)
+  function submitApply(e) {
+    e.preventDefault();
+
+    const terms = document.getElementById('agree-terms').checked;
+    const privacy = document.getElementById('agree-privacy').checked;
+    const thirdParty = document.getElementById('agree-third-party').checked;
+
+    if (!terms || !privacy || !thirdParty) {
+      alert('필수 약관에 모두 동의해주세요.');
+      return;
+    }
+
+    // Mock: API Key 생성
+    const key = 'yk_live_' + Array.from(crypto.getRandomValues(new Uint8Array(20)))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+
+    document.getElementById('issued-key').textContent = key;
+
+    // 폼 숨기기
+    document.getElementById('apply-form').style.display = 'none';
+
+    // Step 업데이트
+    document.getElementById('step-indicator-1').classList.remove('active');
+    document.getElementById('step-indicator-1').classList.add('done');
+    document.getElementById('step-indicator-1').querySelector('.apply-step-num').textContent = '✓';
+    document.getElementById('step-indicator-2').classList.add('active');
+
+    // 결과 패널 표시
+    const panel = document.getElementById('result-panel');
+    panel.classList.add('show');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // 키 복사
+  function copyKey() {
+    const key = document.getElementById('issued-key').textContent;
+    navigator.clipboard.writeText(key).then(() => {
+      const btn = document.querySelector('.key-copy-btn');
+      btn.textContent = '복사됨 ✓';
+      btn.style.color = 'var(--color-success)';
+      setTimeout(() => { btn.textContent = '복사'; btn.style.color = ''; }, 2000);
+    });
+  }
+
+  // 모달
+  const MODAL_CONTENT = {
+    terms: {
+      title: '이용약관',
+      body: `<strong>제1조 (목적)</strong><br>본 약관은 YES24 주식회사(이하 "회사")가 제공하는 YES24 Open API 서비스(이하 "서비스")의 이용에 관한 조건 및 절차, 회사와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.<br><br>
+      <strong>제2조 (서비스 이용)</strong><br>발급된 API Key는 본인 또는 소속 기관의 서비스에 한해 사용할 수 있으며 제3자에게 양도·판매할 수 없습니다.<br><br>
+      <strong>제3조 (Rate Limit)</strong><br>무분별한 API 호출을 방지하기 위해 플랜별 Rate Limit이 적용됩니다. Rate Limit 초과 시 일시적으로 요청이 차단될 수 있습니다.<br><br>
+      <strong>제4조 (서비스 중단)</strong><br>회사는 서버 점검, 장애, 정책 변경 등의 사유로 서비스를 일시 중단할 수 있습니다.`
+    },
+    privacy: {
+      title: '개인정보 수집·이용 동의',
+      body: `<strong>수집하는 개인정보 항목</strong><br>필수: 이름, 이메일, YES24 아이디(선택 입력 시)<br>선택: 연락처<br><br>
+      <strong>개인정보 수집·이용 목적</strong><br>- API Key 발급 및 본인 확인<br>- 서비스 운영 및 기술 지원<br>- 서비스 이용 관련 공지사항 발송<br><br>
+      <strong>개인정보 보유 및 이용기간</strong><br>서비스 탈퇴 또는 API Key 폐기 요청 시까지. 단, 관계 법령에 따라 일정 기간 보관이 필요한 경우 해당 기간 동안 보관합니다.<br><br>
+      <strong>동의 거부권</strong><br>개인정보 수집·이용 동의를 거부할 수 있으나, 거부 시 API Key 발급 서비스를 이용할 수 없습니다.`
+    },
+    'third-party': {
+      title: '개인정보 제3자 제공 동의',
+      body: `<strong>제공받는 자</strong><br>YES24 주식회사 계열사<br><br>
+      <strong>제공 항목</strong><br>이메일 주소, 서비스명<br><br>
+      <strong>제공 목적</strong><br>파트너십 API 운영 지원, 통합 개발자 계정 관리<br><br>
+      <strong>보유 및 이용기간</strong><br>제공 목적 달성 시까지 또는 서비스 탈퇴 시<br><br>
+      <strong>동의 거부권</strong><br>동의를 거부할 수 있으나, 거부 시 일부 파트너 API 기능 이용이 제한될 수 있습니다.`
+    }
+  };
+
+  function showModal(type) {
+    const content = MODAL_CONTENT[type];
+    if (!content) return;
+    document.getElementById('modal-title').textContent = content.title;
+    document.getElementById('modal-body').innerHTML = content.body;
+    const overlay = document.getElementById('modal-overlay');
+    overlay.style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').style.display = 'none';
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>

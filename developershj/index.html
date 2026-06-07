@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YES24 Developers — Open API Portal</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    .token-green { color: #3FB950; }
+    .token-blue  { color: #79C0FF; }
+    .token-str   { color: #A5D6FF; }
+    .token-gray  { color: #8B949E; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">Developers</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html">Docs</a></li>
+      <li><a href="api-explorer.html">API Explorer</a></li>
+      <li><a href="my-applications.html">My Applications</a></li>
+      <li><a href="support.html">Support</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span class="nav-version-badge">v1.0</span>
+      <a href="my-applications.html" class="btn btn-ghost btn-sm">로그인</a>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm">API Key 신청</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Open API</div>
+    <h1>YES24 데이터로<br>서비스를 만들어보세요</h1>
+    <p>도서 검색, 상품 조회, 베스트셀러, 카테고리 데이터를 API로 제공합니다. 공식 문서와 예제로 빠르게 시작할 수 있습니다.</p>
+    <div class="hero-actions">
+      <a href="api-key-apply.html" class="btn btn-primary btn-lg">API Key 신청하기 →</a>
+      <a href="docs.html" class="btn btn-secondary btn-lg">문서 보기</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">Quick Start</div>
+      <h2>4단계로 API를 시작하세요</h2>
+      <p>계정 생성부터 첫 API 호출까지 10분이면 충분합니다.</p>
+    </div>
+    <div class="quickstart-steps">
+      <div class="quickstart-step">
+        <div class="qs-number">1</div>
+        <h3>신청서 작성</h3>
+        <p>서비스 정보와 담당자 이메일을 입력합니다.</p>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-number">2</div>
+        <h3>약관 동의</h3>
+        <p>이용약관 및 개인정보 처리에 동의합니다.</p>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-number">3</div>
+        <h3>API Key 즉시 발급</h3>
+        <p>신청 즉시 API Key가 발급됩니다.</p>
+      </div>
+      <div class="quickstart-step">
+        <div class="qs-number">4</div>
+        <h3>API 호출</h3>
+        <p>헤더에 Key를 넣고 API를 호출합니다.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 32px;">
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">curl</span>
+          <button class="copy-btn" data-target="#home-code-sample">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+            Copy
+          </button>
+        </div>
+        <div class="code-block-body">
+          <pre id="home-code-sample"><code><span class="token-gray"># 도서 검색 API 호출</span>
+curl -X GET <span class="token-str">"https://api.yes24.com/v1/books?query=클린코드&amp;size=10"</span> \
+  -H <span class="token-str">"X-API-Key: yk_live_YOUR_API_KEY"</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; display:flex; gap:12px; flex-wrap:wrap;">
+      <a href="api-key-apply.html" class="btn btn-primary">API Key 신청하기 →</a>
+      <a href="docs-apikey.html" class="btn btn-secondary">발급 가이드 보기</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">인기 API</div>
+      <h2>자주 사용되는 API</h2>
+      <p>가장 많이 사용되는 API 카테고리를 확인하세요.</p>
+    </div>
+    <div class="api-grid">
+      <a href="api-detail.html" class="api-card">
+        <div class="api-card-icon icon-books">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h3>Books API</h3>
+        <p>도서 검색, 상세 정보, 미리보기</p>
+        <div class="api-card-meta">
+          <span class="method-badge method-get">GET</span>
+          <span class="api-card-endpoint">/v1/books</span>
+        </div>
+      </a>
+      <a href="api-catalog.html" class="api-card">
+        <div class="api-card-icon icon-products">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+        </div>
+        <h3>Products API</h3>
+        <p>상품 조회, 가격, 재고 정보</p>
+        <div class="api-card-meta">
+          <span class="method-badge method-get">GET</span>
+          <span class="api-card-endpoint">/v1/products</span>
+        </div>
+      </a>
+      <a href="api-catalog.html" class="api-card">
+        <div class="api-card-icon icon-search">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Search API</h3>
+        <p>통합 검색, 자동완성, 연관 검색어</p>
+        <div class="api-card-meta">
+          <span class="method-badge method-get">GET</span>
+          <span class="api-card-endpoint">/v1/search</span>
+        </div>
+      </a>
+      <a href="api-catalog.html" class="api-card">
+        <div class="api-card-icon icon-codes">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h3>Common Codes API</h3>
+        <p>카테고리, 출판사, 공통 코드</p>
+        <div class="api-card-meta">
+          <span class="method-badge method-get">GET</span>
+          <span class="api-card-endpoint">/v1/codes</span>
+        </div>
+      </a>
+    </div>
+    <div style="margin-top: 24px;">
+      <a href="api-catalog.html" class="btn btn-secondary">전체 API Catalog 보기 →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header" style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:20px;">
+      <div>
+        <div class="section-label">공지사항</div>
+        <h2 style="margin:0;">최근 업데이트</h2>
+      </div>
+      <a href="support.html" class="btn btn-ghost btn-sm">전체 보기 →</a>
+    </div>
+    <div class="announce-list">
+      <a href="support.html" class="announce-item">
+        <div class="announce-badge"><span class="badge badge-success">신규</span></div>
+        <div class="announce-content">
+          <h4>Books API v2.1 업데이트 — 미리보기 기능 추가</h4>
+          <p>도서 본문 미리보기 Endpoint가 추가되었습니다. 기존 API와 하위 호환됩니다.</p>
+        </div>
+        <span class="announce-date">2026.06.01</span>
+      </a>
+      <a href="support.html" class="announce-item">
+        <div class="announce-badge"><span class="badge badge-info">공지</span></div>
+        <div class="announce-content">
+          <h4>Rate Limit 정책 변경 안내</h4>
+          <p>2026년 6월부터 무료 플랜 Rate Limit이 분당 60회에서 100회로 상향됩니다.</p>
+        </div>
+        <span class="announce-date">2026.05.20</span>
+      </a>
+      <a href="support.html" class="announce-item">
+        <div class="announce-badge"><span class="badge badge-brand">베타</span></div>
+        <div class="announce-content">
+          <h4>Developer Portal 오픈 베타 시작</h4>
+          <p>YES24 Open API Developer Portal이 오픈 베타로 공개됩니다. 피드백을 환영합니다.</p>
+        </div>
+        <span class="announce-date">2026.05.10</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-brand">
+        <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="28" style="display:block;">
+      </a>
+      <p class="footer-desc">YES24 Open API Developer Portal</p>
+      <p class="footer-copy">© 2026 YES24 Co., Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-link-group">
+        <h4>문서</h4>
+        <ul>
+          <li><a href="docs.html">Getting Started</a></li>
+          <li><a href="api-catalog.html">API Catalog</a></li>
+          <li><a href="api-detail.html">API Reference</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API Explorer</a></li>
+          <li><a href="my-applications.html">My Applications</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>지원</h4>
+        <ul>
+          <li><a href="support.html">공지사항</a></li>
+          <li><a href="support.html#faq">FAQ</a></li>
+          <li><a href="support.html#error-codes">Error Codes</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
