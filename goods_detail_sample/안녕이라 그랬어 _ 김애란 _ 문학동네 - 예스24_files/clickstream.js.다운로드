@@ -1,0 +1,766 @@
+﻿var _n_clickstream_image = new Image();
+var _n_clickstream_image_v2 = new Image();
+var _n_clickstream_image_v3 = new Image();
+
+var clickstream = (function (clickstream, undefined) {
+
+    //테스트 환경여부
+    var isDebug = false;
+
+    //현재 프로토콜
+    var protocol = "https:";
+
+    //쿠키값 조회
+    var getCookieValue = function (cookieName) {
+        var cookies = document.cookie.split(";");
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+
+            if (cookie.indexOf(cookieName + "=") === 0) {
+                return decodeURIComponent(cookie.substring(cookieName.length + 1));
+            }
+        }
+        return null;
+    };
+
+    //쿠키세팅
+    var setCookieVal = function (name, value, expiredays) {
+        //초단위 쿠키생성
+        var expireSec = 3600 * 24;
+        var _trackingDomain = ".yes24.com";
+        var todayDate = new Date();
+        todayDate.setSeconds(todayDate.getSeconds() + expireSec);
+        document.cookie = name + '=' + escape(value) + '; path=/; domain=' + _trackingDomain + '; expires=' + todayDate.toGMTString() + ';';
+    }
+
+    //모바일기기 여부
+    var getIsMobileDevice = function () {
+        var mobileDevices = /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i;
+        return (mobileDevices).test(navigator.userAgent);
+    }
+
+    //브라우저 정보 객체
+    var browser_detect = {
+        getOS: function () {
+            return this.searchString(this.dataOS) || "an unknown OS";
+        },
+        getBrowser: function () {
+            return this.searchString(this.dataBrowser) || "An unknown browser";
+        },
+        dataOS: [
+           {
+               string: navigator.platform,
+               subString: "Win",
+               identity: "Windows"
+           },
+           {
+               string: navigator.platform,
+               subString: "Mac",
+               identity: "Mac"
+           },
+           {
+               string: navigator.userAgent,
+               subString: "iPod",
+               identity: "iPod"
+           },
+           {
+               string: navigator.userAgent,
+               subString: "iPad",
+               identity: "iPad"
+           },
+           {
+               string: navigator.userAgent,
+               subString: "iPhone",
+               identity: "iPhone"
+           },
+           {
+               string: navigator.platform,
+               subString: "Linux",
+               identity: "Linux"
+           }
+        ],
+        dataBrowser: [
+            {
+                string: navigator.userAgent,
+                subString: "Chrome",
+                identity: "Chrome"
+            },
+            {
+                string: navigator.userAgent,
+                subString: "OmniWeb",
+                versionSearch: "OmniWeb/",
+                identity: "OmniWeb"
+            },
+            {
+                string: navigator.vendor,
+                subString: "Apple",
+                identity: "Safari",
+                versionSearch: "Version"
+            },
+            {
+                prop: window.opera,
+                identity: "Opera",
+                versionSearch: "Version"
+            },
+            {
+                string: navigator.vendor,
+                subString: "iCab",
+                identity: "iCab"
+            },
+            {
+                string: navigator.vendor,
+                subString: "KDE",
+                identity: "Konqueror"
+            },
+            {
+                string: navigator.userAgent,
+                subString: "Firefox",
+                identity: "Firefox"
+            },
+            {
+                string: navigator.vendor,
+                subString: "Camino",
+                identity: "Camino"
+            },
+            {   // for newer Netscapes (6+)
+                string: navigator.userAgent,
+                subString: "Netscape",
+                identity: "Netscape"
+            },
+            {
+                string: navigator.userAgent,
+                subString: "MSIE",
+                identity: "Explorer",
+                versionSearch: "MSIE"
+            },
+            {
+                string: navigator.userAgent,
+                subString: "Gecko",
+                identity: "Mozilla",
+                versionSearch: "rv"
+            },
+            {     // for older Netscapes (4-)
+                string: navigator.userAgent,
+                subString: "Mozilla",
+                identity: "Netscape",
+                versionSearch: "Mozilla"
+            }
+        ],
+        searchString: function (data) {
+            for (var i = 0; i < data.length; i++) {
+                var dataString = data[i].string;
+                var dataProp = data[i].prop;
+                this.versionSearchString = data[i].versionSearch || data[i].identity;
+                if (dataString) {
+                    if (dataString.indexOf(data[i].subString) != -1)
+                        return data[i].identity;
+                }
+                else if (dataProp)
+                    return data[i].identity;
+            }
+        }
+    };
+
+    //위치정보 객체
+    var geo_location = {
+        options: {
+            enableHighAccuracy: true,
+            timeout: 2000,
+            maximumAge: 0
+        },
+        success: function (pos) {
+            var crd = pos.coords;
+
+        },
+        error: function (err) {
+
+        },
+        init: function () {
+            navigator.geolocation.getCurrentPosition(this.success, this.error, this.options)
+        }
+    };
+
+    //GUID 생성
+    var genGuid = function () {
+        var s4 = function () {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                   .toString(16)
+                   .substring(1);
+        };
+
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+               s4() + '-' + s4() + s4() + s4();
+    };
+
+    //파이어폭스 브라우저 여부
+    var isFireFox = function () {
+        return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    }
+
+    //변수설정
+    var test_default_url = "https://m.yes24.com/Goods/Detail/12456"
+       , clickstream_url = (isDebug == true) ? "https://ycstreamlocal.yes24.com/Clickstream/UserLogging" : protocol + "//ycstream.yes24.com/Clickstream/UserLogging"
+       , clickstream_post_url = (isDebug == true) ? "https://ycstreamlocal.yes24.com/Clickstream/UserLogging_POST" : protocol + "//ycstream.yes24.com/Clickstream/UserLogging_POST"
+       , isMobileDevice = getIsMobileDevice() ? "M" : "P"
+       , service_cookie_value = getCookieValue("ServiceCookies") || ""
+       , os_info = browser_detect.getOS()
+       , browser_info = browser_detect.getBrowser()
+       , color_depth = screen.colorDepth
+       , pcid = getCookieValue("PCID")
+       , resolution = screen.width.toString().concat("x", screen.height.toString())
+       , referrer_url = document.referrer || ""
+       , lang_code = navigator.language
+       , recent_view_goods_value = getCookieValue("RecentViewGoods") || ""
+       , pid_value = getCookieValue("PID") || "";
+
+    //클릭스트림 서비스 URL
+    var getRequestUrl = function (clickstream_url, log_code, page_code, extra_code) {
+        var clientx, clienty = "";
+        try {
+            clientx = event.clientX;
+            clienty = event.clientX;
+        } catch (e) { }
+
+        clickstream_url = clickstream_url.concat("?log_code=", log_code)
+                .concat("&page_code=", page_code)
+                .concat("&absolute_url=", document.location.href)
+                .concat("&referrer=", referrer_url)
+                .concat("&service_cookie_value=", service_cookie_value)
+                .concat("&os_info=", os_info)
+                .concat("&browser_info=", browser_info)
+                .concat("&resolution=", resolution)
+                .concat("&color_depth=", color_depth)
+                .concat("&PCID=", getCookieValue("PCID"))
+                .concat("&lang_code=", lang_code)
+                .concat("&device_type=", isMobileDevice)
+                .concat("&platform=", navigator.platform)
+                .concat("&coordinateX=", clientx)
+                .concat("&coordinateY=", clienty)
+                .concat("&recentViewGoods=", recent_view_goods_value)
+                .concat("&PID=", pid_value);
+        if (typeof (extra_code) != "undefined") {
+            clickstream_url = clickstream_url.concat("&extraKindCode=", extra_code.ExtraKindCode)
+                .concat("&goodsNo=", extra_code.GoodsNo)
+                .concat("&tagNo=", extra_code.TagNo)
+                .concat("&keyword=", extra_code.keyword)
+                .concat("&devicePID=", extra_code.devicePID);
+        }
+        return clickstream_url;
+    }
+
+    //클릭스트림 POST 파라미터
+    var getRequestParam = function (log_code, page_code, extra_code) {
+        var clientx, clienty = "";
+        try {
+            clientx = event.clientX;
+            clienty = event.clientX;
+        } catch (e) { }
+
+        var params = new FormData();
+        params.log_code = log_code;
+        params.page_code = page_code;
+        params.absolute_url = document.location.href;
+        params.referrer = referrer_url;
+        params.service_cookie_value = service_cookie_value;
+        params.lang_code = lang_code;
+        params.os_info = os_info;
+        params.browser_info = browser_info;
+        params.resolution = resolution;
+        params.color_depth = color_depth;
+        params.PCID = pcid;
+        params.device_type = isMobileDevice;
+        params.platform = navigator.platform;
+        params.coordinateX = clientx;
+        params.coordinateY = clienty;
+        params.recentViewGoods = recent_view_goods_value;
+        params.PID = pid_value;
+        if (typeof (extra_code) != "undefined") {
+            params.ExtraLog = extra_code;
+        }
+        return params;
+    }
+
+    var getMobileWelcomePageCodeDetail = function (type) {
+        //이벤트, 베스트 탭에서 파라미터 별로 달라지는 페이지 코드 정의
+        var pageCode = "";
+        if (type == "best") {
+            //m.yes24.com/Home/Hub?page=Best&dispNo=117
+            //var currentDispNo = GetCookie("BEST_WC_DISP");
+            var currentDispNo = dictParam.DispNo;
+            switch (currentDispNo) {
+                case "117": pageCode = "WDYA"; break;
+                case "001": pageCode = "WDAA"; break;
+                case "002": pageCode = "WDBA"; break;
+                case "017": pageCode = "WDCA"; break;
+                case "003": pageCode = "WDFA"; break;
+                case "004": pageCode = "WDGA"; break;
+                case "006": pageCode = "WDJA"; break;
+                case "018": pageCode = "WDKA"; break;
+                default: pageCode = "WDYA"; break;
+            }
+        }
+        else if (type == "event") {
+            //m.yes24.com/Home/Hub?page=Event?dispNo=001
+            var currentDispNo = GetCookie("MOVE_WC_DISP");
+            switch (currentDispNo) {
+                case "001": pageCode = "WFAA"; break;
+                case "002": pageCode = "WFBA"; break;
+                case "018": pageCode = "WFKA"; break;
+                case "017": pageCode = "WFCA"; break;
+                case "003": pageCode = "WFFA"; break;
+                case "004": pageCode = "WFGA"; break;
+                case "006": pageCode = "WFJA"; break;
+                case "888": pageCode = "WFHA"; break;
+                case "999": pageCode = "WFEA"; break;
+                case "000": pageCode = "WFZA"; break;
+                default: pageCode = "WFXA"; break;
+            }
+        }
+        else if (type == "ebook") {
+            //m.yes24.com/Home/Hub?page=Ebook&dispNo=017001046
+            var currentDispNo = GetCookie("eBookSelectTab");
+            switch (currentDispNo) {
+                case "017001046": pageCode = "WGCAB"; break;
+                case "017001038": pageCode = "WGCAC"; break;
+                case "017001049": pageCode = "WGCAD"; break;
+                case "017001063": pageCode = "WGCAE"; break;
+                case "017001064": pageCode = "WGCAF"; break;
+                default: pageCode = "WGCAA"; break;
+            }
+        }
+        return pageCode;
+    }
+
+    var getMobileWelcomePageCode = function () {
+        //모바일 웰컴은 탭별로 URL이 동일하여, 페이지 코드 재정의
+        var pageCode = "WAAA";
+
+        switch (currentPageName) {
+            case "main": pageCode = "WAAA"; break;
+            case "books": pageCode = "WGAA"; break;
+            case "foreign": pageCode = "WGBA"; break;
+            case "usedshop": pageCode = "WGKA"; break;
+            case "ebook": pageCode = getMobileWelcomePageCodeDetail("ebook"); break;
+            case "music": pageCode = "WGFA"; break;
+            case "dvd": pageCode = "WGGA"; break;
+            case "gift": pageCode = "WGJA"; break;
+            case "movie": pageCode = "WGHA"; break;
+            case "ticket": pageCode = "WGIA"; break;
+            case "yestopic": pageCode = "WGCH"; break;
+            case "story": pageCode = "WGEA"; break;
+            case "event": pageCode = getMobileWelcomePageCodeDetail("event"); break;
+            case "best": pageCode = getMobileWelcomePageCodeDetail("best"); break;
+        }
+        return pageCode;
+    }
+
+    var getPagecodeFromUrl = function (device_type) {
+        var current_domain = document.location.hostname;
+        var path_name = document.location.pathname.toLowerCase();
+
+        if (device_type == "P") {
+            if (path_name == "/" || path_name == "/default.aspx") {
+                return "AAA";
+            }
+            if (path_name.indexOf("mall/main/book") > -1) {
+                return "CAA";
+            }
+            else if (path_name.indexOf("mall/main/foreign") > -1) {
+                return "CBA";
+            }
+            else if (path_name.indexOf("mall/main/ebook") > -1) {
+                return "CCA";
+            }
+            else if (path_name.indexOf("mall/main/music") > -1) {
+                return "CFA";
+            }
+            else if (path_name.indexOf("mall/main/dvd") > -1) {
+                return "CGA";
+            }
+            else if (path_name.indexOf("mall/main/gift") > -1) {
+                return "CJA"
+            }
+            else if (path_name.indexOf("mall/main/used") > -1) {
+                return "CKA"
+            }
+            else if (path_name.indexOf("searchcorner/search") > -1 || path_name.indexOf("product/search") > -1) {
+                return "BZA";
+            }
+            else if (path_name.indexOf("24/goods") > -1) {
+                return "IAA";
+            }
+            else if (path_name.indexOf("product/goods") > -1) {
+                return "IAA";
+            }
+            else if (path_name.indexOf("cart/cart") > -1) {
+                return "KAA";
+            }
+            else if (path_name.indexOf("bookclub/main") > -1) {
+                return "QAA";
+            }
+            else if (path_name.indexOf("bookclub/best") > -1) {
+                return "QBA";
+            }
+            else if (path_name.indexOf("bookclub/new") > -1) {
+                return "QCA";
+            }
+            else if (path_name == "/bookclub/plans") {
+                return "QDA";
+            }
+            else if (path_name.indexOf("bookclub/mybookclub") > -1) {
+                return "QEA";
+            }
+            else if (path_name.indexOf("bookclub/bookclubshop") > -1) {
+                return "QFA";
+            }
+            else if (path_name.indexOf("bookclub/detail") > -1) {
+                return "QGA";
+            }
+            else if (path_name.indexOf("bookclub/search") > -1) {
+                return "QHA";
+            }
+            else if (path_name.indexOf("bookclub/guide") > -1) {
+                return "QIA";
+            }
+            else if (path_name.indexOf("bookclub/faq") > -1) {
+                return "QJA";
+            }
+            else if (path_name == "/bookclub/intro") {
+                return "QKA";
+            }
+            else if (path_name.indexOf("bookclub/usecard") > -1) {
+                return "QLA";
+            }
+            else if (path_name.indexOf("bookclub/subscribeplans") > -1) {
+                return "QMA";
+            }
+            else if (path_name.indexOf("bookclub/joincomplete") > -1) {
+                return "QNA";
+            }
+            else if (path_name.indexOf("yespresent.aspx") > -1) {
+                return "FYC";
+            }
+            else if (path_name.indexOf("dirpresent.aspx") > -1) {
+                return "FYD";
+            }
+            else if (path_name.indexOf("eventworld/event") > -1) {
+                return "FYB";
+            }
+            else if (path_name.indexOf("campaign/") > -1) {
+                return "FYA";
+            }
+            else if (path_name.indexOf("product/partnershop") > -1) {
+                return "RAA";
+            }
+            else if (path_name.indexOf("mall/usedstore/goods") > -1) {
+                return "TAA";
+            }
+            else if (path_name.indexOf("product/usedshophub/hub") > -1) {
+                return "UAA";
+            }
+            else {
+                return "AAA";
+            }
+        }
+        else if (device_type == "M") {
+            //모바일 웰컴 예외처리
+            if (typeof (currentPageName) != "undefined") {
+               return getMobileWelcomePageCode();
+            }
+            else if (path_name == "/") {
+                return "AAA";
+            }
+            else if (path_name.indexOf("search/search") > -1 || path_name.indexOf("/search?") > -1) {
+                return "BBB";
+            }
+            else if (path_name.indexOf("/home/books") > -1) {
+                return "CAA";
+            }
+            else if (path_name.indexOf("/home/ebooks") > -1) {
+                return "CCA";
+            }
+            else if (path_name.indexOf("/home/used") > -1) {
+                return "CKA";
+            }
+            else if (path_name.indexOf("/home/gift") > -1) {
+                return "CJA";
+            }
+            else if (path_name.indexOf("/home/music") > -1) {
+                return "CFA";
+            }
+            else if (path_name.indexOf("/home/movie") > -1) {
+                return "CHA";
+            }
+            else if (path_name.indexOf("/home/best") > -1) {
+                return "DZA";
+            }
+            else if (path_name.indexOf("/home/present") > -1) {
+                return "EZA";
+            }
+            else if (path_name.indexOf("/home/event") > -1) {
+                return "FYA";
+            }
+            else if (path_name.indexOf("/main/ebook") > -1) {
+                return "GCA";
+            }
+            else if (path_name.indexOf("/goods/detail") > -1) {
+                return "HAA";
+            }
+            else if (path_name.indexOf("/mcart/mcart") > -1) {
+                return "JAA";
+            }
+            else if (path_name.indexOf("/mcart/mcart") > -1) {
+                return "JAA";
+            }
+            else if (path_name.indexOf("/mcart/mcart") > -1) {
+                return "JAA";
+            }
+            else if (path_name.indexOf("bookclub/main") > -1) {
+                return "OAA";
+            }
+            else if (path_name.indexOf("/bookclub/best") > -1) {
+                return "OBA";
+            }
+            else if (path_name.indexOf("/bookclub/new") > -1) {
+                return "OCA";
+            }
+            else if (path_name == "/bookclub/plans") {
+                return "ODA";
+            }
+            else if (path_name.indexOf("/bookclub/mybookclub") > -1) {
+                return "OEA";
+            }
+            else if (path_name.indexOf("/bookclub/bookclubshop") > -1) {
+                return "OFA";
+            }
+            else if (path_name.indexOf("/bookclub/detail") > -1) {
+                return "OGA";
+            }
+            else if (path_name.indexOf("/bookclub/search") > -1) {
+                return "OHA";
+            }
+            else if (path_name.indexOf("/bookclub/guide") > -1) {
+                return "OIA";
+            }
+            else if (path_name.indexOf("/bookclub/faq") > -1) {
+                return "OJA";
+            }
+            else if (path_name == "/bookclub/intro") {
+                return "OKA";
+            }
+            else if (path_name.indexOf("bookclub/usecard") > -1) {
+                return "OLA";
+            }
+            else if (path_name.indexOf("bookclub/subscribeplans") > -1) {
+                return "OMA";
+            }
+            else if (path_name.indexOf("bookclub/joincomplete") > -1) {
+                return "ONA";
+            }
+            else if (path_name.indexOf("/partnershop") > -1) {
+                return "PAA";
+            }
+            else if (path_name.indexOf("/momo/mobileevent/ugift/home.aspx") > -1) {
+                return "SAA";
+            }
+            else if (path_name.indexOf("/giftorder/giftbox") > -1) {
+                return "SBA";
+            }
+            else if (path_name.indexOf("/giftorder/giftreceivedlist") > -1) {
+                return "SCA";
+            }
+            else if (path_name.indexOf("/giftorder/giftsentlist") > -1) {
+                return "SDA";
+            }
+            else if (path_name.indexOf("yespresent.aspx") > -1) {
+                return "MFYC";
+            }
+            else if (path_name.indexOf("dirpresent.aspx") > -1) {
+                return "MFYD";
+            }
+            else if (path_name.indexOf("event/eventdetail") > -1) {
+                return "MFYB";
+            }
+            else if (path_name.indexOf("momo/mobileevent/") > -1) {
+                return "MFYA";
+            }
+            else if (path_name.indexOf("usedstore/goods") > -1) {
+                return "VAA";
+            }
+            else if (path_name.indexOf("usedshophub/hub") > -1) {
+                return "WAA";
+            }
+            else if (path_name.indexOf("/usedshop/sellergoods/") > -1) {
+                return "WBA";
+            }
+            else {
+                return "AAA";
+            }
+        }
+        else if (device_type == "SSL") {
+            if (path_name.indexOf("mordercomplete/mordercomplete") > -1 || path_name.indexOf("mmycart/ordercomplete") > -1) {
+                return "JCB";
+            }
+            else if (path_name.indexOf("ordercomplete/ordercomplete") > -1 || path_name.indexOf("dmycart/ordercomplete") > -1) {
+                return "KCB";
+            }
+        }
+    }
+
+    //클릭스트림 데이터 전송(GET)
+    var sendClickstream_GET = function (log_code, page_code, extra_code) {
+        var request_url = getRequestUrl(clickstream_url, log_code, page_code, extra_code);
+
+        //var xhttp = new XMLHttpRequest();
+        //xhttp.onreadystatechange = function (aEvt) {
+        //    if (this.readyState == 4 && this.status == 200) {
+        //        if (isDebug === true) { console.log("로그작성 API 호출 됨."); }
+        //    }
+        //}
+        //xhttp.open("GET", request_url, true);
+        //xhttp.send(null);
+
+        //하나의 요청 사이클 내에서 2개의 로그 전송이 발생하는 케이스 대응
+        if (_n_clickstream_image.src == '') {
+            _n_clickstream_image.src = request_url;
+        }
+        else if (_n_clickstream_image_v2.src == '') {
+            _n_clickstream_image_v2.src = request_url;
+        }
+        else {
+            _n_clickstream_image_v3.src = request_url;
+        }
+    }
+
+    //클릭스트림 데이터 전송(POST)
+    var sendClickstream_POST = function (log_code, page_code, extra_code) {
+        var post_params = getRequestParam(log_code, page_code, extra_code);
+        post_params = JSON.stringify(post_params);
+
+        //제이쿼리 방식
+        //$.ajax({
+        //    url: clickstream_post_url,
+        //    data: post_params,
+        //    contentType: "application/json",
+        //    dataType: "json",
+        //    type: "POST",
+        //    //xhrFields: {
+        //    //    withCredentials: true
+        //    //},
+        //    crossDomain: true,
+        //    success: function (result) {
+        //        var kindcode = JSON.parse(post_params).ExtraLog.ExtraKindCode;
+        //        if (kindcode != '' ){
+        //            //alert(JSON.parse(post_params).ExtraLog.ExtraKindCode + '\n' + 'result: ' + result);
+        //        }
+        //        //alert("로그작성 API 호출 됨.");
+        //    }
+        //});
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function (aEvt) {
+            if (this.readyState == 4 && this.status == 200) {
+                if (isDebug === true) { console.log("로그작성 API 호출 됨."); }
+            }
+        }
+        xhttp.open("POST", clickstream_post_url, true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        //xhttp.withCredentials = true;
+        xhttp.send(post_params);
+    }
+
+    //클릭스트림 로그 전송
+    var setClickstreamLog = function (log_code, extra_code) {
+        if (typeof (extra_code) == "undefined") {
+            extra_code = {
+                ExtraKindCode: '',
+                keyword: '',
+                GoodsNo: '',
+                TagNo: ''
+            };
+        }
+        extra_code.devicePID = getCookie("devicePID");
+
+        var current_domain = document.location.hostname;
+        var current_path = document.location.pathname;
+        var caller_func_name = '', page_code = "";
+
+        //모바일인경우
+        if (current_domain.indexOf("mdev.yes24.com") > -1 || current_domain.indexOf("m.yes24.com") > -1) {
+            page_code = getPagecodeFromUrl("M");
+        }
+        //결제인경우
+        else if (current_domain.indexOf("ssl.yes24.com") > -1 || current_domain.indexOf("restruction.yes24.com") > -1) {
+            page_code = getPagecodeFromUrl("SSL");
+        }
+        //PC검색인경우
+        else if (current_path.indexOf("/searchcorner/") > -1) {
+            page_code = "BZA";
+        }
+        else {
+            try {
+                caller_func_name = arguments.callee.caller.name.toLowerCase();
+                if (caller_func_name == "setcode") {
+                    caller_func_name = arguments.callee.caller.caller.name.toLowerCase();
+                }
+
+                switch (caller_func_name) {
+                    case "setwcode": page_code = getPagecodeFromUrl("P"); break;    //월컴 or 헤더
+                    case "setcdcode": page_code = "CAA"; break;                     //국내도서
+                    case "setcfcode": page_code = "CBA"; break;                     //외국도서
+                    case "setcecode": page_code = "CCA"; break;                     //eBook
+                    case "setcmcode": page_code = "CFA"; break;                     //CD/LP
+                    case "setcvcode": page_code = "CGA"; break;                     //DVD,BD
+                    case "setcgcode": page_code = "CJA"; break;                     //GIFT
+                    case "setcucode": page_code = "CKA"; break;                     //중고샵
+                    case "setscode": page_code = "BZA"; break;                      //검색
+                    case "setpcode": page_code = "IAA"; break;                      //상품상세
+                    case "setocode": page_code = "KAA"; break;                      //카트
+                    case "setbccode": page_code = getPagecodeFromUrl("P"); break;   //북클럽
+                    case "setpscode": page_code = "RAA"; break;                      //파트너샵
+                    case "setcuhcode": page_code = "UAA"; break;                      //중고샵허브
+                    case "setcuscode": page_code = "TAA"; break;                      //중고매장
+                    default: page_code = getPagecodeFromUrl("P"); break;
+                }
+            } catch (e) { page_code = getPagecodeFromUrl("P"); }
+        }
+        if (isDebug === true) {
+            console.log("LogCode:" + log_code + ", PageCode:" + page_code);
+        }
+        
+        try {
+            // 모바일장치 여부 체크
+            var mobileDevices = /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i;
+            var isMobile = (mobileDevices).test(navigator.userAgent);
+
+            //var ua = navigator.userAgent.toLocaleLowerCase();
+            if (isMobile) {
+                sendClickstream_GET(log_code, page_code, extra_code);
+            }
+            else{
+                sendClickstream_POST(log_code, page_code, extra_code);
+            }
+            //if (log_code != "001_007") {
+            //    alert(page_code + " : " + log_code);
+            //}
+        } catch (e) { if (isDebug === true) { console.dir(e); } }
+    };
+
+    //PCID 세팅
+    document.addEventListener("DOMContentLoaded", function () {
+        var user_pcid = getCookieValue("PCID");
+        if (user_pcid != null && user_pcid !== "") {
+            return;
+        }
+        var pcid_value = new Date().getTime();
+        setCookieVal("PCID", pcid_value, 1);
+    });
+
+    return {
+        setClickstreamLog: setClickstreamLog
+    }
+})(clickstream || {});
+
+
+
+

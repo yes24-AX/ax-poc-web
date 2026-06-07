@@ -1,0 +1,94 @@
+﻿//통합검색 시, default 도메인 설정하는 부분
+(function () {
+    var current_url = document.location.pathname.toLowerCase();
+    var disp_no = getQuerystringParam('dispNo');
+    var main_cate = getQuerystringParam('MainCate');
+    var current_disp_no = typeof (g_DispNo) == 'undefined' ? null : g_DispNo;
+    var current_sort_no = typeof (g_GoodsSortNo) == 'undefined' ? null : g_GoodsSortNo;
+
+    var setCategorySearchText = function (disp_no) {
+        if (disp_no) {
+            category_search_text = getCategorySearchText(disp_no);
+        }
+        else {
+            disp_no = getParameterByName('dispNo');
+            if (current_disp_no || disp_no || main_cate || current_sort_no) {
+                category_search_text = getCategorySearchText(current_disp_no, disp_no, main_cate, current_sort_no);
+            }
+        }
+
+        var hd_search_category = document.querySelector("#hdSearchCategory");
+        if (hd_search_category != null && hd_search_category.value == "") {
+            hd_search_category.value = category_search_text;
+        }
+    }
+
+    var getCategorySearchText = function () {
+        var code = '';
+        var idx = 0;
+        for (var str of arguments) {
+            if (str && str != null) {
+                code = str;
+                break;
+            }
+            idx++;
+        }
+
+        //관리분류인 경우
+        if (idx == 3) {
+            if (code.startsWith('001')) {
+                category_search_text = 'BOOK';
+            }
+            else if (code.startsWith('002')) {
+                category_search_text = 'FOREIGN';
+            }
+            else if (code.startsWith('018')) {
+                category_search_text = 'USED_GOODS';
+            }
+            else if (code.startsWith('003')) {
+                category_search_text = 'MUSIC';
+            }
+            else if (code.startsWith('004')) {
+                category_search_text = 'EBOOK';
+            }
+            else if (code.startsWith('005')) {
+                category_search_text = 'DVD';
+            }
+            else if (code.startsWith('006')) {
+                category_search_text = 'GIFT';
+            }
+            else {
+                category_search_text = '';
+            }
+        }
+        else {
+            if (code.startsWith('001')) {
+                category_search_text = 'BOOK';
+            }
+            else if (code.startsWith('002')) {
+                category_search_text = 'FOREIGN';
+            }
+            else if (code.startsWith('018')) {
+                category_search_text = 'USED_GOODS';
+            }
+            else if (code.startsWith('017')) {
+                category_search_text = 'EBOOK';
+            }
+            else if (code.startsWith('003')) {
+                category_search_text = 'MUSIC';
+            }
+            else if (code.startsWith('004')) {
+                category_search_text = 'DVD';
+            }
+            else if (code.startsWith('006')) {
+                category_search_text = 'GIFT';
+            }
+            else {
+                category_search_text = '';
+            }
+        }
+        return category_search_text;
+    }
+
+    setCategorySearchText();
+})();

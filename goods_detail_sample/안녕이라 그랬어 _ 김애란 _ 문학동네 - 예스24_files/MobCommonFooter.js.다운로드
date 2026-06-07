@@ -1,0 +1,383 @@
+﻿var _ekamsAdvertiserID = 546;
+const mobileCommon = (() => {
+    const currentPath = location.pathname.toLowerCase();
+    const currentDomain = location.hostname.toLowerCase();
+    const isMomoMobile = currentPath.includes("/momo/");
+    const isEventPage = /event(-dev|-pf|-qa)?\.yes24\.com/.test(currentDomain);
+    const cookiePID = getCookie("PID");
+    const caller = getCookie("caller");
+    const isBookclub = /(^|\.)((m\.)?cremaclub|(m\.)?cremaclub-dev)\.yes24\.com$/.test(window.location.hostname.toLowerCase());
+
+    // 제휴사 리사이즈 스크립트 추가 여부
+    const sResizePIDs = ["yes24_Samsung", "yes24_Nexon", "yes24"];
+    const sResizeMomoMobilePIDs = ["109986", "103425", "yes24"];
+    const addResizeScript = !isMomoMobile && (sResizePIDs.includes(cookiePID));
+    const addResizeScriptMomoMobile = isMomoMobile && (sResizeMomoMobilePIDs.includes(cookiePID));
+    const isRenewalEzwel = getCookie("EZ_renewal2025_Yn") == "Y";
+
+    const isPartnerPIDs = ["yes24_Samsung", "yes24_Nexon", "yes24", "109986", "103425", "203556", "177126", "102498", "196126", "235329", "100880", "246033", "258924", "270068", "156585", "271302", "296555", "263585", "304876"];
+    const isPartner = isPartnerPIDs.includes(cookiePID);
+
+    // 군인공제회2026 일 경우, eBook 으로 이동
+    const sHomeLink = (cookiePID === "341748") ? "ebook" : "main";
+
+    var _frontApiUrl = (function () {
+        var url = "";
+
+        if (typeof YesData !== "undefined"
+            && YesData
+            && typeof YesData.FRONT_API_URL === "function") {
+            url = YesData.FRONT_API_URL();
+
+            if (url) {
+                return url;
+            }
+        }
+
+        if (typeof FRONT_API_URL !== "undefined" && FRONT_API_URL) {
+            return FRONT_API_URL;
+        }
+
+        return "https://frontapi.yes24.com";
+    })();
+    var serviceCookies = getCookie("ServiceCookies");
+    var _isAdultAuth = getCookie("AdultAuthYN") === "Y";
+    var _isServiceCookies = serviceCookies != null && String(serviceCookies).trim() !== "";
+
+    // Footer HTML 템플릿
+    function getfooterHtmlTemplate(sscardFooterHtml, allianceFooterHtml, serverName) {
+        return `
+            <div id="toolBar" class="yTBar">
+                <div class="tBar">
+                    <span class="mnuSet">
+                        <a href="javascript:void(0);" onclick="setMcode(mobileCommon.getMenuCode('002')); openWingMenu();" class="wing">
+                            <em class="ico">전체메뉴</em>
+                        </a>
+                    </span>
+                    <span class="mnuSet">
+                        <a href="javascript:void(0);" onclick="setMcode(mobileCommon.getMenuCode('003')); focusSchBox();" class="gSch">
+                            <em class="ico">상품검색</em>
+                        </a>
+                    </span>
+                    <span class="mnuSet">
+                        <a href="${MOBILE_URL}/home/${sHomeLink}" onclick="setMcode(mobileCommon.getMenuCode('001'));" class="home">
+                            <em class="ico">홈으로</em>
+                        </a>
+                    </span>
+                    <span class="mnuSet">
+                        <a href="${MOBILE_URL}/MyPage" onclick="setMcode(mobileCommon.getMenuCode('004'));" class="myPg">
+                            <em class="ico">마이페이지</em>
+                        </a>
+                    </span>
+                    <span class="mnuSet">
+                        <a href="javascript:void(0);" onclick="setMcode(mobileCommon.getMenuCode('010')); goApp('PUSH', '');" class="alarm">
+                            <em class="ico">앱 알림</em>
+                            <span id="botAlarmCnt" class="cnt"></span>
+                        </a>
+                    </span>
+                </div>
+            </div>
+            <div id="toolBtn" class="yTBtn">
+                <span id="yesBotChat" class="tBtn btn_chat btn_topActive" style="display:none;">
+                    <a href="javascript:void(0);">
+                        <em class="ico">eBook 채팅상담</em>
+                    </a>
+                </span>
+                <span id="yAIBtn" class="tBtn btn_ai" style="display:none;">
+                    <a class="lnk_ai" href="javascript:void(0);" onclick="goOepnChat();">
+                        ${new Date() < new Date(2026, 4, 26, 8, 30, 0)
+                            ? `<em class="ico ai_ico tp03"></em>
+                        <div class="ai_msg" style="display:none;">
+                            <div class="msg"><p>부처님AI와 대화하며 고민의 답을 받아보시겠어요?</p></div>
+                        </div>`
+                            : `<em class="ico ai_ico tp02"></em>
+                        <div class="ai_msg" style="display:none;">
+                            <div class="msg"><p>AI와 대화하며 도서를 추천받아 보시겠어요?</p></div>
+                        </div>`
+                        }
+                    </a>
+                </span>
+                <span id="bottomRecentGoodsWrap" class="tBtn btn_rcnt" style="display:none;">
+                    <a href="${MOBILE_URL}/Category/RecentGoods" onclick="setMcode((IS_NATIVE_APPS ? '011_002_005' : '011_001_005'));">
+                        <em class="img">
+                            <img id="recentGoodsArea" src="" border="0" alt="최근 본 상품">
+                        </em>
+                        <em class="ico">최근 본 상품</em>
+                    </a>
+                </span>
+                <span class="tBtn btn_top">
+                    <a href="javascript:void(0);" onclick="sclTopBottomBar();">
+                        <em class="ico">맨위로</em>
+                    </a>
+                </span>
+            </div>
+            <footer style="${window.IS_QR_BOOK_SERVICE ? 'display:none;' : ''}">
+                <div id="footer" class="tBarOn">
+                    ${sscardFooterHtml}
+                    <div class="footMnu">
+                        <div class="mnuLnk">
+                            <span class="lnkSet">
+                                <a id="loginOutLink" href="javascript:void(0);" onclick="setMcode('003_001'); goLoginPage2();">
+                                    <em class="txt">로그인</em>
+                                </a>
+                            </span>
+                            <span class="lnkSet">
+                                <a href="${MOBILE_URL}/Category/RecentGoods" onclick="setMcode('003_002');">
+                                    <em class="txt">최근 본 상품</em>
+                                </a>
+                            </span>
+                            <span class="lnkSet">
+                                <a href="javascript:setMcodeNRedirection('${PAYMENT_URL}/MMyPageOrderList/MMyPageOrderList', '003_003');">
+                                    <em class="txt">주문/배송</em>
+                                </a>
+                            </span>
+                            </div>
+                        </div>
+                      <div class="footCs">
+                        <div class="csTel">
+                            <span class="telSet"><a href="tel:15443800" onclick="setMcode('003_004');" class="txt">고객센터 1544-3800</a></span>
+                            <span class="telSet"><a href="tel:1544-6399" class="txt">티켓 1544-6399</a></span>
+                            <span class="telSet"><a href="tel:15664295" onclick="setMcode('003_009');" class="txt">중고샵 1566-4295</a></span>
+                            <span class="telSet lastSet"><a href="${MOBILE_URL}/Help/Cs/Apply?AplNo=45" class="lnk">eBook 1:1문의/채팅상담</a></span>
+                        </div>                        
+                    </div>
+                    ${allianceFooterHtml}
+                    <div id="yFootInfo" class="footTxt">
+                        <button type="button" class="btn_fToggle" onclick="toggleFootInfo();">
+                            <span class="txt">예스이십사(주) 사업자 정보</span>
+                            <span class="ico">자세히 보기</span>
+                        </button>
+                        <div class="txtInfo">
+                            <dl><dt>대표</dt><dd>김석환, 최세라</dd></dl>
+                            <dl><dt>주소</dt><dd>서울시 영등포구 은행로 11, 5층~ 6층 (여의도동,일신빌딩)</dd></dl>
+                            <dl><dt>사업자등록번호</dt><dd>229-81-37000</dd></dl>
+                            <dl><dt>통신판매업신고</dt><dd>제 2005-02682</dd></dl>
+                            <dl><dt>이메일</dt><dd><a href="mailto:yes24help@yes24.com">yes24help@yes24.com</a></dd></dl>
+                            <dl><dt>호스팅 서비스사업자</dt><dd>예스이십사(주)</dd></dl>
+                        </div>
+                    </div>
+                    <div class="footCorp">
+                        <div class="corpLnk">
+                            <span class="lnkSet"><a href="${MOBILE_URL}/Momo/Member/agree.aspx" onclick="setMcode('003_008');">이용약관</a></span>
+                            <span class="lnkSet"><a href="${MOBILE_URL}/Momo/Member/clause_privacy.aspx" onclick="setMcode('003_007');"><strong>개인정보처리방침</strong></a></span>
+                            <span class="lnkSet"><a href="${MOBILE_URL}/Momo/Member/youthpolicy.aspx">청소년보호정책</a></span>
+                        </div>
+                        <div class="corpLnk">
+                            <span class="lnkSet" id="viewPcLink"><a href="javascript:void(0);" onclick="setMcode('003_005');goPcWeb();">PC버전</a></span>
+                            <span class="lnkSet"><a href="https://company.yes24.com/">회사소개</a></span>
+                            <span class="lnkSet"><a href="${MOBILE_URL}/Company">거래처관계자께</a></span>
+                        </div>
+                        <div class="corpLnk">
+                            <span class="lnkSet"><a href="${MOBILE_URL}/Company/Publish">도서홍보</a></span>
+                            <span class="lnkSet"><a href="${MOBILE_URL}/Company/AdGuide">광고</a></span>
+                        </div>
+                    </div>
+                    <div class="footCopy">
+                        <p>Copyright © YES24 Corp. All Rights Reserved.</p>
+                    </div>
+                    <div id="environmentName" style="position:absolute;color:#f8f8f8;">${serverName}</div>
+                </div>
+            </footer>`;
+    }
+   
+    //공통풋터 HTML생성
+    function setMobCommonFooter(serverName) {
+        let sscardFooterHtml = '';
+        if (caller === "sscard") {
+            sscardFooterHtml = `
+                <div class="alliance_footer">
+                    <dl>
+                        <dt class="alliance_tit">제휴사 안내</dt>
+                        <dd class="alliance_txt">
+                            <div class="alliance_info">삼성카드는 통신판매 중개자로서 상품 및 서비스의 이행을 ㈜현대이지웰의 책임하에 운영되고 있으며, ㈜현대이지웰의 약관을 따릅니다.</div>
+                            <table class="alliance_tbl">
+                                <tr><th>법인명</th><td>주식회사 현대이지웰</td></tr>
+                                <tr><th>대표자명</th><td>장영순</td></tr>
+                                <tr><th>주소</th><td>서울특별시 구로구 구로동 187번지 10호</td></tr>
+                                <tr><th>전화번호</th><td>02-3282-7900</td></tr>
+                                <tr><th>사업자등록 번호</th><td>101-81-90575</td></tr>
+                            </table>
+                        </dd>
+                    </dl>
+                </div>`;
+        }
+
+        let allianceFooterHtml = '';
+        if (isPartner) {
+            allianceFooterHtml = `
+              <div class="footB2b">
+                    <p>본 서비스는 제휴를 통해 운영되며, 등록된 상품 및 서비스는 해당업체의 책임하에 제공되고 있습니다. 예스이십사는 신뢰할 수 있는 서비스 제공을 위해 항상 최선을 다합니다.</p>
+                </div>`;
+        }
+
+        //풋터생성
+        const footerHtml = getfooterHtmlTemplate(sscardFooterHtml, allianceFooterHtml, serverName);
+        if (!isBookclub) {
+            $("#yesWrap").append(footerHtml);
+        }
+
+        //로그인/아웃 버튼 설정
+        if (getCookie('ServiceCookies') != null && getCookie('ServiceCookies') != '') {
+            var queryString = "";
+            if (location.host.toLocaleLowerCase() == "ssl.yes24.com") {
+                queryString = "?ReturnURL=https://m.yes24.com";
+            }
+            var logoutUrl = MOBILE_URL + "/Momo/Templates/FTLogOut.aspx";
+            logoutUrl = logoutUrl + queryString;
+
+            $("#loginOutLink").attr("href", "javascript:setMcodeNRedirection('" + logoutUrl + "', '003_001')");
+            $("#loginOutLink").attr("onclick", "brazeHelper.logout(); airbridgeHelper.logout();");
+            $("#loginOutLink").find(".txt").text("로그아웃");
+        }
+
+        //PC버전보기 영역 제거
+        if (IS_NATIVE_APPS && isEventPage) {
+            $("#viewPcLink").remove();
+        }
+
+        setBottomBar();
+    }
+
+    //로그전송
+    function setLoggerScript() {
+        if (!location.pathname.toLowerCase().includes("/momo/member")) {
+            var script = document.createElement('script');
+            script.src = '//wcs.naver.net/wcslog.js';
+            script.type = 'text/javascript';
+            document.getElementsByTagName('head')[0].appendChild(script);
+        }
+
+        //클릭스트림 URL 로그 전송
+        setCustomClickstreamLog("page_init");
+
+        // kakao Pixel - 페이지뷰.
+        try {
+            kakaoPixel('4526708593004072917').pageView(); //예스24
+            if (IsScExpDate) { //스크립트 참조 기간 여부
+                kakaoPixel('3610339934309599626').pageView(); //캠페인 대행사
+            }
+        } catch (e) { }
+    }
+
+    // 최근 본 상품이 성인상품이면 전용 마스킹 이미지를 노출한다.
+    function setRecentGoodsImage(iRecentGoodsNo) {
+        var defaultImageUrl = HTTPS_IMG_HOST_SYS + "/goods/" + iRecentGoodsNo + "/S";
+        $("#recentGoodsArea").attr("src", defaultImageUrl);
+
+        $.ajax({
+            type: "POST",
+            url: _frontApiUrl + "/api/goods/isAdultGoods",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: JSON.stringify(Number(iRecentGoodsNo)),
+            success: function (response) {
+                if (response && response.IsAdultGoods === "Y" && (!_isAdultAuth || !_isServiceCookies)) {
+                    $("#recentGoodsArea").attr("src", HTTPS_IMG_HOST_SYS + "/momo/PD_19_S.gif");
+                }
+            }
+        });
+    }
+
+    //하단바 설정
+    function setBottomBar() {
+        const excludedBottomBarPaths = [
+            "/Goods/Detail/", "/p/", "/Goods/SeriesList", "/Goods/OriginalImage/",
+            "/Goods/AuthorDetail/", "/Bookchelin/", "/BookClub/", "/Home/Wing",
+            "/Home/EditFavoriteService", "/Author/AuthorInfo", "/GiftOrder/GiftBox",
+            "/GiftOrder/GiftOrder", "/GiftOrder/GiftReceivedDetail", "/GiftOrder/GiftAccept",
+            "/GiftOrder/GiftAcceptEnd", "/MobileEvent/yesFunding/", "/BuyBack/"
+        ];
+        const excludedBottomButtonPaths = [
+            "/Goods/SeriesList", "/Goods/eBookSeriesList", "/Goods/AuthorDetail",
+            "/Goods/AfterReading", "/Home/Wing", "/Home/EditFavoriteService",
+            "/Author/AuthorInfo", "/Goods/Preview", "/Goods/Cardnews",
+            "/BookClub/BookClubWing", "BookClub/AuthorDetail"
+        ];
+
+        var isPathExcludedBottomBar = excludedBottomBarPaths.some(function (path) {
+            return currentPath.indexOf(path.toLowerCase()) !== -1;
+        });
+        var isPathExcludedBottomButton = excludedBottomButtonPaths.some(function (path) {
+            return currentPath.indexOf(path.toLowerCase()) !== -1;
+        });
+
+        if (isPathExcludedBottomBar || isBookclub) {
+            $("#toolBar").remove();
+        }
+        if (isPathExcludedBottomButton || isBookclub) {
+            $("#toolBtn").remove();
+        }
+        else {
+            var iRecentGoodsNo = getBottomButtonRecentGoodsNo();
+            if (iRecentGoodsNo > 0) {
+                $("#bottomRecentGoodsWrap").css("display", "");
+                setRecentGoodsImage(iRecentGoodsNo);
+            }
+
+            scrollDir({
+                dir: 'up',
+                attribute: 'data-yesdir',
+                thresholdPixels: 10
+            });
+        }
+    }
+
+    //하단바 클릭코드 설정
+    function getMenuCode(label) {
+        return IS_NATIVE_APPS ? `011_002_${label}` : `011_001_${label}`;
+    }
+
+    //리사이즈 제휴사 대응
+    function resizeEzwelMobileAspFrameHeight(top, h) {
+        var cspCd = getCookie("CLIENT_CD");
+        var ifrmUrl = "";
+
+        if (h == 0) {
+            var w_height = $(window).height();
+            h = w_height;
+        }
+        else {
+            if (1320 > h) { h = 1320; }
+        }
+
+        if (cspCd == "ez1") {
+            /** 이지웰페어인 경우 **/
+            ifrmUrl = "https://newasp.ezwel.com/ifrm_mbr_resize.jsp?h=" + h + "px&top=" + top;
+        }
+        else if (cspCd == "yes24") {
+            /** 삼성블루베리인 경우 **/
+            ifrmUrl = "https://mnewasp.s-bluevery.com/ifrm_mbr_resize.jsp?h=" + h + "px&top=" + top;
+        }
+        else {
+            /** 기타 **/
+            ifrmUrl = "https://newasp.ezwel.com/ifrm_mbr_resize.jsp?h=" + h + "px&top=" + top;
+        }
+
+        // window.history 페이지정보 제거를 위해 이전 iframe 제거
+        $("body").remove("ifrmResize");
+        // iframe 동적 생성
+        $("body").append("<IFRAME src=\"" + ifrmUrl + "\" id='ifrmResize' marginwidth=0 marginheight=0 frameBorder=0 width=0 height=0 scrolling=no/>");
+    }
+
+    $(window).on("load", function () {
+        if (isPartner && (addResizeScript || addResizeScriptMomoMobile) && !isRenewalEzwel) {
+            var h = $("#yesWrap").css("height");
+            var i_h = $('#yesWrap').height();
+            if (!isNaN(i_h)) {
+                if (document.location.href.toLowerCase().indexOf('category/') >= 0) { i_h += 100; }
+                else { i_h -= 200; }
+            }
+            resizeEzwelMobileAspFrameHeight("Y", i_h.toString());
+        }
+    });
+
+    $(document).ready(function () {
+        //로그전송
+        setLoggerScript();
+    });
+
+    return {
+        setMobCommonFooter,
+        getMenuCode
+    };
+})();

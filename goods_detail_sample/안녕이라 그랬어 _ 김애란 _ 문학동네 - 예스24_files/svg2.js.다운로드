@@ -1,0 +1,45 @@
+﻿(function ($) {
+    $.fn.yesSVG = function (options) {
+        return $.yesSVG(this, options);
+    };
+
+    $.yesSVG = function (container, options) {
+        var settings = {
+            target: '',
+            tagSelector: 'img',
+            attrSelector: 'src'
+        };
+
+        if (options) { $.extend(settings, options); };
+
+        if (Modernizr.svg) {
+            $(container).find(settings.tagSelector).each(function () {
+                var svg_url = $(this).attr(settings.attrSelector);
+                svg_url = svg_url.replace(HTTPS_IMG_HOST_SYS, "").replace('https://secimage.yes24.com', "");
+
+                //console.log(svg_url);
+                var svgOldUrl = MOBILE_HTTP_URL + "/SVG/Image?path=" + svg_url;
+                var svgRenewUrl = HTTPS_IMG_HOST_SYS + "/api/svg/Image?path=" + svg_url;
+
+                var tar_obj = $(this).parent();
+
+                fetch(svgRenewUrl, {
+                    method: 'GET',
+                    mode: 'cors'  // crossDomain과 유사하게 작동
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text(); // SVG 컨텐츠를 텍스트로 변환
+                    })
+                    .then(data => {
+                        tar_obj.html(data); // SVG 응답을 대상 요소에 삽입
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                    });
+            });
+        }
+    };
+})(jQuery);

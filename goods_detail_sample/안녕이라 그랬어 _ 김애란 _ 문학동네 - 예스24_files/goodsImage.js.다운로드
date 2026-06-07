@@ -1,0 +1,656 @@
+﻿$(document).ready(function () {
+	$('#gdImgWrap.spineOn').cfTouchSwipe({
+		minSwipeLength: 35,		// 사용자가 swipe 했다고 판단하는 최소 거리
+		minMoveLength: 15,		// 이 거리보다 작게 움직이고 triggerClick = true 이면 click 이벤트 trigger
+		triggerClick: false,		// triggerClick false 일 경우 click 이벤트가 발생하지 않음
+		preventDefault: false,		// touchstart, touchmove 이벤트에 대해 preventDefault 할지 여부
+		swipeLeft: function () {
+			gdChgAngle("rgt");
+		},
+		swipeRight: function () {
+			gdChgAngle("lft");
+		},
+		swipeUp: null,			// swipe callback
+		swipeDown: function () {
+			closeGDSize();
+		}			// swipe callback
+	});
+
+	$(window).on('resize', function () {
+		gd3DApply($(window).width());
+	});
+});//ready
+
+var gdImgAreaW = 0; //이미지 영역 너비
+var gdImgSideW = 0; //책등 높이
+var isGdFirst = true;
+
+function gd3DApply(areaW) {
+	var target = $("#gdImgWrap:not(.tp_class24):not(.tp_other) .gdItemUnit");
+
+	//너비 변화 있을 때 3D실행
+	if ((target.hasClass("spineOn")) && (gdImgAreaW != areaW)) {
+		var rBookSideL; //책등 왼쪽
+		var rBookSideR; //책등 오른쪽
+		var rBookBack; //뒷표지
+		var rBookSideImg;
+		var rSideW = 0;
+		var rBookLen = target.length;
+
+		for (var i = 0; i < rBookLen; i++) {
+			var rBook = target.eq(i);
+
+			rBookSideL = rBook.find(".sideL");
+			rBookSideR = rBook.find(".sideR");
+			rBookSideImg = rBook.find(".sideL img");
+			rBookBack = rBook.find(".back");
+			rSideW = gdImgSideW = rBookSideImg.width();
+
+			rBookSideL.css({ "transform": "rotate3d(0,1,0,-90deg) translate3d(-50%, 0, 0)", "left": Math.trunc((-rSideW / 2)) + "px", "width": Math.trunc(rSideW) + "px" });
+			rBookSideR.css({ "transform": "rotate3d(0,1,0,90deg) translate3d(50%, 0, 0)", "right": Math.trunc((-rSideW / 2)) + "px", "width": Math.trunc(rSideW) + "px" });
+			rBookBack.css({ "transform": "rotate3d(0,1,0,-180deg) translate3d(0, 0, " + Math.trunc(rSideW) + "px)" });
+
+			rBook.addClass("loadOn");//배치 시키고 사이드 이미지 보이게 하기 위한 방어코드
+		}
+		gdImgAreaW = areaW; //3D적용 후 기준 너비 갱신
+		gd3DCenter(areaW); //3D이미지 중앙정렬
+	}
+}
+
+// 중앙 체크
+function gd3DCenter(areaW) {
+	var target = $("#gdImgWrap:not(.tp_class24):not(.tp_other) .gdItemUnit");
+	var winW = areaW;
+	var leftM, rightM, tarM;
+	var rBookLen = target.length;
+
+	//초기화
+	if (!isGdFirst) {
+		target.removeClass("viewSide");
+		target.removeClass("viewFront");
+		target.removeClass("viewBack");
+		target.find(".img_item").attr("style", "");
+		nowGdAngle = 0;
+	}
+
+	target.addClass("chkCenter");
+
+	for (var i = 0; i < rBookLen; i++) {
+		var rBook = target.eq(i);
+
+		if (target.hasClass("spineLft")) {
+			leftM = Math.floor(target.find(".sideL").offset().left);
+			rightM = Math.floor(winW - target.find(".img_grp .posTick").offset().left);
+			tarM = (rightM - leftM);
+			target.find(".img_item").css("margin-left", Math.floor(tarM) + "px");
+		} else {
+			leftM = Math.floor(target.find(".img_grp").offset().left);
+			rightM = Math.floor(winW - target.find(".sideR .posTick").offset().left);
+			tarM = (leftM - rightM);
+			target.find(".img_item").css("margin-left", Math.floor(tarM) + "px");
+		}
+	}
+	target.removeClass("chkCenter"); // 중앙정렬 계산 체크 class삭제
+
+	if (isGdFirst) {
+		target.addClass("noDelay");
+
+		setTimeout(function () {
+			target.removeClass("noDelay");
+			target.addClass("initTurn");
+		}, 500);
+		setTimeout(function () {
+			target.removeClass("initTurn");
+			target.addClass("readyOn");
+		}, 2400);
+	}
+
+	isGdFirst = false;
+}
+
+// 상품 이미지 각도
+var nowGdAngle = 0;
+
+// 상품 이미지 회전
+function gdChgAngle(dir) {
+	var target = $("#gdImgWrap:not(.tp_class24):not(.tp_other) .gdItemUnit");
+
+	if (!(target.hasClass("spineOn") && target.hasClass("readyOn"))) return;
+
+	var nowClass = target.hasClass("viewSide") ? "viewSide" :
+		target.hasClass("viewBack") ? "viewBack" : "viewFront";
+
+	var tarform = target.find(".img_item").css("transform");
+	var tar3d = (tarform.match(/translate3d\([^)]+\)/) || ['translate3d(0, 0, 0)'])[0];
+	var spineLft = target.hasClass("spineLft");
+	var angleMap = {
+		"viewFront": {
+			rgt: { next: spineLft ? "viewBack" : "viewSide", angle: spineLft ? -180 : -40 },
+			lft: { next: spineLft ? "viewSide" : "viewBack", angle: spineLft ? 40 : 180 }
+		},
+		"viewSide": {
+			rgt: { next: spineLft ? "viewFront" : "viewBack", angle: spineLft ? -40 : -140 },
+			lft: { next: spineLft ? "viewBack" : "viewFront", angle: spineLft ? 140 : 40 }
+		},
+		"viewBack": {
+			rgt: { next: spineLft ? "viewSide" : "viewFront", angle: spineLft ? -140 : -180 },
+			lft: { next: spineLft ? "viewFront" : "viewSide", angle: spineLft ? 180 : 140 }
+		}
+	};
+
+	var direction = angleMap[nowClass][dir];
+	target.removeClass(nowClass).addClass(direction.next);
+	nowGdAngle += direction.angle;
+
+	// viewBack 인 경우에만 translate3d 값 조정
+	if (direction.next === "viewBack") {
+		tar3d = `translate3d(0, 0, ${gdImgSideW}px)`;
+	}
+
+	target.find(".img_item").css('transform', `rotate3d(0, 1, 0, ${nowGdAngle}deg) ${tar3d}`);
+}
+
+
+/* 사이즈 비교 */
+var gdSizeAreaW = 0; //이미지 영역 너비
+var nowSizeAngle = 0; // 사이즈 비교상품 이미지 각도
+var realBWidth = 0; // 도서 가로
+var realBHeight = 0; // 도서 세로
+var realBDeep = 0; // 도서 두께
+
+function showBookSize(gno, gw, gh, gz) {
+	var isSpineOn = $("#gdImgWrap .gdItemUnit").hasClass("spineOn"); // 도서가 입체면 true
+	var isSpineLft = $("#gdImgWrap .gdItemUnit").hasClass("spineLft"); // 책등이 왼쪽인지
+
+	realBWidth = Math.floor(gw); // 도서 가로
+	realBHeight = Math.floor(gh); // 도서 세로
+	realBDeep = Math.floor(gz); // 도서 두께
+
+	console.log(" realBWidth = " + gw); // 도서 가로
+	console.log(" realBHeight =" + gh); // 도서 세로
+	console.log(" realBDeep =" + gz); // 도서 두께
+
+	if ($('#gdSizeWrap').length === 0) {
+		var gdImgWrap = $('#gdImgWrap');
+		var bookSizeHTML = '';
+		bookSizeHTML += '<!-- ##########0000000000 SIZE & 3D 영역 시작 000000000##########  -->';
+		/*
+		<!-- div id="gdSizeWrap" class="gdSizeGrp gdSizeOn mod_size sizeIs_card" -->
+		*/
+		if (!isSpineOn) {
+			bookSizeHTML += '<div id="gdSizeWrap" class="gdSizeGrp sizeOnly mod_size sizeIs_card">'; /* sizeOnly 입체 아닌 경우 */
+			bookSizeHTML += '	<!-- #####0000000000 SIZE & 3D 그룹 시작 0000000000##### --> ';
+			bookSizeHTML += '	<div class="gdSize">';
+			bookSizeHTML += '		<div class="sizeTop">';
+			bookSizeHTML += '			<p class="top_txt">사이즈비교</p>';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '		<div class="sizeBody">';
+			bookSizeHTML += '		<!-- #####[[[[[ SIZE 시작 ]]]]]##### -->';
+			bookSizeHTML += '		<div class="sizeCon">';
+			bookSizeHTML += '			<div class="con_size">';
+			bookSizeHTML += '				<div class="img_size img_book"><span class="img_grp" data-before="' + gw + ' X ' + gh + 'mm"><em class="img_bdr"><img src="https://image.yes24.com/Goods/' + gno + '/XL" border="0" alt="상품이미지"></em></span></div>';
+			bookSizeHTML += '				<div class="img_size img_card"><img src="https://image.yes24.com/sysimage/mv3/detail/cardN.png" border="0" alt=""></div>';
+			bookSizeHTML += '				<div class="img_size img_paper"><img src="https://image.yes24.com/sysimage/mv3/detail/A4.png" border="0" alt=""></div>';
+			bookSizeHTML += '			</div>';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '		<!-- #####[[[[[ SIZE 끝 ]]]]]##### -->';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '		<div class="sizeBot">';
+			bookSizeHTML += '			<a class="bot_size bot_btn btnCard" href="javascript:void(0);" onclick="chgSizeTp(\'card\');"><em class="txt">신용카드</em></a>';
+			bookSizeHTML += '			<a class="bot_size bot_btn btnA4" href="javascript:void(0);" onclick="chgSizeTp(\'a4\');"><em class="txt">A4</em></a>';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '	</div>';
+			bookSizeHTML += '	<div class="close_gdSize"><a class="lnk_close" href="javascript:void(0);" onclick="closeGDSize(this);"><em class="ico">창닫기</em></a></div>';
+			bookSizeHTML += '	<!-- #####0000000000 SIZE & 3D 그룹 끝 0000000000##### --> ';
+			bookSizeHTML += '</div>';
+		} else {
+			/* mod_size sizeIs_card */
+			bookSizeHTML += '<div id="gdSizeWrap" class="gdSizeGrp gdSizeOn mod_size sizeIs_card viewFront ' + (isSpineLft ? 'spineLft' : 'spineRgt') + '">';
+			bookSizeHTML += '	<!-- #####0000000000 SIZE & 3D 그룹 시작 0000000000##### --> ';
+			bookSizeHTML += '	<div class="gdSize">';
+			bookSizeHTML += '		<div class="sizeTop">';
+			bookSizeHTML += '			<a class="top_btn btn_size" href="javascript:void(0);" onClick="chgSizeMod(\'SIZE\');"><em class="txt">Size</em></a>';
+			bookSizeHTML += '			<a class="top_btn btn_3d" href="javascript:void(0);" onClick="chgSizeMod(\'3D\');"><em class="txt">3D</em></a>';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '		<div class="sizeBody">';
+			bookSizeHTML += '		<!-- #####[[[[[ SIZE 시작 ]]]]]##### -->';
+			bookSizeHTML += '		<div class="sizeCon">';
+			bookSizeHTML += '			<div class="con_size">';
+			bookSizeHTML += '				<div class="img_size img_book"><span class="img_grp" data-before="' + gw + ' X ' + gh + 'mm"><em class="img_bdr"><img src="https://image.yes24.com/Goods/' + gno + '/XL" border="0" alt="상품이미지"></em></span></div>';
+			bookSizeHTML += '				<div class="img_size img_card"><img src="https://image.yes24.com/sysimage/mv3/detail/cardN.png" border="0" alt=""></div>';
+			bookSizeHTML += '				<div class="img_size img_paper"><img src="https://image.yes24.com/sysimage/mv3/detail/A4.png" border="0" alt=""></div>';
+			bookSizeHTML += '			</div>';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '		<!-- #####[[[[[ SIZE 끝 ]]]]]##### -->';
+			bookSizeHTML += '		<!-- #####[[[[[ 3D 시작 ]]]]]##### -->';
+			bookSizeHTML += '		<div class="size3dCon">';
+			bookSizeHTML += '			<div class="size3dCanvas">';
+			bookSizeHTML += '				<div class="size3dUnit spineOn ' + (isSpineLft ? 'spineLft' : 'spineRgt') + ' viewFront">';
+			bookSizeHTML += '					<span class="img_item">';
+			bookSizeHTML += '						<span class="img_grp" data-before="' + gw + 'mm" data-after="' + gh + 'mm">';
+			bookSizeHTML += '							<em class="posTick"></em>';
+			bookSizeHTML += '							<em class="img_bdr"><img src="https://image.yes24.com/Goods/' + gno + '/XL" border="0" alt="상품이미지"></em>';
+			bookSizeHTML += '						</span>';
+			bookSizeHTML += '						<span class="side sideL" data-before="' + gz + 'mm">';
+			bookSizeHTML += '							<img src="https://image.yes24.com/goods/' + gno + '/SIDE/XL" border="0" alt="책등">';
+			bookSizeHTML += '						</span>';
+			bookSizeHTML += '						<span class="side sideR" data-before="' + gz + 'mm">';
+			bookSizeHTML += '							<em class="posTick"></em>';
+			bookSizeHTML += '							<img src="https://image.yes24.com/goods/' + gno + '/SIDE/XL" border="0" alt="책등">';
+			bookSizeHTML += '						</span>';
+			bookSizeHTML += '						<span class="back">';
+			bookSizeHTML += '							<em class="posTick"></em>';
+			bookSizeHTML += '							<img src="https://image.yes24.com/goods/' + gno + '/BACK/XL" border="0" alt="뒷커버">';
+			bookSizeHTML += '						</span>';
+			bookSizeHTML += '					</span>';
+			bookSizeHTML += '				</div>';
+			bookSizeHTML += '			</div>';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '		<!-- #####[[[[[ 3D 끝 ]]]]]##### -->';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '		<div class="sizeBot">';
+			bookSizeHTML += '			<a class="bot_size bot_btn btnCard" href="javascript:void(0);" onclick="chgSizeTp(\'card\');"><em class="txt">신용카드</em></a>';
+			bookSizeHTML += '			<a class="bot_size bot_btn btnA4" href="javascript:void(0);" onclick="chgSizeTp(\'a4\');"><em class="txt">A4</em></a>';
+			bookSizeHTML += '			<a class="bot_3d bot_btn btnFront" href="javascript:void(0);" onclick="chgRealTp(\'front\');"><em class="txt">앞표지</em></a>';
+			bookSizeHTML += '			<a class="bot_3d bot_btn btnSide" href="javascript:void(0);" onclick="chgRealTp(\'side\');"><em class="txt">책등</em></a>';
+			bookSizeHTML += '			<a class="bot_3d bot_btn btnBack" href="javascript:void(0);" onclick="chgRealTp(\'back\');"><em class="txt">뒤표지</em></a>';
+			bookSizeHTML += '		</div>';
+			bookSizeHTML += '	</div>';
+			bookSizeHTML += '	<div class="close_gdSize"><a class="lnk_close" href="javascript:void(0);" onclick="closeGDSize(this);"><em class="ico">창닫기</em></a></div>';
+			bookSizeHTML += '	<!-- #####0000000000 SIZE & 3D 그룹 끝 0000000000##### --> ';
+			bookSizeHTML += '</div>';
+		}
+		bookSizeHTML += '<!-- ##########0000000000 SIZE & 3D 영역 끝 000000000##########  -->';
+
+		// 이미지 뒤에 팝업 붙이기
+		gdImgWrap.after(bookSizeHTML);
+
+		// Wait for images to load
+		$('#gdSizeWrap .size3dCon').imagesLoaded(function () {
+			$('#gdSizeWrap .size3dUnit').addClass('loadOn');
+		});
+
+		$('#gdSizeWrap .sizeBody').cfTouchSwipe({
+			minSwipeLength: 35,		// 사용자가 swipe 했다고 판단하는 최소 거리
+			minMoveLength: 15,		// 이 거리보다 작게 움직이고 triggerClick = true 이면 click 이벤트 trigger
+			triggerClick: true,		// triggerClick false 일 경우 click 이벤트가 발생하지 않음
+			preventDefault: false,		// touchstart, touchmove 이벤트에 대해 preventDefault 할지 여부
+			swipeLeft: function () {
+				sizeChgAngle("rgt");
+			},
+			swipeRight: function () {
+				sizeChgAngle("lft");
+			},
+			swipeUp: null,			// swipe callback
+			swipeDown: function () {
+				closeGDSize();
+			}		
+		});
+	}
+
+	$("#gdSizeWrap").addClass("gdSizeOn");// 영역 보이고
+	calcGDSize(); //사이즈 계산
+
+	// body 스크롤 막기
+	// 스크롤 막기전에 이미 막혀있으면 꼬임방지를 위해 스킵
+	if (!$("body").hasClass("notScl") && !$("body").hasClass("schMod")) {
+		kFocusY = $(window).scrollTop();
+		$("html, body").addClass("notScl");
+		$("#yesWrap").css("top", -kFocusY);
+	}
+}
+
+// default값 
+function modSizeDef() {
+	//카드로 되돌리고
+	if ($("#gdSizeWrap").hasClass("sizeIs_paper")) {
+		$("#gdSizeWrap").removeClass("sizeIs_paper");
+		$("#gdSizeWrap").addClass("sizeIs_card");
+	}
+
+	//3D가 있을 경우 3D는 전면
+	if (!$("#gdSizeWrap").hasClass("sizeOnly")) {
+		$("#gdSizeWrap .size3dCon .size3dUnit").removeClass("viewBack");
+		$("#gdSizeWrap .size3dCon .size3dUnit").removeClass("viewSide");
+		$("#gdSizeWrap .size3dCon .size3dUnit").removeClass("readyOn");
+		$("#gdSizeWrap .size3dCon .size3dUnit").addClass("viewFront");
+		$("#gdSizeWrap .size3dCon .size3dUnit .img_item").removeAttr("style");
+
+		nowSizeAngle = 0; // angle초기화
+	}
+}
+
+// 모드 변경
+function chgSizeMod(str) {
+	switch (str) {
+		case "SIZE":
+			if ($("#gdSizeWrap").hasClass("mod_3d")) {
+				modSizeDef(); // default 
+				$("#gdSizeWrap").addClass("mod_size");
+				$("#gdSizeWrap").removeClass("mod_3d");
+
+				calcGDSize();
+			}
+			break;
+		case "3D":
+			if ($("#gdSizeWrap").hasClass("mod_size")) {
+				modSizeDef(); // default 
+				$("#gdSizeWrap").addClass("mod_3d");
+				$("#gdSizeWrap").removeClass("mod_size");
+
+				//입체 적용
+				gdSize3DApply($(window).width(), true);
+			}
+			break;
+	}
+}
+
+// 3D 입체
+function gdSize3DApply(areaW, isMust) {
+	var target = $("#gdSizeWrap .size3dCon .size3dUnit");
+
+	console.log('target.length ' + target.length)
+	console.log('target.hasClass("gdSizeOn")' + $("#gdSizeWrap").hasClass("gdSizeOn"))
+
+	if ((target.length > 0) && ($("#gdSizeWrap").hasClass("gdSizeOn"))) {
+		//너비 변화 있을 때 3D실행
+		if ((target.hasClass("spineOn")) && (isMust || gdSizeAreaW != areaW)) {
+			var rBookSideL; //책등 왼쪽
+			var rBookSideR; //책등 오른쪽
+			var rBookBack; //뒷표지
+			var rBookSideImg;
+			var rSideW = 0;
+			var rBookLen = target.length;
+
+			for (var i = 0; i < rBookLen; i++) {
+				var rBook = target.eq(i);
+
+				rBookSideL = rBook.find(".sideL");
+				rBookSideR = rBook.find(".sideR");
+				rBookSideImg = rBook.find(".sideL img");
+				rBookBack = rBook.find(".back");
+				rSideW = gdImgSideW = rBookSideImg.width();
+
+				rBookSideL.css({ "transform": "rotate3d(0,1,0,-90deg) translate3d(-50%, 0, 0)", "left": Math.trunc((-rSideW / 2)) + "px", "width": Math.trunc(rSideW) + "px" });
+				rBookSideR.css({ "transform": "rotate3d(0,1,0,90deg) translate3d(50%, 0, 0)", "right": Math.trunc((-rSideW / 2)) + "px", "width": Math.trunc(rSideW) + "px" });
+				rBookBack.css({ "transform": "rotate3d(0,1,0,-180deg) translate3d(0, 0, " + Math.trunc(rSideW) + "px)" });
+			}
+			gdSizeAreaW = areaW; //3D적용 후 기준 너비 갱신
+			gdSize3dCenter(areaW); //3D이미지 중앙정렬
+		}
+	}
+}
+
+// 중앙 체크
+function gdSize3dCenter(areaW) {
+	var target = $("#gdSizeWrap .size3dCon .size3dUnit");
+	var winW = areaW;
+	var leftM, rightM, tarM;
+	var rBookLen = target.length;
+
+	target.addClass("chkCenter");
+
+	for (var i = 0; i < rBookLen; i++) {
+		var rBook = target.eq(i);
+
+		if (target.hasClass("spineLft")) {
+			leftM = Math.floor(target.find(".sideL").offset().left);
+			rightM = Math.floor(winW - target.find(".img_grp .posTick").offset().left);
+			tarM = (rightM - leftM);
+			target.find(".img_item").css("margin-left", Math.floor(tarM) + "px");
+		} else {
+			leftM = Math.floor(target.find(".img_grp").offset().left);
+			rightM = Math.floor(winW - target.find(".sideR .posTick").offset().left);
+			tarM = (leftM - rightM);
+			target.find(".img_item").css("margin-left", Math.floor(tarM) + "px");
+		}
+	}
+	target.removeClass("chkCenter"); // 중앙정렬 계산 체크 class삭제
+	target.addClass("readyOn");
+}
+
+// 사이즈 플리킹 액션
+function sizeChgAngle(dir) {
+	var tarBase = $("#gdSizeWrap");
+	// 사이즈 모드인지 3D모드인지
+	if (tarBase.hasClass("mod_size")) {
+		if (tarBase.hasClass("sizeIs_card")) {
+			tarBase.removeClass("sizeIs_card");
+			tarBase.addClass("sizeIs_paper");
+		} else {
+			tarBase.removeClass("sizeIs_paper");
+			tarBase.addClass("sizeIs_card");
+		}
+		calcGDSize();
+	} else if (tarBase.hasClass("mod_3d")) {
+		var target = $("#gdSizeWrap:not(.mod_size) .size3dUnit");
+
+		if (!(target.hasClass("spineOn") && target.hasClass("readyOn"))) return;
+
+		var nowClass = target.hasClass("viewSide") ? "viewSide" :
+			target.hasClass("viewBack") ? "viewBack" : "viewFront";
+
+		var tarform = target.find(".img_item").css("transform");
+		var tar3d = (tarform.match(/translate3d\([^)]+\)/) || ['translate3d(0, 0, 0)'])[0];
+		var spineLft = target.hasClass("spineLft");
+		var angleMap = {
+			"viewFront": {
+				rgt: { next: spineLft ? "viewBack" : "viewSide", angle: spineLft ? -180 : -40 },
+				lft: { next: spineLft ? "viewSide" : "viewBack", angle: spineLft ? 40 : 180 }
+			},
+			"viewSide": {
+				rgt: { next: spineLft ? "viewFront" : "viewBack", angle: spineLft ? -40 : -140 },
+				lft: { next: spineLft ? "viewBack" : "viewFront", angle: spineLft ? 140 : 40 }
+			},
+			"viewBack": {
+				rgt: { next: spineLft ? "viewSide" : "viewFront", angle: spineLft ? -140 : -180 },
+				lft: { next: spineLft ? "viewFront" : "viewSide", angle: spineLft ? 180 : 140 }
+			}
+		};
+
+		var direction = angleMap[nowClass][dir];
+		target.removeClass(nowClass).addClass(direction.next);
+		$("#gdSizeWrap").removeClass(nowClass).addClass(direction.next);
+		nowSizeAngle += direction.angle;
+
+		// viewBack 인 경우에만 translate3d 값 조정
+		if (direction.next === "viewBack") {
+			tar3d = `translate3d(0, 0, ${gdImgSideW}px)`;
+		}
+
+		target.find(".img_item").css('transform', `rotate3d(0, 1, 0, ${nowSizeAngle}deg) ${tar3d}`);
+	}
+}
+
+// 앵글 변경
+var isAngleChging = false;
+function chgRealTp(tp) {
+	var realImg = $("#gdSizeWrap .size3dCon .size3dUnit");
+	var realBook = $("#gdSizeWrap .size3dCon .size3dUnit .img_item");
+	var realBookSideImg;
+	var realSideW = 0;
+	var rotateAmount, sideAmount;
+
+	if (isAngleChging) return;  // 중복 호출 방지
+	isAngleChging = true;
+
+	function applyTransform(rotateDelta, translateDelta = 0) {
+		nowSizeAngle += rotateDelta;
+		realBook.css({ "transform": `rotate3d(0,1,0,${nowSizeAngle}deg) translate3d(0, 0, ${translateDelta}px)` });
+	}
+
+	switch (tp) {
+		case "front":
+			if (realImg.hasClass("viewSide") || realImg.hasClass("viewBack")) {
+				rotateAmount = realImg.hasClass("spineLft") ? -40 : 40;
+				if (realImg.hasClass("viewBack")) rotateAmount *= 4.5;
+				applyTransform(rotateAmount);
+				realImg.removeClass("viewSide viewBack").addClass("viewFront");
+				$("#gdSizeWrap").removeClass("viewSide viewBack").addClass("viewFront");
+			}
+			break;
+		case "side":
+			if (realImg.hasClass("viewFront") || realImg.hasClass("viewBack")) {
+				rotateAmount = realImg.hasClass("spineLft") ? 40 : -40;
+				console.log("1 rotateAmount " + rotateAmount)
+				if (realImg.hasClass("viewBack")) rotateAmount *= -3.5;
+				console.log("2 rotateAmount " + rotateAmount)
+				applyTransform(rotateAmount);
+				realImg.removeClass("viewFront viewBack").addClass("viewSide");
+				$("#gdSizeWrap").removeClass("viewFront viewBack").addClass("viewSide");
+			}
+			break;
+		case "back":
+			if (realImg.hasClass("viewSide") || realImg.hasClass("viewFront")) {
+				realBookSideImg = $("#gdSizeWrap .size3dCon .size3dUnit ." + (realImg.hasClass("spineLft") ? "sideL" : "sideR") + " img");
+				realSideW = realBookSideImg.width();
+				rotateAmount = realImg.hasClass("spineLft") ? 140 : -140;
+				if (realImg.hasClass("viewFront")) rotateAmount *= 1.2857;
+				applyTransform(rotateAmount, Math.floor(realSideW));
+				realImg.removeClass("viewFront viewSide").addClass("viewBack");
+				$("#gdSizeWrap").removeClass("viewFront viewSide").addClass("viewBack");
+			}
+			break;
+	}
+	// 작업 완료 후 플래그를 다시 false로 설정
+	setTimeout(() => { isAngleChging = false; }, 300);  // 300ms 딜레이 후 다시 호출 가능
+}
+
+// 사이즈 계산
+function calcGDSize() {
+	var a4Width = 210; // A4 사이즈
+	var a4Height = 297; // A4 사이즈
+	var cardWidth = 54; // 카드 사이즈
+	var cardHeight = 86; // 카드 사이즈
+	var tarBase = $("#gdSizeWrap");
+
+	// 사이즈 모드인지 3D모드인지
+	if (tarBase.hasClass("mod_size")) {
+		var baseWidth = $(window).width() - 85;
+		var baseHeight = $(window).height();
+
+		if (baseWidth > 600) {
+			baseWidth = 600;
+		}
+
+		if (baseHeight < 450) {
+			if (baseHeight < 360) {
+				baseWidth = 180;
+			} else {
+				baseWidth = 200;
+			}
+		}
+
+		if (baseWidth + 200 > baseHeight) {
+			baseWidth = baseHeight - 200;
+		}
+
+		// 사이즈 모드인지 3D모드인지
+		if (tarBase.hasClass("mod_size")) {
+			var tarG = tarBase.find(".img_book");
+
+			if (tarBase.hasClass("sizeIs_card")) {
+				var tarO = tarBase.find(".sizeCon .img_card");
+				var tarGW = Math.floor(baseWidth * realBWidth / (realBWidth + cardWidth));
+				var tarOW = baseWidth - tarGW;
+
+				tarG.css("width", tarGW + "px");
+				tarO.css("width", tarOW + "px");
+			} else {
+				var tarO = tarBase.find(".sizeCon .img_paper");
+				var tarGW = Math.floor(baseWidth * realBWidth / (realBWidth + a4Width));
+				var tarOW = baseWidth - tarGW;
+
+				tarG.css("width", tarGW + "px");
+				tarO.css("width", tarOW + "px");
+			}
+		}
+	}
+}
+
+// 비교 기준 변경
+function chgSizeTp(tp) {
+	var tarBase = $("#gdSizeWrap");
+	switch (tp) {
+		case "card":
+			tarBase.removeClass("mod_3d");
+			tarBase.removeClass("sizeIs_paper");
+			tarBase.addClass("mod_size");
+			tarBase.addClass("sizeIs_card");
+			tarBase.addClass("gdSizeOn");
+			calcGDSize();
+			break;
+		case "a4":
+			tarBase.removeClass("mod_3d");
+			tarBase.removeClass("sizeIs_card");
+			tarBase.addClass("mod_size");
+			tarBase.addClass("sizeIs_paper");
+			tarBase.addClass("gdSizeOn");
+			calcGDSize();
+			break;
+	}
+}
+
+// 사이즈 비교 닫기
+function closeGDSize() {
+	chgSizeMod('SIZE');
+	modSizeDef();
+
+	$("#gdSizeWrap").removeClass("gdSizeOn"); // 감추기	
+
+	// body 스크롤 풀기
+	// 더이상 팝업이 없으면 스크롤 풀기
+	if ($("body").hasClass("notScl")) {
+		$("html, body").removeClass("notScl");
+		$("#yesWrap").attr("style", "");
+		$(window).scrollTop(kFocusY);
+	}
+}
+
+function setGoodsBg(img) {
+	try {
+		var vibrant = new Vibrant(img);
+		swatches = vibrant.swatches();
+
+		if (!swatches || Object.keys(swatches).length === 0) {
+			if (retryCount < maxRetries) {
+				retryCount++;
+				console.log("Retrying to fetch swatches, attempt #" + retryCount);
+				setTimeout(function () {
+					setGoodsBg(img);
+				}, 300); // Retry after 1 second
+			} else {
+				console.log("Failed to fetch swatches after " + maxRetries + " attempts");
+			}
+			return;
+		}
+
+		var bgSwatch = swatches["DarkVibrant"] || swatches["Vibrant"] || swatches["DarkMuted"] || swatches["Muted"];
+
+		// Extract the colors
+		var bgColor = bgSwatch ? bgSwatch.getHex() : "#333333";
+
+		// Determine if color is light or dark
+		if (bgColor) {
+			var rgb = bgSwatch ? bgSwatch.getRgb() : [51, 51, 51];
+			var brightness = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]);
+			var adjustedColor;
+
+			adjustedColor = tinycolor(bgColor).brighten(25).saturate(25);
+
+			$("#gdImgWrap").css("background", bgColor);
+
+			// Get the adjusted color as RGB
+			var adjustedRgb = adjustedColor.toRgb();
+			var r = adjustedRgb.r;
+			var g = adjustedRgb.g;
+			var b = adjustedRgb.b;
+
+			// Set gradient background from top to bottom
+			var gradient = `linear-gradient(0deg, rgba(${r},${g},${b},0.01) 0%, rgba(${r},${g},${b},0.4) 40%, rgba(${r},${g},${b},1) 100%)`;
+			$("#gdImgWrap .gdImgDeco").css("background", gradient);
+		}
+	} catch (e) {
+		console.error("Error processing image with Vibrant:", e);
+	}
+}

@@ -1,0 +1,579 @@
+﻿let notificationPopup = (() => {
+    const NOTIFICATION_API_URL = "https://frontapi.yes24.com";
+    const wrapId = window.location.hostname.indexOf('cremaclub.yes24.com') > -1 ? "bookClubWrap" : "yesWrap";
+    let callbackFunc = null;
+    let goodsNo = 0;
+    let authorNo = 0;
+    let seriesNo = 0;
+    let actionType = "";
+    let object = null;
+    let popupOptions = null;
+
+    //로그인여부 체크
+    function checkLogin() {
+        return (getCookie('ServiceCookies') == '' || getCookie('ServiceCookies') == null) ? false : true;
+    }
+
+    //로그인 여부 후 메시지 처리
+    function check_login_alert(msg) {
+        if (!checkLogin()) {
+            if (confirm(msg) == true) {
+                var returnUrl = get_url();
+                var returnParams = get_param();
+                goto_login(returnUrl, returnParams);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    //알림신청 팝업 오픈
+    function showRequestNotification(platform, type, targetNo, newActionType, callback, obj, popOptions) {
+        if (!check_login_alert("알림신청은 로그인 후 이용할 수 있습니다.\n로그인 하시겠습니까?")) {
+            return;
+        }
+
+        if (targetNo > 0) {
+            if (type == "newMagazine") {
+                seriesNo = targetNo;
+            }
+            else if (type == "authorInterest") {
+                authorNo = targetNo;
+            }
+           
+            else {
+                goodsNo = targetNo;
+            }
+            if (typeof newActionType !== "undefined") {
+                actionType = newActionType;
+            }
+            if (typeof callback !== "undefined") {
+                callbackFunc = callback;
+            }
+            if (typeof obj !== "undefined") {
+                object = obj;
+            }
+            if (typeof popOptions !== "undefined") {
+                popupOptions = popOptions;
+            }
+
+            let url = `${NOTIFICATION_API_URL}/Module/RequestNotification?platform=${platform}&type=${type}`;
+            
+            if (type === "authorInterest" && authorNo) {
+                url += `&targetNo=${authorNo}`;
+            }
+
+            // fetch 시점의 obj를 클로저로 캡처
+            const capturedObj = (typeof obj !== "undefined" && $(obj).length > 0) ? obj : null;
+
+            fetch(url, {
+                method: 'GET', mode: 'cors', credentials: 'include'
+            }).then(function (response) {
+                return response.text();
+            }).then(function (data) {
+                if (data.trim() != '') {
+                    if(platform == 'm') {
+                        const wrap = document.getElementById(wrapId);
+                        wrap.insertAdjacentHTML("beforeend", data);
+                        disableBodyScroll();
+
+                        if (type == "authorInterest") {
+                            const authorElement = document.getElementById("hdNotificationAuthName");
+                            if (authorElement && typeof airbridgeHelper !== "undefined") {
+                                const authorName = authorElement.value.trim();
+                                if (authorName !== "") {
+                                    airbridgeHelper.setAirbridgeLog("like_author", { action: authorNo.toString(), label: authorName });
+                                }
+                            }
+                        }
+                    }
+                    else if(platform == "p") {
+                        let popupName = '';
+                        if (type.toLowerCase() === "ebookpublish" || type.toLowerCase() === "newmagazine") {
+                            popupName = 'dPop_seriesAlarmApply';
+                        }
+                        else if (type.toLowerCase() === "authorinterest") {
+                            popupName = 'dPop_authorAlarmApply';
+                        }
+                        else if (type.toLowerCase() === "partbook" || type.toLowerCase() === "pre" || type.toLowerCase() === "sale" || type.toLowerCase() === "in" || type.toLowerCase() === "class") {
+                            popupName = 'dPop_sellAlarmApply';
+                        }
+
+                        // fetch로 받아온 HTML을 팝업 컨테이너에 직접 삽입
+                        $('#' + popupName).html(data);
+
+                        // ajaxURL 없이 호출 → $.yesPop이 기존 HTML을 그대로 사용
+                        var defaultPopupOptions = getDefaultNotificationPopupOptions(type);
+                        var mergedPopupOptions = $.extend({}, defaultPopupOptions, popupOptions || {});
+
+                        $.yesPop(popupName, object, mergedPopupOptions);
+                    }
+                }
+            }).catch(function (error) { console.error('알림신청 팝업 오픈 API 오류:', error); });
+        }
+    }
+
+    /**
+     * 알림신청 PC 팝업 기본 옵션을 반환한다.
+     * @param {string} type 알림신청 타입
+     * @returns {object} yesPop 기본 옵션
+    */
+    function getDefaultNotificationPopupOptions(type) {
+        var baseWidth = 1200;
+        var posTGap = 0;
+
+        if ($("#yDetailTopWrap").length > 0) {
+            baseWidth = $("#yDetailTopWrap").width();
+        }
+
+        if ($("#gd_actions .gd_actionContGrp").length > 0 && $("#gd_actions").length > 0) {
+            posTGap = Math.floor(
+                $("#gd_actions .gd_actionContGrp").offset().top - $("#gd_actions").offset().top
+            );
+        }
+
+        // type별 기본 옵션 분기
+        if (type === "authorInterest") {
+            return {
+                posTChg: false,
+                posTGap: 0,
+                cock: false,
+                mask: false,
+                pWidth: 350,
+                baseWidth: 1200
+            };
+        }
+
+        // eBookPublish, newMagazine 등 나머지 type 기본 옵션
+        return {
+            posTChg: true,
+            posTGap: posTGap,
+            cock: false,
+            mask: false,
+            pWidth: 358,
+            baseWidth: baseWidth
+        };
+    }
+
+    //시리즈 알림신청 팝업 오픈
+    function showRequestSeriesNotification(platform, newGoodsNo, newSeriesNo, newActionType, callback, obj) {
+        if (!check_login_alert("알림신청은 로그인 후 이용할 수 있습니다.\n로그인 하시겠습니까?")) {
+            return;
+        }
+
+        if (newGoodsNo !== "") {
+            goodsNo = newGoodsNo;
+        }
+
+        if (newSeriesNo != 0 && newSeriesNo != "") {
+            seriesNo = newSeriesNo;
+        }
+
+        if ((newGoodsNo == 0 || newGoodsNo == "") && (newSeriesNo == 0 || newSeriesNo == "")) {
+            return;
+        }
+
+        if (newActionType != "") {
+            actionType = newActionType;
+        }
+        else {
+            return;
+        }
+
+        if (typeof callback !== "undefined") {
+            callbackFunc = callback;
+        }
+        if (typeof obj !== "undefined") {
+            object = obj;
+        }
+
+        const url = `${NOTIFICATION_API_URL}/Module/RequestSeriesNotification?platform=${platform}&goodsNo=${goodsNo}&seriesNo=${seriesNo}&ActionType=${actionType}`;
+        
+            fetch(url, {
+                method: 'GET', mode: 'cors', credentials: 'include'
+            }).then(function (response) {
+                return response.text();
+            }).then(function (data) {
+                if (data.trim() != '') {
+                    if (platform == "m") {
+                        const wrap = document.getElementById(wrapId);
+                        wrap.insertAdjacentHTML("beforeend", data);
+                        disableBodyScroll();
+                    }
+                    else if(platform == "p") {
+                        // fetch로 받아온 HTML을 팝업 컨테이너에 직접 삽입
+                        $('#' + 'dPop_seriesAlarmApply').html(data);
+                        
+                        $.yesPop('dPop_seriesAlarmApply', object, { 
+                            posTChg: true, 
+                            posTGap: Math.floor($('#gd_actions .gd_actionContGrp').offset().top - $('#gd_actions').offset().top), 
+                            cock: false, 
+                            mask: false, 
+                            pWidth: 358, 
+                            baseWidth: $('#yDetailTopWrap').width() 
+                        });
+                    }
+                }
+            }).catch(function (error) { });
+    }
+
+    //레이어 페이지 팝업 감추기
+    function hide() {
+        document.querySelector("#notificationPopup").remove();
+        enableBodyScroll();
+    }
+
+    //알림신청 URL 세팅
+    function getNotiSaveUrl(type) {
+        const postUrlBase = `${NOTIFICATION_API_URL}/Module`;
+        let postUrl = "";
+        if (type === "eBookPublish") {
+            postUrl = `${postUrlBase}/SaveEBookPublishNoti`;
+        }
+        else if (type === "newMagazine") {
+            postUrl = `${postUrlBase}/SaveNewMagazineNoti`;
+        }
+        else if (type === "authorInterest") {
+            postUrl = `${postUrlBase}/SaveAuthorInterestNoti`;
+        }
+        else if (type === "partBook" || type === "preOrder" || type === "saleStart" || type === "recruitClass24") {
+            postUrl = `${postUrlBase}/SaveNoti`;
+        }
+        else if (type === "newSeries" || type === "eBookMasterSeries") {
+            postUrl = `${postUrlBase}/SaveSeriesNoti`;
+        }
+        return postUrl;
+    }
+
+    //알림신청 파라미터 세팅
+    function getNotiSaveParam(type) {
+        let postData = null;
+        const mobNo = document.querySelector("#memberMobNo").innerText;
+        const emailAddress = document.querySelector("#memberEmail").innerText;
+        const pushYn = document.querySelector("#chxboxPush") != null ? (document.querySelector("#chxboxPush").checked ? "Y" : "N") : "N";
+        const smsYn = document.querySelector("#chxboxSms").checked ? "Y" : "N";
+        const emailYn = document.querySelector("#chxboxEmail").checked ? "Y" : "N";
+        const marketingYn = document.querySelector("#chxboxMarketing").checked ? "Y" : "N";
+
+        if (marketingYn == "N") {
+            alert('마케팅 정보 수신에 동의해 주세요.');
+            return;
+        }
+        else if (smsYn == "N" && emailYn == "N") {
+            alert("알림 받을 연락처를 선택하세요.");
+            return;
+        }
+        else if (type === "eBookPublish") {
+            postData = {
+                goodsNo: goodsNo,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress
+            };
+        }
+        else if (type === "newMagazine") {
+            postData = {
+                seriesNo: seriesNo,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress
+            };
+        }
+        else if (type === "authorInterest") {
+            const newBookYn = document.querySelector("#chxboxBookYn").checked ? "Y" : "N";
+            const newEventYn = document.querySelector("#chxboxEventYn").checked ? "Y" : "N";
+            if (newBookYn == "N" && newEventYn == "N") {
+                alert("신간/신보 또는 이벤트 중에 하나는 관심 정보로 선택해야 합니다.");
+                return;
+            }
+            postData = {
+                authorNo: authorNo,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress,
+                IsNewBook: newBookYn,
+                IsNewEvent: newEventYn
+            };
+        }
+        else if (type === "partBook") {
+            postData = {
+                type: type,
+                goodsNo: goodsNo,
+                Period: 0,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress
+            };
+        }
+        else if (type === "preOrder") {
+            const period = document.querySelector('#ddMonth input[type="radio"]:checked')?.value;
+            if (period === undefined) {
+                alert("알림 기간을 선택하세요.");
+                return;
+            }
+            postData = {
+                type: type,
+                goodsNo: goodsNo,
+                Period: period,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress
+            };
+        }
+        else if (type === "saleStart") {
+            const period = document.querySelector('#ddMonth input[type="radio"]:checked')?.value;
+            if (period === undefined) {
+                alert("알림 기간을 선택하세요.");
+                return;
+            }
+            postData = {
+                type: type,
+                goodsNo: goodsNo,
+                Period: period,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress,
+                ActionType: actionType
+            };
+        }
+        else if (type === "recruitClass24") {
+            postData = {
+                type: type,
+                goodsNo: goodsNo,
+                Period: 1,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress
+            };
+        }
+        else if (type === "newSeries" || type === "eBookMasterSeries") {
+            const cremaclubMobileYn = typeof isBookclub !== "undefined" && isBookclub && typeof IS_MOBILE !== "undefined" && IS_MOBILE ? "Y" : "N";
+            const checkedCheckboxes = document.querySelectorAll('#seriesList input[type="checkbox"]:checked');
+            if(type === "newSeries") {
+                if (checkedCheckboxes.length === 0) {
+                    alert("알림 받을 시리즈를 선택하세요.");
+                    return;
+                }
+            }
+            let checkedSeriesNo = "";
+            let checkedSeriesName = "";
+            checkedCheckboxes.forEach(function (checkbox) {
+                checkedSeriesNo = checkbox.value + ',' + checkedSeriesNo;
+                checkedSeriesName = checkbox.dataset.name + '|' + checkedSeriesName;
+                
+            });
+            checkedSeriesNo = checkedSeriesNo.substring(0, checkedSeriesNo.length - 1);
+            checkedSeriesName = checkedSeriesName.substring(0, checkedSeriesName.length - 1);
+            postData = {
+                seriesNo: checkedSeriesNo,
+                seriesName: checkedSeriesName,
+                PushYn: pushYn,
+                SmsYn: smsYn,
+                EmailYn: emailYn,
+                MobNo: mobNo,
+                EmailAddress: emailAddress,
+                ActionType: actionType,
+                CremaclubMobileYn: cremaclubMobileYn
+            };
+        }
+        return postData;
+    }
+
+    //알림신청
+    function requestNotification(type) {
+        let postUrl = getNotiSaveUrl(type);
+        let postData = getNotiSaveParam(type);
+        if (postData == undefined) {
+            return;
+        }
+
+        fetch(postUrl, {
+            method: 'POST', mode: 'cors', credentials: 'include',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: new URLSearchParams(postData)
+        }).then(function (response) {
+            return response.json();
+        }).then(function (data) {
+             try {
+                var allowedHosts = ["event.yes24.com","event-dev.yes24.com","event-local.yes24.com"];
+                var currentHost = window.location.hostname;
+                
+                if (type == "newSeries") {
+                    brazeHelper.setBrazeLog("YS_series_alert_submitted", {
+                        series_name: postData.seriesName,
+                        is_sms_optin: postData.SmsYn == "Y",
+                        is_email_optin: postData.EmailYn == "Y"
+                    });
+
+                    var arrSeriesNos = postData.seriesNo.split(",");
+                    for (var i = 0; i < arrSeriesNos.length; i++) {
+                        var seriesNo = arrSeriesNos[i].trim(); 
+                         brazeHelper.setBrazeUser("YS_subscribe_series_list", seriesNo.toString(), true);
+                    }
+
+                    //이벤트참여로그 전송:에어브릿지
+                    if (allowedHosts.indexOf(currentHost) !== -1) {
+                        sendEventAirbridgeLog("시리즈알림");
+                    } 
+                }
+                else if (type == "authorInterest") {
+                    brazeHelper.setBrazeLog("YS_author_alert_submitted", {
+                        is_newrelease_optin: postData.IsNewBook == "Y",
+                        is_event_optin: postData.IsNewEvent == "Y",
+                        is_sms_optin: postData.SmsYn == "Y",
+                        is_email_optin: postData.EmailYn == "Y"
+                    });
+                    brazeHelper.setBrazeUser("YS_subscribe_creator_list", postData.authorNo.toString(), true);
+
+                    //이벤트참여로그 전송:에어브릿지
+                    if (allowedHosts.indexOf(currentHost) !== -1) {
+                        sendEventAirbridgeLog("작가알림");
+                    }
+                }
+            } catch { }
+            if (callbackFunc !== null) {
+                callbackFunc();
+            }
+            if (data.url == undefined || data.url == '') {
+                alert(data.Message);
+            } else {
+                if (confirm(data.Message)) {
+                    location.href = '';
+                }
+            }
+            hide();
+        }).catch(function (error) { });
+    }
+
+    //알림신청 해지 URL 세팅
+    function getNotiRemoveUrl(type) {
+        const postUrlBase = `${NOTIFICATION_API_URL}/Module`;
+        let postUrl = "";
+        if (type === "authorInterest") {
+            postUrl = `${postUrlBase}/RemoveAuthorInterestNoti`;
+        }
+        return postUrl;
+    }
+
+    //알림신청 해지
+    function removeNotification(type, data, callback) {
+        let postUrl = getNotiRemoveUrl(type);
+        let postData = data;
+
+        if (postUrl == undefined || postData == undefined) {
+            return;
+        }
+
+        fetch(postUrl, {
+            method: 'POST', mode: 'cors', credentials: 'include',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: new URLSearchParams(postData)
+        }).then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            if (type == 'authorInterest') {
+                brazeHelper.setBrazeUser("YS_subscribe_creator_list", authorNo.toString(), false);
+            }
+            if (callback !== null) {
+                callback();
+            }
+            if (data.Message !== undefined || data.Message !== '') {
+                alert(data.Message);
+            }
+        }).catch(function (error) { console.error('알림신청 해지 API 오류:', error) });
+    }
+
+    //알림신청 체크 URL 세팅
+    function getNotiCheckUrl(type) {
+        const postUrlBase = `${NOTIFICATION_API_URL}/Module`;
+        let postUrl = "";
+        if (type === "authorInterest") {
+            postUrl = `${postUrlBase}/CheckAuthorInterestNoti`;
+        }
+        return postUrl;
+    }
+
+    //알림신청 체크
+    function checkNotification(type, data, callback) {
+        let postUrl = getNotiCheckUrl(type);
+        let postData = data;
+
+        if (postUrl == undefined || postData == undefined) {
+            return;
+        }
+
+        fetch(postUrl, {
+            method: 'POST', mode: 'cors', credentials: 'include',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: new URLSearchParams(postData)
+        }).then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            if (type == 'authorInterest') {
+                authorNo = postData.authorNo;
+            }
+            if (callback !== null) {
+                callback(data);
+            }
+        }).catch(function (error) { console.error('알림신청 체크 API 오류:', error) });
+    }
+
+    //바디 스크롤 막기
+    function disableBodyScroll() {
+        const body = document.body;
+        const html = document.documentElement;
+        const wrap = document.getElementById(wrapId);
+
+        if (!body.classList.contains('notScl') && !body.classList.contains('schMod')) {
+            kFocusY = window.scrollY;
+            html.classList.add('notScl');
+            body.classList.add('notScl');
+            wrap.style.top = `-${kFocusY}px`;
+        }
+    }
+
+    //바디 스크롤 풀기
+    function enableBodyScroll() {
+        const body = document.body;
+        const html = document.documentElement;
+        const wrap = document.getElementById(wrapId);
+        const yesDefPopAreas = wrap.querySelectorAll(".yesDefPop");
+
+        if (yesDefPopAreas.length === 0 && body.classList.contains('notScl')) {
+            html.classList.remove('notScl');
+            body.classList.remove('notScl');
+            wrap.style.top = '';
+            window.scrollTo(0, kFocusY);
+        }
+    }
+
+    return {
+        showRequestNotification,
+        showRequestSeriesNotification,
+        hide,
+        requestNotification,
+        removeNotification,
+        checkNotification
+    };
+})();
+

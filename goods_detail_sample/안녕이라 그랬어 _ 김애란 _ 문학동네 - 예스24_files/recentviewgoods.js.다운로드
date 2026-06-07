@@ -1,0 +1,355 @@
+﻿var notCookie = "Y";
+var reloadInterval = 5;
+
+// 최근본 상품 관리 스크립트
+function RecentViewGoods(memNo) {
+    if (memNo != undefined && memNo != null) {
+        this.cookieName = "RecentViewGoods" + memNo.toString();
+        this.cookieInfo = "RecentViewInfo" + memNo.toString();
+    }
+    else {
+        this.cookieName = "RecentViewGoods";
+        this.cookieInfo = "RecentViewInfo";
+    }
+    this.delimiter = '`';
+    this.cookieValue = "";
+    this.maxLength = 30;
+    this.index = 0;
+    this.list = new Array();
+
+    // 숫자 체크(자연수)
+    this._isNum = function (val) {
+        var chars = "0123456789";
+        for (var inx = 0; inx < val.length; inx++) {
+            if (chars.indexOf(val.charAt(inx)) == -1)
+                return false;
+        }
+        return true;
+    };
+
+    // 상품 추가 하기
+    this._add = function (goodsNo) {
+        this.sort();
+
+        var findIndex = this._find(goodsNo);
+        if (findIndex >= 0) {
+            this.list[findIndex].seq = this.list.length;
+        }
+        else {
+            if (this.maxLength <= this.index) {
+                this.list.shift();
+                this.list.push({ seq: this.index, item: goodsNo });
+            }
+            else {
+                this.list.push({ seq: this.index, item: goodsNo });
+            }
+            this.index++;
+        }
+
+        this.sort();
+
+        for (var i in this.list) {
+            this.list[i].seq = parseInt(i);
+        }
+        
+        this._setCookie();
+    };
+
+    // 쿠키에 셋팅
+    this._setCookie = function () {
+        var value = '';
+        for (var i = 0; i < this.list.length; i++) {
+            if (this._isNum(this.list[i].item.toString())) {
+                if (value == '')
+                    value = this.list[i].item.toString();
+                else
+                    value += this.delimiter + this.list[i].item.toString();
+            }
+        }
+
+        var todayDate = new Date();
+        todayDate.setDate(todayDate.getDate() + 1);
+        document.cookie = this.cookieName + '=' + escape(value) + '; path=/;domain=.yes24.com;expires=' + todayDate.toGMTString() + ';';
+    };
+
+    // 상품번호로 속한 상품 찾기
+    this._find = function (goodsNo) {
+        var findIndex = -1;
+        this.list.filter(
+            function (e, i, a) {
+                if (goodsNo == e.item)
+                    findIndex = i;
+
+                return goodsNo == e.item;
+            }
+        );
+        return findIndex;
+    };
+
+    // 최근본상품 등록
+    this._addRecentViewGoods = function (goodsNo) {
+        $.ajax({
+            type: "POST",
+            url: "https://frontapi.yes24.com/api/goods/addRecentGoods",
+            data: JSON.stringify(Number(goodsNo)),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            xhrFields: { withCredentials: true },
+            success: function (data) {
+                SetReloadTimeExtend();
+            }
+        }).fail(function(xhr, status, errorMsg) {
+        }).always(function () {
+        });
+    };
+
+    // 최근본상품 삭제
+    this._delRecentViewGoods = function (goodsNo, callBackFun) {
+
+        $.ajax("/Goods/DelRecentViewGoods",
+        {
+            type: "POST",
+            data: { goodsNo: goodsNo },
+            dataType: 'json',
+            success: function (data) {
+                SetReloadTimeExtend();
+                if (callBackFun != null) {
+                    callBackFun();
+                }
+            }
+        }
+        ).fail(function (xhr, status, errorMsg) {
+        }).always(function () {
+        });
+    };
+    
+    this.cookieValue = getCookie(this.cookieName) || '';
+    if (this.cookieValue != '') {
+        var splitItems = this.cookieValue.split(this.delimiter);
+
+        for (var i = 0; i < splitItems.length; i++) {
+            if (splitItems[i] != '') {
+                if (this._isNum(splitItems[i].toString())) {
+                    this._add(splitItems[i]);
+                }
+            }
+        }
+    }
+    else {
+        this._setCookie();
+    }
+
+    var todayDate = new Date();
+    todayDate.setDate(todayDate.getDate() + 1);
+    var valueInfo = "";
+    valueInfo += "NotCookie=" + notCookie;
+    valueInfo += "&Interval=" + reloadInterval;
+    var reloadTime = GetKeyValue(getCookie(this.cookieInfo), "ReloadTime");
+    if (reloadTime != null) {
+        valueInfo += "&ReloadTime=" + reloadTime;
+    }
+    var first = GetKeyValue(getCookie(this.cookieInfo), "First");
+    if (first != null && notCookie == "Y") {
+        valueInfo += "&First=" + first;
+    }
+    document.cookie = this.cookieInfo + '=' + escape(valueInfo) + '; path=/;domain=.yes24.com;expires=' + todayDate.toGMTString() + ';';
+}
+
+// 상품 추가
+RecentViewGoods.prototype.add = function (goodsNo) {
+    this._add(goodsNo);
+};
+
+// 상품 삭제
+RecentViewGoods.prototype.remove = function (index) {
+    this.list.splice(index, 1);
+
+    this._setCookie();
+    return this.list;
+};
+
+// 상품 삭제
+RecentViewGoods.prototype.removeByGoodsNo = function (goodsNo) {
+    // SORT ASC
+    this.list.sort(function (a, b) {
+        return a.seq - b.seq;
+    });
+
+    var index = this._find(goodsNo);
+    return this.remove(index);
+};
+
+// 특정 상품 가져오기
+RecentViewGoods.prototype.get = function (index) {
+
+    if (this.list.length - 1 > index) {
+        this.descSort();
+        return this.list[index];
+    }
+    else
+        return null;
+};
+
+// 첫번째 상품 가져오기 없을시 -1 반환
+RecentViewGoods.prototype.getFirst = function () {
+    if (this.list.length > 0) {
+        this.descSort();
+        return this.list[0].item || -1;
+    }
+    else
+        return -1;
+};
+
+// 마지막 상품 가져오기 없을시 -1 반환
+RecentViewGoods.prototype.getLast = function () {
+    if (this.list.length > 0) {
+        this.descSort();
+        return this.list[this.list.length - 1].item || -1;
+    }
+    else
+        return -1;
+};
+
+// 특정 범위 상품 가져오기 범위 외 검색시 null 반환
+RecentViewGoods.prototype.getRange = function (start, end) {
+    this.descSort();
+    //if (start > end || this.list.length - 1 < start || this.list.length - 1 < end) {
+    //    return null;
+    //}
+
+    return this.getAll().filter(
+        function (e, i, a) {
+            return (i >= start && i <= end);
+        }
+    );
+};
+
+// 상품 전제 가져오기 
+RecentViewGoods.prototype.getAll = function () {
+    this.descSort();
+    return this.list;
+};
+
+// 상품 본 순서대로 정렬하기 ( 최근본 상품 상단 )
+RecentViewGoods.prototype.descSort = function () {
+    // SORT DESC
+    this.list.sort(function (a, b) {
+        return b.seq - a.seq;
+    });
+};
+
+// 상품 본 순서대로 정렬하기 ( 최근본 상품 하단 )
+RecentViewGoods.prototype.sort = function () {
+    // SORT ASC
+    this.list.sort(function (a, b) {
+        return a.seq - b.seq;
+    });
+};
+
+// 상품 번호가 존재하는 특정 항목 가져오기
+RecentViewGoods.prototype.find = function (goodsNo) {
+    return this._find(goodsNo);
+};
+
+// 상품번호 배열로 받기
+RecentViewGoods.prototype.getGoodsNo = function () {
+    var array = new Array();
+
+    this.descSort();
+
+    for (var i = 0; i < this.list.length; i++) {
+        array.push(this.list[i].item);
+    }
+
+    return array;
+}
+
+// 상품번호 배열로 받기
+RecentViewGoods.prototype.getGoodsNo = function (startIndex, increaseCount) {
+    var array = new Array();
+
+    this.descSort();
+    
+    var _tempList = this.getRange(startIndex, parseInt(startIndex) + parseInt(increaseCount));
+
+    for (var i = 0; i < _tempList.length; i++) {
+        array.push(_tempList[i].item);
+    }
+
+    return array;
+}
+
+// 전체갯수
+RecentViewGoods.prototype.length = function () { return this.list.length; }
+
+// 상품 추가
+RecentViewGoods.prototype.addRecentViewGoods = function (params) {
+    if (params.isLogin.toLowerCase() == "true" && notCookie == "Y" && this._find(params.goodsNo) == -1) {
+        this._add(params.goodsNo);
+        this._addRecentViewGoods(params.goodsNo);
+    }
+    else {
+        this._add(params.goodsNo);
+        SetReloadTimeExtend();
+    }
+};
+
+// 상품 삭제
+RecentViewGoods.prototype.delRecentViewGoods = function (params) {
+    this.removeByGoodsNo(params.goodsNo);
+
+    if (params.isLogin.toLowerCase() == "true" && notCookie == "Y") {
+        this._delRecentViewGoods(params.goodsNo, params.callBackFun);
+    }
+    else {
+        SetReloadTimeExtend();
+        if (params.callBackFun != null) {
+            params.callBackFun();
+        }
+    }
+};
+
+//Key값 가져오기
+function GetKeyValue(url, name) {
+    if (!url) url = window.location.href;
+    var regex = new RegExp(name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+};
+
+//쿠키값 가져오기
+function getCookie(name) {
+    var nameOfCookie = name + "=";
+    var x = 0;
+    while (x <= document.cookie.length) {
+        var y = (x + nameOfCookie.length);
+        if (document.cookie.substring(x, y) == nameOfCookie) {
+            if ((endOfCookie = document.cookie.indexOf(";", y)) == -1)
+                endOfCookie = document.cookie.length;
+            return unescape(document.cookie.substring(y, endOfCookie));
+        }
+        x = document.cookie.indexOf(" ", x) + 1;
+        if (x == 0)
+            break;
+    }
+    return "";
+}
+
+//ReloadTime 연장
+function SetReloadTimeExtend() {
+    var cookieName = "RecentViewInfo";
+    var todayDate = new Date();
+    var newReloadTime = todayDate.toUTCString();
+    todayDate.setDate(todayDate.getDate() + 1);
+
+    var valueInfo = "NotCookie=" + notCookie;
+    valueInfo += "&Interval=" + reloadInterval;
+    valueInfo += "&ReloadTime=" + newReloadTime;
+    var first = GetKeyValue(getCookie(cookieName), "First");
+    if (first != null && notCookie == "Y") {
+        valueInfo += "&First=" + first;
+    }
+    document.cookie = cookieName + '=' + escape(valueInfo) + '; path=/;domain=.yes24.com;expires=' + todayDate.toGMTString() + ';';
+}

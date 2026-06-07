@@ -1,0 +1,79 @@
+;(function(){
+	var win = window;
+
+	function getCookie(name) {
+	    var arg = name + '=';
+	    var alen = arg.length;
+	    var clen = document.cookie.length;
+	    var i = 0;
+	    while (i < clen) {
+	        var j = i + alen;
+	        if (document.cookie.substring(i, j) == arg)
+	            return getCookieVal(j);
+	        i = document.cookie.indexOf(' ', i) + 1;
+	        if (i == 0) break;
+	    }
+	    return null;
+	}
+
+	function getCookieVal(offset) {
+	    var endstr = document.cookie.indexOf(';', offset);
+	    if (endstr == -1) endstr = document.cookie.length;
+	    return unescape(document.cookie.substring(offset, endstr));
+	}
+
+	function setCookie(name, value, expiredays) {
+	    try {
+	        var todayDate = new Date();
+	        todayDate.setDate(todayDate.getDate() + expiredays);
+	        document.cookie = name + "=" + escape(value) + "; path=/;domain=.yes24.com;expires=" + todayDate.toGMTString() + ";";
+	    }
+	    catch (e) { }
+	}
+
+	function init(){
+		// Setup postMessage event listeners
+		if (win.addEventListener) {
+			win.addEventListener('message', onMessage, false);
+		} else if(win.attachEvent) {
+			win.attachEvent('onmessage', onMessage);
+		}
+
+		// Tell the parent window we're ready.
+		win.parent.postMessage(JSON.stringify({ready:true}),"*");
+	}
+	
+	function onMessage(e){
+		request = JSON.parse(e.data);
+		if (request.type === "get"){
+			respond(get(request), e.origin);
+		} else if (request.type === "set"){
+			respond(set(request), e.origin);
+		} else if (request.type === "del"){
+			respond(del(request), e.origin);
+		}
+	}
+	
+	function get(request) {
+	    var val = getCookie(request.key);
+
+		return { key: request.key, val: val, type: "get", _xds: request._xds };
+	}
+	
+	function set(request){
+	    //storage.setItem(request.key, request.val);
+	    setCookie(request.key, request.val, 365);
+		return { key: request.key, type: "set", _xds: request._xds };
+	}
+	
+	function del(request){
+		storage.removeItem(request.key);
+		return {key: request.key, type: "del", _xds: request._xds};
+	}
+	
+	function respond(response, origin){
+		win.parent.postMessage(JSON.stringify(response),"*");
+	}
+
+	init();
+})();

@@ -1,0 +1,274 @@
+﻿//SNS 공유하기
+function shareSns(type, share_url, img_url, message) {
+    setMcode(306);
+
+    if (type == "line") {
+        var lineTextMsg = "http://line.me/R/msg/text/?" + encodeURIComponent(message + '\n' + share_url);
+        var lineImageMsg = "line://msg/image/" + encodeURIComponent(img_url);
+        location.href = lineTextMsg;
+        //window.open(lineTextMsg, "line_pop");
+    }
+    else if (type == "kakaostory") {
+        var share_text = "https://story.kakao.com/s/share?url=" + share_url + "&amp;kakao_agent=sdk%2F1.20.0%20os%2Fjavascript%20lang%2Fko-KR%20device%2FWin32%20origin%2Fhttp%253A%252F%252F" + MOBILE_URL;
+        window.open(share_text, "kakaostory_pop");
+    }
+    else if (type == "facebook") {
+        var facebookUrlPrefix = "https://m.facebook.com/dialog/share?app_id=390305751390074&href=";
+        if (APP_GB == 'YES24' && IS_NATIVE_APPS) {
+            goApp('OPENURL', facebookUrlPrefix + share_url);
+        }
+        else {
+            window.open(facebookUrlPrefix + encodeURIComponent(share_url), "facebook_pop");
+        }
+    }
+    else if (type == "twitter") {
+        var share_text = "https://twitter.com/intent/tweet?text=" + share_url;
+        window.open(share_text, 'twitter_pop');
+    }
+}
+
+//카카오톡 공유하기
+function kakaoLinkSend(page_type, title, message, link, img_url) {
+    setMcode(306);
+    if (typeof Kakao.Auth === 'undefined') {
+        Kakao.init('4a5b8d3bda1da12710f007d9750eed67');
+        //테스트앱(개인계정)
+        //Kakao.init('1f1ecfc565fa160094768402bf2a8075');
+    }
+    var link_url = '', author_text = '', description = '', template_id = '', width = '', height = '', button_title = '';
+
+    //상품상세 공유
+    if (page_type == "goods_detail") {
+        link_url = "/goods/detail/" + link;
+        author_text = $(".gd_auth").text().trim();
+        var ua = navigator.userAgent.toLocaleLowerCase();
+        if (/android/.test(ua)) {
+            description = author_text + "\r\n" + message;
+        }
+        else {
+            description = author_text + " / " + message;
+        }
+        template_id = 10442;
+        button_title = "자세히보기";
+    }
+    //이벤트세상
+    else if (page_type == "event_detail") {
+        link_url = link;
+        description = message;
+        template_id = 10444;
+        button_title = "바로가기";
+    }
+    //이벤트(개편)
+    else if (page_type == "event_detail_new") {
+        link_url = link;
+        description = message;
+        template_id = 107637;
+        button_title = "바로가기";
+    }
+    //YES캘린더
+    else if (page_type == "yes_calendar") {
+        link_url = "/YesCalendar";
+        description = message;
+        template_id = 10445;
+        button_title = "자세히보기";
+    }
+    //채널예스카드뉴스
+    else if (page_type == "card_news") {
+        link_url = link;
+        description = message;
+        template_id = 31703;
+        button_title = "자세히보기";
+    }
+    //북클럽
+    else if (page_type == "bookclub_detail") {
+        link_url = link;
+        description = message;
+        template_id = 40326;
+        button_title = "바로가기";
+    }
+    //파트너샵
+    else if (page_type == "partnershop") {
+        link_url = link;
+        description = message;
+        template_id = 51773;
+        button_title = "바로가기";
+    }
+    //선물 수락하기
+    else if (page_type == "gift_accept") {
+        link_url = link;
+        description = message;
+        template_id = 53792;
+        button_title = "선물 받기";
+    }
+    //작가파일
+    else if (page_type == "author") {
+        link_url = link;
+        description = message;
+        template_id = 122385;
+        button_title = document.location.pathname.toLowerCase().includes('goods') ? '작가의 전체 작품 보기' : '작가 상세보기';
+    }
+
+    var addonYn = $("#cboxAddon input[type='checkbox']").is(":checked");    
+    var addonCode = $("#hdAddonCode").val();
+    if (addonYn) {
+        link_url = addonCode;
+        description = "이 포스팅은 애드온 활동의 일환으로, 이에 따라 일정액의 수수료를 제공받습니다.";
+        template_id = 127285;
+    }
+
+    //더블 슬래시 제거
+    if (link_url != undefined && link_url.charAt(0) == "/") {
+        link_url = link_url.substr(1);
+    }
+
+    if (img_url == '' || img_url == undefined) {
+        //카카오 링크 전송
+        Kakao.Link.sendScrap({
+            requestUrl: link,
+        })
+    }
+    else {
+        //카카오 링크 전송
+        Kakao.Link.sendCustom({
+            templateId: template_id,
+            templateArgs: {
+                title: title,
+                description: description,
+                url: link_url,
+                imgFirst: img_url,
+                button_title: button_title,
+
+            },
+            installTalk: true
+        });
+    }
+}
+
+function lineSend(httpUrl, goodsno, reskeygb, hash, goodsNm, msg) {
+    setMcode(306); 
+
+    // 팝업창 크기
+    var popupWidth = 600;
+    var popupHeight = 900;
+
+    // 열 창의 포지션(Center)
+    var x = 0;
+    var y = 0;
+
+    var lineTextMsg = "http://line.me/R/msg/text/?" + encodeURIComponent(msg + '\n' + httpUrl + '/goods/detail/' + goodsno);
+    var lineImageMsg = "line://msg/image/" + encodeURIComponent('http://image.yes24.com/goods/' + goodsno + '/M');
+    location.href = lineTextMsg;
+    //window.open(lineTextMsg, "line_pop");
+}
+
+function lineSendMsg(httpUrl, msg, linkURL) { 
+    setMcode(306);
+
+    // 팝업창 크기
+    var popupWidth = 600;
+    var popupHeight = 900;
+
+    // 열 창의 포지션(Center)
+    var x = 0;
+    var y = 0;
+
+    var lineTextMsg = "http://line.me/R/msg/text/?" + encodeURIComponent(msg + '\n' + linkURL);
+    window.open(lineTextMsg, "line_pop");
+}
+
+function facebookSend(httpUrl, goodsno, reskeygb, hash, msg) {
+    setMcode(306);
+
+    // 팝업창 크기
+    var popupWidth = 600;
+    var popupHeight = 900;
+
+    // 열 창의 포지션(Center)
+    var x = 0;
+    var y = 0;
+
+    //if(typeof msg != 'undfined')
+    //    msg = "?message=" + escape(msg);
+
+    var facebookPopup = "http://www.facebook.com/sharer.php?u=" + httpUrl + "/goods/detail/" + goodsno;
+
+    
+
+    window.open(facebookPopup, 'facebook', "height=" + popupWidth + ",width=" + popupHeight + ",left=" + x + ",top=" + y + ",location=1,status=1,scrollbars=1,menubar=1,toolbar=1,directories=1,resizable=1");    
+}
+
+function twitterSend(httpUrl, goodsno, reskeygb, goodsUrl, msg) {
+    setMcode(306);
+
+    // 팝업창 크기
+    var popupWidth = 600;
+    var popupHeight = 900;
+
+    // 열 창의 포지션(Center)
+    var x = 0;
+    var y = 0;
+
+    var twitterPopup = httpUrl + "/Product/Content/Popup/SNSPop.cshtml?sns=twitter&goodsno=" + goodsno + "&longurl=" + goodsUrl + "&message=" + escape(msg);
+
+    switch (reskeygb) {
+        case "01":  //  
+        case "02":
+            twitterPopup += "&hash=" + 'yes24book';
+            break;
+        case "03":
+            twitterPopup += "&hash=" + 'yes24music';
+            break;
+        case "05":
+            twitterPopup += "&hash=" + 'yes24dvd';
+            break;
+        case "14":
+            twitterPopup += "&hash=" + 'yes24gift';
+            break;
+        case "25":
+            twitterPopup += "&hash=" + 'yes24beauty';
+            break;
+        case "13":
+            twitterPopup += "&hash=" + 'yes24ebook';
+            break;
+        default:
+            twitterPopup += "&hash=" + 'yes24book';
+            break;
+    }
+
+    window.open(twitterPopup, 'twitter', "height=" + popupWidth + ",width=" + popupHeight + ",left=" + x + ",top=" + y + ",location=1,status=1,scrollbars=1,menubar=1,toolbar=1,directories=1,resizable=1");
+}
+
+function emailSend(MailAddr, subject, DetailLink) {
+    var str = MailAddr + "?subject=" + subject + "&body=" + DetailLink.replace('|', '%');
+    location.href = "mailto:" + str;
+}
+
+function SNSEventSend(type, title, url) {
+
+    title = encodeURIComponent(title);
+    url = encodeURIComponent(url);
+
+    if (type == "facebook") {
+        var link = "http://www.facebook.com/sharer.php?s=100&p=" + title +"&u=" + url;
+        window.open(link, "facebook_pop");
+    }
+    else if (type == "twitter") {
+        var link = "https://twitter.com/intent/tweet?text=" + title + "+" + url;
+        window.open(link, "twitter_pop");
+    }
+}
+
+// SNS 공유
+function GoSns(sns, title, desc, linkUrl) {
+
+    if (sns == "fb") {
+        var url = "https://m.facebook.com/sharer.php?u=" + encodeURIComponent(linkUrl);
+        window.open(url, "facebook_pop");
+    } else if (sns == "twit") {
+        var entryTitle = encodeURIComponent(title);    /* 타이틀 : 따옴표(",')나 & 기호 등 특수기호 넣지 말아주세요 */
+        var entryLink = encodeURIComponent(linkUrl); /* 링크 url */
+	var entryDesc = encodeURIComponent(desc);
+        var url = "http://twitter.com/intent/tweet?text=" + entryTitle + " " + entryDesc + " " + entryLink;
+        window.open(url, 'twitter_pop');
+    }
+}
