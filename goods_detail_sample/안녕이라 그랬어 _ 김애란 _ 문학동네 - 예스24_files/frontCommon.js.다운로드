@@ -1,0 +1,2557 @@
+﻿String.prototype.toBool = function () {
+    var lower = this.trim().toLowerCase();
+    if (["true", "1", "yes", "y"].indexOf(lower) >= 0) return true;
+    if (["false", "0", "no", "n"].indexOf(lower) >= 0) return false;
+    return Boolean(this.length);
+};
+Number.prototype.toBool = function () {
+    return this.valueOf() !== 0;
+};
+//공유하기 팝업 보이기
+function showSharePopup(pageType) {
+    let wrap = $("#yesWrap");
+    if(pageType == "cremaclub_detail") {
+        wrap = $("#bookClubWrap");
+    }
+
+    if (!wrap.length) return;
+    // 공유하기 영역 동적 처리
+    let shareContent = `
+        <dd>
+            <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('facebook');"><em class="share_ico share_fb"></em><em class="share_txt">페이스북</em></a>
+            <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('twitter');"><em class="share_ico share_x"></em><em class="share_txt">X</em></a>
+            <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('kakaotalk');"><em class="share_ico share_ka"></em><em class="share_txt">카카오톡</em></a>
+            <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('line');"><em class="share_ico share_ln"></em><em class="share_txt">라인</em></a>
+            <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('copy', this);" id="txtUrl"><em class="share_ico share_url"></em><em class="share_txt">URL 복사</em></a>
+        </dd>
+    `;
+
+    // 애드온 버튼 추가
+    if(pageType == "goods_detail" || pageType == "event_detail" || pageType == "yesfunding" || pageType == "cremaclub_detail") {
+        let memNo;
+        let title;        
+        let url;
+        let pageTypeNo;
+
+        if(pageType == "goods_detail"){
+            if(_CurrentMemNo == null || _CurrentMemNo == "") {
+                _CurrentMemNo = '0';
+            }
+            let goodsNo = g_GoodsNo;
+            memNo = _CurrentMemNo;
+            title = g_GoodsName;            
+            url = "https://m.yes24.com/goods/detail/" + goodsNo;
+            pageTypeNo = '01';
+        }
+        else if (pageType == "event_detail"){
+            // let eventNo = document.querySelector('meta[property="eventno"]').getAttribute('content');
+            let metaUrl = document.querySelector('meta[property="eventurl"]');
+            let metaTitle = document.querySelector('meta[property="og:title"]');
+            memNo = USERNO;
+            title = metaTitle ? metaTitle.getAttribute('content') : document.title;
+            url = metaUrl ? metaUrl.getAttribute('content') : window.location.href;
+            pageTypeNo = '02';
+        }
+        else if (pageType == "yesfunding") {
+            let metaUrl = document.querySelector('meta[property="og:url"]');
+            let metaTitle = document.querySelector('meta[property="og:title"]');
+            memNo = USERNO;
+            title = metaTitle ? metaTitle.getAttribute('content') : document.title;            
+            url = metaUrl ? metaUrl.getAttribute('content') : window.location.href;
+            pageTypeNo = '03';
+        }
+        else if(pageType == "cremaclub_detail") {
+            let goodsNo = g_GoodsNo;
+            memNo = USERNO == '' ? '0' : USERNO;
+            title = g_GoodsName;            
+            url = CREMACLUB_URL + "/bookclub/detail/" + goodsNo;
+            pageTypeNo = '06';
+        }
+        
+        shareContent = `
+            <dd class="adOnTp">
+                <div class="adOnRow">
+                    <div class="cmptWrap">
+                        <div class="cmptUnit flexMod am">
+                            <div class="cmptCell">
+								<p class="alertP txC_black fwB">내 링크 공유하면 <strong class="txC_dBlue">3% 리워드</strong> 적립</p>
+								<p class="alertP mgt3"><a href="https://m.yes24.com/notice/infoadon2" class="lnk_go">공유한 링크를 통해 다른 사람이 주문하면 수익금이 적립됩니다.</a></p>
+							</div>
+                            <div class="cmptCell cellRgt">
+                                <label id="cboxAddon" class="yesOnOff">
+                                    <span class="chk">
+                                        <input type="checkbox" onclick="addon.CheckAddon('m', ${memNo}, {title:'${title}', url:'${url}', pageType:'${pageTypeNo}', platform:'m', memNo:${memNo}});">
+                                        <span class="chkBtn"></span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="shareRow">
+                    <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('facebook', '${pageTypeNo}');"><em class="share_ico share_fb"></em><em class="share_txt">페이스북</em></a>
+                    <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('twitter', '${pageTypeNo}');"><em class="share_ico share_x"></em><em class="share_txt">X</em></a>
+                    <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('kakaotalk', '${pageTypeNo}');"><em class="share_ico share_ka"></em><em class="share_txt">카카오톡</em></a>
+                    <a href="javascript:void(0);" class="lnk_share" onclick="executeShare('line', '${pageTypeNo}');"><em class="share_ico share_ln"></em><em class="share_txt">라인</em></a>
+                    <a href="javascript:void(0);" class="lnk_share" onclick="addon.CopyUrl('AddonCopy', 'compCopyAdOn', this, { url:'${url}', platform:'m'});" id="txtUrl"><em class="share_ico share_url"></em><em class="share_txt">URL 복사</em></a>
+                </div>
+            </dd>
+        `;
+    }
+
+    const sharePopupHtml =
+        `<div id="SharePopupLayor" class="yesDefPopArea riseMod">
+            <a href="javascript:void(0);" class="lnk_closeDefPop" onclick="closeSharePopup();">창 닫기</a>
+            <!-- ########## 공유하기 팝업 시작 ########## -->
+            <div id="SharePopup" class="yesRisePop">
+                <!-- ##### 팝업 닫기 시작 ##### -->
+                <div class="yesRP_close"><a href="javascript:void(0);" class="lnk_closePop" onclick="closeSharePopup();"><em class="ico">창 닫기</em></a></div>
+                <!-- ##### 팝업 닫기 끝 ##### -->
+                <!-- ##### 팝업 내용 시작 ##### -->
+                <div class="yesRP_con">
+                    <dl class="shareDl">
+                        <dt>공유하기</dt>
+                         ${shareContent}
+                    </dl>
+                </div>
+                <div class="yesRP_bot">
+                    <div class="yesRP_btn">
+                        <span class="colCell"><a href="javascript:void(0);" class="btn_c l_size" onclick="executeShare('other');"><em class="txt">다른 앱으로 공유하기</em></a></span>
+                    </div>
+                </div>
+                <!-- ##### 팝업 내용 끝 ##### -->
+            </div>
+            <input type="hidden" id="hdAddonCode" value=""/>
+            <!-- ########## 공유하기 팝업 끝 ########## -->
+        </div>`;
+    wrap.append(sharePopupHtml);
+    if (!$("body").hasClass("notScl") && !$("body").hasClass("schMod")) {
+        $("html, body").addClass("notScl");
+    }
+    setTimeout(function () {
+        $("#SharePopup").addClass("riseOn");
+    }, 200);
+    if (IS_NATIVE_APPS) {
+        setMcode('011_002_008');
+    }
+}
+//공유하기 팝업 닫기
+function closeSharePopup() {
+    const tarObj = $("#SharePopupLayor");
+    if (tarObj.hasClass("riseMod")) {
+        $("#SharePopup").removeClass("riseOn");
+        setTimeout(function () {
+            tarObj.remove();
+            $("html, body").removeClass("notScl");
+        }, 125);
+    } else {
+        tarObj.remove();
+        $("html, body").removeClass("notScl");
+    }
+}
+//공유하기 실행
+function executeShare(type, obj) {
+    const getMetaContent = (property, fallback) =>
+        $(`meta[property="${property}"]`).attr("content") || fallback;
+
+    const currentUrl = window.location.href;
+    const pathAndQuery = window.location.pathname + window.location.search;
+    let url = getMetaContent("og:url", currentUrl);
+    url = url.toLowerCase().includes('yes24.com') ? url : currentUrl;
+    const title = getMetaContent("og:title", document.title);
+    const text = getMetaContent("og:description", "");
+    let imageUrl = getMetaContent("og:image", "");
+    const $yesShareWrap = $("#yesShareWrap");
+    const pageType = $yesShareWrap.length > 0 && $yesShareWrap.data('page-type') ? $yesShareWrap.data('page-type') : "";
+    const twitterFormat = `${title.replace(/\|/g, "")}: ${text} \n${url}`;
+
+    switch (type) {
+        case "facebook":
+            shareSnsOnMobile('facebook', url, '', '');            
+            break;
+        case "twitter":
+            shareSnsOnMobile('twitter', twitterFormat, '', '');            
+            break;
+        case "kakaotalk":
+            url = url == undefined || url == "" ? pathAndQuery : url.replace(/^https?:\/\/[^/]+/, '');
+            if (pageType == "goods_detail") {
+                url = (url && url.match(/\d+$/) || [])[0] || null;
+            }
+            kakaoLinkSend(pageType, title, text, url, imageUrl);
+            break;
+        case "line":
+            shareSnsOnMobile('line', url, imageUrl, title);            
+            break;
+        case "copy":
+            (async () => {
+                obj.dataset.clipboardText = currentUrl;
+                await copyUrlClipboard(obj);
+            })();
+            break;
+        case "other":
+            navigator.share({ title, text, url });
+            break;
+    }
+}
+
+//안드로이드 버전체크
+function getAndroidVersion() {
+    return (navigator.userAgent.match(/Android\s([0-9\.]+)/) || [])[1] || null;
+}
+//풋터 펼침
+function toggleFootInfo() {
+    $("#yFootInfo").toggleClass("toggleOn");
+    if ($("#yFootInfo").hasClass("toggleOn")) {
+        $("html, body").stop().animate({ scrollTop: $(document).height() }, 450, 'easeInOutQuart');
+    }
+}
+
+var bottonMenu = $('#toolBar .toolBarGrp ul li a');
+var pathName = document.location.pathname.toLowerCase();
+
+function bottomBarInit() {
+    $.each(bottonMenu, function (index, item) {
+        var menuName = $(item).attr('href').toLowerCase();
+
+        // 하단 메뉴
+        if ((pathName == '/' || pathName.indexOf('/home') > -1) && index == 0) {
+            var pageName = getCookie("PageName");
+            if (pageName == 'Main') {
+                $(item).parent().addClass('on');
+            }
+        }
+        else if (pathName != '/' && ((menuName.indexOf(pathName) > -1 || (menuName + '/index').indexOf(pathName) > -1))) {
+            $(item).parent().addClass('on');
+        }
+        else {
+            $(item).parent().removeClass('on');
+        }
+    });
+
+    if ($("#toolBar").length > 0 && false) {
+        getLastRecentGoods();
+    }
+
+    if (pathName.indexOf('/momo/member/ftmem') > -1) {
+        $("#yesBotAlarm").hide();
+    }
+    // 웰컴에서는 뒤로가기 버튼 숨김
+    if (pathName == '/' || pathName.indexOf('/home/') > -1 || pathName.indexOf('/momo/member/ftmem') > -1) {
+        $("#yesBackBtn").hide();
+    }
+}
+
+//마지막 상품 가져오기 없을시 -1 반환
+function getLastRecentGoods() {
+    var recentViewGoods = getCookie("RecentViewGoods");
+    var arrRecentViewGoods = recentViewGoods != null && recentViewGoods.length > 0 ? recentViewGoods.split("`") : '';
+    var recentGoodsNo = -1;
+
+    if (arrRecentViewGoods.length > 0) {
+        recentGoodsNo = arrRecentViewGoods[arrRecentViewGoods.length - 1] || -1;
+    }
+
+    if (recentGoodsNo > 0) {
+        $("#bottomRecentGoodsWrap").show();
+        $("#bottomRecentGoodsWrap img").attr('src', HTTPS_IMG_HOST_SYS + '/goods/' + recentGoodsNo + '/S');
+    }
+    else {
+        $("#bottomRecentGoodsWrap").hide();
+    }
+};
+//뒤로가기 버튼 클릭 시
+function goBackURL() {
+    // 앞으로가기 버튼 클릭 시 이동할 URL을 Cookie에 저장
+    SetLocalStorageValue("FowardBtnURL", document.location.href);
+
+    if (GetLocalStorageValue('clickMoreNewUsed') == 'Y') {
+        location.href = GetCookie('check_reffer');
+    } else {
+        history.back();
+
+        setTimeout(function () {
+            if (document.referrer != '' && document.referrer > 0) {
+                location.href = document.referrer;
+            } else {
+                location.href = (url == null || url == '' || url == undefined) ? MOBILE_URL : current_url;
+            }
+        }, 800);
+    }
+}
+//앞으로가기 버튼 클릭 시
+function goForwardURL() {
+    // 이전에 로드된 웰컴 외 페이지로 이동
+    var fowardBtnURL = GetLocalStorageValue("FowardBtnURL");
+    document.location.href = fowardBtnURL;
+}
+function tBarMore() {
+    var tBar = $("#toolBar");
+    var tBMr = $("#toolBarMore");
+    var tBMk = $("#toolBarMoreMask");
+
+    if (tBMr.hasClass("tBarMoreOn")) {
+        $("html, body").removeClass("notScl");
+        $("#yesWrap").attr("style", "");
+        $(window).scrollTop(posY);
+
+        tBar.removeClass("tBarMoreOn");
+        tBMr.removeClass("tBarMoreOn");
+        tBMk.hide();
+    } else {
+        posY = $(window).scrollTop();
+        $("html, body").addClass("notScl");
+        $("#yesWrap").css("top", -posY);
+
+        tBar.addClass("tBarMoreOn");
+        tBMr.addClass("tBarMoreOn");
+        tBMk.fadeIn(100);
+        $("html").attr("data-yesdir", "up");
+    }
+}
+function bottomBarShareUrl(isApp) {
+    var url = location.href;
+
+    if (APP_GB == 'YES24' && IS_NATIVE_APPS && isApp) {
+        goApp('SHARE', url);
+    }
+    else {
+        return encodeURIComponent(url);
+    }
+}
+function showOrHideTopButton() {
+    if (!$("#yesWrap").length) return;
+
+    let processing = false; //진행 여부
+
+    const $toolBtn = $("#toolBtn"); //버튼 DOM 요소 캐싱
+    const wrapOffsetTop = $("#yesWrap").offset().top; //콘텐츠 래핑 영역의 초기 위치 캐싱
+
+    //함수 선언을 바로 실행되는 스크롤 처리 함수로 변경
+    const handleScroll = () => {
+        if (!processing) {
+            processing = true;
+
+            // requestAnimationFrame 호출을 위한 콜백 함수
+            requestAnimationFrame(() => {
+                const scrollPosition = $(window).scrollTop();
+
+                //스크롤 위치에 따라 버튼 활성화/비활성화
+                if (scrollPosition >= wrapOffsetTop + 60) {
+                    $toolBtn.addClass("topBtnAct");
+                } else {
+                    $toolBtn.removeClass("topBtnAct");
+                }
+
+                //다음 스크롤 이벤트를 위해 진행 여부을 풀어줌
+                processing = false;
+            });
+        }
+    };
+
+    return handleScroll;
+}
+//하단 최근본상품 상품번호 조회
+function getBottomButtonRecentGoodsNo() {
+    var sRecentViewGoods = getCookie("RecentViewGoods") !== "" ? decodeURIComponent(getCookie("RecentViewGoods")) : "";
+    var arrRecentViewGoods = sRecentViewGoods.split('`');
+    var sGoodsNo = "0";
+    if (arrRecentViewGoods.length > 0) {
+        sGoodsNo = arrRecentViewGoods[arrRecentViewGoods.length - 1];
+    }
+    return sGoodsNo;
+}
+//크레마클럽 여부
+function isCremaClub() {
+    var sCurrentHost = window.location.href.toLowerCase();
+    var regex = /(bookclub|cremaclub)([-\w]*\.)?yes24\.com/;
+    if (regex.test(sCurrentHost)) {
+        return true;
+    }
+    return false;
+}
+//하단버튼 맨위로 실행
+function sclTopBottomBar() {
+    var target = "#yesWrap";
+    if (isCremaClub()) {
+        target = "#bookClubWrap";
+    }
+    sclTop(target);
+}
+
+// 안드로이드 앱인 경우 '다른 앱으로 공유하기' 호출 함수 변경
+function showSharePopupChk(pageType) {
+    showSharePopup(pageType);
+
+    if (IS_NATIVE_APPS && getMobileOperatingSystem() == "Android") {
+        $("#SharePopup .colCell").attr("onclick", "AndroidShareIntent()");
+    }
+}
+
+
+function AndroidShareIntent() {
+    // 현재 페이지 URL을 포함한 인텐트 URL 생성
+    let andUrlScheme = 'intent://SHARE?url=' + encodeURIComponent(location.href) + '#Intent;scheme=YES24;package=com.yes24.commerce;end';
+    // 인텐트 실행
+    location.href = andUrlScheme;
+}
+
+$(function () {
+    bottomBarInit();
+});
+//뒤로가기로 돌아왔을 때
+window.onpageshow = function (event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type == 2)) {
+        bottomBarInit();
+    }
+};
+
+// 대여기간 정보를 기준으로 만료일(yyyy-MM-dd)을 계산
+function getExpireDate(userTermGB) {
+    var now = new Date();
+
+    // 1. 제한없음 처리
+    if (userTermGB === "제한없음") {
+        return null; // 또는 return "9999-12-31";
+    }
+
+    // 2. 숫자 추출
+    var num = parseInt(userTermGB.replace(/[^0-9]/g, ""), 10);
+
+    // 3. 단위 판별 및 계산
+    if (userTermGB.indexOf("일") > -1) {
+        now.setDate(now.getDate() + num);
+    } else if (userTermGB.indexOf("년") > -1) {
+        now.setFullYear(now.getFullYear() + num);
+    } else {
+        throw new Error("지원하지 않는 형식입니다: " + userTermGB);
+    }
+
+    // 4. yyyy-MM-dd 형식으로 반환
+    var yyyy = now.getFullYear();
+    var mm = (now.getMonth() + 1).toString().padStart(2, '0');
+    var dd = now.getDate().toString().padStart(2, '0');
+    return yyyy + '-' + mm + '-' + dd;
+}
+
+// 오늘 날짜를 "yyyy-MM-dd" 형식의 문자열로 반환
+function getTodayString() {
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var dd = String(today.getDate()).padStart(2, '0');
+    return yyyy + '-' + mm + '-' + dd;
+}
+
+//신상품 탭명 반환
+function getNewProductTabname(tabNo) {
+    var tabName = "주목할 신상품";
+    switch (tabNo) {
+        case 1: tabName = "주목할신상품"; break;
+        case 2: tabName = "새로나온상품"; break;
+    }
+    return tabName;
+}
+
+//베스트셀러 탭명 반환
+function getBestsellerTabname(tabNo) {
+    var tabName = "종합";
+    switch (tabNo) {
+        case 1: tabName = "종합"; break;
+        case 2: tabName = "실시간"; break;
+        case 3: tabName = "특가"; break;
+        case 4: tabName = "일별"; break;
+        case 5: tabName = "월별"; break;
+        case 6: tabName = "주별"; break;
+        case 7: tabName = "스테디"; break;
+        case 8: tabName = "선물하기"; break;
+    }
+    return tabName;
+}
+
+/**
+ * 배송비 정보를 문자열에서 추출하여 금액(원 단위)으로 반환
+ * @param {string} delvText - 배송비 정보가 포함된 문자열 (예: "배송비: 2,500원" 또는 "배송비: 유료")
+ * @returns {number} 배송비 금액(원 단위). 무료일 경우 0, 유료일 경우 해당 금액을 반환
+ * @example
+ * getDelvFee("배송비: 유료"); // 2500
+ * getDelvFee("배송비: 3,300원"); // 3300
+ * getDelvFee("배송비: 무료"); // 0
+ */
+function getDelvFee(delvText) {
+    // 공백 제거 - "배송비:{텍스트}" 형식에 띄어쓰기 상이한 경우 발생 방지
+    const cleanText = delvText.replaceAll(' ', '');
+    // 무료 텍스트 포함만으로 구분 불가 (배송비가 유료이고 "도서 15,000원 이상 무료" 구절 있는 경우 때문)
+    if (cleanText.includes('배송비:유료')) return 2500;
+    // "배송비:{숫자}원" 형태 탐지
+    const match = cleanText.match(/배송비:(\d{1,3}(?:,\d{3})*)원/);
+    if (match) return parseInt(match[1].replace(/,/g, ''), 10);
+    return 0;
+}
+
+/**
+ * 대여기간 문자열을 일(day) 단위의 숫자로 변환하여 반환
+ * @param {string} userTermGB - 대여기간 정보 문자열 (예: "7일", "1년", "제한없음")
+ * @returns {number} 대여기간(일 단위). "제한없음"일 경우 0을 반환.
+ * @example
+ * getRentalDays("7일"); // 7
+ * getRentalDays("1년"); // 365
+ * getRentalDays("제한없음"); // 0
+ */
+function getRentalDays(userTermGB) {
+    // 제한없는 경우, Number 타입 전달해야 하므로 0 전달
+    if (userTermGB === "제한없음") return 0;
+    // 숫자 추출
+    var num = parseInt(userTermGB.replace(/[^0-9]/g, ""), 10);
+    // 일 대여기간 처리
+    if (userTermGB.includes("일")) return num;
+    // 연 대여기간 처리
+    if (userTermGB.includes("년")) return num * 365;
+}
+
+//서비스이용안내 팝업: typeA - 미사용
+//platform: p or m
+function setGuidePopA(platform) {
+    if (getCookie("HideUrgentPopupA1") !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop">
+                    <style>
+                        .yesPopUpArea { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center; }
+                        .yesPopUpArea { position:fixed;left:0;top:0;right:0;bottom:0;z-index:998001; }
+                        .yesPopUpArea .yesPopUp { position:relative;left:auto; }
+                        .yesPopUpArea .yesPopUp { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea .yesPopUp { flex-direction: column;flex-wrap: nowrap; }
+                        .yesPopUpArea .yesPopUp { max-height:calc(100vh - 200px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea { flex:1;box-sizing:border-box;padding-top:30px;max-height:calc(100vh - 250px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea .popYUI_cont { box-sizing:border-box;margin:0;padding:30px;padding-top:0;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch; }
+                        .yesPopUpArea .yesPopUp .popYUIMnu { flex-shrink:0; }
+                    </style>
+                        <div class="yesPopUpArea">
+                            <div class="yesPopUp yesPopUpNot bgWhite">
+                                <div class="popYUIArea" style="width:550px;">
+                                    <div class="popYUI_cont">
+                                        <div>
+                                        </div>
+                                        <div class="notCon">
+                                            <p class="txt_tit">예스24 서비스 및 1차 보상 안내</p>
+                                            <p class="txt_des txt_desM">안녕하세요, 예스24 입니다.</p>
+                                            <p class="txt_des txt_desM">6월 13일 금요일 부로 예스24 도서 및 티켓 서비스가 재개되어 안내드립니다.</p>
+                                            <p class="txt_des txt_desM">현재 이용 가능한 서비스는 아래와 같습니다.</p>
+                                            <dl class="contTableDl contTableDl_act mgt20">
+                                                <dt>이용 가능 서비스</dt>
+                                                <dd>
+                                                    <ul class="yesAlertLi alertLi">
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>도서 및 음반/DVD, 문구/GIFT, eBook, 클래스24, 업체배송 및 중고 상품 구매 (카드, 간편결제, 무통장 등 결제 가능)</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>eBook 구매 내역, 내 서재를 비롯한 전체 서비스</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>전자도서관, 크레마클럽 전체 서비스</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>티켓 서비스 (예매 및 취소, 공연 관람)</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>나의 주문 내역 : 주문 및 반품/교환, 취소</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>YES포인트/머니/상품권/쿠폰 등 나의 계좌 정보 조회</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>1:1 문의</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>SCM/USCM</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>매장 정상 영업</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>채널예스</li>
+                                                    </ul>
+                                                </dd>
+                                            </dl>
+                                            <dl class="contTableDl mgt10">
+                                                <dt>복구 중인 서비스</dt>
+                                                <dd>
+                                                    <ul class="yesAlertLi alertLi">
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>사락, 영중문몰</li>
+                                                        <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>마이페이지 : 나의 리뷰/한줄평</li>
+                                                    </ul>
+                                                </dd>
+                                            </dl>
+                                            <p class="txt_des txt_desM mgt20">또한 직접적 피해를 입으신 회원에 대한 보상안을 공지사항에 게재하였습니다.</p>
+                                            <div class="mgt20">
+                                                    <a href="https://www.yes24.com/Mall/Help/Notice?seq=2017" class="btnC m_size btn_blue btn_wSizeF">
+                                                    <span class="bWrap"><em class="txt">공지사항 > 1차 보상안</em></span>
+                                                </a>
+                                            </div>
+                                            <p class="txt_des txt_desM mgt20">전체 회원에 대한 보상안은 마련 중이며, 구체적인 안이 확정되는 대로 자사 홈페이지에 안내드리도록 하겠습니다.</p>
+                                            <p class="txt_des txt_desM mgt20">지난 6월 9일 월요일부터 발생한 서비스 장애로 큰 불편을 겪으신 모든 분들께 다시 한 번 사과드립니다.</p>
+                                            <p class="txt_des txt_desM mgt20">예스24는 재발 방지를 위해 보안 점검과 시스템 관리 체계를 강화하고, 예방 조치에 만전을 기하겠습니다.</p>
+                                            <p class="txt_des txt_desM mgt20"><strong class="txC_black">관련 문의는 예스24 고객센터를 통해 문의 부탁드립니다.</strong>             
+                                        </p></div>
+                                    </div>
+                                </div>
+                                <div class="popYUIMnu">
+                                    <ul class="clearfix">
+                                        <li><a href="javascript:void(0);" onclick="setTodayUrgentClose('A1');">오늘은 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">예스24 서비스 및 1차 보상 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요, 예스24 입니다.</p>
+                                        <p class="txt_des txt_desM">6월 13일 금요일 부로 예스24 도서 및 티켓 서비스가 재개되어 안내드립니다.</p>
+                                        <p class="txt_des txt_desM">현재 이용 가능한 서비스는 아래와 같습니다.</p>
+                                        <dl class="contTableDl contTableDl_act mgt20">
+                                            <dt>이용 가능 서비스</dt>
+                                            <dd>
+                                                <ul class="yesAlertLi alertLi">
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>도서 및 음반/DVD, 문구/GIFT, eBook, 클래스24, 업체배송 및 중고 상품 구매 (카드, 간편결제, 무통장 등 결제 가능)</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>eBook 구매 내역, 내 서재를 비롯한 전체 서비스</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>전자도서관, 크레마클럽 전체 서비스</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>티켓 서비스 (예매 및 취소, 공연 관람)</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>나의 주문 내역 : 주문 및 반품/교환, 취소</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>YES포인트/머니/상품권/쿠폰 등 나의 계좌 정보 조회</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>1:1 문의</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>SCM/USCM</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>매장 정상 영업</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>채널예스</li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                        <dl class="contTableDl mgt10">
+                                            <dt>복구 중인 서비스</dt>
+                                            <dd>
+                                                <ul class="yesAlertLi alertLi">
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>사락, 영중문몰</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>마이페이지 : 나의 리뷰/한줄평</li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                        <p class="txt_des txt_desM mgt20">또한 직접적 피해를 입으신 회원에 대한 보상안을 공지사항에 게재하였습니다.</p>
+                                        <div class="mgt20">
+                                            <a href="https://m.yes24.com/Help/Notice?seq=2017" class="btn_c l_size btn_act02 btn_wSizeF"><em class="txt">공지사항 > 1차 보상안</em></a>
+                                        </div>
+                                        <p class="txt_des txt_desM mgt20">전체 회원에 대한 보상안은 마련 중이며, 구체적인 안이 확정되는 대로 자사 홈페이지에 안내드리도록 하겠습니다.</p>
+                                        <p class="txt_des txt_desM mgt20">지난 6월 9일 월요일부터 발생한 서비스 장애로 큰 불편을 겪으신 모든 분들께 다시 한 번 사과드립니다.</p>
+                                        <p class="txt_des txt_desM mgt20">예스24는 재발 방지를 위해 보안 점검과 시스템 관리 체계를 강화하고, 예방 조치에 만전을 기하겠습니다.</p>
+                                        <p class="txt_des txt_desM mgt20"><strong class="txC_black">관련 문의는 예스24 고객센터를 통해 문의 부탁드립니다.</strong></p>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setTodayUrgentClose('A1');">오늘은 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        //$('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: typeB - 미사용
+function setGuidePopB(platform) {
+    if (getCookie("HideUrgentPopupB1") !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop">
+                    <div class="yesPopUp yesPopUpNot bgWhite" style="position:fixed;margin-left:-275px;margin-top:-280px;left:50%;top:50%;">
+                        <div class="popYUIArea" style="width:550px;">
+                            <div class="popYUI_cont">
+                                <div class="notCon">
+                                    <p class="txt_tit">서비스 이용에 대해 안내 드립니다.</p>
+                                    <p class="txt_des">먼저, 이번 서비스 장애로 이용에 큰 불편을 드린 점 진심으로 사과드립니다.</p>
+                                    <p class="txt_des">
+                                        서비스 정상화를 위해 순차적인 복구 작업을 진행하고 있으며,
+                                        빠른 문제 해결과 완벽한 정상화를 위해 최선을 다해 조속히 안정된 서비스로 찾아뵐 수 있도록 노력하겠습니다.
+                                    </p>
+                                    <p class="txt_des">다시 한 번 서비스 이용에 불편을 드려 진심으로 사과의 말씀 드립니다.</p>
+                                </div>
+                                <dl class="notConDl">
+                                    <dt>이용 가능 서비스</dt>
+                                    <dd>
+                                        <ul class="yesAlertLi alertLi">
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>도서 및 음반/DVD, 문구/GIFT, eBook, 클래스24, 업체배송 및 중고 상품 구매 (카드, 간편결제, 무통장 등 결제 가능)</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>eBook 구매 내역, 내 서재를 비롯한 전체 서비스</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>전자도서관, 크레마클럽 전체 서비스</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>티켓 서비스 (예매 및 취소, 공연 관람)</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>나의 주문 내역 : 주문 및 반품/교환, 취소</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>YES포인트/머니/상품권/쿠폰 등 나의 계좌 정보 조회</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>1:1 문의</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>SCM/USCM</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>매장 정상 영업</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>채널예스</li>
+                                        </ul>
+                                    </dd>
+                                </dl>
+                                <dl class="notConDl">
+                                    <dt>이용 불가 서비스</dt>
+                                    <dd>
+                                        <ul class="yesAlertLi alertLi">
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>사락, 영중문몰</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>마이페이지: 나의 리뷰/한줄평</li>
+                                        </ul>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="popYUIMnu">
+                            <ul class="clearfix">
+                                <li><a href="javascript:void(0);" onclick="setTodayUrgentClose('B1');">오늘은 그만 보기</a></li>
+                                <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">닫기</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">서비스 이용에 대해 안내 드립니다.</p>
+                                        <p class="txt_des txt_desM">먼저, 이번 서비스 장애로 이용에 큰 불편을 드린 점 진심으로 사과드립니다.</p>
+                                        <p class="txt_des txt_desM">
+                                            서비스 정상화를 위해 순차적인 복구 작업을 진행하고 있으며,
+                                            빠른 문제 해결과 완벽한 정상화를 위해 최선을 다해 조속히 안정된 서비스로 찾아뵐 수 있도록 노력하겠습니다.
+                                        </p>
+                                        <p class="txt_des txt_desM">다시 한 번 서비스 이용에 불편을 드려 진심으로 사과의 말씀 드립니다.</p>
+                                        <dl class="contTableDl contTableDl_act mgt20">
+                                            <dt>이용 가능 서비스</dt>
+                                            <dd>
+                                                <ul class="yesAlertLi alertLi">
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>도서 및 음반/DVD, 문구/GIFT, eBook, 클래스24, 업체배송 및 중고 상품 구매 (카드, 간편결제, 무통장 등 결제 가능)</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>eBook 구매 내역, 내 서재를 비롯한 전체 서비스</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>YES포인트/머니/상품권/쿠폰 등 나의 계좌 정보 조회</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>전자도서관, 크레마클럽 전체 서비스</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>티켓 서비스 (예매 및 취소, 공연 관람)</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>나의 주문 내역 : 주문 및 반품/교환, 취소</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>1:1 문의</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>SCM/USCM</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>매장 정상 영업</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>채널예스</li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                        <dl class="contTableDl mgt20">
+                                            <dt>이용 불가 서비스</dt>
+                                            <dd>
+                                                <ul class="yesAlertLi alertLi">
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>사락, 영중문몰</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>마이페이지: 나의 리뷰/한줄평</li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setTodayUrgentClose('B1');">오늘은 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: typeC - 미사용
+function setGuidePopC(platform) {
+
+}
+
+//서비스이용안내 팝업: typeD - 미사용
+function setGuidePopD(platform) {
+    if (getCookie("HideUrgentPopupD") !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop">
+                    <div class="yesPopUp yesPopUpNot bgWhite" style="position:fixed;margin-left:-275px;margin-top:-280px;left:50%;top:50%;">
+                        <div class="popYUIArea" style="width:550px;">
+                            <div class="popYUI_cont">
+                                <div class="notCon">
+                                    <p class="txt_tit">구매/취소 제한 상품 안내</p>
+                                    <p class="txt_des">
+                                        해당 상품은 서비스 복구 작업으로 인해 구매가 일시적으로 제한되었습니다.
+                                    </p>
+                                    <p class="txt_des">
+                                        조속히 안정된 서비스로 찾아뵐 수 있도록 최선을 다하겠습니다.
+                                        불편을 드려 대단히 죄송합니다.
+                                    </p>
+                                </div>
+                                <dl class="notConDl">
+                                    <dt>구매/취소 불가 상품</dt>
+                                    <dd>
+                                        <ul class="yesAlertLi alertLi">
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>중고(C2C, 매장ON)</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>업체배송 상품</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>테이크북(매장) 상품</li>
+                                        </ul>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="popYUIMnu">
+                            <ul class="clearfix">
+                                <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">확인</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">구매/취소 제한 상품 안내</p>
+                                        <p class="txt_des txt_desM">
+                                            해당 상품은 서비스 복구 작업으로 인해 구매가 일시적으로 제한되었습니다.
+                                        </p>
+                                        <p class="txt_des txt_desM">
+                                            조속히 안정된 서비스로 찾아뵐 수 있도록 최선을 다하겠습니다.
+                                            불편을 드려 대단히 죄송합니다.
+                                        </p>
+                                        <dl class="contTableDl mgt20">
+                                            <dt>구매/취소 불가 상품</dt>
+                                            <dd>
+                                                <ul class="yesAlertLi alertLi">
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>중고(C2C, 매장ON)</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>업체배송 상품</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>테이크북(매장) 상품</li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: typeE - 미사용
+function setGuidePopE(platform) {
+    if (getCookie("HideUrgentPopupE") !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop">
+                    <div class="yesPopUp yesPopUpNot bgWhite" style="position:fixed;margin-left:-275px;margin-top:-280px;left:50%;top:50%;">
+                        <div class="popYUIArea" style="width:550px;">
+                            <div class="popYUI_cont">
+                                <div class="notCon">
+                                    <p class="txt_tit">서비스 이용 안내</p>
+                                    <p class="txt_des">
+                                        먼저, eBook 서비스를 이용해 주시는 고객 여러분께 예상치 못한 불편을 드린 점 진심으로 사과드립니다. 
+                                    </p>
+                                    <p class="txt_des">
+                                        현재 eBook 서비스는 복구 작업이 진행 중이며 빠른 시일내에 다시 이용하실 수 있도록 하겠습니다. 
+                                    </p>
+                                    <p class="txt_des">
+                                        고객님께서 보유하신 eBook과 이용 기록 등은 모두 안전하게 보호되고 있습니다. 
+                                    </p>
+                                    <p class="txt_des">
+                                        믿고 기다려주셔서 감사드리며, 하루빨리 안정된 서비스로 인사드릴 수 있도록 최선을 다하겠습니다.
+                                    </p>
+                                </div>
+                                <dl class="notConDl">
+                                    <dt>서비스 이용 불가 항목</dt>
+                                    <dd>
+                                        <ul class="yesAlertLi alertLi">
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>eBook (구매, 열람, 다운로드, eBook App 등 전체 서비스)</li>
+                                            <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>크레마클럽 (가입, 해지, 정기결제, 이용권 등 전체 서비스)</li>
+                                        </ul>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="popYUIMnu">
+                            <ul class="clearfix">
+                                <li><a href="javascript:void(0);" onclick="setTodayUrgentClose('E');">오늘은 그만 보기</a></li>
+                                <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">닫기</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">서비스 이용 안내</p>
+                                        <p class="txt_des txt_desM">
+                                            먼저, eBook 서비스를 이용해 주시는 고객 여러분께 예상치 못한 불편을 드린 점 진심으로 사과드립니다. 
+                                        </p>
+                                        <p class="txt_des txt_desM">
+                                            현재 eBook 서비스는 복구 작업이 진행 중이며 빠른 시일내에 다시 이용하실 수 있도록 하겠습니다. 
+                                        </p>
+                                        <p class="txt_des txt_desM">
+                                            고객님께서 보유하신 eBook과 이용 기록 등은 모두 안전하게 보호되고 있습니다. 
+                                        </p>
+                                        <p class="txt_des txt_desM">
+                                            믿고 기다려주셔서 감사드리며, 하루빨리 안정된 서비스로 인사드릴 수 있도록 최선을 다하겠습니다.
+                                        </p>
+                                        <dl class="contTableDl mgt20">
+                                            <dt>서비스 이용 불가 항목</dt>
+                                            <dd>
+                                                <ul class="yesAlertLi alertLi">
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>eBook (구매, 열람, 다운로드, eBook App 등 전체 서비스)</li>
+                                                    <li><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>크레마클럽 (가입, 해지, 정기결제, 이용권 등 전체 서비스)</li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setTodayUrgentClose('E');">오늘은 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup();">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: typeH - 미사용
+function setGuidePopH(platform) {
+    var guideType = 'H3';
+    if (getCookie("HideUrgentPopup" + guideType) !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop_${guideType}">
+                    <div class="yesPopUp yesPopUpNot bgWhite" style="position:fixed;margin-left:-275px;margin-top: -270px;left:50%;top:50%;">
+                        <div class="popYUIArea" style="width:550px;">
+                            <div class="popYUI_cont">
+                                <div class="notCon">
+                                    <p class="txt_tit">크레마클럽 서비스 중단에 따른 이용 기간 연장 안내</p>
+                                    <p class="txt_des">안녕하세요, 예스24 크레마클럽입니다.</p>
+                                    <p class="txt_des">6월 9일부터 13일까지 크레마클럽 서비스 이용이 불가하여 불편을 드리게 된 점에 대해 깊은 사과의 말씀을 드립니다.</p>
+                                    <p class="txt_des">이에 대한 사과의 마음을 담아 크레마클럽 회원님들의 이용 기간을 30일 자동 연장 조치하였습니다.</p>
+                                    <p class="txt_des">다시 한번 이용에 불편을 겪으신 회원님들께 죄송하다는 말씀을 드리며, 앞으로 더욱 안정적인 서비스와 향상된 사용자 경험을 제공할 수 있도록 최선을 다하겠습니다.</p>
+                                    <p class="txt_des">감사합니다.</p>
+                                    <p class="txt_des">예스24 크레마클럽 드림</p>
+                                    <p class="txt_des">
+                                        ※ 연장된 이용 기간은 크레마클럽 사이트 로그인 후 상단 검색창 옆 아이콘을 클릭하여 확인 가능합니다.
+                                        <br>※ 6월 9일부터 복구일까지 해지를 예약하지 않은 정기결제 예정 회원의 경우, 시스템 이슈로 인해 자동 해지 처리되었으며, 이에 대한 조치로 30일간 무료 이용이 가능하도록 하였습니다.
+                                        <br>※ B2B 회원은 서비스 정책에 따라 위 대상에 포함되지 않았으며, 99요금제 회원은 별도 안내 예정입니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="popYUIMnu">
+                            <ul class="clearfix">
+                                <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop_${guideType}">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                <div class="popTxtCont">
+                                        <p class="txt_tit">크레마클럽 서비스 중단에 따른 이용 기간 연장 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요, 예스24 크레마클럽입니다.</p>
+                                        <p class="txt_des txt_desM">6월 9일부터 13일까지 크레마클럽 서비스 이용이 불가하여 불편을 드리게 된 점에 대해 깊은 사과의 말씀을 드립니다.</p>
+                                        <p class="txt_des txt_desM">이에 대한 사과의 마음을 담아 크레마클럽 회원님들의 이용 기간을 30일 자동 연장 조치하였습니다.</p>
+                                        <p class="txt_des txt_desM">다시 한번 이용에 불편을 겪으신 회원님들께 죄송하다는 말씀을 드리며, 앞으로 더욱 안정적인 서비스와 향상된 사용자 경험을 제공할 수 있도록 최선을 다하겠습니다.</p>
+                                        <p class="txt_des txt_desM">감사합니다.</p>
+                                        <p class="txt_des txt_desM">예스24 크레마클럽 드림</p>
+                                        <p class="txt_des txt_desM">
+                                            ※ 연장된 이용 기간은 크레마클럽 사이트 로그인 후 상단 ☰ 버튼을 클릭하여 확인 가능합니다.
+                                            <br>※ 6월 9일부터 복구일까지 해지를 예약하지 않은 정기결제 예정 회원의 경우, 시스템 이슈로 인해 자동 해지 처리되었으며, 이에 대한 조치로 30일간 무료 이용이 가능하도록 하였습니다.
+                                            <br>※ B2B 회원은 서비스 정책에 따라 위 대상에 포함되지 않았으며, 99요금제 회원은 별도 안내 예정입니다.    
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: typeJ - 미사용
+function setGuidePopJ(platform, page) {
+    var guideType = 'J2';
+    if (getCookie("HideUrgentPopup" + guideType) !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css?v=20250618">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop_${guideType}">
+                    <style>
+                        .yesPopUpArea { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center; }
+                        .yesPopUpArea { position:fixed;left:0;top:0;right:0;bottom:0;z-index:998001; }
+                        .yesPopUpArea .yesPopUp { position:relative;left:auto; }
+                        .yesPopUpArea .yesPopUp { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea .yesPopUp { flex-direction: column;flex-wrap: nowrap; }
+                        .yesPopUpArea .yesPopUp { max-height:calc(100vh - 200px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea { flex:1;box-sizing:border-box;padding-top:30px;max-height:calc(100vh - 250px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea .popYUI_cont { box-sizing:border-box;margin:0;padding:30px;padding-top:0;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch; }
+                        .yesPopUpArea .yesPopUp .popYUIMnu { flex-shrink:0; }
+                    </style>
+                    <div class="yesPopUpArea">
+                        <div class="yesPopUp yesPopUpNot bgWhite">
+                            <div class="popYUIArea" style="width:550px;">
+                                <div class="popYUI_cont">
+                                    <div class="notCon">
+                                        <p class="txt_tit">예스24 랜섬웨어 장애 사고 공식 사과문</p>
+                                        <p class="txt_des txt_desM"><strong class="txC_black">고객 여러분께 진심으로 사과드립니다.</strong></p>
+                                        <p class="txt_des txt_desM">2025년 6월 9일, 예스24는 외부 세력의 랜섬웨어 공격으로 인해 전사 시스템이 마비되며 서비스 접속이 중단되는 사고를 겪었습니다. 이로 인해 도서 주문, 전자책 열람, 공연 예매 등 고객 여러분의 소중한 일상 속 활동이 멈추는 불편과 불안을 초래했습니다. 예스24는 그 누구보다 이 불편함의 무게를 통감하고 있습니다. 이번 사고로 불편을 겪으신 고객님들과 협력사분들을 비롯한 모든 분들에게 머리 숙여 깊이 사과드립니다. 예스24는 고객의 신뢰 위에서 성장해 온 플랫폼입니다. 이번 사고로 인해 그 신뢰가 흔들린 점을 무겁게 받아들이며, 현재 모든 역량을 동원해 피해 복구와 신뢰 회복에 전념하고 있습니다.</p>
+                                        <p class="txt_des txt_desM mgt20"><strong class="txC_black">사고 경위 및 복구 현황</strong></p>
+                                        <p class="txt_des txt_desM">이번 사태는 외부 랜섬웨어 공격으로 인해 발생한 시스템 장애 사고이며, 예스24는 책임 있는 플랫폼 사업자로서 서비스 복구와 보안 점검에 온 힘을 기울이고 있습니다. 공격 직후, 예스24는 내부 분석과 복구를 최우선으로 대응하는 한편, 정부 유관기관과 협조하여 조사에 성실히 응하고 있습니다. 사고 발생 직후 적법한 신고 등을 진행했으나, 랜섬웨어 공격이라는 특수성상 해커가 외부 반응을 감시하거나 추가 위협을 가할 수 있어서 대외적으로 정보 공개 수위와 시점을 신중하게 접근할 수밖에 없었던 점 양해 부탁드립니다. 그럼에도 고객 여러분께 정확한 정보를 더 빠르고 올바르게 전해 드리지 못한 점에 대해서 다시 한 번 사과드립니다. 앞으로는 더욱 투명하고 일관된 커뮤니케이션을 위해 최선을 다하겠습니다. 도서 및 음반, 문구, eBook 등 상품 구매와 티켓 서비스, 주문 결제 등 핵심 서비스는 복구가 완료되었으며, 일부 서비스는 순차적으로 최선을 다해 복구 중입니다.</p>
+                                        <p class="txt_des txt_desM mgt20"><strong class="txC_black">고객 피해 보상과 회복 조치</strong></p>
+                                        <p class="txt_des txt_desM">예스24는 서비스 중단으로 불편을 겪으신 고객 여러분께 서비스 유형별로 적용 가능한 보상 기준을 마련하여, 직접적 피해를 입으신 고객분들 대상으로 16일 1차 보상안을 공지하였고 사이트를 이용하고 계신 전체 회원을 대상으로 한 2차 보상안을 추가 안내드립니다.</p>
+                                        <div class="btn_row mgt20">
+                                            <span><a href="https://www.yes24.com/Mall/Help/Notice?seq=2017" class="btnC m_size btn_blue btn_wSizeF"><span class="bWrap"><em class="txt">1차 보상안</em></span></a></span>
+                                            <span><a href="https://www.yes24.com/Mall/Help/Notice?seq=2019" class="btnC m_size btn_blue btn_wSizeF"><span class="bWrap"><em class="txt">2차 보상안</em></span></a></span>
+                                        </div>
+                                        <p class="txt_des txt_desM mgt20"><strong class="txC_black">재발 방지 및 보안 강화 방안</strong></p>
+                                        <p class="txt_des txt_desM">예스24는 정부 유관기관(KISA, 개인정보보호위원회) 및 외부 보안 전문가들과 협력하여 사고 원인 조사와 보안 진단을 병행하고 있으며, 이후 유관기관의 조사 결과에 대해서도 투명하게 공개하겠습니다. 또한 이번 사고를 계기로 보안 체계를 원점에서 재점검할 예정입니다. 외부 보안 자문단을 도입하고, 보안 예산을 확대하여 시스템 설계부터 운영 전반까지 플랫폼의 신뢰도와 복원력을 강화하겠습니다. 아울러 정부 및 업계와 협력하여 더 안전한 디지털 생태계 조성을 위한 제도 개선 논의에도 적극 참여하고, 사회적 역할을 다하는 책임 있는 기업이 되겠습니다. 고객 여러분의 신뢰를 다시 쌓아가기 위한 이 과정에 진심을 담아 끝까지 책임을 다할 것을 약속드립니다. 다시 한 번 불편을 겪으신 모든 분들에게 고개 숙여 사과드립니다.</p>
+                                        <p class="txt_des txt_desM mgt20">2025년 6월 16일</p>
+                                        <p class="txt_des txt_desM mgt5"><strong class="txC_black">예스24 대표이사 김석환, 최세라 올림</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="popYUIMnu">
+                                <ul class="clearfix">
+                                    <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                    <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop_${guideType}">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">예스24 랜섬웨어 장애 사고 공식 사과문</p>
+                                        <p class="txt_des txt_desM"><strong class="txC_black">고객 여러분께 진심으로 사과드립니다.</strong></p>
+                                        <p class="txt_des txt_desM">2025년 6월 9일, 예스24는 외부 세력의 랜섬웨어 공격으로 인해 전사 시스템이 마비되며 서비스 접속이 중단되는 사고를 겪었습니다. 이로 인해 도서 주문, 전자책 열람, 공연 예매 등 고객 여러분의 소중한 일상 속 활동이 멈추는 불편과 불안을 초래했습니다. 예스24는 그 누구보다 이 불편함의 무게를 통감하고 있습니다. 이번 사고로 불편을 겪으신 고객님들과 협력사분들을 비롯한 모든 분들에게 머리 숙여 깊이 사과드립니다. 예스24는 고객의 신뢰 위에서 성장해 온 플랫폼입니다. 이번 사고로 인해 그 신뢰가 흔들린 점을 무겁게 받아들이며, 현재 모든 역량을 동원해 피해 복구와 신뢰 회복에 전념하고 있습니다.</p>
+                                        <p class="txt_des txt_desM mgt20"><strong class="txC_black">사고 경위 및 복구 현황</strong></p>
+                                        <p class="txt_des txt_desM">이번 사태는 외부 랜섬웨어 공격으로 인해 발생한 시스템 장애 사고이며, 예스24는 책임 있는 플랫폼 사업자로서 서비스 복구와 보안 점검에 온 힘을 기울이고 있습니다. 공격 직후, 예스24는 내부 분석과 복구를 최우선으로 대응하는 한편, 정부 유관기관과 협조하여 조사에 성실히 응하고 있습니다. 사고 발생 직후 적법한 신고 등을 진행했으나, 랜섬웨어 공격이라는 특수성상 해커가 외부 반응을 감시하거나 추가 위협을 가할 수 있어서 대외적으로 정보 공개 수위와 시점을 신중하게 접근할 수밖에 없었던 점 양해 부탁드립니다. 그럼에도 고객 여러분께 정확한 정보를 더 빠르고 올바르게 전해 드리지 못한 점에 대해서 다시 한 번 사과드립니다. 앞으로는 더욱 투명하고 일관된 커뮤니케이션을 위해 최선을 다하겠습니다. 도서 및 음반, 문구, eBook 등 상품 구매와 티켓 서비스, 주문 결제 등 핵심 서비스는 복구가 완료되었으며, 일부 서비스는 순차적으로 최선을 다해 복구 중입니다.</p>
+                                        <p class="txt_des txt_desM mgt20"><strong class="txC_black">고객 피해 보상과 회복 조치</strong></p>
+                                        <p class="txt_des txt_desM">예스24는 서비스 중단으로 불편을 겪으신 고객 여러분께 서비스 유형별로 적용 가능한 보상 기준을 마련하여, 직접적 피해를 입으신 고객분들 대상으로 16일 1차 보상안을 공지하였고 사이트를 이용하고 계신 전체 회원을 대상으로 한 2차 보상안을 추가 안내드립니다.</p>
+                                        <div class="btn_row mgt20">
+                                            <span><a href="https://m.yes24.com/Help/Notice?seq=2017" class="btn_c l_size btn_act02 btn_wSizeF"><em class="txt">1차 보상안</em></a></span>
+                                            <span><a href="https://m.yes24.com/Help/Notice?seq=2019" class="btn_c l_size btn_act02 btn_wSizeF"><em class="txt">2차 보상안</em></a></span>
+                                        </div>
+                                        <p class="txt_des txt_desM mgt20"><strong class="txC_black">재발 방지 및 보안 강화 방안</strong></p>
+                                        <p class="txt_des txt_desM">예스24는 정부 유관기관(KISA, 개인정보보호위원회) 및 외부 보안 전문가들과 협력하여 사고 원인 조사와 보안 진단을 병행하고 있으며, 이후 유관기관의 조사 결과에 대해서도 투명하게 공개하겠습니다. 또한 이번 사고를 계기로 보안 체계를 원점에서 재점검할 예정입니다. 외부 보안 자문단을 도입하고, 보안 예산을 확대하여 시스템 설계부터 운영 전반까지 플랫폼의 신뢰도와 복원력을 강화하겠습니다. 아울러 정부 및 업계와 협력하여 더 안전한 디지털 생태계 조성을 위한 제도 개선 논의에도 적극 참여하고, 사회적 역할을 다하는 책임 있는 기업이 되겠습니다. 고객 여러분의 신뢰를 다시 쌓아가기 위한 이 과정에 진심을 담아 끝까지 책임을 다할 것을 약속드립니다. 다시 한 번 불편을 겪으신 모든 분들에게 고개 숙여 사과드립니다.</p>
+                                        <p class="txt_des txt_desM mgt20">2025년 6월 16일</p>
+                                        <p class="txt_des txt_desM mgt5"><strong class="txC_black">예스24 대표이사 김석환, 최세라 올림</strong></p>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="yesNotPopTxtMask" class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: B2E
+function setGuidePopB2E(platform) {
+    var guideType = 'B2E';
+    if (getCookie("HideUrgentPopup" + guideType) !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css?v=20250623">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop_${guideType}">
+                    <style>
+                        .yesPopUpArea { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center; }
+                        .yesPopUpArea { position:fixed;left:0;top:0;right:0;bottom:0;z-index:998001; }
+                        .yesPopUpArea .yesPopUp { position:relative;left:auto; }
+                        .yesPopUpArea .yesPopUp { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea .yesPopUp { flex-direction: column;flex-wrap: nowrap; }
+                        .yesPopUpArea .yesPopUp { max-height:calc(100vh - 200px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea { flex:1;box-sizing:border-box;padding-top:30px;max-height:calc(100vh - 250px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea .popYUI_cont { box-sizing:border-box;margin:0;padding:30px;padding-top:0;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch; }
+                        .yesPopUpArea .yesPopUp .popYUIMnu { flex-shrink:0; }	
+                    </style>
+                    <div class="yesPopUpArea">
+                        <div class="yesPopUp yesPopUpNot bgWhite">
+                            <div class="popYUIArea" style="width:550px;">
+                                <div class="popYUI_cont">
+                                    <div class="notCon">
+                                        <p class="txt_tit">서비스 장애 보상안 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요. 예스24입니다.<br> 이번 서비스 장애로 인해 불편을 겪으신 장병 여러분께 진심으로 사과드립니다.</p>
+                                        <p class="txt_des txt_desM">예스24는 서비스 중단으로 불편을 겪으신 장병 여러분께 아래와 같은 보상안을 안내드립니다.</p>
+                                        <div class="btn_row mgt20">
+                                            <span><a href="https://www.yes24.com/Mall/Help/Notice?seq=2017" class="btnC m_size btn_blue btn_wSizeF"><span class="bWrap"><em class="txt">1차 보상안</em></span></a></span>
+                                            <span><a href="https://www.yes24.com/Mall/Help/Notice?seq=2019" class="btnC m_size btn_blue btn_wSizeF"><span class="bWrap"><em class="txt">2차 보상안</em></span></a></span>
+                                        </div>
+                                        <div class="contTableBox mgt20">
+                                            <p>보상안 중 지급된 상품권의 사용방법은 아래와 같습니다. (아래 순서에 따라 결제 적용하시면 됩니다.)</p>
+                                            <p>1. 자기 개발 포인트 적용 <br>2. 예스24상품권 사용 <br>3. 개인결제수단(신용카드, 휴대폰 등) 사용</p>
+                                            <div class="con_sclH mgt15"><img alt="상품권 사용법1" src="https://image.yes24.com/sysimage/noticeN/compensation/img_not_pc01_250623.png" width="460"></div>
+                                            <div class="con_sclH mgt15"><img alt="상품권 사용법2" src="https://image.yes24.com/sysimage/noticeN/compensation/img_not_pc02_250623.png" width="460"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="popYUIMnu">
+                                <ul class="clearfix">
+                                    <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                    <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop_${guideType}">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">서비스 장애 보상안 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요. 예스24입니다.<br> 이번 서비스 장애로 인해 불편을 겪으신 장병 여러분께 진심으로 사과드립니다.</p>
+                                        <p class="txt_des txt_desM">예스24는 서비스 중단으로 불편을 겪으신 장병 여러분께 아래와 같은 보상안을 안내드립니다.</p>
+                                        <div class="btn_row mgt20">
+                                            <span><a href="https://www.yes24.com/Mall/Help/Notice?seq=2017" class="btn_c l_size btn_act02 btn_wSizeF"><em class="txt">1차 보상안</em></a></span>
+                                            <span class="gap"></span>
+                                            <span><a href="https://www.yes24.com/Mall/Help/Notice?seq=2019" class="btn_c l_size btn_act02 btn_wSizeF"><em class="txt">2차 보상안</em></a></span>
+                                        </div>
+                                        <div class="contTableBox mgt20">
+                                            <p>보상안 중 지급된 상품권의 사용방법은 아래와 같습니다. (아래 순서에 따라 결제 적용하시면 됩니다.)</p>
+                                            <p>1. 자기 개발 포인트 적용 <br>2. 예스24상품권 사용 <br>3. 개인결제수단(신용카드, 휴대폰 등) 사용</p>
+                                            <div class="mgt15"><img alt="상품권 사용법1" src="https://image.yes24.com/sysimage/noticeN/compensation/img_not_mo01_250623.png" width="100%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: 크레마클럽
+function setGuidePopCrema(platform) {
+    var guideType = 'Crema';
+    if (getCookie("HideUrgentPopup" + guideType) !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css?v=20250701">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+            else {
+                $('#maskYUI').show();
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop_${guideType}">
+                    <style>
+                        .yesPopUpArea { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center; }
+                        .yesPopUpArea { position:fixed;left:0;top:0;right:0;bottom:0;z-index:998001; }
+                        .yesPopUpArea .yesPopUp { position:relative;left:auto; }
+                        .yesPopUpArea .yesPopUp { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea .yesPopUp { flex-direction: column;flex-wrap: nowrap; }
+                        .yesPopUpArea .yesPopUp { max-height:calc(100vh - 200px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea { flex:1;box-sizing:border-box;padding-top:30px;max-height:calc(100vh - 250px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea .popYUI_cont { box-sizing:border-box;margin:0;padding:30px;padding-top:0;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch; }
+                        .yesPopUpArea .yesPopUp .popYUIMnu { flex-shrink:0; }	
+                    </style>
+                    <div class="yesPopUpArea">
+                        <div class="yesPopUp yesPopUpNot bgWhite">
+                            <div class="popYUIArea" style="width:550px;">
+                                <div class="popYUI_cont">
+                                    <div class="notCon">
+                                        <p class="txt_tit">크레마클럽 2차 보상 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요. 예스24 크레마클럽입니다.</p>
+                                        <p class="txt_des txt_desM">서비스 장애에 대한 보상으로 준비한 크레마클럽 30일 이용권이 회원님의 계정에 순차적으로 지급되고 있습니다.</p>
+                                        <p class="txt_des txt_desM">자세한 내용은 아래 안내를 참고해 주세요.</p>
+                                        <div class="contTableBox mgt20">
+                                            <p><strong class="txC_black">이용권 확인 방법</strong></p>
+                                            <p>로그인 후 상단 검색창 옆 아이콘 클릭 또는 마이페이지 &gt; 나의 eBook &gt; 크레마클럽 요금제 관리에서 확인하실 수 있습니다.</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">크레마클럽 이용 방법</strong></p>
+                                            <p>예스24 eBook앱을 다운받으시면 바로 사용 가능합니다.</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">지급 일정 안내</strong></p>
+                                            <p>2025년 6월 24일부터 7월 8일까지 순차 지급되며, 시스템 상황에 따라 지급 기간은 단축될 수 있습니다.</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">참고사항</strong></p>
+                                            <p>99요금제 회원은 별도 안내 예정입니다.</p>
+                                        </div>
+                                        <p class="txt_des txt_desM mgt20">이용에 불편을 드린 점 다시 한번 깊이 사과 드리며, 앞으로 신뢰 회복과 서비스 안정성 강화를 위한 근본적인 개선에도 최선을 다하겠습니다.</p>
+                                        <p class="txt_des txt_desM">감사합니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="popYUIMnu">
+                                <ul class="clearfix">
+                                    <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                    <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop_${guideType}">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">크레마클럽 2차 보상 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요. 예스24 크레마클럽입니다.</p>
+                                        <p class="txt_des txt_desM">서비스 장애에 대한 보상으로 준비한 크레마클럽 30일 이용권이 회원님의 계정에 순차적으로 지급되고 있습니다.</p>
+                                        <p class="txt_des txt_desM">자세한 내용은 아래 안내를 참고해 주세요.</p>
+                                        <div class="contTableBox mgt20">
+                                            <p><strong class="txC_black">이용권 확인 방법</strong></p>
+                                            <p>로그인 후 크레마클럽 페이지 내 ☰ 메뉴 또는 마이페이지 &gt; 크레마클럽 요금제 관리에서 확인하실 수 있습니다.</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">크레마클럽 이용 방법</strong></p>
+                                            <p>예스24 eBook앱을 다운받으시면 바로 사용 가능합니다.</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">지급 일정 안내</strong></p>
+                                            <p>2025년 6월 24일부터 7월 8일까지 순차 지급되며, 시스템 상황에 따라 지급 기간은 단축될 수 있습니다.</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">참고사항</strong></p>
+                                            <p>99요금제 회원은 별도 안내 예정입니다.</p>
+                                        </div>
+                                        <p class="txt_des txt_desM mgt20">이용에 불편을 드린 점 다시 한번 깊이 사과 드리며, 앞으로 신뢰 회복과 서비스 안정성 강화를 위한 근본적인 개선에도 최선을 다하겠습니다.</p>
+                                        <p class="txt_des txt_desM">감사합니다.</p>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: 99요금제
+function setGuidePop99Plan(platform) {
+    var guideType = '99Plan';
+    if (getCookie("HideUrgentPopup" + guideType) !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css?v=20250704">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+            else {
+                $('#maskYUI').show();
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop_${guideType}">
+                    <style>
+                        .yesPopUpArea { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center; }
+                        .yesPopUpArea { position:fixed;left:0;top:0;right:0;bottom:0;z-index:998001; }
+                        .yesPopUpArea .yesPopUp { position:relative;left:auto; }
+                        .yesPopUpArea .yesPopUp { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea .yesPopUp { flex-direction: column;flex-wrap: nowrap; }
+                        .yesPopUpArea .yesPopUp { max-height:calc(100vh - 200px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea { flex:1;box-sizing:border-box;padding-top:30px;max-height:calc(100vh - 250px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea .popYUI_cont { box-sizing:border-box;margin:0;padding:30px;padding-top:0;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch; }
+                        .yesPopUpArea .yesPopUp .popYUIMnu { flex-shrink:0; }	
+                    </style>
+                    <div class="yesPopUpArea">
+                        <div class="yesPopUp yesPopUpNot bgWhite">
+                            <div class="popYUIArea" style="width:550px;">
+                                <div class="popYUI_cont">
+                                    <div class="notCon">
+                                        <p class="txt_tit">99요금제 회원 보상 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요. 예스24 크레마클럽입니다. </p>
+                                        <p class="txt_des txt_desM">2025년 6월 9일부터 13일까지 크레마클럽 서비스 이용이 불가했던 점에 대해 진심으로 사과드립니다. </p>
+                                        <p class="txt_des txt_desM">해당 기간 동안 99요금제를 이용하신 고객님들께 아래와 같이 보상 방안을 안내드립니다.</p>		
+                                        <div class="contTableBox mgt20">
+                                            <p><strong class="txC_black">대상</strong></p>
+                                            <p>2025년 6월 9일 04시 기준 99요금제를 이용 중이었던 고객</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">99요금제 페이백 보상</strong></p>
+                                            <ul class="yesAlertLi yAlertLi b_size mgt10">
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>2025년 7월 7일부터 진행되는 99요금제 정기 결제 금액에 대해 1회 전액 환불 처리          </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>결제일 기준 다음 주 월요일에 결제수단 승인 취소 방식으로 환불                          </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>현재 99요금제를 사용하지 않는 경우, 2025년 7월 7일 기준 1년 내 재가입 시 자동 환불 처리</li>
+                                            </ul>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">정기 결제일 확인 방법</strong></p>
+                                            <ul class="yesAlertLi yAlertLi b_size mgt10">
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>PC : 로그인 후 상단 검색창 옆 아이콘 클릭 또는 마이페이지 &gt; 나의 eBook &gt; 크레마클럽 요금제 관리 </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>모바일 : 로그인 후 상단 검색창 옆 아이콘 클릭 또는 마이페이지 &gt; 크레마클럽 요금제 관리          </li>
+                                            </ul>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">크레마클럽 이용권 지급 보상</strong></p>
+                                            <ul class="yesAlertLi yAlertLi b_size mgt10">
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>크레마클럽 30일 이용권 제공 (8월 11일 개별 문자 발송 예정)	                                                                                                                         </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>발송일 기준, 예스24 회원정보에 등록된 휴대전화번호로 발송됩니다. (99요금제 사용 중에는 이용권 등록이 불가하며, 등록 유효기간은 발송일로부터 5년으로, 기한 내 언제든 사용 가능합니다.)</li>
+                                            </ul>
+                                        </div>
+                                        <p class="txt_des txt_desM mgt20">다시 한번 이용에 불편을 겪으신 회원님들께 사과드립니다. 더욱 안정적인 서비스와 향상된 사용자 경험을 제공할 수 있도록 최선을 다하겠습니다.</p>
+                                        <p class="txt_des txt_desM">감사합니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="popYUIMnu">
+                                <ul class="clearfix">
+                                    <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                    <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop_${guideType}">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">99요금제 회원 보상 안내</p>
+                                        <p class="txt_des txt_desM">안녕하세요. 예스24 크레마클럽입니다. </p>
+                                        <p class="txt_des txt_desM">2025년 6월 9일부터 13일까지 크레마클럽 서비스 이용이 불가했던 점에 대해 진심으로 사과드립니다. </p>
+                                        <p class="txt_des txt_desM">해당 기간 동안 99요금제를 이용하신 고객님들께 아래와 같이 보상 방안을 안내드립니다.</p>		
+                                        <div class="contTableBox mgt20">
+                                            <p><strong class="txC_black">대상</strong></p>
+                                            <p>2025년 6월 9일 04시 기준 99요금제를 이용 중이었던 고객</p>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">99요금제 페이백 보상</strong></p>
+                                            <ul class="yesAlertLi yAlertLi b_size mgt10">
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>2025년 7월 7일부터 진행되는 99요금제 정기 결제 금액에 대해 1회 전액 환불 처리          </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>결제일 기준 다음 주 월요일에 결제수단 승인 취소 방식으로 환불                          </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>현재 99요금제를 사용하지 않는 경우, 2025년 7월 7일 기준 1년 내 재가입 시 자동 환불 처리</li>
+                                            </ul>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">정기 결제일 확인 방법</strong></p>
+                                            <ul class="yesAlertLi yAlertLi b_size mgt10">
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>PC : 로그인 후 상단 검색창 옆 아이콘 클릭 또는 마이페이지 &gt; 나의 eBook &gt; 크레마클럽 요금제 관리 </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>모바일 : 로그인 후 상단 검색창 옆 아이콘 클릭 또는 마이페이지 &gt; 크레마클럽 요금제 관리          </li>
+                                            </ul>
+                                        </div>
+                                        <div class="contTableBox mgt10">
+                                            <p><strong class="txC_black">크레마클럽 이용권 지급 보상</strong></p>
+                                            <ul class="yesAlertLi yAlertLi b_size mgt10">
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>크레마클럽 30일 이용권 제공 (8월 11일 개별 문자 발송 예정)	                                                                                                                         </li>
+                                                <li class="txC_black"><em class="bl_dot bgYUI bl_rnd">&nbsp;</em>발송일 기준, 예스24 회원정보에 등록된 휴대전화번호로 발송됩니다. (99요금제 사용 중에는 이용권 등록이 불가하며, 등록 유효기간은 발송일로부터 5년으로, 기한 내 언제든 사용 가능합니다.)</li>
+                                            </ul>
+                                        </div>
+                                        <p class="txt_des txt_desM mgt20">다시 한번 이용에 불편을 겪으신 회원님들께 사과드립니다. 더욱 안정적인 서비스와 향상된 사용자 경험을 제공할 수 있도록 최선을 다하겠습니다.</p>
+                                        <p class="txt_des txt_desM">감사합니다.</p>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+//서비스이용안내 팝업: 시스템 점검
+function setGuidePopSystemCheck(platform) {
+    var guideType = 'SystemCheckA';
+    if (getCookie("HideUrgentPopup" + guideType) !== "Y") {
+        var popupHtml = '';
+        if (platform == "p") {
+            if (!$('link[href*="yesPopUp_not.css"]').length) {
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/common/yesPopUp_not.css?v=20250821">');
+            }
+            
+            if (!$('#maskYUI').length) {
+                $('body').prepend('<div id="maskYUI" style="display: block;"></div>');
+            }
+            else {
+                $('#maskYUI').show();
+            }
+
+            popupHtml = `
+                <div id="dPop_notPop_${guideType}">
+                    <style>
+                        .yesPopUpArea { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center; }
+                        .yesPopUpArea { position:fixed;left:0;top:0;right:0;bottom:0;z-index:998001; }
+                        .yesPopUpArea .yesPopUp { position:relative;left:auto; }
+                        .yesPopUpArea .yesPopUp { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+                        .yesPopUpArea .yesPopUp { flex-direction: column;flex-wrap: nowrap; }
+                        .yesPopUpArea .yesPopUp { max-height:calc(100vh - 200px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea { flex:1;box-sizing:border-box;padding-top:30px;max-height:calc(100vh - 250px); }
+                        .yesPopUpArea .yesPopUp .popYUIArea .popYUI_cont { box-sizing:border-box;margin:0;padding:30px;padding-top:0;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;-webkit-overflow-scrolling:touch; }
+                        .yesPopUpArea .yesPopUp .popYUIMnu { flex-shrink:0; }	
+                    </style>
+                    <div class="yesPopUpArea">
+                        <div class="yesPopUp yesPopUpNot bgWhite">
+                            <div class="popYUIArea" style="width:611px;">
+                                <div class="popYUI_cont">
+                                    <div class="notCon">
+                                        <p class="txt_tit">시스템 점검으로 인한 서비스 일시 중지 안내</p>
+                                        <p class="txt_des">안녕하십니까? 예스24 입니다.<br>항상 예스24를 이용해주셔서 감사합니다. </p>
+                                        <p class="txt_des">보다 원활하고 안정적인 서비스 제공을 위해 아래와 같이 시스템 정기 점검을 실시할 예정입니다.<br>작업 중에는 사이트 이용이 중단되오니 참고하시어 이용에 불편이 없으시길 바랍니다.</p>
+                                    </div>
+                                    <dl class="notConDl">
+                                        <dd>
+                                            <ul class="yesAlertLi alertLi">
+                                                <li>1. 일시 : 08월 24일(일) 오전 00시~오전 10시</li>
+                                                <li>2. 내용 : 정기 점검으로 인한 사이트 일시 중지</li>
+                                                <li>3. 서비스 영향</li>
+                                                <li>- 도서 전체 서비스 이용 불가</li>
+                                                <li>- 공연 로그인 서비스 중지</li>
+                                                <li>- eBook/크레마클럽 구매 및 신규 다운로드 불가 (이용권 등록 제한)</li>
+                                                <br>
+                                                <li>※ 24DAY 프로모션은 점검 종료 후 오후 1시에 오픈될 예정입니다.</li>
+                                            </ul>
+                                        </dd>
+                                    </dl>
+                                    <div class="notCon">
+                                        <p class="txt_des"></p>
+                                        <p class="txt_des">불편을 드리게 된 점 너그러운 양해를 부탁드리며,<br>한층 더 안정적인 서비스로 보답하겠습니다.</p>
+                                        <p class="txt_des">감사합니다.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="popYUIMnu">
+                                <ul class="clearfix">
+                                    <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                    <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        else {
+            popupHtml = `
+                <section id="dPop_notPop_${guideType}">
+                    <div class="yNotPop" style="display:block">
+                        <div class="notPopWrap">
+                            <div class="notPopGrp">
+                                <div class="notPopTxt">
+                                    <div class="popTxtCont">
+                                        <p class="txt_tit">시스템 점검으로 인한 서비스 일시 중지 안내</p>
+                                        <p class="txt_des txt_desM">안녕하십니까? 예스24 입니다.<br>항상 예스24를 이용해주셔서 감사합니다.</p>
+                                        <p class="txt_des txt_desM">보다 원활하고 안정적인 서비스 제공을 위해 아래와 같이 시스템 정기 점검을 실시할 예정입니다.</p>
+                                        <p class="txt_des txt_desM">작업 중에는 사이트 이용이 중단되오니 참고하시어 이용에 불편이 없으시길 바랍니다.</p>
+                                        <dl class="contTableDl contTableDl_act mgt20">
+                                            <dd>
+                                                <ul class="yesAlertLi alertLi">
+                                                    <li>1. 일시 : 08월 24일(일) 오전 00시~오전 10시</li>
+                                                    <li>2. 내용 : 정기 점검으로 인한 사이트 일시 중지</li>
+                                                    <li>3. 서비스 영향</li>
+                                                    <li>- 도서 전체 서비스 이용 불가</li>
+                                                    <li>- 공연 로그인 서비스 중지</li>
+                                                    <li>- eBook/크레마클럽 구매 및 신규 다운로드 불가 (이용권 등록 제한)</li>
+                                                    <br>
+                                                    <li>※ 24DAY 프로모션은 점검 종료 후 오후 1시에 오픈될 예정입니다.</li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                        <p class="txt_des txt_desM"></p>
+                                        <p class="txt_des txt_desM">불편을 드리게 된 점 너그러운 양해를 부탁드리며, 한층 더 안정적인 서비스로 보답하겠습니다.</p>
+                                        <p class="txt_des txt_desM">감사합니다.</p>
+                                    </div>
+                                </div>
+                                <div class="notPopMnu">
+                                    <ul>
+                                        <li><a href="javascript:void(0);" onclick="setYearUrgentClose('${guideType}');">앞으로 그만 보기</a></li>
+                                        <li><a href="javascript:void(0);" onclick="closeUrgentPopup('${guideType}');">닫기</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="yNotPopMask" style="display:block"></div>
+                </section>`;
+        }
+        var appendId = $('#bookClubWrap').length > 0 ? 'bookClubWrap' : 'yesWrap';
+        $('#' + appendId).append(popupHtml);
+    }
+}
+
+// 팝업공통화 - 단순 안내 팝업
+function showGoodsDetailPopup(popId, obj, cock, width, options) {
+    if ($("#dPop_" + popId).length > 0) {
+        $("#dPop_" + popId).remove();
+    }
+
+    if (isAjaxDoing == false && $("dPop_" + popId).length == 0) {
+        isAjaxDoing = true;
+
+        const url = `${FRONT_API_URL}/Module/GoodsInformation?platform=p&popId=${popId}`;
+        fetch(url, {
+            method: 'GET', mode: 'cors', credentials: 'include'
+        }).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            $('#yesWrap').append(data);
+            isAjaxDoing = false;
+
+            // var options = { cock: cock, mask: false, pWidth: width, baseWidth: $('#yDetailTopWrap').width(), ajaxURL: url };
+            var pop = $("#dPop_" + popId);
+            var mask = null;
+            var marginL = 0;
+            var popT = 0;
+            var cockTarget;
+            var $obj = $(obj);
+            var popPosition = "absolute";
+
+            var settings = {
+                mask: false,
+                ovrMask: false,
+                cock: cock,
+                cockW: 7, //cock width/2
+                cockH: 10, //cock height
+                cockClassSelector: ".popYUI_cock",
+                pGap: 50, //popWidth
+                pWidth: width, //popWidth
+                fixed: false, //fixed
+                flexOn: false, //flex fixed
+                posTChg: false, // goods detail position top change
+                posTGap: 0, // goods detail position top change
+                posLft: null, //position Left
+                posTop: null, //position top
+                baseWidth: 960, // base width
+                showOnly: true, // show opt only ? multi
+                align: "objBottom",
+                ajaxURL: "", // ajax opt
+                ajaxCallBack: function () { },
+                closeEvent: function (settings) { } // close event callback
+            };
+
+            // 이벤트 설정 함수        
+            var bindEvent = function () {
+                pop.find(".popYUI_close a").bind("click", function () {
+                    if (settings.ovrMask) {
+                        $("#ovrMaskYUI").hide();
+                    } else if (settings.mask) {
+                        $("#maskYUI").hide();
+                    }
+                    pop.hide();
+                    settings.closeEvent(settings);
+                });
+
+                pop.find(".popYUIArea").css({
+                    "width": settings.pWidth + "px"
+                })
+            };
+
+            var popPosSet = function () {
+                if (!settings.mask) {
+                    if ($obj.css("display") == "inline") {
+                        cockTarget = $obj.children()[0];
+                        if (cockTarget == null) {
+                            cockTarget = $obj;
+                        }
+                    } else {
+                        cockTarget = $obj;
+                    }
+
+                    var agent = navigator.userAgent.toLowerCase();
+                    if ((navigator.appName == 'Netscape' && navigator.userAgent.search('Trident') != -1) || (agent.indexOf("msie") != -1)) {
+                        var gapW = 0;
+                    }
+                    else {
+                        var jVer = $.fn.jquery.split('.');
+                        if (jVer[0] > 1 || (jVer[0] == 1 && jVer[1] > 11)) {
+                            var gapW = 0;
+                        } else {
+                            var gapW = 7;
+                        }
+                    }
+
+                    if (settings.posLft == null) {
+                        marginL = ($(cockTarget).offset().left + ($(cockTarget).width() / 2)) - ($(window).width() / 2) - (settings.pWidth / 2) + gapW;
+                    } else {
+                        marginL = ($(cockTarget).offset().left + ($(cockTarget).width() / 2)) - ($(window).width() / 2) - (settings.pWidth / 2) + gapW + settings.posLft;
+                    }
+
+                    var targetX = $(window).width() / 2 + marginL;
+                    var targetXW = targetX + settings.pWidth;
+
+                    //만약 marginL이 baseWidth에 넘치면
+                    if (targetXW > ($(window).width() / 2) + (settings.baseWidth / 2)) {
+                        var moveX = ($(window).width() / 2) + (settings.baseWidth / 2) - targetXW + settings.cockW; //cock 너비/2
+                        marginL += moveX - settings.cockW;
+                        if (settings.cock) {
+                            pop.find(settings.cockClassSelector).css("margin-left", "");
+                            pop.find(settings.cockClassSelector).css("margin-left", -moveX + "px");
+                        }
+                    } else if (targetX < ($(window).width() / 2) - (settings.baseWidth / 2)) {
+                        var moveX = ($(window).width() / 2) - (settings.baseWidth / 2) - targetX + settings.cockW; //cock 너비/2
+                        marginL += moveX - settings.cockW;
+                        if (settings.cock) {
+                            pop.find(settings.cockClassSelector).css("margin-left", "");
+                            pop.find(settings.cockClassSelector).css("margin-left", -moveX + "px");
+                        }
+                    }
+
+                    if (settings.fixed) {
+                        popPosition = "fixed";
+
+                        if (settings.flexOn) {
+                            pop.find(".yesPopUp").addClass("flexOn");
+                        } else {
+                            if (settings.cock) {
+                                popT = $(cockTarget).offset().top - $(window).scrollTop() + $(cockTarget).height() + settings.cockH;
+                            } else {
+                                popT = $(cockTarget).offset().top - $(window).scrollTop() + $(cockTarget).height() + 5;
+
+                                if ((popT + pop.find(".popYUIArea").height()) > $(document).height()) {
+                                    popT = $(cockTarget).offset().top - $(window).scrollTop() - pop.find(".popYUIArea").height() - 5;
+                                }
+                            }
+                            if (settings.align != "objBottom") {
+                                popT -= (pop.find(".popYUIArea").height() + $(cockTarget).height() + 10);
+                            }
+                        }
+                    } else {
+                        popPosition = "absolute";
+
+                        if (settings.cock) {
+                            popT = $(cockTarget).offset().top + $(cockTarget).height() + settings.cockH;
+                        } else {
+                            popT = $(cockTarget).offset().top + $(cockTarget).height() + 5;
+
+                            if ((popT + pop.find(".popYUIArea").height()) > $(document).height()) {
+                                popT = $(cockTarget).offset().top - pop.find(".popYUIArea").height() - 5;
+                            }
+                        }
+                        if (settings.align != "objBottom") {
+                            popT -= (pop.find(".popYUIArea").height() + $(cockTarget).height() + 10);
+                        }
+                    }
+
+                } else {
+                    if (settings.posLft == null) {
+                        marginL = -Math.floor(settings.pWidth / 2);
+                    } else {
+                        marginL = -Math.floor(settings.pWidth / 2) + settings.posLft - Math.floor((settings.baseWidth - settings.pWidth) / 2);
+                    }
+
+                    if (settings.posTop == null) {
+                        if (settings.fixed) {
+                            popPosition = "fixed";
+                            popT = Math.floor((window.innerHeight - pop.find(".yesPopUp").height()) / 2) - settings.pGap;
+                        } else {
+                            popT = $(window).scrollTop() + Math.floor((window.innerHeight - pop.find(".yesPopUp").height()) / 2) - settings.pGap;
+                        }
+                    } else {
+                        if (settings.fixed) {
+                            popPosition = "fixed";
+                            popT = settings.posTop;
+                        } else {
+                            popT = $(window).scrollTop() + settings.posTop;
+                        }
+                    }
+                    if (settings.align != "objBottom") {
+                        popT -= (pop.find(".popYUIArea").height() + $(cockTarget).height() + 10);
+                    }
+                }
+            };
+
+            if (options) { $.extend(settings, options); };
+
+            if (settings.showOnly) {
+                if ($("#maskYUI")) {
+                    $("#maskYUI").hide();
+                }
+            }
+
+            bindEvent();
+            pop.show();
+            popPosSet();
+
+            // 페이지에 팝업 내용이 있을때
+            pop.find(".yesPopUp").css({
+                "position": popPosition,
+                "marginLeft": marginL + "px",
+                "top": popT + "px"
+            });
+            if (settings.posTChg) {
+                pop.find(".yesPopUp").addClass("tPosChg");
+                pop.find(".yesPopUp").attr("data-tpos", popT);
+                pop.find(".yesPopUp").attr("data-tgap", settings.posTGap);
+            }
+            if (settings.mask) {
+                if ($("#maskYUI").length == 0) {
+                    $('body').append('<div id="maskYUI"></div>');
+                }
+                mask = $("#maskYUI");
+                mask.stop().fadeIn();
+            }
+            if (settings.ovrMask) {
+                if ($("#ovrMaskYUI").length == 0) {
+                    $('body').append('<div id="ovrMaskYUI"></div>');
+                }
+                mask = $("#ovrMaskYUI");
+                mask.stop().fadeIn();
+            }
+        }).catch(function (error) {
+            isAjaxDoing = false;
+        });
+    }
+}
+
+
+// 팝업 닫기 함수
+function closeUrgentPopup(type) {
+    var popupId = 'dPop_notPop';
+    if (type){
+        popupId += '_' + type;
+    }
+    
+    $('[id="' + popupId + '"]').each(function() {
+        $(this).remove();
+    });
+
+    $('#maskYUI').remove();
+}
+
+// 오늘은 그만 보기
+function setTodayUrgentClose(type) {
+    var date = new Date();
+    date.setTime(date.getTime() + (24 * 60 * 60 * 1000)); // 시간 단위
+    document.cookie = "HideUrgentPopup" + type + "=Y; path=/; expires=" + date.toUTCString();
+
+    closeUrgentPopup(type);
+}
+
+// 앞으로 그만 보기
+function setYearUrgentClose(type) {
+    var date = new Date();
+    date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000));
+    document.cookie = "HideUrgentPopup" + type + "=Y; path=/; expires=" + date.toUTCString();
+
+    closeUrgentPopup(type);
+}
+
+var frontCommonTryCount = 0;
+var frontCommonMaxTries = 3;
+
+function frontCommonWaitUntilJqueryReady() {
+    if (typeof jQuery === 'undefined') {
+        if (++frontCommonTryCount < frontCommonMaxTries) {
+            setTimeout(frontCommonWaitUntilJqueryReady, 100);
+        }
+        return;
+    }
+    $(function () {
+        var url = location.href.replace(/^https:\/\//i, '').toLowerCase();
+        var isExceptionPage = false;
+        var platform = url.startsWith('www.yes24.com/main/default.aspx') ? 'p' : (url.startsWith('m.yes24.com/home/main') || url.startsWith('bookshop.yes24.com')) ? 'm' : '';
+        if (!isExceptionPage && platform && new Date() < new Date('2025-08-24T00:00:00+09:00').getTime()) {
+            setGuidePopSystemCheck(platform);
+        }
+    });
+}
+
+// SNS 공유 실행
+function shareSnsOnPc(page, snsType, triggerObj) {
+    var getMetaContent = function (property, fallback) {
+        return $("meta[property='" + property + "']").attr("content") || fallback;
+    };
+
+    var contentUrl, title, image, description;
+
+    // 작가파일
+    if (page == "author") {
+        contentUrl = document.location.origin + document.location.pathname;
+        title = getMetaContent('og:title', document.title);
+        image = getMetaContent('og:image', '');
+        description = getMetaContent('og:description', '');
+    }
+    else if (page == "addon") {
+        var addonCode = $("#hdAddonCode").val();
+        // 애드온 체크 여부
+        var isChecked = $("#cboxAddon input[type='checkbox']").is(":checked");
+        if (isChecked) {
+            contentUrl = "https://link.yes24.com/a/" + addonCode;
+            description = "이 포스팅은 애드온 활동의 일환으로, 이에 따라 일정액의 수수료를 제공받습니다.";
+        }
+        else {
+            contentUrl = document.location.href;
+            description = getMetaContent('og:description', '');
+        }
+        title = getMetaContent('og:title', document.title);
+        image = getMetaContent('og:image', '');
+    }
+
+    switch (snsType) {
+        case 'facebook':
+            var facebookUrl = 'https://www.facebook.com/dialog/share?app_id=390305751390074&href=' + encodeURIComponent(contentUrl);
+            window.open(facebookUrl, 'facebook_pop');
+            addon.CopyUrl('AddonCopy', 'compCopyAdOn', this, {mask:true, pWidth:375, url:contentUrl, platform:'p', isFacebook:true});
+            break;
+
+        case 'twitter':
+            var twitterUrl = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(description) + '+' + encodeURIComponent(contentUrl);
+            window.open(twitterUrl, 'twitter_pop');
+            break;
+
+        case 'kakaotalk':
+            if (typeof Kakao === 'undefined' || typeof Kakao.Auth === 'undefined') {
+                Kakao.init('4a5b8d3bda1da12710f007d9750eed67'); // 필요 시 APP KEY 교체
+            }
+            var buttonTitle = document.location.pathname.toLowerCase().includes('goods')
+                ? '작가의 전체 작품 보기'
+                : '작가 상세보기';
+
+            Kakao.Link.sendCustom({
+                templateId: 122385,
+                templateArgs: {
+                    title: title,
+                    description: description,
+                    url: document.location.pathname.toLowerCase().replace('/product', ''),
+                    imgFirst: image,
+                    button_title: buttonTitle
+                }
+            });
+            break;
+
+        case 'line':
+            var lineUrl = 'http://line.me/R/msg/text/?' +
+                encodeURIComponent(description) + '%0D%0A' +
+                encodeURIComponent(contentUrl);
+            window.open(lineUrl, 'line_pop');
+            break;
+
+        case 'copy':
+            if (triggerObj) {
+                triggerObj.dataset.clipboardText = contentUrl;
+                var clipboard = new ClipboardJS(triggerObj);
+                clipboard.on('success', function (e) {
+                    alert('URL이 복사되었습니다.');
+                    e.clearSelection();
+                    clipboard.destroy();
+                });
+            }
+            break;
+    }
+}
+
+//SNS 공유하기 모바일 (애드온개편)
+function shareSnsOnMobile(type, share_url, img_url, message) {
+    setMcode(306);
+    
+    var addonCode = $("#hdAddonCode").val();
+    var addonYn = $("#cboxAddon input[type='checkbox']").is(":checked");
+    let addonDescription = "";
+
+    if (addonYn) {
+        share_url = "https://link.yes24.com/a/" + addonCode;
+        addonDescription = "이 포스팅은 애드온 활동의 일환으로, 이에 따라 일정액의 수수료를 제공받습니다.";
+    }
+
+    if (type == "line") {
+        // 애드온 공유하기
+        if (addonYn) {
+            message = addonDescription;
+        }        
+        var lineTextMsg = "http://line.me/R/msg/text/?" + encodeURIComponent(message + '\n' + share_url);
+        var lineImageMsg = "line://msg/image/" + encodeURIComponent(img_url);
+        location.href = lineTextMsg;
+        //window.open(lineTextMsg, "line_pop");
+    }
+    else if (type == "facebook") {
+        var facebookUrlPrefix = "https://m.facebook.com/dialog/share?app_id=390305751390074&href=";
+        if (APP_GB == 'YES24' && IS_NATIVE_APPS) {
+            goApp('OPENURL', facebookUrlPrefix + share_url);
+            if (addonYn) {
+                addon.CopyUrl('AddonCopy', 'compCopyAdOn', this, {mask:true, pWidth:375, url:share_url, platform:'m', isFacebook:true});
+            }
+        }
+        else {
+            window.open(facebookUrlPrefix + encodeURIComponent(share_url), "facebook_pop");
+            if (addonYn) {
+                addon.CopyUrl('AddonCopy', 'compCopyAdOn', this, {mask:true, pWidth:375, url:share_url, platform:'m', isFacebook:true});
+            }
+        }
+    }
+    else if (type == "twitter") {
+        // 애드온 공유하기
+        if (addonYn) {
+            share_url = encodeURIComponent(addonDescription) + '+' + share_url;
+        }
+        var share_text = "https://twitter.com/intent/tweet?text=" + share_url;
+        window.open(share_text, 'twitter_pop');
+    }
+}
+
+//카카오톡 공유하기
+function kakaoLinkSend(page_type, title, message, link, img_url) {
+    if (typeof Kakao === 'undefined' || typeof Kakao.Auth === 'undefined') {
+        if(!Kakao.isInitialized()){
+            Kakao.init('4a5b8d3bda1da12710f007d9750eed67');
+        }
+    }
+    var link_url = '', author_text = '', description = '', template_id = '', width = '', height = '', button_title = '';    
+
+    //상품상세 공유
+    if (page_type == "goods_detail") {
+        link_url = "/goods/detail/" + link;
+        author_text = $(".gd_auth").text().trim();
+        var ua = navigator.userAgent.toLocaleLowerCase();
+        if (/android/.test(ua)) {
+            description = author_text + "\r\n" + message;
+        }
+        else {
+            description = author_text + " / " + message;
+        }
+        template_id = 10442;
+        button_title = "자세히보기";
+    }
+    //이벤트(개편)
+    else if (page_type == "event_detail_new") {
+        link_url = link;
+        description = message;
+        template_id = 107637;
+        button_title = "바로가기";
+    }
+    //이벤트상세 공유
+    else if(page_type == "event_detail") {
+        title = "[YES24 이벤트]";
+        description = message;
+        button_title = "바로가기";
+        link_url = link;
+        template_id = 107637;
+    }
+    //YES캘린더
+    else if (page_type == "yes_calendar") {
+        link_url = "/YesCalendar";
+        description = message;
+        template_id = 10445;
+        button_title = "자세히보기";
+    }
+    //채널예스카드뉴스
+    else if (page_type == "card_news") {
+        link_url = link;
+        description = message;
+        template_id = 31703;
+        button_title = "자세히보기";
+    }
+    //북클럽
+    else if (page_type == "bookclub_detail") {
+        link_url = link;
+        description = message;
+        template_id = 40326;
+        button_title = "바로가기";
+    }
+    //파트너샵
+    else if (page_type == "partnershop") {
+        link_url = link;
+        description = message;
+        template_id = 51773;
+        button_title = "바로가기";
+    }
+    //선물 수락하기
+    else if (page_type == "gift_accept") {
+        link_url = link;
+        description = message;
+        template_id = 53792;
+        button_title = "선물 받기";
+    }
+    //작가파일
+    else if (page_type == "author") {
+        link_url = link;
+        description = message;
+        template_id = 122385;
+        button_title = document.location.pathname.toLowerCase().includes('goods') ? '작가의 전체 작품 보기' : '작가 상세보기';
+    }
+    
+    var addonYn = $("#cboxAddon input[type='checkbox']").is(":checked");
+    var addonCode = $("#hdAddonCode").val();
+    
+    if(addonYn) {        
+        link_url = addonCode;
+        description = "이 포스팅은 애드온 활동의 일환으로, 이에 따라 일정액의 수수료를 제공받습니다.";
+        template_id = 127285;
+    }
+
+    //더블 슬래시 제거
+    if (link_url != undefined && link_url.charAt(0) == "/") {
+        link_url = link_url.substr(1);
+    }
+
+    if (img_url == '' || img_url == undefined) {
+        //카카오 링크 전송
+        Kakao.Link.sendScrap({
+            requestUrl: link,
+        })
+    }
+    else {
+        //카카오 링크 전송
+        Kakao.Link.sendCustom({
+            templateId: template_id,
+            templateArgs: {
+                title: title,
+                description: description,
+                url: link_url,
+                imgFirst: img_url,
+                button_title: button_title,
+
+            },
+            installTalk: true
+        });
+    }
+}
+
+/**
+ * eBook / 오디오북 미리보기 점검 제어 함수
+ * - 점검 시간일 경우 alert 노출 후 클릭 동작 차단
+ * - 점검 시간이 아니면 기존 동작 허용
+ * @returns {boolean} true: 정상 진행 / false: 동작 차단
+ */
+function PreviewMaintenanceGuard() {
+
+    // 점검 시간 설정 (월: 0부터 시작)
+    var MaintenanceStart = new Date(2026, 0, 28, 18, 0);   // 1/28 18:00
+    var MaintenanceEnd   = new Date(2026, 0, 28, 20, 30);  // 1/28 20:30
+
+    // 현재 시간
+    var Now = new Date();
+
+    // 점검 시간 여부 판단
+    if (Now >= MaintenanceStart && Now <= MaintenanceEnd) {
+
+        alert(
+            "이용에 불편을 드려 죄송합니다.\n\n" +
+            "현재 네트워크 점검 작업으로 인해\n" +
+            "미리보기/미리듣기 서비스가 일시 중단되었습니다.\n\n" +
+            "점검 시간: 1/28(수) 18:00 ~ 20:30\n" +
+            "(약 2시간 30분 소요 예정)"
+        );
+
+        return false; // href, 기존 onclick 모두 차단
+    }
+
+    return true; // 정상 동작
+}
+
+/**
+ * 오디오북 미리듣기 팝업 오픈 (화면 중앙)
+ */
+function PreviewAudioBook(goodsNo) {
+
+    var popupWidth = 300;
+    var popupHeight = 400;
+
+    // 현재 브라우저 기준 위치 계산
+    var dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top;
+
+    var windowWidth = window.innerWidth
+        ? window.innerWidth
+        : document.documentElement.clientWidth
+            ? document.documentElement.clientWidth
+            : screen.width;
+
+    var windowHeight = window.innerHeight
+        ? window.innerHeight
+        : document.documentElement.clientHeight
+            ? document.documentElement.clientHeight
+            : screen.height;
+
+    // 중앙 좌표 계산
+    var left = ((windowWidth - popupWidth) / 2) + dualScreenLeft;
+    var top = ((windowHeight - popupHeight) / 2) + dualScreenTop;
+
+    window.open(
+        FRONT_API_URL + '/Module/Preview?goodsNo=' + goodsNo,
+        '_blank',
+        'width=' + popupWidth +
+        ',height=' + popupHeight +
+        ',top=' + top +
+        ',left=' + left +
+        ',scrollbars=yes'
+    );
+
+    return false;
+}
+
+
+/**
+ * 디스크 클릭 시 점검 여부를 확인하고 재생을 처리한다
+ * @param {HTMLElement} element 클릭된 a 태그
+ * @returns {boolean} false 반환으로 기본 동작 차단
+ */
+function OnDiscClick(element) {
+    if (!PreviewMaintenanceGuard()) {
+        return false;
+    }
+
+    discPlay(element);
+    return false;
+}
+
+// 현재 시간을 yyyy-MM-ddTHH:mm:ss+09:00 형식으로 반환
+function nowIsoWithLocalOffset() {
+  var d = new Date();
+  function pad(n){ return ('0' + n).slice(-2); }
+
+  var tzMin = -d.getTimezoneOffset();        // 분 단위 오프셋 (한국이면 540)
+  var sign  = tzMin >= 0 ? '+' : '-';
+  var abs   = Math.abs(tzMin);
+  var hh    = pad(Math.floor(abs / 60));
+  var mm    = pad(abs % 60);
+
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) +
+         'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) +
+         sign + hh + ':' + mm;
+}
+
+/**
+ * 브레이즈 회원가입 완료 로그 전송 함수
+ * @param {Object} userData - 회원가입 정보
+ * @param {boolean} userData.isFriendtalkYn - 카카오 알림톡 수신 동의 여부
+ * @param {boolean} userData.isSmsYn - SMS 수신 동의 여부
+ * @param {boolean} userData.isEmail - 이메일 수신 동의 여부
+ * @param {string} userData.regDate - 가입일자 (YYYY-MM-DD)
+ * @param {string} userData.gender - 성별 (M/F)
+ * @param {string} userData.birthDM - 생년월일 (YYYY-MM-00)
+ * @param {boolean} userData.isIpinCheck - 본인인증 여부
+ * @param {string} userData.address - 도로명 주소
+ * @param {string} userData.sigup_type - 가입 경로 (naver|kakao|apple|facebook|simple|mobile|pc|usedstore)
+ * @param {string} userData.platform - 접속 플랫폼 (yes24_web)
+*/
+function initBrazeSignup(userData) {
+    if (typeof brazeHelper === "undefined") {
+        console.warn("brazeHelper is not defined.");
+        return;
+    }
+    
+    // 사용자 속성 설정
+    brazeHelper.setBrazeUser("$dateOfBirth", userData.birthDM);
+    brazeHelper.setBrazeUser("$gender", userData.gender);
+    brazeHelper.setBrazeUser("YS_mkt_sms_agree", userData.isSmsYn);
+    brazeHelper.setBrazeUser("YS_mkt_kakao_agree", userData.isFriendtalkYn);
+    brazeHelper.setBrazeUser("YS_mkt_email_agree", userData.isEmail);
+    brazeHelper.setBrazeUser("YS_signup_date", userData.regDate);
+    brazeHelper.setBrazeUser("YS_is_adult_verified", false);
+    brazeHelper.setBrazeUser("YS_mania_grade", "일반");
+    brazeHelper.setBrazeUser("YS_is_identity_verified", userData.isIpinCheck);
+    brazeHelper.setBrazeUser("YS_address", userData.address);
+
+    // 회원가입 완료 로그 전송
+    brazeHelper.setBrazeLog("signup_completed", {
+        is_email_optin: userData.isEmail,
+        is_sms_optin: userData.isSmsYn,
+        is_kakao_optin: userData.isFriendtalkYn,
+        signup_type: userData.sigup_type,
+        platform: userData.platform
+    });
+}
+
+//이북앱(PC뷰어) 접속 여부
+function checkYesAppEbook() {
+    var userAgent = navigator.userAgent || "";
+    return userAgent.toUpperCase().indexOf("YESAPPEBOOK") > -1;
+}
+
+frontCommonWaitUntilJqueryReady();
+
+/**
+ * 프론트 API 장바구니 관련 모듈
+ */
+var frontApiCart = (function () {
+    var _frontApiUrl = (function () {
+        var url = "";
+
+        if (typeof YesData !== "undefined"
+            && YesData
+            && typeof YesData.FRONT_API_URL === "function") {
+            url = YesData.FRONT_API_URL();
+
+            if (url) {
+                return url;
+            }
+        }
+
+        if (typeof FRONT_API_URL !== "undefined" && FRONT_API_URL) {
+            return FRONT_API_URL;
+        }
+
+        return "https://frontapi.yes24.com";
+    })();
+
+    var API_URL = _frontApiUrl + '/api/goods/cart';
+    var DEFAULT_SUCCESS_MESSAGE = '카트담기에 성공하였습니다.';
+    var DEFAULT_ERROR_MESSAGE = '카트담기에 실패하였습니다.';
+    var INVALID_CART_ITEMS_MESSAGE = '상품 정보가 올바르지 않습니다.';
+    var INVALID_GOODS_NO_MESSAGE = '상품번호가 올바르지 않습니다.';
+    var TIMEOUT_ERROR_MESSAGE = '요청 시간이 초과되었습니다.';
+    var REQUEST_TIMEOUT = 10000;
+
+    async function addCart(cartItems) {
+        var items = normalizeCartItems(cartItems);
+        var payload = [];
+        var controller = new AbortController();
+        var timeoutId = null;
+        var response;
+        var result;
+        var checkResult;
+        var cartResponse;
+        var i;
+        var item;
+        var qty;
+
+        if (!items.length) {
+            throw createError(INVALID_CART_ITEMS_MESSAGE, { cartItems: cartItems });
+        }
+
+        for (i = 0; i < items.length; i++) {
+            item = items[i];
+
+            if (!item || item.goodsNo == null || item.goodsNo === '') {
+                throw createError(INVALID_GOODS_NO_MESSAGE, { item: item, index: i });
+            }
+
+            qty = parseInt(item.qty, 10);
+            if (isNaN(qty) || qty < 1) {
+                qty = 1;
+            }
+
+            payload.push({
+                goodsNo: String(item.goodsNo),
+                qty: qty
+            });
+        }
+
+        timeoutId = setTimeout(function () {
+            controller.abort();
+        }, REQUEST_TIMEOUT);
+
+        try {
+            response = await fetch(API_URL, {
+                method: 'POST',
+                credentials: 'include',
+                headers: buildHeaders(),
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+
+            result = await readJson(response);
+
+            if (!response.ok) {
+                throw createError(
+                    (result && result.message) || DEFAULT_ERROR_MESSAGE,
+                    { response: response, result: result }
+                );
+            }
+
+            checkResult = result && result.CheckResult;
+            cartResponse = result && result.CartResponse;
+
+            if (!checkResult || !checkResult.IsSuccess) {
+                throw createError(
+                    extractCheckResultMessage(checkResult) || DEFAULT_ERROR_MESSAGE,
+                    result
+                );
+            }
+
+            if (!cartResponse || !cartResponse.IsSuccess) {
+                throw createError(
+                    (cartResponse && cartResponse.ResultMessage) || DEFAULT_ERROR_MESSAGE,
+                    result
+                );
+            }
+
+            return result;
+        } catch (error) {
+            if (error && error.name === 'AbortError') {
+                throw createError(TIMEOUT_ERROR_MESSAGE, { error: error });
+            }
+
+            if (error && error.message && error.detail) {
+                throw error;
+            }
+
+            throw createError(DEFAULT_ERROR_MESSAGE, { error: error });
+        } finally {
+            clearTimeout(timeoutId);
+        }
+    }
+
+    function buildHeaders() {
+        var cartNo = getCookie('CART_NO');
+        var serviceCookies = getCookie('ServiceCookies');
+        var headers = {
+            'Content-Type': 'application/json; charset=utf-8'
+        };
+
+        if (cartNo) {
+            headers['X-Cart-No'] = cartNo;
+        }
+
+        if (serviceCookies) {
+            headers['X-Service-Cookies'] = serviceCookies;
+        }
+
+        return headers;
+    }
+
+    function normalizeCartItems(value) {
+        if (value == null) {
+            return [];
+        }
+
+        if (typeof value === 'string' || typeof value === 'number') {
+            return [{ goodsNo: value, qty: 1 }];
+        }
+
+        if (Object.prototype.toString.call(value) === '[object Array]') {
+            return value;
+        }
+
+        if (typeof value === 'object') {
+            return [value];
+        }
+
+        return [];
+    }
+
+    function extractCheckResultMessage(checkResult) {
+        var list = checkResult && checkResult.ResultList;
+        var i;
+
+        if (!list || !list.length) {
+            return null;
+        }
+
+        for (i = 0; i < list.length; i++) {
+            if (list[i] && list[i].ErrorMsg) {
+                return list[i].ErrorMsg;
+            }
+        }
+
+        return null;
+    }
+
+    function getCookie(name) {
+        var cookieString = document.cookie || '';
+        var cookies = cookieString ? cookieString.split('; ') : [];
+        var prefix = name + '=';
+        var i;
+
+        for (i = 0; i < cookies.length; i++) {
+            if (cookies[i].indexOf(prefix) === 0) {
+                return decodeURIComponent(cookies[i].substring(prefix.length));
+            }
+        }
+
+        return '';
+    }
+
+    async function readJson(response) {
+        var text = await response.text();
+
+        if (!text) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            return {
+                message: text,
+                rawText: text
+            };
+        }
+    }
+
+    function createError(message, detail) {
+        var error = new Error(message);
+        error.detail = detail;
+        return error;
+    }
+
+    return {
+        addCart: addCart,
+        messages: {
+            defaultSuccess: DEFAULT_SUCCESS_MESSAGE,
+            defaultError: DEFAULT_ERROR_MESSAGE,
+            invalidCartItems: INVALID_CART_ITEMS_MESSAGE,
+            invalidGoodsNo: INVALID_GOODS_NO_MESSAGE,
+            timeout: TIMEOUT_ERROR_MESSAGE
+        }
+    };
+})();

@@ -1,0 +1,171 @@
+﻿$("#successContents").hide();
+
+function checkFail() {
+    if ($("#failYn").val() == "Y") {
+        popupHideByUrlByJquery('divBannerLayer');
+        couponError($("#resultCode").val());
+    }
+    else {
+        alert('tttt');
+    }
+}
+
+function failYnCheck() {
+    if ($("#failYn").val() == "Y") {
+        popupHideByUrlByJquery('divBannerLayer');
+        couponError($("#resultCode").val());
+    }
+}
+
+function sendAll() {
+    //쿠폰모두받기
+    var counter = 0;
+    var loop = 0;
+    var hasCounter = 0;
+    $("input[type='checkbox']").each(function () {
+        if ($(this).attr("isHas") == "N") {
+            $(this).prop("checked", true);
+        }
+    });
+    $("input[type='checkbox']").each(function () {
+        if ($(this).attr("iscouponcheck") == "Y") {
+            if ($(this).prop("checked") == true && $(this).attr("isHas") == "N") {
+                counter += 1;
+            }
+            else if ($(this).attr("isHas") == "Y") {
+                hasCounter += 1;
+            }
+            loop += 1;
+        }
+    });
+    if (counter == 0 && (hasCounter < loop)) {
+        alert('쿠폰을 선택해주세요');
+        return;
+    }
+    else if (counter == 0 && (hasCounter == loop)) {
+        alert("이미 발급 받은 쿠폰입니다.");
+        return;
+    }
+    $.post("/Coupon/CouponDownByN", $('#form1').serialize(), function (result) {
+        if (result == "success") {
+            //popupHideByUrlByJquery('divBannerLayer');
+            //popupShowByUrl('/Coupon/DownSuccessByN');
+            $.post("/Coupon/DownSuccessByN", function (result) {
+                $("#multiCheckLayer").hide();
+                $("#successContents").html(result);
+                $("#successContents").show();
+                window.location = window.location + "#successContents";
+            });
+        }
+        else if (result == "limiterr") {
+            popupHideByUrlByJquery('divBannerLayer');
+            alert("해당 쿠폰은 한정수량쿠폰으로 \n선착순 마감되었습니다.\n다음 기회에 이용해주세요.");
+        }
+        else if (result == "systemerr") {
+            popupHideByUrlByJquery('divBannerLayer');
+            alert("죄송합니다. \n쿠폰을 다시 다운 받아주세요.");
+        }
+        else if (result == "usederr") {
+            popupHideByUrlByJquery('divBannerLayer');
+            alert("이미 발급 받은 쿠폰입니다.");
+        }
+    })
+}
+    
+function sendCheck() {
+    //선택한쿠폰받기
+    var counter = 0;
+    var loop = 0;
+    var hasCounter = 0;
+
+    $("input[type='checkbox']").each(function () {
+        if ($(this).attr("iscouponcheck") == "Y") {
+            if ($(this).prop("checked") == true && $(this).attr("isHas") == "N") {
+                counter += 1;
+            }
+            else if ($(this).attr("isHas") == "Y") {
+                hasCounter += 1;
+            }
+            loop += 1;
+        }
+    });
+    if (counter == 0 && (hasCounter < loop)) {
+        alert('쿠폰을 선택해주세요');
+        return;
+    }
+    else if (counter == 0 && (hasCounter == loop)) {
+        alert("이미 발급 받은 쿠폰입니다.");
+        return;
+    }
+    else {
+        $.post("/Coupon/CouponDownByN", $('#form1').serialize(), function (result) {
+            if (result == "success") {
+                //popupHideByUrlByJquery('divBannerLayer');
+                //popupShowByUrl('/Coupon/DownSuccessByN');
+                $.get("/Coupon/DownSuccessByN", function (result) {
+                    $("#multiCheckLayer").hide();
+                    $("#successContents").html(result);
+                    $("#successContents").show();
+
+                    var currentLocation = location.href;
+                    location.href = (currentLocation.indexOf("#successContents") > -1) ? currentLocation : currentLocation + "#successContents";
+                });
+            }
+            else if (result == "limiterr") {
+                popupHideByUrlByJquery('divBannerLayer');
+                alert("해당 쿠폰은 한정수량쿠폰으로 선착순 /n마감되었습니다./n다음 기회에 이용해주세요.");
+            }
+            else if (result == "systemerr") {
+                popupHideByUrlByJquery('divBannerLayer');
+                alert("죄송합니다. /n쿠폰을 다시 다운 받아주세요.");
+            }
+            else if (result == "usederr") {
+                popupHideByUrlByJquery('divBannerLayer');
+                alert("이미 발급 받은 쿠폰입니다.");
+            }
+        })
+    }
+}
+
+function chkGooodsCouponV() {
+    var check = $("#chkGooodsCoupon").prop("checked");
+    
+    $("#chkGooodsCoupon").prop("checked", false);
+        ///상품별할인쿠폰
+        $("input[type='checkbox']").each(function () {
+            var coupGb = $(this).attr("altkey");
+            var disabled = $(this).prop("disabled");
+            if (coupGb == "goods" && disabled == false) {
+                if (check == true) { $("#chkGooodsCoupon").prop("checked", check);}
+                $(this).prop("checked", check);
+            }
+        });
+    }
+
+function chkNoGoodsCouponV() {
+    ///주문금액별할인쿠폰
+    var check = $("#chkNoGoodsCoupon").prop("checked");
+    $("input[type='checkbox']").each(function () {
+        var coupGb = $(this).attr("altkey");
+        var disabled = $(this).prop("disabled");
+        if (coupGb == "nogoods" && disabled == false) {
+            $(this).prop("checked", check);
+        }
+    });
+}
+
+function chkMkCouponV() {
+    ///플러스쿠폰
+    var check = $("#chkMkCoupon").prop("checked");
+    $("input[type='checkbox']").each(function () {
+        var coupGb = $(this).attr("altkey");
+        var disabled = $(this).prop("disabled");
+        if (coupGb == "plus" && disabled == false) {
+            $(this).prop("checked", check);
+        }
+    });
+}
+
+function couponListHide() {
+    $("couponList").hide();
+}

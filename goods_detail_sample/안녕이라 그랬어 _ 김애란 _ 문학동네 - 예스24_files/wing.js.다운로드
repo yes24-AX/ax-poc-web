@@ -1,0 +1,718 @@
+﻿﻿var current_url = window.location.href;
+﻿var _MOBILE_URL = MOBILE_URL;
+var isPaymentSite = false;
+var protocol = window.location.protocol;
+var href = document.location.href.toLowerCase();
+
+// 모바일 웹인지 결재웹인지 체크
+var protocol = window.location.protocol;
+var href = document.location.href.toLowerCase();
+
+if (href.indexOf('?') > 0)
+    href = href.substring(0, href.indexOf('?'));
+
+// 결제
+if (href.indexOf(PAYMENT_HTTP_URL.replace('http://', '').replace('https://', '').toLowerCase()) > 0){
+    isPaymentSite = true;
+    _MOBILE_URL = PAYMENT_HTTP_URL;
+}
+// https 체크
+else if (protocol == 'https:') {
+    _MOBILE_URL = MOBILE_HTTP_URL;
+}
+
+function openWingMenu(back) {
+    if (APP_GB == 'YES24' && IS_NATIVE_APPS) {
+        if (IS_UPDATE_APPS == 'Y') {
+            var param = USERNO != '' ? '&callfunction=greetingMsg();getFavoriteServiceArea();' : '';
+            if (IS_ANDROID) {
+              location.href = 'intent://openWingMenu?back=' + back + param+'#Intent;scheme=YES24;package=com.yes24.commerce;end';
+            }
+            else if (IS_IOS) {
+                location.href = 'YES24://openWingMenu?back=' + back + param;
+            }
+        } else {
+            var storeUrl = IS_IOS ? 'https://apps.apple.com/kr/app/yes24/id360051536' : 'https://play.google.com/store/apps/details?id=com.yes24.commerce&feature=search_result#?t=W251bGwsMSwyLDEsImNvbS55ZXMyNC5jb21tZXJjZSJd';
+            alert('YES24 APP을 최신 버전으로 업데이트해 주세요.');
+            location.href = storeUrl;
+        }
+    }
+    else {
+      // 웹에서 윙메뉴가 닫힐 때 이동할 이전 페이지 셋팅
+      // 즐겨찾는 서비스 편집 페이지는 예외처리
+      var current_page = location.href;
+      if (current_page.toLowerCase().indexOf("editfavoriteservice") < 0){
+          setCookie('wingPreviousPage', current_page, 7);
+      }
+
+      location.href = MOBILE_URL + "/Home/Wing";
+    }
+}
+
+function closeWingMenu() {
+    if (APP_GB == 'YES24' && IS_UPDATE_APPS == 'Y') {
+        if (IS_ANDROID) {
+          location.href = 'intent://closeWingMenu#Intent;scheme=YES24;package=com.yes24.commerce;end';
+        }
+        else if (IS_IOS) {
+            location.href = 'YES24://closeWingMenu';
+        }
+        //$('#wingLoadingdiv').show(); ↓ 로딩 대신 빈 화면으로 대체
+        $('#yesWing').remove();
+    }
+    else {
+      if (document.referrer.toLowerCase().indexOf('home/editfavoriteservice') > -1 && window.history.length > 3) {
+          history.go(-3);
+      } else {
+          if (window.history.length > 1){
+              history.go(-1);
+          } else {
+              location.href = MOBILE_URL;
+          }
+      }
+    }
+    window.setTimeout(function () {
+        sclTop($("#yesWing"), null, 0);
+    }, 150);
+}
+
+//윙메뉴에서 링크 이동
+var moveLinkUrl = function (url, click_code) {
+    if (click_code) {
+        setMcode(click_code);
+    }
+
+    if (GetLocalStorageValue('clickMoreNewUsed') == "Y") {
+        RemoveLocalStorageValue('clickMoreNewUsed');
+    }
+
+    if (APP_GB == 'YES24' && IS_UPDATE_APPS == 'Y' && url.toLowerCase().indexOf("javascript:") < 0) {
+        
+        if (IS_ANDROID) {
+          location.href = 'intent://moveLinkUrl?url=' + url + '#Intent;scheme=YES24;package=com.yes24.commerce;end';
+        }
+        else if (IS_IOS) {
+            location.href = 'YES24://moveLinkUrl?url=' + url;
+        }
+
+        //$('#wingLoadingdiv').show(); ↓ 로딩 대신 빈 화면으로 대체
+        $('#yesWing').remove();
+    }
+    else {
+      location.href = url;
+    }
+
+    window.setTimeout(function () {
+        sclTop($("#yesWing"), null, 0);
+    }, 150);
+}
+
+//윙메뉴에서 외부링크 이동
+var moveLinkOpenUrl = function (url) {
+    var strInfo = '';
+    var iosUrlScheme = '';
+    var andUrlScheme = '';
+
+    strInfo = '?url=' + escape(url);
+
+    iosUrlScheme = 'YES24://moveLinkUrl?url=YES24://OPENURL' + strInfo;
+    andUrlScheme = 'intent://OPENURL' + strInfo + '#Intent;scheme=YES24;package=com.yes24.commerce;end';
+
+    if (APP_GB == 'YES24' && IS_UPDATE_APPS == 'Y' && url.toLowerCase().indexOf("javascript:") < 0) {
+        if (IS_ANDROID) {
+            location.href = andUrlScheme;
+        } else if (IS_IOS) {
+            location.href = iosUrlScheme;
+        }
+    } else {
+        location.href = IS_ANDROID ? andUrlScheme : 'https://dl.yes24.com/oln1te';
+    }
+}
+
+//툴팁 박스 노출
+var greetingMsg = function () {
+    var getGreetingMsg = getCookie('greetingMsg');
+
+    if ((getGreetingMsg == null || getGreetingMsg == '' || getGreetingMsg != 'Y')) {
+
+        var chkTipHTML = '<span class="toolTip"><em class="txt">현재 고객님이 보유한 계좌정보를 확인하세요</em></span>';
+        $("#tTip_txt").html(chkTipHTML);
+        $("#tTip_cock").velocity({ properties: { opacity: 1 }, duration: 100 });
+        $("#tTip_txt").velocity({ properties: { opacity: 1 }, duration: 100 });
+        window.setTimeout(function () {
+            greetingMsgHide();
+        }, 4500);
+
+        setCookie('greetingMsg', 'Y', 1);
+    }
+}
+
+// 툴팁 박스 비노출
+var greetingMsgHide = function () {
+    $("#tTip_cock").velocity({ opacity: "0" }, { duration: 450 });
+    $("#tTip_txt").velocity({ opacity: "0" }, {
+        duration: 450, complete: function () {
+            $("#tTip_txt").css("display", "none");
+            $("#tTip_cock").css("display", "none");
+        }
+    });
+}
+
+//회원 계정 토글
+var toggleMemMInfo = function () {
+    var $doc = $("html, body");
+    $doc.stop().animate({ scrollTop: 0 }, 230, "easeInOutQuart");
+
+    $("#moreInfo").velocity("stop");
+
+    if ($("#memInfo").hasClass("moreOpen")) {
+        $("#memInfo").removeClass("moreOpenEnd");
+        $("#moreInfo").velocity({ height: "1px" }, {
+            duration: 230, delay: (200), complete: function () {
+                $("#memInfo").removeClass("moreOpen");
+                $("#memInfo").removeClass("cardOpen");
+            }
+        });
+    } else {
+        greetingMsgHide();
+        $("#memInfo").addClass("moreOpen");
+        $("#moreInfo").velocity({ height: $("#moreInfo .memInfoDetail").height() + "px" }, {
+            duration: 230, delay: (200), complete: function () {
+                $("#memInfo").addClass("moreOpenEnd");
+            }
+        });
+    }
+}
+
+//카드 토글
+var toggleCard = function () {
+    if ($("#memInfo").hasClass("cardOpen")) {
+        $("#memInfo").removeClass("cardOpen");
+    } else {
+        $("#memInfo").addClass("cardOpen");
+    }
+}
+
+//카테고리 펼치기/닫기
+var toggleCate = function (obj) {
+    var $doc = $("html, body");
+    var gap = $("#memInfo .memInfoTop").outerHeight() + parseInt($("#memInfo .memInfoTop").css("top"), 10);
+    var cock = '<img src="https://image.yes24.com/sysimage/mv2/wing/cock_ani.svg" border="0" alt="cock">';
+    $doc.stop().animate({ scrollTop: $("#cateNGrp").offset().top - gap }, 500, "easeInOutQuart");
+
+    var thisCNum = $(obj).attr("data-cate");
+    $("#cateNGrp").find(".cateTit").not(".tit_" + thisCNum).removeClass("cateOn");
+    $("#cateNGrp").find(".cateSub").removeClass("boxOn");
+    $("#cateNGrp").find(".cateSub .cockRow .cock").html("");
+
+    if ($(obj).parent().hasClass("cateOn"))
+    {
+        $(obj).parent().find(".cockRow .cock").html("");
+        $(obj).parent().removeClass("cateOn");
+    }
+    else
+    {
+        $(obj).parent().addClass("cateOn");
+        $(obj).parent().next(".cateSub").addClass("boxOn");
+        $(obj).parent().next(".cateSub").find(".cockRow .cock").html(cock);
+    }
+}
+
+var wingTab = function (wTp) {
+    
+    var $doc = $("html, body");
+    var gap = $("#memInfo .memInfoTop").outerHeight() + parseInt($("#memInfo .memInfoTop").css("top"), 10) + 10;
+
+    $("#tabWing li").removeClass("on");
+    $("#tab_" + wTp).addClass("on");
+
+    switch (wTp) {
+        case "cateN":
+            $("#favoGrp").hide();
+            $("#cateNGrp").show();
+            $("#yesFamily").show();
+            current_tab = 0;
+            break;
+        case "cateF":
+            $("#favoGrp").show();
+            $("#cateNGrp").hide();
+            $("#yesFamily").hide();
+            current_tab = 1;
+            break;
+    }
+
+    $doc.stop().animate({ scrollTop: $("#cateWing").offset().top - gap }, 500, "easeInOutQuart");
+}
+
+//즐겨찾기 탭 선택(분야/파트너샵/중고 단골가게)
+function chgFTab(obj, str) {
+    var $doc = $("html, body");
+    var gap = $("#memInfo .memInfoTop").outerHeight() + parseInt($("#memInfo .memInfoTop").css("top"), 10) + 10;
+    var tarObj = $(obj).parent();
+    var tarPObj = $(obj).parent().parent();
+
+    tarPObj.find("li").removeClass("selected");
+    tarObj.addClass("selected");
+
+    switch (str) {
+        case "cate":
+            $("#cateFGrp").show();
+            $("#shopFGrp").hide();
+            $("#uShopFGrp").hide();
+            setMcode('204_006_004');
+            break;
+        case "pShop":
+            $("#cateFGrp").hide();
+            $("#shopFGrp").show();
+            $("#uShopFGrp").hide();
+            setMcode('204_006_005');
+            break;
+        case "uShop":
+            $("#cateFGrp").hide();
+            $("#shopFGrp").hide();
+            $("#uShopFGrp").show();
+            setMcode('204_006_008');
+            break;
+    }
+
+    $doc.stop().animate({ scrollTop: $("#cateWing").offset().top - gap }, 500, "easeInOutQuart");
+}
+
+// 즐겨찾는 서비스 등록
+var setFavoriteServiceSave = function () {
+    var maxFavNo = ++$("div#favServLi .wingMnuLi > ul > li.chkOn").length;
+    if (maxFavNo > 0) {
+        var fav_no = '';
+        var fav_id = '';
+
+        $("div#favServLi .wingMnuLi > ul > li.chkOn").each(function (idx, item) {
+            var $item = $(item);
+            fav_no += $item.data("fav-no") + ',';
+            fav_id += $item.data("fav-id") + ',';
+        });
+
+        loadingShow();
+
+        $.ajax({
+            type: "POST",
+            data: { serviceSeq: fav_id.substr(0, fav_id.length - 1), dispSeq: fav_no.substr(0, fav_no.length - 1) },
+            url: '/Home/InsertMemberFavoriteService',
+            error: function (xhr, status, errorMsg) {
+                ajaxAlert(xhr, status, errorMsg);
+                loadingHide();
+            },
+            success: function (data) {
+                loadingHide();
+                if (data.IsLogin == false) {
+                    _returnUrl = _MOBILE_URL + '/Home/EditFavoriteService';
+                    basicDialog.confirm('알림', '로그인이 필요합니다.<br/>로그인 하시겠습니까?', '확인', '취소', _goLoginPage);
+                }
+                else if (data.IsSuccess) {
+                    oneBtnDialog.show('알림', '저장되었습니다.', '확인', 'javascript:openWingMenu(-1);');
+                    $("#iPopUpClose").on("click", function () {
+                        openWingMenu(-1);
+                    });
+                } else {
+                    oneBtnDialog.show('알림', '저장에 실패했습니다.<br>다시 한번 저장해 주세요.', '확인');
+                }
+            }
+        });
+    }
+}
+
+// 즐겨찾는 서비스 순서 변경
+var setChangeFavoriteServiceDisplay = function () {
+    var fav_id = '';
+    var fav_no = '';
+
+    $("#yesFavServ .servGird").each(function (idx, item) {
+        var $item = $(item);
+        fav_no += (idx+1) + ',';
+        fav_id += $item.data("fav-id") + ',';
+    });
+    //console.log(fav_id);
+    //console.log(fav_no);
+
+    loadingShow();
+
+    $.ajax({
+        type: "POST",
+                data: { serviceSeq: fav_id.substr(0, fav_id.length -1), dispSeq: fav_no.substr(0, fav_no.length -1)
+    },
+            url: '/Home/InsertMemberFavoriteService',
+            error: function (xhr, status, errorMsg) {
+            ajaxAlert(xhr, status, errorMsg);
+                loadingHide();
+    },
+            success: function (data) {
+                loadingHide();
+            if (data.IsSuccess) {
+                getFavoriteServiceArea();
+                //oneBtnDialog.show('알림', '저장 되었습니다.', '확인');
+            } else {
+                oneBtnDialog.show('알림', '저장에 실패했습니다.<br>다시 한번 저장해 주세요.', '확인');
+        }
+    }
+    });
+}
+
+// 즐겨찾는 서비스 영역 html 셋팅
+var getFavoriteServiceArea = function () {
+    $.ajax('/Home/FavoriteService', {
+        success: function (data) {
+            $("#memInfoFavServArea").html('');
+            $("#memInfoFavServArea").html(data);
+        }
+    });
+}
+
+// 즐겨찾는 파트너샵 영역 html 셋팅
+var getFavoritePartnerShopArea = function () {
+    $.ajax('/Home/FavoritePartnerShop', {
+        success: function (data) {
+            $("#shopFGrp").html('');
+            $("#shopFGrp").html(data);
+        }
+    });
+}
+
+//즐겨찾는 파트너샵 삭제
+var modifyFavPartnerShop = function (entr_no, select_yn) {
+    basicDialog.confirm('알림', '선택하신 즐겨찾는 샵을<br/>삭제하시겠습니까?', '예', '아니요', function () {
+        loadingShow();
+        ajaxNoCache();
+        $.post(
+            '/PartnerShop/UpdateFavoriteShop',
+            { entrNo: entr_no, selectYN: select_yn },
+            function (data) {
+                if (data.IsSuccess) {
+                    oneBtnDialog.callbackShow('알림', '즐겨찾는 샵이 삭제 되었습니다.', '확인', function () {
+                        getFavoritePartnerShopArea();
+                    });
+                }
+                else {
+                    var vMessage = data.Message != '' ? data.Message : "일시적인 시스템 오류가 발생하였습니다. 다시 시도해주세요.";
+                    oneBtnDialog.show('알림', vMessage, '확인');
+                }
+                loadingHide();
+            });
+    });
+}
+
+// 즐겨찾는 중고 단골가게 영역 html 셋팅
+var getFavoriteUsedShopArea = function () {
+    $.ajax('/Home/FavoriteUsedShop', {
+        success: function (data) {
+            $("#uShopFGrp").html('');
+            $("#uShopFGrp").html(data);
+        }
+    });
+}
+
+// 즐겨찾는 중고 단골가게 삭제
+var delFavUsedShop = function (entr_no) {
+    basicDialog.confirm('알림', '선택하신 중고 단골가게를<br/>삭제하시겠습니까?', '예', '아니요', function () {
+        loadingShow();
+        ajaxNoCache();
+        $.post(
+            '/UsedShop/DelSellerFavo',
+            { entrNo: entr_no },
+            function (data) {
+                if (data.IsSuccess) {
+                    oneBtnDialog.callbackShow('알림', '중고 단골가게가 삭제 되었습니다.', '확인', function () {
+                        getFavoriteUsedShopArea();
+                    });
+                }
+                else {
+                    var vMessage = data.Message != '' ? data.Message : "일시적인 시스템 오류가 발생하였습니다. 다시 시도해주세요.";
+                    oneBtnDialog.callbackShow('알림', vMessage, '확인', function () {
+                        getFavoriteUsedShopArea();
+                    });
+                }
+                loadingHide();
+            });
+    });
+}
+
+//알람갯수 영역 세팅
+var setAlarmCnt = function (cnt) {
+    if (typeof cnt !== 'undefined') {
+        if (cnt > 0) {
+            if (cnt > 99) {
+                cnt = 99;
+            }
+            var alarm_cnt_html = String.Format('<em id="alarm_cnt" class="num">{0}</em>', cnt);
+            $("#alarm_area").append(alarm_cnt_html);
+
+            if (cnt > 0) {
+                $("#alarm_area").addClass("alarmOn");
+            }
+            
+        } else {
+            $("#alarm_area").removeClass("alarmOn");
+            $("#alarm_cnt.num").remove();
+        }
+    }
+}
+
+var setGnbAlarmCnt = function (cnt) {
+    if (typeof cnt !== 'undefined') {
+        if (cnt > 0) {
+            if (cnt > 99) {
+                cnt = 99;
+            }
+            $("#botAlarmImg").addClass("aniAlarmImg");
+            $("#botAlarmCnt").html(cnt);
+            $("#botAlarmCnt").attr('style','');
+        } else {
+            $("#botAlarmImg").removeClass("aniAlarmImg");
+            $("#alarm_cnt").remove();
+            $("#botAlarmCnt").attr('style', 'display:none;');
+        }
+    }
+}
+
+//로그인 페이지 이동
+var redirectLoginPage = function (click_code) {
+    var return_url = location.href;
+    var redirect_url = MOBILE_HTTP_URL + "/Momo/Templates/FTLogin.aspx?ReturnURL=";
+
+    setMcode(click_code);
+
+    //앱스키마 전송
+    if (APP_GB == 'YES24' && IS_UPDATE_APPS == 'Y') {
+        if (IS_ANDROID) {
+          location.href = 'intent://moveLinkUrl?url=' + redirect_url + '#Intent;scheme=YES24;package=com.yes24.commerce;end';
+        }
+        else if (IS_IOS) {
+            location.href = 'YES24://moveLinkUrl?url=' +redirect_url;
+        }
+
+        //$('#wingLoadingdiv').show(); ↓ 로딩 대신 빈 화면으로 대체
+        $('#yesWing').remove();
+    }
+    else {
+      location.href = redirect_url;
+    }
+
+    window.setTimeout(function () {
+        sclTop($("#yesWing"), null, 0);
+    }, 150);
+}
+
+/*
+    로그아웃 페이지 이동
+    웹과 앱 상관없이 동일하게 동작
+    (로그아웃 페이지 이동 후, 현재 페이지로 다시 돌아 옴)
+*/
+var redirectLogout = function (click_code) {
+    var return_url = location.href;
+    var redirect_url = MOBILE_HTTP_URL + "/Momo/Templates/FTLogOut.aspx?ReturnURL=" +MOBILE_HTTP_URL;
+
+    setMcode(click_code);
+
+    //앱스키마 전송
+    if (APP_GB == 'YES24' && IS_UPDATE_APPS == 'Y') {
+        if (IS_ANDROID) {
+          location.href = 'intent://moveLinkUrl?url=' + redirect_url + '#Intent;scheme=YES24;package=com.yes24.commerce;end';
+        }
+        else if (IS_IOS) {
+            location.href = 'YES24://moveLinkUrl?url=' + redirect_url;
+        }
+
+        //$('#wingLoadingdiv').show(); ↓ 로딩 대신 빈 화면으로 대체
+        $('#yesWing').remove();
+    }
+    else {
+      location.href = redirect_url;
+    }
+
+    window.setTimeout(function () {
+        sclTop($("#yesWing"), null, 0);
+    }, 150);
+}
+
+// 즐겨찾기 삭제 클릭
+var favoliteDel = function (obj) {
+    var tarObj = $(obj).parent();
+    var id = $(obj).attr("id");
+    _dispNo = id;
+    removeFavorite(id);
+}
+
+// 즐겨찾기 영역 새로고침
+var refreshFavorite = function () {
+    $.ajax(MOBILE_URL + '/home/ReloadFavoriteCategory',
+            {
+                dataType: 'jsonp',
+                success: function (data) {
+                    $("#cateFGrp").html(data.html);
+                }
+            }
+    ).fail(function (xhr, status, errorMsg) {
+        alert(errorMsg);
+    });
+}
+
+// 즐겨찾기 공통 변수
+var _dispNo, _url;
+var _callback = null;
+var _failCallback = null;
+
+// 즐겨찾기 추가
+var addFavorite = function (dispNo, url, callback, failCallback) {
+    _dispNo = dispNo;
+    _url = url;
+    _callback = callback;
+    _failCallback = failCallback;
+
+    if (!check_login()) {
+        basicDialog.confirm('알림', '즐겨찾기는 로그인 후 이용할 수 있습니다.<br/>로그인 하시겠습니까?', '확인', '취소', goLoginPage);
+    }
+    else {
+        addFavoriteAjax(dispNo, url, callback, failCallback);
+    }
+    return;
+}
+
+// Post로 즐겨찾기 서버로 전송
+var addFavoriteAjax = function (dispNo, url, callback, failCallback){
+    var ajax_url = getMoblieFavoriteUrl("/Main/AddFavorite");
+
+    // 포스트 방식으로 Json 요청
+    $.post(ajax_url,
+            { dispNo: dispNo, favoriteurl: url },
+            function (data) {
+                data = convertJSON(data);
+                if (data.IsSuccess) {
+                    refreshFavorite();
+
+                    // callback 함수가 정의 된경우 실행
+                    if (callback != null && callback != undefined)
+                        callback();
+                }
+                else {
+                    // failCallback 함수가 정의 된경우 실행
+                    if (failCallback != null && failCallback != undefined)
+                        failCallback();
+                    else                        
+                        oneBtnDialog.show('알림', '인터넷연결이 원활하지 않습니다.<br/>다시 한번 시도 해주세요', '확인');
+                }
+            },
+            "json");
+}
+
+// 즐겨찾기 삭제 
+var removeFavorite = function (dispNo, callback, failCallback) {
+    _dispNo = dispNo;
+    _callback = callback;
+    _failCallback = failCallback;
+
+    basicDialog.confirm("알림", "선택하신 즐겨찾는 분야를 <br/> 삭제하시겠습니까?", "예", "아니요", removeFavoriteAjax);
+}
+
+//즐겨찾는 분야 URL 조회
+var getMoblieFavoriteUrl = function (url) {
+    var protocol = window.location.protocol;
+    var _url = _MOBILE_URL + url;
+    if (isPaymentSite) {
+        _url = _MOBILE_URL + '/ProxyMobile/Execute?url='
+        _url += escape(MOBILE_HTTP_URL + url) + "&isPost=true";
+    }
+    return _url;
+}
+
+// 즐겨찾기 삭제 AJAX
+var removeFavoriteAjax = function () {
+    loadingShow();
+
+    var url = getMoblieFavoriteUrl("/Main/RemoveFavorite");
+    var currentUrl = protocol + "//" + window.location.host;
+
+    // 포스트 방식으로 Json 요청
+    $.ajax({
+        url: url,
+        data: { dispNo: _dispNo, currentUrl: currentUrl },
+        type: "POST",
+        xhrFields: {
+            withCredentials: true
+        },
+        crossDomain: true,
+        success: function (data) {
+            data = convertJSON(data);
+            if (data.IsSuccess) {
+                refreshFavorite();
+
+                // callback 함수가 정의 된경우 실행
+                if (_callback != null && _callback != undefined)
+                    _callback();
+            }
+            else {
+                oneBtnDialog.show('알림', '인터넷연결이 원활하지 않습니다.\n다시 한번 시도 해주세요', '확인');
+            }
+        },
+        fail: function (xhr, status, errorMsg) {
+            ajaxAlert(xhr, status, errorMsg);
+        }
+    });
+
+    loadingHide(); // 로딩 화면 삭제
+}
+
+// JSON 여부 판단후 변환후 반환
+var convertJSON = function (data) {
+    var jsonData = data;
+    if (typeof (data) == "string") {
+        jsonData = $.parseJSON(data);
+    }
+    return jsonData;
+}
+
+// 즐겨찾기 영역 새로고침
+var refreshWing = function () {
+    //// 즐겨찾는 서비스
+    //getFavoriteServiceArea();
+    //// 즐겨찾는 분야
+    //refreshFavorite();
+
+    $.ajax(MOBILE_HTTP_URL + '/home/WingToHtmlText', {
+        dataType: 'jsonp',
+        success: function (data) {
+            var winghtml = data.html;
+
+            var yesFavServ = $(winghtml).find("#yesFavServ");
+            $("#yesFavServ").html(yesFavServ.html());
+
+            var cateFGrp = $(winghtml).find("#cateFGrp");
+            $("#cateFGrp").html(cateFGrp.html());
+
+            var recentScl = $(winghtml).find("#recentScl");
+            $("#recentScl").html(recentScl.html());
+        }
+    }).fail(function (xhr, status, errorMsg) {
+        alert(errorMsg);
+    }).always(function () { 
+    });
+}
+
+
+var goSubMenu = function (categoryNo) {
+    if (categoryNo != null && categoryNo != '') {
+        var header = MOBILE_URL;
+        if (header.indexOf('https://') >= 0) {
+            try {
+                header = header.split(':')[0] + ':' + header.split(':')[1];
+            } catch (e) { }
+        }
+
+        if (categoryNo.indexOf('018') == 0) {
+            document.location.href = header + '/Category/DisplayUsed/' + categoryNo;
+        }
+        else if (categoryNo.indexOf('981') == 0) {
+            document.location.href = 'http://m.fashion.yes24.com/Category/' + categoryNo;
+        }
+        else {
+            document.location.href = header + '/category/display/' + categoryNo;
+        }
+    }
+}

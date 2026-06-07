@@ -1,0 +1,38 @@
+﻿var sourceAttribution = (() => {
+    var sourceTitle = '예스24';
+
+    function setSourceTitle(val) {
+        try {
+            if (typeof val === 'string') {
+                sourceTitle = val;
+            }
+        } catch (exception) { }
+    }
+
+    (function () {
+        document.addEventListener("copy", function (event) {
+            const selection = window.getSelection();
+            const selectedElement = selection.anchorNode?.parentElement;
+
+            // include-source-attribution 클래스가 있는 상위 요소를 찾음
+            const copySourceElement = selectedElement?.closest(".include-source-attribution");
+
+            // include-source-attribution 가 있으며, 하위에 exclude-source-attribution 가 없는 경우에만 출처를 추가
+            if (
+                copySourceElement &&
+                !selectedElement.closest(".exclude-source-attribution")
+            ) {
+                var selectedText = selection.toString();
+                var sourceUrl = window.location.href;
+                var textWithSource = `${selectedText}\n\n* 출처 : ${sourceTitle} <${sourceUrl}>`;
+
+                event.clipboardData.setData("text/plain", textWithSource);
+                event.preventDefault();
+            }
+        });
+    })();
+
+    return {
+        setSourceTitle,
+    };
+})();

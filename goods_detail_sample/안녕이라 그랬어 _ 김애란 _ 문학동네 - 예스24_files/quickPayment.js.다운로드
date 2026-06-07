@@ -1,0 +1,646 @@
+﻿//간편결제 팝업 노출
+function showQuickPayment() {
+    const params = [];
+    if (typeof multi_option_array === 'object') {
+        Object.keys(multi_option_array).forEach(key => {
+            const item = multi_option_array[key];
+            params.push(`quickPaymentGoods[${key}].Goods_No=${encodeURIComponent(g_GoodsNo)}`);
+            params.push(`quickPaymentGoods[${key}].Goods_Seq=${encodeURIComponent(item.goods_seq)}`);
+            params.push(`quickPaymentGoods[${key}].Goods_Cnt=${encodeURIComponent(item.count)}`);
+        });
+    } else {
+        params.push(`quickPaymentGoods[0].Goods_No=${encodeURIComponent(g_GoodsNo)}`);
+        params.push(`quickPaymentGoods[0].Goods_Seq=1`);
+        params.push(`quickPaymentGoods[0].Goods_Cnt=${encodeURIComponent($("*[name='ORD_CNT']").val())}`);
+    }
+
+    const formData = params.join("&");
+    const showQuickPaymentConfig = new RequestConfig({
+        domain: MOBILE_HTTP_URL,
+        url: "/Goods/QuickPayment",
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        bodyData: formData,
+        responseType: "text",
+        callback: setQuickPaymentDetail
+    })
+
+    fetchApi(showQuickPaymentConfig);
+
+    //토근생성
+    getQuickPaymentSignature();
+}
+
+//빠른결제 유효성검증 토큰 생성
+function getQuickPaymentSignature() {
+    const quickPaymentSignatureConfig = new RequestConfig({
+        domain: MOBILE_HTTP_URL,
+        url: "/Goods/getQuickPaymentSignature",
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        callback: getQuickPaymentMethod
+    })
+    fetchApi(quickPaymentSignatureConfig);
+}
+
+//간편결제 수단 조회
+function getQuickPaymentMethod(data) {
+    quickPaymentToken.Timestamp = data.Timestamp;
+    quickPaymentToken.Token = data.Token;
+    quickPaymentToken.Signature = data.Signature;
+
+    const quickPaymentMethodConfig = new RequestConfig({
+        domain: SSL_API_URL,
+        url: "/api/QuickPayment/GetMethods",
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-QuickPayment-Platform": "yes24"
+        },
+        bodyData: quickPaymentToken,
+        responseType: "json",
+        callback: renderQuickPaymentLayer,
+        timeout : 10000
+    })
+
+    fetchApi(quickPaymentMethodConfig);
+}
+
+//간편결제 수단 UI 생성
+function renderQuickPaymentLayer(response) {
+    if (response.IsSuccess) {
+        //간편결제 팝업 생성 대기
+        if ($("#sectionQuickPayment").length == 0) {
+            setTimeout(function () { renderQuickPaymentLayer(response); }, 200);
+            return;
+        }
+
+        if (!response || !response.IsSuccess || !response.ResultContents) {
+            sendQuickPaymentLog(response);
+        };
+
+        const $wrapper = $('#quickpayment-swiper-wrapper');
+
+        const methods = response.ResultContents.QuickPaymentMethods || [];
+        // PrimaryPaymentMethod가 true인 항목을 앞으로 정렬(즐겨찾기한 결제수단)
+        //methods.sort(function (a, b) {
+        //    return (b.PaymentMethod === 'EVENT') - (a.PaymentMethod === 'EVENT') ||
+        //        (b.PrimaryPaymentMethod === 'Y') - (a.PrimaryPaymentMethod === 'Y');
+        //});
+
+        //methods.sort(function (a, b) {
+        //    return (b.PaymentMethod === 'EVENT') - (a.PaymentMethod === 'EVENT') ||
+        //        (b.PrimaryPaymentMethod === 'Y') - (a.PrimaryPaymentMethod === 'Y');
+        //});
+
+        const installments = response.ResultContents.CardInstallments || [];
+        $wrapper.empty();
+
+        //카드별 할부정보
+        var cardInstallments = response.ResultContents.CardInstallments;
+
+        methods.forEach((method, idx) => {
+            let templateId = '';
+            let replacements = {
+                '{ARIA_LABEL}': `${idx + 1} / ${methods.length}`,
+                '{PRIMARY_CLASS}': method.PrimaryPaymentMethod === 'Y' ? 'primary' : '',
+                '{EVENT_BANNER}': getEventBannerHtml(method)
+            };
+
+            //if (method.PaymentMethod === 'EVENT') {
+            //    templateId = '#template-event';
+            //    replacements['{EVENT_LINK}'] = method.EventLink?.MobileLink || '';
+            //    replacements['{EVNET_IMG}'] = `https://image.yes24.com/sysimage/mv3/settle/bn_seypay.svg`;
+            //    replacements['{EVENT_TEXT}'] = method.EventInfo?.EventName || '';
+            //} else 
+            if (method.PaymentMethod === 'CARD') {
+                templateId = '#template-card';
+                replacements['{CARD_IMG}'] = method.CardImages?.Brand || method.CardImages?.Default;
+                replacements['{CARD_NAME}'] = method.CardInfo.CardPdName || '';
+                replacements['{CARD_NUM}'] = method.CardInfo.CardNo || '';
+                replacements['{CARD_WPAY_TOKEN}'] = method.CardInfo.CardWpayToken || '';
+                replacements['{CARD_ISACTIVE}'] = method.CardInfo?.IsActive || '';
+
+                if (method.CardInfo?.IsActive === 'Y') {
+                    // 매칭되는 할부정보 찾기
+                    let matchedInstallment = cardInstallments.find(ci => ci.CardCode === method.CardInfo.CardCode);
+                    // 할부 정보 전달
+                    replacements['{INSTALLMENT_HTML}'] = getInstallmentSelectHtml(method.CardInfo.CardCode, matchedInstallment || []);
+                    replacements['{ACTIVE_CLASS}'] = ''
+                    replacements['{DIMED_LABEL}'] = '';
+                } else {
+                    replacements['{ACTIVE_CLASS}'] = 'setDimed';
+                    replacements['{DIMED_LABEL}'] = `<div class="cardDimed"><span class="iconC dimed"> <em class="txt">사용불가</em></span></div >`;
+                }
+            }
+            //else if (method.PaymentMethod === 'BANK' && method.BankInfo?.IsActive === 'Y') {
+            //    templateId = '#template-bank';
+            //    replacements['{BANK_IMG}'] = method.BankImages?.Default || '';
+            //    replacements['{BANK_NAME}'] = method.BankInfo.BankName || '';
+            //    replacements['{BANK_NUM}'] = method.BankInfo.BankAccountNo || '';
+            //    replacements['{BANK_CODE}'] = method.BankInfo.BankCode || '';
+            //} else if (method.PaymentMethod === 'MOBILE' && method.MobileInfo?.IsActive === 'Y') {
+            //    templateId = '#template-mobile';
+            //    replacements['{MOBILE_IMG}'] = method.MobileImages?.Default || '';
+            //    replacements['{CARRIER_NAME}'] = method.MobileInfo.MobileCarrierName || '';
+            //    replacements['{PHONE_NUM}'] = method.MobileInfo.MobilePhoneNo || '';
+            //    replacements['{MOBILE_PHONE}'] = method.MobileInfo.MobilePhoneNoNoHyphen || '';
+            //}
+
+            if (templateId) {
+                let html = $(templateId).html();
+                for (let key in replacements) {
+                    html = html.replaceAll(key, replacements[key]);
+                }
+                $wrapper.append(html);
+            }
+        });
+
+        let seypaySwiper = new Swiper('#seypaySwiper', {
+            spaceBetween: -20,
+            pagination: false, // pager 여부
+            initialSlide: 0,
+            slidesPerView: 'auto',
+            centeredSlides: true,
+            on: {
+                slideChangeTransitionEnd: function (s) {
+                    onSeyPaySlideChange(s)
+                }
+            }
+        });
+
+        //스와이퍼 변경하지 않았을 때 즐겨찾기 카드 세팅
+        onSeyPaySlideChange(seypaySwiper);
+
+        //카드 이미지 가로/세로
+        $('#seypaySwiper .swiper-slide .cardImg img').each(function () {
+            const $img = $(this);
+            $img.on('load', function () {
+                const width = this.naturalWidth;
+                const height = this.naturalHeight;
+                if (width > height) {
+                    $img.parent().addClass('isHor'); // 클래스 추가
+                }
+            });
+            if (this.complete) {
+                $img.trigger('load');
+            }
+
+            // 이미지 로드 실패 시 대체 이미지로 변경
+            $img.on('error', function () {
+                $img.off('error'); // 무한 루프 방지
+                $img.attr('src', `${HTTPS_IMG_HOST_SYS}/Sysimage/mv3/settle/pay/pay_card_error.svg`);
+            });
+
+            // 캐시된 이미지도 이벤트 실행되도록
+            if (this.complete) {
+                $img.trigger('load');
+            }
+
+        });
+
+
+        //클릭으로 active 항목 변경
+        $('#seypaySwiper .swiper-slide').on('click', function () {
+            const index = $(this).index();
+            seypaySwiper.slideTo(index);
+            onSeyPaySlideChange(seypaySwiper);
+        });
+    } else {
+        sendQuickPaymentLog(response);
+    }
+}
+
+//결제수단 변경 시 quickPaymentMethod 값 할당
+function onSeyPaySlideChange(s) {
+    const $yPayMsg = $("#yPayMsg_phone");
+    const $activeSlide = $('.swiper-slide-active .seypaySet');
+
+    if ($activeSlide.hasClass('cardCorp_phone')) {
+        $yPayMsg.show();
+    } else {
+        $yPayMsg.hide();
+    }
+
+    const activeIndex = s.activeIndex;
+    const activePayToken = s.slides[activeIndex].dataset.paytoken;
+    const activePayMethod = s.slides[activeIndex].dataset.paymethod;
+    quickPaymentMethod.payMethod = activePayMethod;
+    quickPaymentMethod.payToken = activePayToken;
+    quickPaymentMethod.payActive = s.slides[activeIndex].dataset.payactive;
+
+    $('.settleMthdCon').removeClass('loading');
+}
+
+
+//간편결제수단 할부 조건 처리
+function getInstallmentSelectHtml(cardCode, installment) {
+    if (!installment || !installment.CardEventList || installment.CardEventList.length === 0) return '';
+
+    // 월별 최소 금액 정보 미리 정리
+    let monthEventMap = {};
+    installment.CardEventList.forEach(function (event) {
+        (event.Month || []).forEach(function (m) {
+            const key = parseInt(m, 10);
+            if (!monthEventMap[key] || (event.Amount && event.Amount > monthEventMap[key])) {
+                monthEventMap[key] = event.Amount || 0;
+            }
+        });
+    });
+
+    let disabledOpt = totalPrice < 50000 ? "disabled" : "";
+    // 옵션 구성
+    let options = `<label><span class="txt">일시불</span><select class="selTp01" id="installmentMonthSelect" onchange="setInstallmentMonths(this);" ${disabledOpt}>`;
+    options += `<option value="0" data-free-installment="N">일시불</option>`;
+
+    $.each([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], function (i, month) {
+        const amount = monthEventMap[month];
+        const freeInstallment = amount ? "Y" : "N";
+        let label = `${month}개월` + (freeInstallment == "Y" ? ` 무이자` : '');
+        options += `<option value="${month}" data-free-installment="${freeInstallment}">${label}</option>`;
+    });
+
+    options += `</select></label>`;
+    return options;
+}
+
+
+let cardQuota = 0; //할부 개월
+let cardInterest = "N"; //무이자 여부
+///할부 개월 수 변경
+function setInstallmentMonths(e) {
+    cardQuota = e.value;
+    cardInterest = e.options[e.selectedIndex].dataset.freeInstallment;
+
+    let prev = e.previousElementSibling;
+    if (prev) {
+        prev.textContent = e.options[e.selectedIndex].text; //노출 텍스트 수정
+    }
+}
+
+//간편결제수단:이벤트 이미지 배너 삽입
+function getEventBannerHtml(method) {
+    if (!method.EventImages?.Default || !method.EventLink?.PCLink) return '';
+    return `<a href="${method.EventLink.PCLink}" class="lnk_bn">
+                <img src="${method.EventImages.Default}" border="0" alt="이벤트 배너">
+            </a>`;
+}
+
+//유효성 검증 + PG사 화면 이동
+function validateQuickPayment() {
+    //결제 수단 ui가 다 그려졌을 때
+    if (!$('#seypaySwiper').parent().hasClass('loading')) {
+        if (quickPaymentMethod.payActive === "Y") {
+            const validateQuickPaymentConfig = new RequestConfig({
+                domain: SSL_API_URL,
+                url: "/api/QuickPayment/Validate",
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-QuickPayment-Platform": "yes24"
+                },
+                bodyData: getQuickPaymentData(),
+                responseType: "json",
+                callback: postToQuickPayment
+            })
+            //fetch 실행 중 재실행 요청 X
+            fetchApi(validateQuickPaymentConfig, false);
+        } else if (quickPaymentMethod.payActive === "N") {
+            oneBtnDialog.show('알림', '선택하신 카드는 현재 결제가 불가능합니다. 다른 카드를 선택해 주세요.', '확인');
+        } else {
+            oneBtnDialog.show('알림', '등록 된 카드를 선택해 주세요.', '확인');
+        }
+    }
+}
+
+//유효성 검증 request 파라미터 생성
+function getQuickPaymentData() {
+    const quantity = $("*[name='ORD_CNT']").val() || setTotalCountForQuickPaymentOptionGoods();
+   
+    //상품데이터 구성
+    const items = (typeof multi_option_array === "undefined")
+        ? [{
+            GoodsNo: parseInt(g_GoodsNo),
+            GoodsSeq: 1,
+            Quantity: parseInt(quantity),
+            Amount: g_SalePrice * quantity,
+            OptionMessage: typeof optionMessage == "undefined" ? '' : optionMessage
+        }]
+        : multi_option_array.map(function (item) {
+            return {
+                GoodsNo: g_GoodsNo,
+                GoodsSeq: item.goods_seq,
+                Quantity: item.count,
+                Amount: (parseInt(item.opt_salepr) + parseInt(g_SalePrice)) * item.count,
+                OptionMessage: item.option_message == undefined ? '' : item.option_message
+            };
+        });
+   
+    const requestQuickData = {
+        "Timestamp": quickPaymentToken.Timestamp,
+        "Token": quickPaymentToken.Token,
+        "Signature": quickPaymentToken.Signature,
+        "MethodInfo": {
+            "Method": quickPaymentMethod.payMethod,
+            "MethodToken": quickPaymentMethod.payToken,
+            "CardQuota": cardQuota,
+            "CardInterest": cardInterest
+        },
+        "Items": items,
+        "ShippingInfo": getShippingInfo(),
+        "ShippingFee": delvFee,
+        "TotalAmount": totalPrice + delvFee
+    }
+
+    return requestQuickData;
+}
+
+//빠른결제 실패 로그 적재
+function sendQuickPaymentLog(response) {
+    let errorBody = {};
+
+    try {
+        if (!response) {
+            errorBody = { message: "응답 없음" };
+        } else if (response instanceof TypeError) {
+            errorBody = {
+                name: response.name,
+                message: response.message,
+                stack: response.stack ?? null
+            };
+        } else if (!response.IsSuccess) {
+            errorBody = JSON.parse(JSON.stringify(response));
+        } else {
+            errorBody = {
+                status: response.status,
+                statusText: response.statusText,
+                url: response.url,
+                traceId: response.traceId ?? "",
+                message: response.message ?? "",
+                errors: response.errors ?? ""
+            };
+        }
+    } catch (e) {
+        let errorType = "UnknownError";
+        if (e instanceof TypeError) errorType = "TypeError";
+        else if (e instanceof ReferenceError) errorType = "ReferenceError";
+        else if (e instanceof SyntaxError) errorType = "SyntaxError";
+
+        errorBody = {
+            name: errorType,
+            message: e.message,
+            stack: e.stack ?? null
+        };
+    }
+
+    if (response.IsSuccess != true) {
+        const sendQuickPaymentLogConfig = new RequestConfig({
+            domain: _MOBILE_URL,
+            url: "/Goods/WriteQuickPaymentLog",
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            bodyData: {
+                sMessage: response.ResultCode ? response.ResultCode : response.message ? response.message : '',
+                iGoodsNo: g_GoodsNo,
+                sRequestData: JSON.stringify(getQuickPaymentData()),
+                sError: JSON.stringify(errorBody)
+            },
+            responseType: "text",
+            callback: null
+        });
+
+        fetchApi(sendQuickPaymentLogConfig);
+
+        //토큰 만료
+        if (response.ResultCode === "SIGNATURE_VALIDATE") {
+            oneBtnDialog.show('알림', '결제시간이 만료되었습니다. 다시 진행 해 주세요.', '확인');
+        } else if (response.ResultCode === "ERROR_SEYPAY_MEMBER") {
+            oneBtnDialog.show('알림', '결제 정보 조회에 실패했습니다. 다시 진행 해 주세요.', '확인');
+        }
+        else if (response.timeout) {
+            oneBtnDialog.show('알림', '서버 응답이 지연되고 있습니다. 다시 진행 해 주세요.', '확인');
+        }
+        else {
+            oneBtnDialog.show('알림', '빠른 결제에 실패하였습니다.', '확인');
+        }
+
+        closeOpt();
+    }
+}
+
+//결제 정보 조회
+function getShippingInfo() {
+    const encodedInfo = {};
+
+    for (const key in quickPaymentAddress) {
+        if (quickPaymentAddress.hasOwnProperty(key)) {
+            encodedInfo[key] = encodeURIComponent(quickPaymentAddress[key]);
+        }
+    }
+
+    return encodedInfo;
+}
+
+//정보 변경을 위해 결제페이지 이동
+function moveOrderPayment(updateQuickPayInfo) {
+    if (typeof multi_option_array == 'undefined') {
+        order_paymentV2.orderDirect('', updateQuickPayInfo); //기본: 바로구매
+    } else {
+        order_paymentV2.orderDirectMulti(updateQuickPayInfo); //멀티: 바로구매
+    }
+}
+
+//옵션선택 되돌아가기
+function returnBack() {
+    var tarBar = $("#yDetailBar");
+    tarBar.attr("class", "stpIsBuy showOptAll");
+    $("#sectionQuickPayment").remove();
+}
+
+//빠른결제 최종 결제 금액
+let totalPrice = 0;
+let delvFee = 0;
+//빠른결제 주소 정보
+let quickPaymentAddress = {};
+//레이어 HTML생성
+function setQuickPaymentDetail(data) {
+    let quantity = Number($("*[name='ORD_CNT']").val() || setTotalCountForQuickPaymentOptionGoods());
+    let optionMessage = $("*[name='ORD_GOODS_OPT_MSG']").val();
+
+    const basePrice = parseInt(g_SalePrice, 10) * quantity;
+    //옵션 상품인 경우 옵션가 합산
+    const optionTotalPrice =
+        (typeof multi_option_array === 'object' && multi_option_array !== null)
+            ? Object.values(multi_option_array).reduce((sum, option) => sum + (option.opt_salepr * option.count), 0) : 0;
+    //기본 가격과 옵션 가격을 합산하여 총 가격 계산
+    totalPrice = basePrice + optionTotalPrice;
+
+    //배송 예정일 API 호출
+    if (($("#hdZipcd").val() != $("#lastDelvZipcd").val()) || (delvText == "" || typeof multi_option_array === 'object' || (g_GoodsStateGb == "02" && parseInt(quantity) > 1)) && g_GoodsStateGb != "01") {
+        let items = {
+            goodsNos: parseInt(g_GoodsNo),
+            goodsSeq: typeof multi_option_array === "undefined" ? 1 : multi_option_array[0].goods_seq,
+            goodsCnt: typeof multi_option_array === "undefined" ? parseInt(quantity) : parseInt(multi_option_array[0].count),
+            zipCd: $("#lastDelvZipcd").val(),
+            zipSeq: $("#lastZipseq").val(),
+            buMngNo: $("#lastBuMngNo").val(),
+            partBookSeq: 0
+        };
+
+        $.ajax({
+            dataType: 'json',
+            data: items,
+            url: SSL_API_URL + '/DelvTraceInfo/GetDelvDateV2List',
+            type: 'POST',
+            xhrFields: { withCredentials: true },
+            success: function (result) {
+                if (result.length > 0 && result[0].IsSuccess) {
+                    const delvItem = result[0];
+                    delvText = `${delvItem.deliBoxRowText2} <strong>${delvItem.deliBoxRowText3}</strong> ${delvItem.deliBoxRowText4}`;
+                }
+                renderQuickPaymentSection(data, quantity, delvText);
+            }
+        });
+    } else {
+        var $desEl = $(".deliTxtRow .deli_des");
+        var $dateEl = $(".deliTxtRow .deli_date");
+        var hasDes = $desEl.length > 0;
+        var hasDate = $dateEl.length > 0;
+        var delvText = "";
+
+        if (hasDes) delvText += $desEl.text().trim();
+        if (hasDate) {
+            var $strong = $(".deliTxtRow .deli_date strong");
+            var dateText = ($strong.length === 0)
+                ? $(".deliTxtRow .deli_date").clone().find("em").remove().end().text().trim()
+                : $strong.prop("outerHTML") + $strong[0].nextSibling.nodeValue;
+            delvText += ` ${dateText}`;
+        }
+
+        if (g_GoodsStateGb == "01") {
+            delvText = $("#preOrderDelvArea").clone().find("em").remove().end().text().trim();
+        }
+
+        renderQuickPaymentSection(data, quantity, delvText);
+    }
+
+}
+
+function renderQuickPaymentSection(data, quantity, delvText) {
+    $("#sectionQuickPayment").remove();
+    const g_GoodsGrdName = $("#goodsBenefit").text();
+
+    const quickPaymentHtml =
+        data.replaceAll('{RES_KEY_NM}', g_ResourceKeyName)
+            .replaceAll('{GOODS_NM}', g_GoodsName)
+            .replaceAll('{TOT_PRICE}', totalPrice.formatMoney(0))
+            .replaceAll('{QUANTITY}', quantity.formatMoney(0))
+            .replaceAll('{DISC_RT}', (quantity * parseInt(g_DiscRate)).formatMoney(0))
+            .replaceAll('{DELV_TEXT}', delvText)
+            .replaceAll('{GRD_GOODS_NM}', g_GoodsGrdName);
+
+    $("#barBtnWrap").before(quickPaymentHtml);
+
+    if (!g_GoodsGrdName) $("#quickPaymentBenefit").remove();
+
+    delvFee = $("#quickDelvFee").text() == '무료' ? 0 : parseInt($("#quickDelvFee").text().replace(/[^0-9]/g, ''));
+
+    $('#sectionQuickPayment *').contents().filter(function () {
+        return this.nodeType === 3 && this.nodeValue.includes('{RESULT_PRICE}');
+    }).each(function () {
+        this.nodeValue = this.nodeValue.replace(/{RESULT_PRICE}/g, (totalPrice + delvFee).formatMoney(0));
+    });
+
+    if (g_DeductionYn != 'Y') {
+        $("#deductionYn").remove();
+    }
+
+    const optionMessage = $("*[name='ORD_GOODS_OPT_MSG']").val();
+    if (typeof multi_option_array === "undefined" && typeof optionMessage === "undefined") {
+        $("#sectionGoodsOption").remove();
+    } else {
+        let optionHtml = getQuickPaymentOptionArea();
+        $("#sectionGoodsOption").html(optionHtml).show();
+    }
+}
+
+
+//옵션상품 수량 세팅
+function setTotalCountForQuickPaymentOptionGoods() {
+    let total_count = 0;
+    $.each(multi_option_array, function (index, value) {
+        total_count += value.count;
+    });
+    return parseInt(total_count);
+}
+
+//선택 옵션 영역 생성
+function getQuickPaymentOptionArea() {
+    let addOptionTag = "";
+
+    if (typeof multi_option_array == 'object') {
+        $.each(multi_option_array, function (index, value) {
+            let optSalePrice = parseInt(value.opt_salepr) + parseInt(g_SalePrice);
+            optSalePrice = optSalePrice.formatMoney(0);
+
+            addOptionTag += `<div class="info_row info_bill">
+                                <span class="billSet">${value.opt_full_name}</span>
+                                ${value.opt_salepr ? `<span class="billSet">옵션가 + ${value.opt_salepr}원</span>` : ''}
+                                ${value.option_message ? `<span class="msgSet">${value.option_message}</span>` : ''}
+                                 <span class="priceSet">
+                                    <strong class="txt_num"><em class="yes_m">${optSalePrice}</em>원</strong>
+                                    <span class="txt_cnt">${value.count.formatMoney(0)}개</span>
+                                 </span>
+                             </div>`;
+        });
+    } else {
+        const optMsg = $("*[name='ORD_GOODS_OPT_MSG']").val();
+        const orderCnt = $("#total_order_count").text().formatMoney(0);
+        const orderPrice = $("#total_order_price").text();
+        addOptionTag += `<div class="info_row info_bill">
+                            <span class="msgSet">${optMsg}</span>
+                                <span class="priceSet">
+                                <strong class="txt_num"><em class="yes_m">${orderPrice}</em>원</strong>
+                                <span class="txt_cnt">${orderCnt.formatMoney(0)}개</span>
+                            </span>
+                        </div>`;
+    }
+
+    return addOptionTag;
+}
+
+
+//결제 실행 화면 이동
+function postToQuickPayment(validate) {
+    if (!validate.IsSuccess) {
+        alert(validate.ResultMessage)
+        sendQuickPaymentLog(validate);
+    } else {
+        const transactionId = validate.ResultContents.TransactionId;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `${SSL_API_URL}/QuickPayment/Payment`;
+
+        const inputTransactionId = document.createElement('input');
+        inputTransactionId.type = 'hidden';
+        inputTransactionId.name = 'TransactionId';
+        inputTransactionId.value = transactionId;
+
+        const inputReturnUrl = document.createElement('input');
+        inputReturnUrl.type = 'hidden';
+        inputReturnUrl.name = 'ReturnUrl';
+        inputReturnUrl.value = window.location.href;
+
+        form.appendChild(inputTransactionId);
+        form.appendChild(inputReturnUrl);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}

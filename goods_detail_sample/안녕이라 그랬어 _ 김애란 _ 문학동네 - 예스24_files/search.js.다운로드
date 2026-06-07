@@ -1,0 +1,807 @@
+﻿var protocol = 'http:';
+if (window != null && window.location != null && window.location.protocol != null) {
+    protocol = window.location.protocol;
+}
+
+var _MobileSuggestRequestSeq = 0;
+var _MobileSuggestResponseSeq = 0;
+var _MobileSuggestTimer = 0;
+
+//검색타입 변수 (도매몰 여부 체크)
+var _SearchType = "";
+var _SearchUrl = "";
+var _ScrHistory = "";
+
+function toggleReSchArea(obj) {
+    if ($("#schOptExtendArea").css("display") == "none") {
+        $(obj).attr("class", "btn_c btn_reSch s_size btn_selected");
+        $("#schOptExtendArea").css("display", "");
+        sclTop('#schOpt_wrap');
+    } else {
+        $(obj).attr("class", "btn_c btn_reSch s_size");
+        $("#schOptExtendArea").css("display", "none");
+    }
+}
+
+// 리스트 View mode
+function chgViewMod(mod) {
+    var listBtn = $('.goods_sortArea .btnViewArea .btn_vMod_list');
+    var thumBtn = $('.goods_sortArea .btnViewArea .btn_vMod_thumb');
+
+    if (listBtn.hasClass('on')) {
+        thumBtn.removeClass('off');
+        listBtn.removeClass('on');
+        thumBtn.addClass('on');
+        listBtn.addClass('off');
+        $('#yGoodsList').removeClass("tp_list");
+        $('#yGoodsList').addClass("tp_thumb");
+
+        $('#yGoodsList .goods_event').css("display", "none");
+        $("P#goods_rental_thumb").css("display", "inherit");
+    } else {
+
+        thumBtn.removeClass('on');
+        listBtn.removeClass('off');
+        thumBtn.addClass('off');
+        listBtn.addClass('on');
+        $('#yGoodsList').removeClass("tp_thumb");
+        $('#yGoodsList').addClass("tp_list");
+
+        $('#yGoodsList .goods_event').css("display", "block");
+        $("P#goods_rental_thumb").css("display", "none");
+    }
+}
+
+//검색타입 가져오기 (도매몰 여부 체크)
+function getSearchType() {
+    var currentHost = location.host.toLowerCase();
+    var currentPathname = location.pathname.toLowerCase();
+
+    //도매몰 접근일 경우 (ssl.yes24.com 도매몰 경로 추가)
+    if (currentHost === "ssl.yes24.com") {
+        if (currentPathname.includes("/bookshop/") ||
+            currentPathname.includes("/bookshopmypage/")) {
+            _SearchType = "BOOKSHOP";
+        }
+    } else {
+        if (BOOKSHOP_URL.toLowerCase().includes(currentHost)) {
+            _SearchType = "BOOKSHOP";
+        }
+    }
+
+    return _SearchType;
+}
+
+//검색 시 기존 검색어 제거
+function removeStorageSearchword() {
+    try {
+        window.localStorage.removeItem("SearchPageState");
+    } catch (e) { }
+}
+
+// 모바일 전용 총알검색
+function getMobileSuggest(strQuery, iDomain) {
+    _SearchType = getSearchType();
+
+    var prehost = $("#hdPreHost").val();
+    var webApiUrl = prehost + "www.yes24.com/Product/searchapi/bulletsearch/goodsJsonp";
+    if (strQuery != null && strQuery.length > 80) strQuery = strQuery.substring(0, 80);
+    var seq = _MobileSuggestResponseSeq++;
+    var frontApiUrl = FRONT_API_URL + "/api/search/goods";
+
+    $.ajax({
+    url: frontApiUrl,
+    dataType: "json",
+    xhrFields: {
+        withCredentials: true,
+    },
+    data: { query: strQuery, domain: "ALL", page: 1, size: 10 },
+    success: function (data) {
+        mobileSuggestCallBack(data, seq);
+    }});
+
+}
+
+// 모바일 전용 총알검색 callback
+function mobileSuggestCallBack(data, seq) {
+    if (seq >= _MobileSuggestRequestSeq) {
+        _MobileSuggestRequestSeq = seq;
+    }
+    else {
+        return;
+    }
+    $("#search_suggest").empty();
+    var hosturl = $("#hdMainHost").val();
+
+    _SearchType = getSearchType();
+    _SearchUrl = MOBILE_URL;
+
+    if (_SearchType == "BOOKSHOP") {
+        _SearchUrl = BOOKSHOP_URL;
+    }
+
+    var suggestLength = data.SearchResults.length;
+    if (suggestLength > 10) {
+        suggestLength = 10;
+    }
+    for (var i = 0; i < suggestLength; i++) {
+        var s = data.SearchResults[i].GOODDS_INDEXES;
+        var url = _SearchUrl + "/goods/detail/" + s.GOODS_NO;
+        if (s.RES_KEY_GB == "41") {
+            url = protocol + "//m.shiftbooks.yes24.com/Detail/" + s.MCODE;
+        }
+        else if (s.RES_KEY_GB == "47") {
+            url = protocol + "//story24.yes24.com/story/detail?goodsNo=" + s.GOODS_NO;
+        }
+        if (GetDomain(s.DOMAIN) == "99") {
+            $("<li><a href=\"" + url + "\" onclick=\"clickSuggestSearch(\'" + s.GOODS_NO + "\');\"><em class=\"txt\"> " + s.GOODS_NM + "</em></a></li>").appendTo("#search_suggest");
+        }
+        else {
+            $("<li><a href=\"" + url + "\" onclick=\"clickSuggestSearch(\'" + s.GOODS_NO + "\');\"><em class=\"txt\">[" + (s.RES_KEY_GB == "49" ? "클래스24" : GetDomain(s.DOMAIN)) + "] " + s.GOODS_NM + "</em></a></li>").appendTo("#search_suggest");
+        }
+    }
+
+}
+//총알검색 영역 클릭 이벤트 처리
+function clickSuggestSearch(goods_no) {
+    removeStorageSearchword();
+    var extra_code = {
+        ExtraKindCode: "search_suggest_goods_click",
+        keyword: encodeURIComponent($("#query").val()),
+        GoodsNo: goods_no,
+        TagNo: 0
+    };
+    setMcode("515_003", extra_code);
+}
+//도메인 문자를 변환해주는 함수
+function GetDomain(strDomain) {
+    switch (strDomain) {
+        case "00": case "0": return "전체";
+        //case "01": case "1": return "국내도서";
+        case "01": case "1": return "도서";
+        case "02": case "2": return "외서";
+        case "03": case "3": return "eBook";
+        case "04": case "4": return "e러닝";
+        case "05": case "5": return "CD";
+        case "06": case "6": return "DVD";
+        case "07": case "7": return "GIFT";
+        case "08": case "8": return "화장품";
+        case "09": case "9": return "웹소설/코믹";
+        case "10": case "10": return "패션";
+        case "통합검색": return "0";
+        case "전체": return "0";
+        case "UsedGoods": return "0";
+        case "국내도서": return "1";
+        case "외국도서": return "2";
+        case "eBook": return "3";
+        case "e-러닝": return "4";
+        case "음반": return "5";
+        case "CD": return "5";
+        case "DVD/비디오": return "6";
+        case "GIFT": return "7";
+        case "화장품": return "8";
+        case "ESTORY": case "웹소설/코믹": case "e연재": return "9";
+        default: return "99";
+    }
+}
+//인기검색어
+function getMobilePopular() {
+    _SearchType = getSearchType();
+    var frontApiUrl = FRONT_API_URL + "/api/search/popular-words";
+    $.ajax({
+        url: frontApiUrl,
+        dataType: "json",
+        xhrFields: {
+            withCredentials: true,
+        },
+        data: { wordCount: 10, searchType: _SearchType },
+        success: function (data) {
+            MobilePopularBack(data);
+    }});
+}
+
+function MobilePopularBack(data) {
+
+    $("#search_popular").empty();
+
+    if (data.List.length == 0) {
+        $("#search_popular").hide();
+        $("#search_popular_nodata").show();
+        if ($('#search_popular_nodata > p.tit').length == 0){
+            $("<p class='tit'>인기 검색어를 집계 중입니다.</p>").appendTo("#search_popular_nodata");
+        }
+        return;
+    }
+    $("#search_popular_nodata").hide();
+    $("#search_popular").show();
+
+    var hosturl = $("#hdMainHost").val();
+
+    _SearchType = getSearchType();
+    _SearchUrl = MOBILE_URL;
+
+    if (_SearchType == "BOOKSHOP") {
+        _SearchUrl = BOOKSHOP_URL;
+    }
+
+    data.List.forEach((s) => {
+        const url = `${_SearchUrl}/search?query=${encodeSearchQuery(s)}`;
+        const listItem = `
+        <li>
+            <a href="${url}" onclick="removeStorageSearchword(); setMcode('515_002'); insertSearchQuery('${s}')">
+                <em class="txt">${s}</em>
+            </a>
+        </li>
+    `;
+        $("#search_popular").append(listItem);
+    });
+    if (data.SearchDate != undefined && data.SearchDate != "") {
+        $("#date_search_popular").text(data.SearchDate.replaceAll("-", "."));
+    }
+}
+
+//검색결과 이동 전 검색창에 쿼리 바인딩
+function insertSearchQuery(query) {
+    if ($('#query').val() == "") {
+        $('#query').val(query);
+    }
+}
+
+
+//search ajax history
+function addSearchHistoryListener(ajaxFunc) {
+    try {
+        window.addEventListener("popstate", function (e) {
+            if (e.state) {
+                //      console.log(e.state);
+                ajaxFunc(e.state.query, e.state.sort, e.state.sortoption, e.state.domain, e.state.subdomain, e.state.suboption, e.state.minisubquery, e.state.subquery, e.state.subnotquery, e.state.salestat, e.state.page);
+            }
+            else {
+                var query = $("#query").val();
+                var sort = "POPULAR";
+                var sortoption = "POPULAR";
+                var domain = "ALL";
+                var suboption = 0;
+                var salestat = "ALL";
+                var page = 1
+
+                var pageState = { query: query, sort: sort, sortoption: sortoption, domain: domain, subdomain: "", suboption: "", minisubquery: "", subquery: "", subnotquery: "", salestat: salestat, page: page };
+                // console.log(pageState);
+                window.history.replaceState(pageState, "");
+                //window.history.back();
+            }
+        }, false);
+    }
+    catch (e) {
+        //console.log("error: addSearchHistoryListener");
+    }
+}
+
+function bindSearchToHistory(query, sort, sortoption, domain, subdomain, suboption, minisubquery, subquery, subnotquery, salestat, page) {
+    try {
+        var pageState = { query: query, sort: sort, sortoption: sortoption, domain: domain, subdomain: subdomain, suboption: suboption, minisubquery: minisubquery, subquery: subquery, subnotquery: subnotquery, salestat: salestat, page: page };
+        window.history.pushState(pageState, "");
+        window.history.replaceState(pageState, "");
+    }
+    catch (e) {
+        //console.log("error:bindSearchToHistory" + e.toString());
+    };
+}
+
+// 상품 이미지 부분 로딩
+function loadLazyImages(id) {
+    id = (id == null || id == undefined) ? 'yesSchGList' : id;
+    $("#" + id + " img.lazy").length > 0 && $("img.lazy").lazyload({
+        failure_limit: 10,
+        threshold: 200
+    })
+}
+
+//최근검색기록 삭제
+function clearSearchword() {
+    srchHistory.clear();
+    $("#remove_searchword_history").hide();
+}
+
+//최근검색기록 삭제 버튼 제어
+function setRemoveSearchword() {
+    if ($("#searchword_empty").length > 0) {
+        $("#remove_searchword_history").hide();
+    }
+    else {
+        $("#remove_searchword_history").show();
+    }
+}
+
+function showHide() {
+    if ($('#query').val().trim().length > 0) {//자동완성 서제스트  
+        $('#yKWD').hide();
+        $('#keyword_wrap').show();
+        $('#ySGST').show();
+    }
+    else { //최근 검색어, 모바일 인기 검색어
+        $('#yKWD').show();
+        $('#keyword_wrap').show();
+        srchHistory.show();
+
+        $('#ySGST').hide();
+    }
+    setRemoveSearchword();
+}
+
+function searchGoods() {
+    _SearchType = getSearchType();
+    _SearchUrl = MOBILE_URL;
+
+    if (_SearchType == "BOOKSHOP") {
+        _SearchUrl = BOOKSHOP_URL;
+    }
+
+    var search_domain = $("#hdSearchCategory").val() == '' ? 'ALL' : $("#hdSearchCategory").val();
+    var search_query = $.trim($("#query").val());
+
+    if (search_query == "") {
+        alert("검색어를 입력하세요.");
+        return false;
+    }
+
+    if (window.localStorage.length > 0) {
+        try {
+            window.localStorage.removeItem("SearchPageState");
+        } catch (e) { }
+    }
+
+    // 크레마 관련 검색어 예외처리 (TICKET-21409, TICKET-26130)
+    var negativeQuerys = ['크레마', 'crema', '모티프', '크레마모티프', '크레마 모티프', '크레마 페블', '크레마페블', '크레마이북리더기', '크레마 이북 리더기', '크레마 리더기', '이북단말기', '이북 단말기', '단말기', '이북리더기', '이북 리더기', '리더기']
+    if (negativeQuerys.includes(search_query.toLowerCase())) {
+        search_domain = "GIFT";
+    }
+
+    document.location.href = _SearchUrl + '/search?domain=' + search_domain + '&query=' + encodeSearchQuery(search_query);
+}
+
+function showSuggest() {
+    var q = $('#query').val().trim();
+    if (q.length == 0)
+        return;
+
+    clearTimeout(_MobileSuggestTimer);
+    _MobileSuggestTimer = setTimeout(function () { getMobileSuggest(q, '0'); }, 300);
+}
+
+//검색창 검색어 지울때 애니메이션이 1초후에 발생이 느려보이는 점일 개선하기 위한 액션
+function delSchWord() {
+    $("#schWrap").removeClass("focusOn");
+    setRemoveSearchword();
+}
+
+//서비스 메뉴 감추기
+function hideServDl() {
+    $("#yesServDl").removeClass("servShow");
+}
+
+//윙 닫기
+function closeWing() {
+    $('#yesWrap').attr('style', '');
+    $('#yesWrap').attr('class', '');
+}
+
+//윙 탭 클릭
+function chgWingCon(str, obj) {
+    $(obj).parent().parent().find("li").removeClass("on");
+    $(obj).parent().addClass("on");
+    $("#wingMnu .wingLftListArea").hide();
+    $("#wing_" + str).show();
+    setWrapHeight($('#wingMnu .wingLftArea'));
+}
+
+//윙 카테고리 토글
+function toggleWingSubCate(obj) {
+    if ($(obj).parent().parent().hasClass("subCateOn")) {
+        $(obj).parent().parent().removeClass("subCateOn");
+    } else {
+        $(obj).parent().parent().parent().parent().find("dl").removeClass("subCateOn");
+        $(obj).parent().parent().addClass("subCateOn");
+    }
+    setWrapHeight($('#wingMnu .wingLftArea'));
+}
+
+//검색된 카테고리 모두 보기
+function toggleSchCate() {
+    if ($("#schCateOpenWrap").css("display") != "none") {
+        $("#schCateOpenWrap").css("display", "none");
+        $("#schCateSclWrap").css("display", "");
+    } else {
+        $("#schCateOpenWrap").css("display", "");
+        $("#schCateSclWrap").css("display", "none");
+        sclTop($('#schCateOpenWrap'), -10);
+    }
+}
+
+//검색결과 재검색
+function toggleReSchArea(obj) {
+    if ($("#schOptExtendArea").css("display") == "none") {
+        $(obj).attr("class", "btn_c btn_reSch btn_selected");
+        $("#schOptExtendArea").css("display", "");
+        sclTop('#schOpt_wrap');
+    } else {
+        $(obj).attr("class", "btn_c btn_reSch");
+        $("#schOptExtendArea").css("display", "none");
+    }
+}
+
+//동명이인 작가 보기
+function toggleSchAuthor(obj) {
+    if ($("#authorBotWrap").hasClass("toggleOn")) {
+        $("#authorBotWrap").removeClass("toggleOn");
+    } else {
+
+        $("#authorBotWrap").addClass("toggleOn");
+    }
+}
+
+//높이 비교 height정의
+function setWrapHeight(obj) {
+    var winH = $(window).height();
+    var tarH = obj.height() + 20;
+    if (tarH < winH) {
+        tarH = winH;
+    }
+    $('#yesWrap').css('height', tarH);
+}
+
+//최근 검색어 개별 삭제
+function removeSearchItem(sender, searchword) {
+    if ($(sender).parent().siblings().length == 0) {
+        clearSearchword();
+    }
+    else {
+        srchHistory.removeItem(searchword);
+        sender.parentElement.remove();
+    }
+}
+
+// 스토리지 리셋 후 검색페이지로 이동
+function resetStorageSearch(param) {
+    _SearchType = getSearchType();
+    _SearchUrl = MOBILE_URL;
+
+    if (_SearchType == "BOOKSHOP") {
+        _SearchUrl = BOOKSHOP_URL;
+    }
+
+    removeStorageSearchword();
+    location.href = _SearchUrl + '/search?' + param;
+}
+
+// GNB 위치 변경
+function changeGnbPosition() {
+    const scrollPosition = $(window).scrollTop();
+    const gnbTopPosition = $("#yesWrap #yHdWrap").is(":visible") ? $("#yesWrap #yHdWrap").offset().top : 0;
+    if (scrollPosition > gnbTopPosition) {
+        $("#yesWrap").addClass("fixedGnb");
+    } else {
+        $("#yesWrap").removeClass("fixedGnb");
+    }
+}
+var x = null;
+var srchHistory = {};
+var windowScrollY = 0;
+
+$(document).ready(function () {
+    changeGnbPosition();
+    $(window).on("scroll", changeGnbPosition);
+    // 검색창 포커스
+    $("#query").focus(function () {
+        setMcode('001_007');
+        var el = document.documentElement;
+        el.setAttribute("data-yesdir", "down");
+        //$("#hd").addClass("nowFocus");
+        //$("#hd").addClass("focusOn");
+        if (!$("body").hasClass("schMod")) {
+            windowScrollY = $(window).scrollTop();
+        }
+        $("body").addClass("schMod");
+        if ($(".appTip").length > 0) {
+            setTimeout(function () { $(".appTip").remove(); }, 3000);
+        }
+
+        setTimeout(function () {
+            $(window).scrollTop(0);
+        }, 100);
+        if (this.value == "") {
+            $(this).attr("placeholder", "검색어를 입력해 주세요.");
+        }
+    });
+
+    //검색창 클릭
+    $('#query').focusin(function () {
+        setMcode('001_007');
+        var el = document.documentElement;
+        el.setAttribute("data-yesdir", "down");
+        $('#query').attr("placeholder", "");
+        showHide();
+
+        // 검색어 있을 경우 추천 검색어
+        if ($('#query').val().length > 0) {
+            showSuggest();
+        }
+        // 인기 검색어
+        getMobilePopular();
+
+        $('#floatPop').hide();
+    });
+
+    // 검색창 이전 화면
+    $("#prevSch").click(function () {
+        var el = document.documentElement;
+        el.setAttribute("data-yesdir", "up");
+        //$("#hd").removeClass("nowFocus");
+        //$("#hd").removeClass("focusOn");
+        //$('#yKWD').hide();
+        //$('#keyword_wrap').hide();
+        $("body").removeClass("schMod");
+        $(window).scrollTop(windowScrollY);
+
+        if ($("#query").attr("placeholder") == "검색어를 입력해 주세요.") {
+            var seardtext = $('#hdSearchBarText').val();
+            $('#query').attr("placeholder", seardtext);
+        }
+    });
+
+    $('#query').bind('keyup', function (e) {
+        showHide();
+        showSuggest();
+    });
+
+    //검색창 닫기
+    $('#search_close').click(function () {
+        if ($('#yKWD').is(':visible')) {
+            setMcode(504);
+        }
+        else if ($('#ySGST').is(':visible')) {
+            setMcode(506);
+        }
+        $("body").removeClass("schMod");
+        $(window).scrollTop(windowScrollY);
+        if ($("#query").attr("placeholder") == "검색어를 입력해 주세요.") {
+            var seardtext = $('#hdSearchBarText').val();
+            $('#query').attr("placeholder", seardtext);
+        }
+    });
+    $('#search_close_keylist').click(function () {
+        setMcode(504);
+        $("#hd").removeClass("nowFocus");
+        $("#hd").removeClass("focusOn");
+        $('#yKWD').hide();
+        $('#keyword_wrap').hide();
+
+        if ($("#query").attr("placeholder") == "검색어를 입력해 주세요.") {
+            var seardtext = $('#hdSearchBarText').val();
+            $('#query').attr("placeholder", seardtext);
+        }
+    });
+
+    $('#search_close_suggestkey').click(function () {
+        setMcode(506);
+        $("#hd").removeClass("nowFocus");
+        $("#hd").removeClass("focusOn");
+        $('#yKWD').hide();
+        $('#keyword_wrap').hide();
+
+        if ($("#query").attr("placeholder") == "검색어를 입력해 주세요.") {
+            var seardtext = $('#hdSearchBarText').val();
+            $('#query').attr("placeholder", seardtext);
+        }
+    });
+
+    $('#search_real_search').click(function () {
+        searchGoods();
+    });
+
+    $('#btn_del_schKWord').click(function () {
+        $('#query').val("");
+        $('#query').focus();
+        setRemoveSearchword();
+        setTimeout(function () { $("#search_wrap").attr("class", "sch_focus") }, 11);
+    });
+
+    $('#btn_ad_search').click(function () {
+        setMcode('001_007');
+        if ($('#query').val().length > 0) {
+            searchGoods();
+        }
+        else {
+            var adurl = $('#hdSearchBarLink').val();
+            if (adurl != undefined && adurl.length > 0) {
+                location.href = adurl;
+            } else {
+                searchGoods();
+            }
+        }
+    });
+
+    var seardtext = $('#hdSearchBarText').val();
+    $('#query').attr("placeholder", seardtext);
+
+    //해더 서비스메뉴 보이기/감추기
+    $("#yesServDl dt a").click(function () {
+        var tarObj = $(this).parent().parent();
+        if (tarObj.hasClass("servShow")) {
+            tarObj.removeClass("servShow");
+        } else {
+            tarObj.addClass("servShow");
+        }
+    });
+
+    // 분야 클릭
+    // 분야 클릭시 항상 먼저 카테고리가 나오도록 함
+    $('#btn_lftWing').click(function () {
+        $('#yesWrap').attr('style', '');
+        $('#yesWrap').attr('class', '');
+        $('#yesWrap').addClass('wingMnuOn');
+        $('#yesWrap').addClass('wingMnuOnLft');
+
+        //wrap 높이 정하기
+        setWrapHeight($('#wingMnu .wingLftArea'));
+        return false;
+    });
+
+    // 전체 클릭
+    // 전체 클릭시 항상 먼저 카테고리가 나오도록 함
+    $('#btn_rgtWing').click(function () {
+        $('#yesWrap').attr('style', '');
+        $('#yesWrap').attr('class', '');
+        $('#yesWrap').addClass('wingMnuOn');
+        $('#yesWrap').addClass('wingMnuOnRgt');
+
+        //wrap 높이 정하기
+        setWrapHeight($('#wingMnu .wingRgtArea'));
+        return false;
+    });
+
+    _SearchType = getSearchType();
+    _SearchUrl = MOBILE_URL;
+    _ScrHistory = "scrHistory";
+
+    if (_SearchType == "BOOKSHOP") {
+        _SearchUrl = BOOKSHOP_URL;
+        _ScrHistory = "scrBsHistory";
+    }
+
+    x = new xds(protocol + '//image.yes24.com/static/m/content/xds-serve.html?v=20250922');
+    srchHistory = {
+        add: function (val) {
+            if ($.trim(val) == "")
+                return;
+
+            x.getItem(_ScrHistory, function (allval, response) {
+
+                if (allval == null || allval.length == 0)
+                    x.setItem(_ScrHistory, val);
+                else {
+                    var arrHistory = allval.split('。');
+                    var listcount = 0;
+
+                    var strHistory = "";
+                    for (var i = 0; i < arrHistory.length; i++) {
+                        if (arrHistory[i] == $.trim(val))
+                            continue;
+
+                        if (strHistory == "")
+                            strHistory = arrHistory[i];
+                        else
+                            strHistory += "。" + arrHistory[i];
+
+                        listcount++;
+
+                        if (listcount == 9)
+                            break;
+                    }
+
+                    strHistory = $.trim(val) + "。" + strHistory;
+                    x.setItem(_ScrHistory, strHistory);
+                }
+            });
+        },
+        removeItem: function (searchword) {
+            x.getItem(_ScrHistory, function (allval, response) {
+                var current_val = allval.replace(searchword + "。", "");
+                x.setItem(_ScrHistory, current_val);
+            });
+        },
+        removeItem: function (searchword) {
+            x.getItem(_ScrHistory, function (allval, response) {
+                var searchword_array = allval.split('。');
+                var join_searchword = '';
+                var current_idx = 0;
+                $.each(searchword_array, function (i, v) {
+                    if (v == searchword) {
+                        current_idx = i;
+                    }
+                    else {
+                        join_searchword += (searchword_array.length - 1) == i ? searchword_array[i] : searchword_array[i] + '。';
+                    }
+                });
+
+                if (join_searchword.charAt(join_searchword.length - 1) == '。') {
+                    join_searchword = join_searchword.slice(0, -1);
+                }
+
+                searchword_array.splice(current_idx, 1);
+                x.setItem(_ScrHistory, join_searchword);
+
+                srchHistory.show();
+            });
+        },
+        clear: function () {
+            setMcode(503);
+            x.setItem(_ScrHistory, "");
+            $("#search_recent").removeClass();
+            $("#search_recent").addClass("noData");
+            $("#search_recent").empty();
+            $("<p id='searchword_empty' class='tit'>최근 검색어가 없습니다.</p>").appendTo("#search_recent");
+        },
+        show: function () {
+            if ($("#query").val() != "")
+                return;
+
+            x.getItem(_ScrHistory, function (allval, response) {
+                if (allval == null || allval.length == 0) {
+                    $("#search_recent").removeClass();
+                    $("#search_recent").addClass("noData");
+                    $("#search_recent").empty();
+                    $("<p id='searchword_empty' class='tit'>최근 검색어가 없습니다.</p>").appendTo("#search_recent");
+                } else {
+                    var arrHistory = allval.split('。');
+                    $("#search_recent").removeClass();
+                    $("#search_recent").addClass("rctRow");
+                    $("#search_recent").empty();
+                    var historyCount = arrHistory.length;
+                    if (historyCount > 10)
+                        historyCount = 10;
+
+                    for (var i = 0; i < historyCount; i++) {
+                        const keyword = arrHistory[i];
+                        const trimedKeyword = $.trim(keyword);
+                        if (keyword != "") {
+                            var url = _SearchUrl + "/search?query=" + encodeURIComponent($.trim(arrHistory[i].replace('&#39;', '\'')));
+                            var searchword_text = `
+                                <span class="rctTxt">
+                                    <a href="${url}" onclick="removeStorageSearchword();setMcode('515_001');insertSearchQuery('${keyword}')"; class="lnk_rct">
+                                        <em class="txt">${trimedKeyword}</em>
+                                    </a>
+                                    <a href="javascript:void(0);" onclick="removeSearchItem(this,'${trimedKeyword}');" class="lnk_del"><em class="ico">삭제</em></a>
+                                </span>
+                            `;
+                            $(searchword_text).appendTo("#search_recent");
+                        }
+                    }
+                }
+            });
+        },
+        hide: function () {
+            $('#yKWD').show();
+            $('#keyword_wrap').show();
+        },
+        decodeHtmlEntities: function (val) { // HTML 특수문자 디코딩
+            var decodeHtmlEntity = document.createElement('textarea');
+            decodeHtmlEntity.innerHTML = val;
+            return decodeHtmlEntity.value;
+        },
+        encodeHtmlEntities: function (val) { // HTML 특수문자 인코딩
+            var encdoeHtmlEntity = document.createElement('div');
+            encdoeHtmlEntity.innerText = val;
+            return encdoeHtmlEntity.innerHTML;
+        }
+    };
+    srchHistory.show();
+    setRemoveSearchword();
+
+    if (IS_NATIVE_APPS && APP_GB == 'YES24') {
+        var params = new URLSearchParams(window.location.search.toLowerCase());
+        if (params.get('openimagesearch') == 'y') {
+            goApp('IMAGESEARCH');
+        }
+    }
+});

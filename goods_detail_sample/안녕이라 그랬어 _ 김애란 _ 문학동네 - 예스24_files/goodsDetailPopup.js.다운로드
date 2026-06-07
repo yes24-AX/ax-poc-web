@@ -1,0 +1,384 @@
+﻿let goodsDetailPopup = (() => {
+    //로그인여부 체크
+    function checkLogin() {
+        return (getCookie('ServiceCookies') == '' || getCookie('ServiceCookies') == null) ? false : true;
+    }
+
+    //로그인 여부 후 메시지 처리
+    function check_login_alert(msg) {
+        if (!checkLogin()) {
+            if (confirm(msg) == true) {
+                var returnUrl = get_url();
+                var returnParams = get_param();
+                goto_login(returnUrl, returnParams);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    //로그인 페이지로 이동
+    function goto_login(returnUrl, returnParams) {
+        returnUrl = returnUrl || get_url();
+        returnParams = returnParams || encodeURIComponent(get_param());
+        document.location = MOBILE_HTTP_URL + "/Momo/Templates/FTLogin.aspx?ReturnURL=" + returnUrl + "&ReturnParams=" + returnParams.replace(/&/g, "`");
+    }
+
+    function get_url() {
+        return window.location.href.split("?")[0];
+    }
+
+    function get_param() {
+        var arr = new Array();
+        arr = window.location.href.split("?");
+        if (arr.length > 1)
+            return arr[1];
+        else
+            return "";
+    }
+
+    // 2024 상품 상세 리뉴얼: 부적합상품 신고하기 등록
+    function submitGoodsReportFormRenew() {
+        // 폼 유효성 검사
+        if ($("#report_type").val() == "") {
+            alert("신고사유를 선택해주세요.");
+            $("#report_type").focus();
+            return false;
+        }
+        if ($("#report_title").val() == "") {
+            $("#report_title").focus();
+            alert("신고제목을 입력주세요.");
+            return false;
+        }
+        if ($("#report_cont").val() == "") {
+            $("#report_cont").focus();
+            alert("신고내용을 입력주세요.");
+            return false;
+        }
+
+        // 폼 데이터를 직렬화
+        var formData = $("#goodsForm").serialize();
+        var formDataObject = {};
+
+        // 직렬화된 데이터를 객체로 변환
+        formData.split("&").forEach(function (pair) {
+            var [key, value] = pair.split("=");
+            formDataObject[key] = decodeURIComponent(value.replace(/\+/g, ' '));
+        });
+
+        const url = `${FRONT_API_URL}/Module/ReportUnsuitedUsedGoodsRequest`;
+        fetch(url, {
+            method: 'POST', mode: 'cors', credentials: 'include',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: new URLSearchParams(formDataObject).toString()
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.toLowerCase() == "true") {
+                    alert("신고하였습니다.");
+                } else {
+                    alert("실패하였습니다.");
+                }
+                hide();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("오류가 발생하였습니다.");
+            });
+    }
+
+
+    //2024 상품상세 개편(단일 쿠폰 다운로드)
+    function DownloadSingleCoupon(couponNo, goodsNo, downloadYn, sender) {
+        // 로그인 여부 확인
+        if (!check_login_alert("쿠폰 다운로드는 로그인 후 이용할 수 있습니다.\n로그인 하시겠습니까?")) {
+            return;
+        } else if (downloadYn == 'Y') {
+            return;
+        }
+        else {
+            let postData = new URLSearchParams({ couponNo: couponNo, goodsNo: goodsNo });
+            const url = `${FRONT_API_URL}/Module/DownloadSingleCoupon`;
+
+            fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: postData
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    if ($.isNumeric(data) == true) {
+                        $("#downloadCoupon_" + couponNo + "_" + goodsNo).addClass("lnk_dim");
+                        $("#downloadCoupon_" + couponNo + "_" + goodsNo + ".icon_couponDn").remove();
+                        $("#downloadCoupon_" + couponNo + "_" + goodsNo).attr("data-has", "Y");
+                        let hasAllCoupon = $("#dPop_couponDn .couponDnLi").find("li a").not(".lnk_dim").length;
+                        if (hasAllCoupon == 0) {
+                            $("#couponDownArea").find(".btn_coupon").first().addClass("btn_dim");
+                            $("#couponDownArea").find(".btn_coupon").children().first().text('사용 가능한 쿠폰 모두 받기 완료');
+                            $("#dPop_couponDn .yesDP_bot").remove();
+                        }
+                        try {
+                            var couponName = $(sender).find("a").data("couponname");
+                            brazeHelper.setBrazeLog("YS_download_single_coupon", {
+                                coupon_id: couponNo,
+                                coupon_name: couponName
+                            });
+                            brazeHelper.setBrazeUser("YS_download_coupon", couponNo.toString());
+                        } catch { }
+                        alert("쿠폰이 발급 되었습니다.");
+                    } else {
+                        couponError(data);
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        }
+    }
+
+    // 단일쿠폰다운오류 메시지 처리
+    function couponError(resultMessage) {
+        var limitYn = "";
+        switch (resultMessage) {
+            case "쿠폰발급실패": limitYn = "N"; break;
+            case "중복발급": limitYn = "N"; break;
+            case "한정갯수초과": limitYn = "Y"; break;
+            case "쿠폰기간오류": limitYn = "N"; break;
+        }
+
+        if (limitYn == "Y") {
+            alert("해당 쿠폰은 한정수량쿠폰으로 선착순 마감되었습니다. <br/>다음 기회에 이용해주세요.");
+        }
+        else if (resultMessage == "중복발급") {
+            alert("이미 발급 받은 쿠폰입니다.");
+        }
+        else {
+            alert("죄송합니다. <br/>쿠폰을 다시 다운 받아주세요.");
+        }
+    }
+
+    //2024 상품상세 개편(쿠폰 전체 다운로드)
+    function DownloadAllCoupon(goodsNo) {
+        // 로그인 여부 확인
+        if (!check_login_alert("쿠폰 다운로드는 로그인 후 이용할 수 있습니다.\n로그인 하시겠습니까?")) {
+            return;
+        } else {
+            const elements = document.querySelectorAll('[id^="downloadCoupon_"]');
+
+            const goodsArr = [];
+            const basicArr = [];
+            const couponNameArr = [];
+
+            // 각 태그를 루프 돌면서 id 값을 각각의 배열에 담음
+            elements.forEach(element => {
+                const dataType = element.getAttribute('data-type');
+                const hasData = element.getAttribute('data-has');   //보유쿠폰여부
+                const id = element.getAttribute('data-couponno');
+                const name = element.getAttribute('data-couponname');
+                //const id = element.id.split('_')[1]; // '_' 앞부분 제외하고 뒷부분만 가져옴
+
+                if (hasData == "N") {
+                    if (dataType === "goods") {
+                        goodsArr.push(id);
+                    } else {
+                        basicArr.push(id);
+                    }
+                    couponNameArr.push(name);
+                }
+            });
+
+            let postData = new URLSearchParams();
+
+            // 배열 데이터를 처리
+            goodsArr.forEach((item, index) => postData.append(`lstGoodsCouponNo[${index}]`, item));
+            basicArr.forEach((item, index) => postData.append(`lstBasicCouponNo[${index}]`, item));
+            var brazeArr = goodsArr.concat(basicArr);
+
+            // 단일 데이터 추가
+            postData.append("goodsNo", goodsNo);
+
+            const url = `${FRONT_API_URL}/Module/DownloadAllCoupon`;
+            fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: postData
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    var message = "";
+                    if (data == "success") {
+                        $("#dPop_couponDn .couponDnLi").find("li a").addClass("lnk_dim");
+                        $("#couponDownArea").find(".btn_coupon").addClass("btn_dim");
+                        $("#dPop_couponDn .icon_couponDn").remove();
+                        $("#couponDownArea").find(".btn_coupon").children().first().text('사용 가능한 쿠폰 모두 받기 완료');
+                        $("#dPop_couponDn").find(".yesDP_bot").remove();
+                        message = "쿠폰이 모두 발급되었습니다.";
+                    }
+                    else if (data == "limiterr") {
+                        message = "해당 쿠폰은 한정수량쿠폰으로 \n선착순 마감되었습니다.\n다음 기회에 이용해주세요.";
+                    }
+                    else if (data == "systemerr") {
+                        message = "죄송합니다. \n쿠폰을 다시 다운 받아주세요.";
+                    }
+                    else if (data == "usederr") {
+                        message = "이미 발급 받은 쿠폰입니다.";
+                    }
+                    try {
+                        brazeHelper.setBrazeLog("YS_download_all_coupon", {
+                            coupon_id: brazeArr.join("|"),
+                            coupon_name: couponNameArr.join("|")
+                        });
+                        brazeArr.forEach(couponNo => {
+                            brazeHelper.setBrazeUser("YS_download_coupon", couponNo.toString());
+                        });
+                    } catch { }
+                    alert(message);
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        }
+    }
+
+    // 분철상품 쿠폰 모두받기
+    function DownloadAllCouponPartBook(goodsNo) {
+        // 로그인 여부 확인
+        if (!check_login_alert("쿠폰 다운로드는 로그인 후 이용할 수 있습니다.\n로그인 하시겠습니까?")) {
+            return;
+        } else {
+            const elements = document.querySelectorAll('[id^="downloadCoupon_"]');
+            const goodsArr = [];
+            const basicArr = [];
+
+            // 각 태그를 루프 돌면서 id 값을 각각의 배열에 담음
+            elements.forEach(element => {
+                const dataType = element.getAttribute('data-type');
+                const hasData = element.getAttribute('data-has');
+                const id = element.id.split('_')[1]; // '_' 앞부분 제외하고 뒷부분만 가져옴
+                const couponNo = $(element).data().couponno;
+                const goodsNo = $(element).data().goodsno;
+                const couponName = $(element).data().couponname;
+ 
+                if (hasData == "N") {
+                    if (dataType === "goods") {
+                        /*goodsArr.push(id);*/
+                        goodsArr.push({
+                            CouponNo: couponNo, // 쿠폰 번호
+                            GoodsNo: goodsNo,    // 상품 번호
+                            CouponName : couponName //쿠폰명
+                        });
+                    } else {
+                        basicArr.push({
+                            CouponNo: couponNo, // 쿠폰 번호
+                            GoodsNo: goodsNo,    // 상품 번호
+                            CouponName : couponName //쿠폰명
+                        });
+                    }
+                }
+            });
+
+            let postData = new URLSearchParams();
+
+            // 배열 데이터를 처리
+            goodsArr.forEach((item, index) => {
+                postData.append(`lstGoodsCoupons[${index}].CouponNo`, item.CouponNo);
+                postData.append(`lstGoodsCoupons[${index}].GoodsNo`, item.GoodsNo);
+            });
+            // basicArr 배열 데이터 전송 (key: lstBasicCoupons[인덱스].프로퍼티명)
+            basicArr.forEach((item, index) => {
+                postData.append(`lstBasicCoupons[${index}].CouponNo`, item.CouponNo);
+                postData.append(`lstBasicCoupons[${index}].GoodsNo`, item.GoodsNo);
+            });
+            var brazeArr = goodsArr.concat(basicArr);
+
+            const url = `${FRONT_API_URL}/Module/DownloadAllCouponPartBook`;
+            fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: postData
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    var message = "";
+                    if (data == "success") {
+                        $("#dPop_couponDn .couponDnLi").find("li a").addClass("lnk_dim");
+                        $("#couponDownArea").find(".btn_coupon").addClass("btn_dim");
+                        $("#dPop_couponDn .icon_couponDn").remove();
+                        $("#couponDownArea").find(".btn_coupon").children().first().text('사용 가능한 쿠폰 모두 받기 완료');
+                        $("#dPop_couponDn").find(".yesDP_bot").remove();
+                        message = "쿠폰이 모두 발급되었습니다.";
+                    }
+                    else if (data == "error") {
+                        message = "쿠폰 발급중 오류가 발생하였습니다.";
+                    }
+                    try {
+                        brazeHelper.setBrazeLog("YS_download_all_coupon", {
+                            coupon_id: brazeArr.map(c => c.CouponNo).join("|"),
+                            coupon_name: brazeArr.map(c => c.CouponName).join("|")
+                        });
+                        var couponNos = brazeArr.map(function(c) { return c.CouponNo; });
+                        couponNos.forEach(function(couponNo) {
+                            brazeHelper.setBrazeUser("YS_download_coupon", couponNo.toString());
+                        });
+                      
+                    } catch { }
+                    alert(message);
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        }
+    }
+
+
+
+    //레이어 페이지 팝업 감추기
+    function hide() {
+        document.querySelector(".yesDefPopArea").remove();
+        enableBodyScroll();
+    }
+
+    // 바디 스크롤 풀기
+    function enableBodyScroll() {
+        const body = document.body;
+        const html = document.documentElement;
+        const yesWrap = document.getElementById('yesWrap');
+        const yesPagePopAreas = document.querySelectorAll('#yesWrap .yesPagePopArea');
+
+        if (yesPagePopAreas.length === 0 && body.classList.contains('notScl')) {
+            html.classList.remove('notScl');
+            body.classList.remove('notScl');
+            yesWrap.style.top = '';
+            window.scrollTo(0, kFocusY);
+        }
+    }
+
+    return {
+        submitGoodsReportFormRenew,
+        DownloadSingleCoupon,
+        DownloadAllCoupon,
+        DownloadAllCouponPartBook,
+        hide
+    }
+})();
+

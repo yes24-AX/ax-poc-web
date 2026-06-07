@@ -1,0 +1,58 @@
+function OAS_RICH(position) {
+if (position == 'x08') {
+document.write ('<input type=');
+document.write ("'");
+document.write ('hidden');
+document.write ("'");
+document.write (' id=');
+document.write ("'");
+document.write ('hdSearchBarText');
+document.write ("'");
+document.write (' value=');
+document.write ("'");
+document.write ('&#44053;&#45824;&#44397; &#44036;&#51032; &#54217;&#54868;&#45716; &#45149;&#45228;&#45796;');
+document.write ("'");
+document.write ('/>\n');
+document.write ('            <input type=');
+document.write ("'");
+document.write ('hidden');
+document.write ("'");
+document.write (' id=');
+document.write ("'");
+document.write ('hdSearchBarLink');
+document.write ("'");
+document.write (' value=');
+document.write ("'");
+document.write ('http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/m.yes24.com/Header/SearchBar/160560984/x08/OasDefault/eBook_Main_Mobile/eBook_Main_Mobile01.txt/64653663613535363661323535316430');
+document.write ("'");
+document.write (' />');
+}
+if (position == 'Top') {
+document.write ('<input type=');
+document.write ("'");
+document.write ('hidden');
+document.write ("'");
+document.write (' id=');
+document.write ("'");
+document.write ('hdSearchBarText');
+document.write ("'");
+document.write (' value=');
+document.write ("'");
+document.write ('뱀파이어와 늑대인간의 고향');
+document.write ("'");
+document.write (' />\n');
+document.write ('            <input type=');
+document.write ("'");
+document.write ('hidden');
+document.write ("'");
+document.write (' id=');
+document.write ("'");
+document.write ('hdSearchBarLink');
+document.write ("'");
+document.write (' value=');
+document.write ("'");
+document.write ('https://adgirl.yes24.com/RealMedia/ads/click_lx.ads/m.yes24.com/Header/SearchBar/811122565/Top/OasDefault/Scm_MSearchBar260529162251819/Scm_MSearchBar260529162251819C001.html/64653663613535363661323535316430');
+document.write ("'");
+document.write (' />');
+}
+}

@@ -1,0 +1,280 @@
+﻿var recommend_area = 0;
+
+//추천상품 영역 렌더링
+var renderRecommend = function (id, html) {
+    wrapper = $(id);
+    if (html != '') {
+        $(html).appendTo(wrapper);
+    }
+    return null;
+}
+
+//추천상품 영역 조회
+var loadRecommendArea = function (recommendGb, recommendKindName) {
+
+    var mobileDevices = /Googlebot|bingbot/i;
+    if ((mobileDevices).test(navigator.userAgent)) {
+        return;
+    }
+
+    var param = {
+        method: "GET", headers: { "Content-Type": "application/json" }, timeout: 3000,
+        url: "/Recommend/RecommendGoodsList?recommendGb=" + recommendGb + "&goodsNos=" + g_GoodsNo,
+        async: true, queryString: "",
+        callback: function (html) {
+            var temp_html = document.createElement("div");
+            temp_html.innerHTML = html;
+
+            if (html != null && html.trim() != "" && temp_html.children[0].innerHTML.trim() == "") {
+                if (recommendGb == "NOMICATE" || recommendGb == "SIMILAR") {
+                    recommend_area++;
+                }
+                return;
+            }
+
+            var wrapper = null;
+            var index = 0;
+            var id = '';
+            if (html != null && html != "") {
+                switch (recommendGb) {
+                    case "NOMI":    // 이 상품을 구매한 분들이 함께 구매한 상품, 카트
+                        if (html != null && html.trim() != "") {
+                            $('.gd_nomiGoods').removeAttr('style');
+
+                            renderRecommend('#nomiGoods_with', html);
+                            $(document).ready(function () {
+                                if ($("#nomiGoods_with #yGoodsList").length > 0) {
+                                    $("#nomiGoods_with #yGoodsList").egFlick({
+                                        circular: false,
+                                        deceleration: .0024,
+                                        moveType: "freeScroll",
+                                        bounce: 15,
+                                        gap: -15,
+                                        hanger: 0,
+                                        anchor: 0,
+                                        bound: true
+                                    });
+                                }
+
+                                renderRecommend('#cartGoods', html);
+                                if ($("#cartGoods #yGoodsList").length > 0) {
+                                    $("#cartGoods #yGoodsList").egFlick({
+                                        circular: false,
+                                        deceleration: .0024,
+                                        moveType: "freeScroll",
+                                        bounce: 15,
+                                        gap: -15,
+                                        hanger: 0,
+                                        anchor: 0,
+                                        bound: true
+                                    });
+                                }
+                            });
+                        }
+                        break;
+                    case "NOMICATE":    // 이 상품을 구매한 분들이 구매한 카테고리 연관상품
+                        if (html != null && html.trim() != "") {
+                            renderRecommend('#nomiGoods_cate #buyNCateGoods', html);
+                            $('#nomiGoods_cate').removeAttr('style');
+                            if ($("#nomiGoods_cate #yGoodsList").length > 0) {
+                                $("#nomiGoods_cate #yGoodsList").egFlick({
+                                    circular: false,
+                                    deceleration: .0024,
+                                    moveType: "freeScroll",
+                                    bounce: 15,
+                                    gap: -15,
+                                    hanger: 0,
+                                    anchor: 0,
+                                    bound: true
+                                });
+                            }
+                        }
+                        break;
+                    case "SIMILAR":     // 이 상품을 구매한 고객의 다른 구매 상품 ( 본문 매칭 기반 )
+                        if (html != null && html.trim() != "") {
+                            renderRecommend('#nomiGoods_similar #similarGoods', html);
+                            $('#nomiGoods_similar').removeAttr('style');
+                            if ($("#nomiGoods_similar #yGoodsList").length > 0) {
+                                $("#nomiGoods_similar #yGoodsList").egFlick({
+                                    circular: false,
+                                    deceleration: .0024,
+                                    moveType: "freeScroll",
+                                    bounce: 15,
+                                    gap: -15,
+                                    hanger: 0,
+                                    anchor: 0,
+                                    bound: true
+                                });
+                            }
+                        }
+                        break;
+                    case "RECENT":
+                        break;
+                    case "MANY":     // 많이 구매한 상품
+                        renderRecommend('#nomiGoods_many', html);
+                        break;
+                }
+            }
+        }
+    };
+    yes_ajax(param);
+}
+
+/**
+ * 최근 본 상품을 기준으로 추천상품 영역 조회
+ * @param {any} categoryId 분야 카테고리 ID
+ * @param {any} dispNo 하위분야 카테고리 ID
+ */
+var loadRecentRecommendArea = function (categoryId, dispNo) {
+    if (GetCookie('RecentViewGoods')) {
+        var requestUrl = "/Home/RecommendGoods?categoryID=" + categoryId;
+        if (dispNo != undefined) {
+            requestUrl += "&dispNo=" + dispNo;
+        }
+        var param = {
+            method: "GET", headers: { "Content-Type": "application/json" }, timeout: 3000,
+            url: requestUrl,
+            async: true, queryString: "", cache: false,
+            callback: function (html) {
+                // 조회 결과 렌더링
+                $("#recentRecommend_" + categoryId).html(html);
+                setWelcomeLazyLoad($("#recentRecommend_" + categoryId + " img.lazy"), true);
+                $.adultImageConvert($("#recentRecommend_" + categoryId));
+            }
+        };
+        yes_ajax(param);
+    }
+}
+
+/**
+ * 추천상품 목록 조회
+ * @param {any} goodsNo
+ * @param {any} categoryId
+ * @param {any} dispId
+ * @param {any} clickCode
+ */
+var loadRecentGoodsArea = function (goodsNo, categoryId, dispId, clickCode) {
+    var requestUrl = "/Recommend/RecommendGoodsList?recommendGb=RECENT&goodsNos=" + goodsNo + "&fromWelcome=true";
+    if (categoryId == "004") {
+        // ebook인 경우 RecommendEbookList API 호출
+        requestUrl = "/Recommend/RecommendEbookList?dispId=" + dispId + "&goodsNos=" + goodsNo;
+    }
+    var param = {
+        method: "GET", headers: { "Content-Type": "application/json" }, timeout: 3000,
+        url: requestUrl,
+        async: true, queryString: "",
+        callback: function (html) {
+            var elementID = "#nomi" + categoryId;
+            var focusElementID = "#recentRecommend_" + categoryId;
+            var topElementID = "#yesNomi" + categoryId;
+            var pageSize = 6; //추천 상품 영역에 표시할 상품 갯수
+            var refreshTop = -50;
+
+            // 조회 결과 렌더링
+            $(elementID).html(html);
+            $.adultImageConvert($(elementID));
+            // 클릭코드 설정
+            $(elementID).find("a.lnk_item").attr('onclick', "setMcode('" + clickCode + "_002');");
+
+            // 추천상품이 1개 이하인 경우 표시하지 않음
+            if ($(elementID).length <= 0 || $(elementID).find("li.item").length <= 1) {
+                $(topElementID).css("display", "none");
+                return;
+            } else {
+                $(topElementID).css("display", "");
+            }
+
+            // ebook 분야메인에서는 블릿 노출하지 않음
+            if (categoryId == "004") {
+                $(elementID).find("em.ico.eBook").remove();
+                refreshTop = -105;
+            }
+
+            // 새로고침 페이지 설정
+            var goodsCount = $(elementID).find("li.item").length; // 상품 갯수
+            var totalPage = parseInt(goodsCount / pageSize); // 총 페이지
+            if ((goodsCount % pageSize) > 0) {
+                totalPage++;
+            }
+
+            refreshItem(elementID, 6, totalPage, true, false);
+
+            // 페이지가 1개 이하이면 새로고침버튼 숨김
+            if (totalPage <= 1) {
+                $("#yMoreRecommend" + categoryId).css("display", "none");
+            }
+            else {
+                // 새로고침버튼 onClick 이벤트 설정
+                $("#yMoreRecommend" + categoryId).find("a").attr("onClick",
+                    "refreshItem('" + elementID + "', " + pageSize + ", " + Number(totalPage) + ", false);" +
+                    "sclTop($('" + focusElementID + "'), " + refreshTop + ");" +
+                    "setMcode('" + clickCode + "_003');");
+            }
+        }
+    };
+    yes_ajax(param);
+}
+
+//추천상품 탭 영역 데이터 유효성 검사
+var checkNomiGoodsArea = function (recommendKindName) {
+    var nomiGoods_with = $("#nomiGoods_with").find("#yGoodsList").children();
+    var nomiGoods_many = $("#nomiGoods_many").find("#yGoodsList").children();
+
+    if (recommendKindName == "BOOK") {
+        recommendKindName = "책";
+    }
+    else {
+        recommendKindName = "상품";
+    }
+
+    if (nomiGoods_with.length == 0 || nomiGoods_many.length == 0) {
+        //두번째 탭의 데이터가 없는 경우 
+        if (nomiGoods_many.length == 0) {
+            var tab_text = String.Format("<strong><em class='txC_black'>이 {0}을 구입하신 분들이</em> 함께 산 {0}</strong>", recommendKindName)
+            $("#nomiGoods_many").hide();
+            $("#nomiGoods_with").show();
+            $("#recommend_tab_title").html(tab_text);
+        }
+        //첫번째 탭의 데이터가 없는 경우 
+        else if (nomiGoods_with.length == 0) {
+            var tab_text = String.Format("<strong><em class='txC_black'>이 {0}을 구입하신 분들이</em> 많이 산 {0}</strong>", recommendKindName)
+            $("#nomiGoods_many").show();
+            $("#nomiGoods_with").hide();
+            $("#recommend_tab_title").html(tab_text);
+            $("#nomiGoods_many #yGoodsList").egFlick({
+                circular: false,
+                deceleration: .0024,
+                moveType: "freeScroll",
+                bounce: 15,
+                gap: -15,
+                hanger: 0,
+                anchor: 0,
+                bound: true
+            });
+        }
+
+        $("#gd_nomiGoods").addClass("removeTab");
+
+    }
+}
+
+//추천상품 탭 변경
+var chgNomiGoods = function (tp, obj) {
+    $(obj).parent().parent().find("li").removeClass("selected");
+    $(obj).parent().parent().parent().parent().find(".goods_listArea").hide();
+    $(obj).parent().addClass("selected");
+    $("#nomiGoods_" + tp).show();
+    if (tp == 'many') {
+        $("#nomiGoods_many #yGoodsList").egFlick({
+            circular: false,
+            deceleration: .0024,
+            moveType: "freeScroll",
+            bounce: 15,
+            gap: -15,
+            hanger: 0,
+            anchor: 0,
+            bound: true
+        });
+    }
+}
+

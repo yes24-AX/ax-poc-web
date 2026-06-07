@@ -1,0 +1,380 @@
+﻿var airbridgeHelper = (function (airbridgeHelper, undefined) {
+    const yes24MemNo = (typeof TUSERNO !== 'undefined') ? TUSERNO : (getCookieData('TUSERNO') || "");
+    const isDebug = false;                   //디버깅로그 노출 여부
+    const isDisable = false;                //강제 비활성화 플래그
+    const isAppDisable = false;             //도서앱 로그전송 비활성화 여부
+    const isEBookAppDisable = true;         //이북앱 로그전송 비활성화 여부
+    const isWebDisable = false;             //프론트 로그전송 비활성화 여부
+    const isOrderDisable = false;           //결제관련 로그전송 비활성화 여부
+    const isCremaclubDisable = false;       //크레마클럽 로그전송 비활성화 여부
+    const isCremaclubOrderDisable = false;  //크레마클럽 결제관련 로그전송 비활성화 여부
+    const isEventDisable = false;           //이벤트 로그전송 비활성화 여부
+    
+    const userAgent = navigator.userAgent || "";
+    const isArgosCheck = userAgent.toUpperCase().includes("ARGOS_UXROBOT");
+    const isAppBook = userAgent.toUpperCase().includes("YESAPPBOOK_IOS") || userAgent.toUpperCase().includes("YESAPPBOOK_AND");
+    const isAppEBook = userAgent.toUpperCase().includes("YESAPPEBOOK_AND") || userAgent.toUpperCase().includes("YESAPPEBOOK_IOS");
+    const isNativeApp = isAppBook || isAppEBook;
+
+    var initialized = false;
+    var retryCount = 0;
+    const webToken ="bfb3ebd1c9c749a7aa05b51e3e516f78";
+
+    (function init() {
+        if(isArgosCheck || isDisable){
+            return;
+        }
+        else if (typeof airbridge === "undefined" ) {
+            if (isDebug) console.warn("Airbridge SDK not loaded or disabled.");
+            return;
+        }
+
+        try {
+            airbridge.init({
+                app: "yes24commerce",
+                webToken: webToken,
+                allowIframe: true,
+                logLevel: "none" // none | error | warn | info | debug
+            });
+
+            if (yes24MemNo !== "") {
+                airbridge.setUserID(yes24MemNo);
+            }
+            initialized = true;
+            airbridge.startTracking();
+            if (isDebug) console.log("[Airbridge] initialized:", yes24MemNo);
+        } catch (e) {
+            if (isDebug) console.error("Airbridge init error:", e);
+        }
+    })();
+
+    function getCookieData(name){
+        var cookies = document.cookie;
+        if (!cookies) return null;
+        var cookieArr = cookies.split(';');
+        for (var i = 0; i < cookieArr.length; i++) {
+            var cookie = cookieArr[i].trim();
+            if (cookie.indexOf(name + '=') === 0) {
+                return decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+        return null;
+    }
+
+    //접속 플랫폼
+    var getPlatformName = function(){
+        var platformName = "yes24_web";
+        if(userAgent.toUpperCase().includes("YESAPPBOOK")){
+            platformName = "yes24_app";
+        } 
+        else if(userAgent.toUpperCase().includes("YESAPPEBOOK")){
+            platformName = "ebook_app";
+        }
+        return platformName;
+    }
+
+    //로그전송 비활성화 여부 체크
+    var checkDisbleType = function(type){
+        var isDisable = false;
+        if (isArgosCheck || isDisable) { 
+            isDisable = true;
+        }
+        else if(type == "order" && isOrderDisable){
+            isDisable = true;
+        }
+        else if(type == "cremaOrder" && isCremaclubOrderDisable){
+            isDisable = true;
+        }
+        else if(type == "crema" && isCremaclubDisable){
+            isDisable = true;
+        }
+        else if(type == "web" && isWebDisable){
+            isDisable = true;
+        }
+        else if(type == "event" && isEventDisable){
+            isDisable = true;
+        }
+        else if(isAppBook && isAppDisable){
+            isDisable = true;
+        }
+        else if(isAppEBook && isEBookAppDisable){
+            isDisable = true;
+        }
+        return isDisable;
+    }
+
+    //디버깅로그 
+    var setDebugLog = function(name, prop){
+        if (isDebug) {
+            if(typeof prop != 'undefined'){
+                console.log(`[airbridge] ${name}`, prop)
+            }
+            else{
+                console.log(`[airbridge] ${name}`);
+            }
+            return;
+        }
+    }
+
+    //에어브릿지 상품객체 생성
+    var getAirbridgeProduct = function(brazeProduct){
+         return {
+            semanticAttributes: {
+                products: [
+                    {
+                        productID: brazeProduct.product_id,
+                        name: brazeProduct.product_name,
+                        categoryID:brazeProduct.m_category_depth1_id,
+                        categoryName:brazeProduct.m_category_depth1_name,
+                        brandID:brazeProduct.creator_id,
+                        brandName:brazeProduct.creator_name
+                    },
+                ],
+            },
+            customAttributes: brazeProduct
+        }
+    }
+
+    //에어브릿지 상품객체 생성: 주문완료용
+    function getAirbridgeOrderProduct(brazeProduct) {
+        var products = [];
+        for (var i = 0; i < brazeProduct.length; i++) {
+            var item = brazeProduct[i];
+
+            products.push({
+                transactionID: item.order_id,
+                currency: "KRW",
+                productID: item.product_id,
+                name: item.product_name,
+                price: item.discounted_price,
+                categoryID: item.m_category_depth1_id,
+                categoryName: item.m_category_depth1_name,
+                brandID: item.creator_id,
+                brandName: item.creator_name
+            });
+        }
+
+        // 최종 반환 구조
+        return {
+            semanticAttributes: {
+                products: products
+            },
+            customAttributes: {
+                products: brazeProduct
+            }
+        };
+    }
+
+    //주문완료 객체 분리
+    var convertNestedProducts = function(data){
+        var result = JSON.parse(JSON.stringify(data));
+
+        // 변환 대상: properties.products[0]
+        var baseProducts = result;
+        var keys = Object.keys(baseProducts);
+        var arrLength = 0;
+
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            if (Array.isArray(baseProducts[key]) && baseProducts[key].length > arrLength) {
+                arrLength = baseProducts[key].length;
+            }
+        }
+
+        // 상품별로 분리
+        var newProducts = [];
+        for (var idx = 0; idx < arrLength; idx++) {
+            var product = {};
+            for (var j = 0; j < keys.length; j++) {
+                var key = keys[j];
+                var value = baseProducts[key];
+
+                if (Array.isArray(value)) {
+                    product[key] = typeof value[idx] !== "undefined" ? value[idx] : "";
+                } else {
+                    // 배열이 아닌 값은 그대로 복사
+                    product[key] = value;
+                }
+            }
+            newProducts.push(product);
+        }
+        result = newProducts;
+        return result;
+    }
+
+    //airbridge.user.signup: 회원가입 완료
+    var signup = function(name,prop){
+        airbridge.setUserID(yes24MemNo);
+        airbridge.events.send(name,prop);
+        setDebugLog("[Standard] " + name, prop);
+    }
+
+    //airbridge.user.signin: 로그인
+    var signin = function(name,prop){
+        airbridge.setUserID(prop);
+        airbridge.events.send('airbridge.user.signin');
+        setDebugLog("[Standard] " + name, prop);
+    }
+
+    //airbridge.user.signout: 로그아웃
+    var signout = function(){
+        airbridge.events.send('airbridge.user.signout')
+        airbridge.clearUser()
+    }
+
+    //airbridge.ecommerce.product.viewed: 상품상세 진입
+    var viewProduct = function(name, prop){
+        var product = prop.product;
+        var item = getAirbridgeProduct(product);
+        item.action = product.m_category_depth1_name;
+        item.label = product.m_category_depth2_name;
+        airbridge.events.send(name, item);
+        setDebugLog("[Standard] " + name, item);
+    }
+
+    //airbridge.ecommerce.searchResults.viewed:검색결과 진입
+    var viewSearchResults = function(name, prop){
+        airbridge.events.send(name, prop);
+        setDebugLog("[Standard] " + name, prop);
+    }
+
+    //airbridge.ecommerce.product.addedToCart:카트담기
+    var addedToCart = function(name, prop){
+        var product = prop.product;
+        var item = getAirbridgeProduct(product);
+        item.action = product.m_category_depth1_name;
+        item.label = product.m_category_depth2_name; 
+        item.value = Number(product.discounted_price * prop.ordCnt);
+        airbridge.events.send(name, item);
+        setDebugLog("[Standard] " + name, item);
+    }
+
+    //airbridge.initiateCheckout:사은품선택
+    var initiateCheckout = function(name,prop){
+        airbridge.events.send(name);
+        setDebugLog("[Standard] " + name);
+    }
+
+    //airbridge.addPaymentInfo:간편결제 등록
+    var addPaymentInfo = function(name,prop){
+        airbridge.events.send('airbridge.addPaymentInfo', {
+            semanticAttributes: {
+                type: 'CreditCard',
+            },
+        });
+    }
+
+    //airbridge.ecommerce.order.completed:주문완료
+    var completOrder = function(name,prop){
+        var convertedOjb = convertNestedProducts(prop);
+        var airbridgeObj = getAirbridgeOrderProduct(convertedOjb);
+      
+        var categoryText = prop.m_category_depth1_name.join(",");
+        var categoryText2Depth = prop.m_category_depth2_name.join(",");
+        airbridgeObj.action = categoryText;
+        airbridgeObj.label = categoryText2Depth;
+        airbridgeObj.value = prop.final_payment_amount.toString();
+        
+        airbridge.events.send(name,airbridgeObj);
+        setDebugLog("[Standard] " + name, airbridgeObj);
+    }
+
+    //airbridge.ecommerce.order.canceled:주문취소
+    var cancelOrder = function(name,prop){
+        var item = {
+            value : prop.cancel_amount,
+              semanticAttributes: {
+                transactionID: prop.order_id,
+            }
+        }
+        airbridge.events.send(name, item);
+        setDebugLog(name, item);
+    }
+
+    //커스텀 이벤트 조회
+    var sendCustomEvent = function (name, prop) {
+        if (name == "view_search_product") {
+            var product = prop.product;
+            var item = getAirbridgeProduct(product);
+            item.action = product.m_category_depth1_name;
+            item.label = prop.query;
+            airbridge.events.send(name, item);
+            setDebugLog(name, item);
+        }
+        else if(name == "view_cart"){
+            airbridge.events.send(name);
+            setDebugLog(name);
+        }
+        else if(name =="subscribe_cremaclub"){
+            prop.customAttributes.platform = getPlatformName();
+            airbridge.events.send(name, prop);
+            setDebugLog(name, prop);
+        }
+        else{
+            airbridge.events.send(name, prop);
+            setDebugLog(name, prop);
+        }
+    };
+
+     var airbridgeEventMap = {
+        "airbridge.user.signup":                    { type: "web",   eventType: "standard", handler: signup },              //회원가입 완료
+        "airbridge.user.signin":                    { type: "web",   eventType: "standard", handler: signin  },             //로그인
+        "airbridge.user.signout":                   { type: "web",   eventType: "standard", handler: signout  },            //로그아웃
+        "airbridge.ecommerce.product.viewed":       { type: "web",   eventType: "standard", handler: viewProduct },         //상품상세 진입
+        "airbridge.ecommerce.searchResults.viewed": { type: "web",   eventType: "standard", handler: viewSearchResults  },  //검색완료
+        "airbridge.ecommerce.product.addedToCart":  { type: "web",   eventType: "standard", handler: addedToCart  },        //장바구니 담기
+        "airbridge.initiateCheckout":               { type: "order", eventType: "standard", handler: initiateCheckout  },   //사은품 선택
+        "airbridge.addPaymentInfo":                 { type: "order", eventType: "standard", handler: addPaymentInfo  },     //간편결제 등록
+        "airbridge.ecommerce.order.completed":      { type: "order", eventType: "standard", handler: completOrder  },       //주문 완료
+        "airbridge.ecommerce.order.canceled":       { type: "order", eventType: "standard", handler: cancelOrder  },        //주문 취소
+        "view_cremaclub_payment":                   { type: "crema", eventType: "custom" },         //크레마클럽 요금제 등록
+        "subscribe_cremaclub":                      { type: "crema", eventType: "custom" },        //크레마클럽 구독 완료
+        "view_sign_up":                             { type: "web",   eventType: "custom" }, //회원가입 페이지 진입
+        "view_event":                               { type: "event", eventType: "custom" }, //이벤트상세 진입
+        "engage_receive_giftcard":                  { type: "event", eventType: "custom" }, //이벤트 상품권 받기
+        "engage_receive_coupon":                    { type: "event", eventType: "custom" }, //이벤트 쿠폰 받기
+        "engage_receive_point":                     { type: "event", eventType: "custom" }, //이벤트 포인트 받기
+        "engage_join_event":                        { type: "event", eventType: "custom" }, //이벤트 참여 하기
+        "view_search_product":                      { type: "web",   eventType: "custom" }, //검색후 상품 클릭
+        "view_bestproduct":                         { type: "web",   eventType: "custom" }, //베스트셀러 진입
+        "view_giftcard":                            { type: "web",   eventType: "custom" }, //상품권 페이지 진입
+        "engage_receive_giftcard":                  { type: "web",   eventType: "custom" }, //상품권 받기
+        "like_author":                              { type: "web",   eventType: "custom" }, //관심작가 알림 신청
+        "view_cart":                                { type: "order", eventType: "custom" }, //장바구니 페이지 진입
+        "view_cremaclub":                           { type: "crema", eventType: "custom" }, //크레마클럽 메인
+        "view_cremaclub_plan":                      { type: "crema", eventType: "custom" }, //크레마클럽 요금제 조회
+    };
+  
+    var setAirbridgeLog = function (name, prop) {
+        var config = airbridgeEventMap[name];
+         if (!config) {
+                if (isDebug) console.warn("[airbridge] Unknown event type:", name);
+                return;
+            }
+        if (checkDisbleType(config.type)) { return; }
+        try {
+            if (config.eventType === "custom") {
+                sendCustomEvent(name, prop);
+            }
+            else if (config.eventType === "standard") {
+                if (typeof config.handler === "function") {
+                    config.handler(name, prop || {});
+                } else {
+                    if (isDebug) console.warn("[airbridge] Missing handler for:", name);
+                }
+                
+            }
+            else{
+                if (isDebug) console.warn("[airbridge] Undefined eventType:", config.eventType, "for", name);
+            }
+        } 
+        catch (e) {
+            if (isDebug) console.error("[airbridge] setAirbridgeLog error:", e);
+        }
+    };
+    return {
+        setAirbridgeLog: setAirbridgeLog,
+        logout: signout
+    };
+})(window.airbridgeHelper || {});
+

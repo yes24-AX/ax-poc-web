@@ -1,0 +1,796 @@
+﻿let addressPopup = (() => {
+    let ADDRESS_API_URL = "https://frontapi.yes24.com";
+    let findAddressCallbackFunc = null;
+    let myAddressCallbackFunc = null;
+    let modifyAddressCallbackFunc = null;
+    let parentPage = null;
+    let currentPlatform = null;
+    let pageNo = 1;
+    let isAjaxDoing = false;
+
+    //주소검색
+    function searchAddress() {
+        const searchAddr = document.querySelector("#txt_search_word").value.trim();
+        const addressUrl = `${ADDRESS_API_URL}/Module/SearchAddressList?addr=${encodeURIComponent(searchAddr)}&pageNo=${pageNo}`;
+
+        if (searchAddr === "") {
+            alert("검색어는 최소 2자리 이상 입력해야 합니다.");
+            return;
+        }
+
+        fetch(addressUrl)
+            .then(response => response.json())
+            .then(result => {
+                const totalSize = result.totalSize;
+                const realSize = result.realSize;
+                let resultType = 0;
+
+                if (totalSize === 0 && realSize === 0) {
+                    resultType = 3;
+                } else if (totalSize > 1000) {
+                    resultType = 2;
+                } else {
+                    resultType = 1;
+                }
+
+                document.querySelector("#nodataResult").style.display = totalSize === 0 && realSize === 0 ? "" : "none";
+                document.querySelector("#manyResults").style.display = totalSize > 1000 ? "" : "none";
+                document.querySelector("#addressList").style.display = totalSize > 0 ? "block" : "none";
+                document.querySelector("#searchDescription").style.display = totalSize > 0 ? "none" : "";
+                document.querySelector("#resultCountArea").style.display = totalSize > 0 ? "" : "none";
+                document.querySelector("#resultCnt").innerHTML = totalSize.toLocaleString();
+
+                if (totalSize > 0) {
+                    createAddressHtml(result);
+                    pageNo++;
+                    if (currentPlatform === 'p') {
+                        resetPopupTopForPC('findAddress');
+                    }
+                }
+            })
+            .catch(error => {
+                alert(error);
+            });
+    }
+
+    /**
+     * PC 팝업의 높이를 재설정
+     * @param {string} popupId - 팝업 최상위 요소의 아이디
+     */
+    function resetPopupTopForPC(popupId) {
+        const $mask = $('#maskYUI');
+        if (!$mask.is(':visible')) return;
+    
+        const $popupContainer = $(`#${popupId}`).find('.yesPopUp');
+        const windowHeight = $(window).height();
+        const windowCenterY = windowHeight / 2;
+        const popupHeight = $popupContainer.outerHeight() || 200;
+        const top = windowCenterY - (popupHeight / 2);
+
+        $popupContainer.css({ top: `${top}px` });
+    }
+
+    //초기화 및 주소 검색
+    function resetAndSearchAddress() {
+        pageNo = 1;
+        document.querySelector("#addressList").innerHTML = "";
+        searchAddress();
+    }
+
+    //더 많은 데이터 가져오기
+    function searchMoreAddress() {
+        const searchAddr = document.querySelector("#txt_search_word").value.trim();
+        const addressUrl = `${ADDRESS_API_URL}/Module/SearchAddressList?addr=${encodeURIComponent(searchAddr)}&pageNo=${pageNo}`;
+
+        fetch(addressUrl)
+            .then(response => response.json())
+            .then(result => {
+                createAddressHtml(result);
+                pageNo++;
+            });
+    }
+
+    //주소록 등록/수정
+    function addModifyMyAddress(type, formId) {
+        var domestic = $("#modifyAddress").find("ul li").filter(".on");
+        var addressChk = chkAddressVal(domestic.data("isdomestic"));
+
+        if (addressChk != false) {
+            let url = `${ADDRESS_API_URL}/Module/AddMyAddressInfo`;
+            if (type == 'update') {
+                url = `${ADDRESS_API_URL}/Module/ModifyMyAddressInfo`;
+            }
+            const form = document.getElementById(formId);
+            const formData = new FormData(form);
+            fetch(url, {
+                method: 'POST', mode: 'cors', credentials: 'include',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: new URLSearchParams(formData)
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                //주소록 수정 후 창 닫기
+                if ($("#myAddress").length > 0) {
+                    hide('modifyAddress');
+                    showMyAddress(currentPlatform, parentPage);
+                } else {
+                    location.reload();
+                    return;
+                }
+                //주소선택 팝업에서 주소수정 팝업을 다시 띄운 경우, 페이지 갱신을 위한 콜백함수
+                if (typeof modifyAddressCallbackFunc == 'function') {
+                    modifyAddressCallbackFunc();
+                }
+            }).catch(function (error) {
+                alert(`주소록 수정에 실패했습니다.\n오류 메시지: ${error.message}`);
+                console.dir(error);
+            });
+        }
+    }
+
+    //주소록 유효성 체크
+    function chkAddressVal(isDomestic) {
+        $(".yesFormTxt").hide();
+        $(".yesFormBtn").find("a").addClass("btn_disabled");
+
+        const nameChk = new RegExp(/[^a-zA-Z0-9\s]/g);
+        const emlChk = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+
+        let addr_nk;
+        let addr_nm;
+        let nat_gb;
+        let addr_zip;
+        let doroAddress;
+        let jibunAddress;
+        let detailAddress;
+        let addr_mob;
+        let addr_eml;
+
+        if (isDomestic) {
+            addr_nk = $("#addr_nk");
+            addr_nm = $("#addr_nm");
+            addr_zip = $("#addr_zip");
+            doroAddress = $("#doroAddress");
+            jibunAddress = $("#jibunAddress");
+            detailAddress = $("#detailAddress");
+            addr_mob = $("#addr_mob");
+            addr_tel = $("#addr_tel");
+            addr_eml = $("#addr_eml");
+        }
+        else {
+            addr_nk = $("#nat_addr_nk");
+            addr_nm = $("#nat_addr_nm");
+            nat_gb = $("#nat_gb");
+            addr_zip = $("#nat_addr_zip");
+            jibunAddress = $("#nat_jibunAddress");
+            detailAddress = $("#nat_detailAddress");
+            addr_mob = $("#nat_addr_mob");
+            addr_eml = $("#nat_addr_eml");
+        }
+
+        if (addr_nk.val() == "") {
+            addr_nk.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (addr_nm.val() == "") {
+            addr_nm.closest("dd").find(".yesFormTxt").text("이름을 입력해주세요.");
+            addr_nm.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (!isDomestic && nameChk.test(addr_nm.val())) {
+            addr_nm.closest("dd").find(".yesFormTxt").text("이름은 영문으로만 입력 가능합니다.");
+            addr_nm.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (!isDomestic && nat_gb.val() == "국가선택") {
+            nat_gb.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (addr_zip.val() == "") {
+            addr_zip.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (isDomestic && doroAddress.val() == "") {
+            doroAddress.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (jibunAddress.val() == "") {
+            jibunAddress.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (detailAddress.val() == "" || detailAddress.val() == "_") {
+            detailAddress.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (addr_mob.val() == "") {
+            addr_mob.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else if (addr_eml.val().trim() !== "" && !emlChk.test(addr_eml.val().trim())) {
+            addr_eml.closest("dd").find(".yesFormTxt").show();
+            return false;
+        } else {
+            if (isDomestic) {
+                $(".yesFormBtn").find("a").first().removeClass("btn_disabled");
+            } else {
+                $('input[name=NAT_GB]').val($("#nat_gb").val());
+                $(".yesFormBtn").find("a").last().removeClass("btn_disabled");
+            }
+        }
+    }
+
+    //주소록 삭제
+    function deleteMyAddress(seq, addrNm, page) {
+        let confirmMsg = addrNm + '를(을) 삭제하시겠습니까?';
+        if (confirm(confirmMsg)) {
+            const url = `${ADDRESS_API_URL}/Module/DeleteMyAddressInfo`;
+            fetch(url, {
+                method: 'POST', mode: 'cors', credentials: 'include',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: `addrSeq=${seq}`
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                if (data.IsSuccess) {
+                    document.getElementById(`myAddress_${seq}`).remove();
+                }
+                else {
+                    alert(`주소록 삭제에 실패했습니다.\n서버 오류 메시지: ${data.Message}`);
+                }
+            }).catch(function (error) {
+                alert(`주소록 삭제에 실패했습니다.\n오류 메시지: ${error.message}`);
+                console.dir(error);
+            });
+        }
+    }
+
+    //주소 결과 HTML 생성
+    function createAddressHtml(result) {
+        let resultHtml = '';
+        for (let i = 0; i < result.realSize; i++) {
+            const addressData = JSON.stringify(result.addressList[i]).replace("'", "`");
+            let templateHtml = document.querySelector("#templateAddress").innerHTML;
+
+            templateHtml = templateHtml.replaceAll('{ADDRESS_DATA}', addressData.replaceAll('"',"'"))
+                .replaceAll('{ZIP_CD}', result.addressList[i].ZIP_CD)
+                .replaceAll('{DORO_ADDRESS}', getFullDoroName(result.addressList[i]))
+                .replaceAll('{JIBUN_ADDRESS}', getJibuName(result.addressList[i]));
+
+            resultHtml += templateHtml;
+        }
+        document.querySelector("#addressList").insertAdjacentHTML('beforeend', resultHtml);
+    }
+
+    //주소 정보 획득:콜백함수 실행
+    function getAddressData(currentPopup, addressData) {
+        const simpleDoro = getSimpleDoroName(addressData);
+        const simpleJibun = getJibuName(addressData);
+        if (parentPage == 'detail') {
+            setAddressCookieInfo(addressData.ZIP_CD, addressData.ZIP_SEQ, simpleDoro, addressData.BU_MNG_NO);
+        }
+        addressData.simpleJibun = simpleJibun;
+        if (currentPopup === 'myAddress' && typeof myAddressCallbackFunc == 'function' && typeof myAddressCallbackFunc != null) {
+            addressData.simpleDoro = getAddressBookDoroName(addressData);
+            myAddressCallbackFunc(addressData);
+            hide('myAddress');
+        }
+        else if (currentPopup === 'findAddress' && typeof findAddressCallbackFunc == 'function' && typeof findAddressCallbackFunc != null) {
+            addressData.simpleDoro = simpleDoro;
+            findAddressCallbackFunc(addressData);
+            hide('findAddress');
+        } 
+        else {
+            console.log(addressData);
+        }
+    }
+
+    //회원주소 획득:콜백함수 실행
+    function getMemberAddr(addressData) {
+        setAddressCookieInfo(addressData.ZIP_CD, addressData.ZIP_SEQ, addressData.ADDR, addressData.BU_MNG_NO);
+        addressData.simpleDoro = addressData.ADDR3;
+        addressData.simpleJibun = addressData.ADDR1;
+        addressData.doroDongCity = addressData.ADDR4;
+        if (typeof findAddressCallbackFunc == 'function' && typeof findAddressCallbackFunc != null) {
+            findAddressCallbackFunc(addressData, 'member');
+            hide('findAddress');
+        }
+        else {
+            console.log(addressData);
+        }
+    }
+
+    //주소록 등록/수정 팝업에 주소정보 설정
+    function setAddress(addressData) {
+        const doroAddress = addressData.simpleDoro !== undefined ? addressData.simpleDoro : getFullDoroName(addressData);
+        const jibunAddress = addressData.simpleJibun !== undefined ? addressData.simpleJibun : getJibuName(addressData);
+        const simpleDoroName = addressData.simpleDoro !== undefined ? addressData.simpleDoro : getSimpleDoroName(addressData);
+        const doroDongCity = addressData.doroDongCity !== undefined ? addressData.doroDongCity : doroDongCityCheck(addressData.DONG_NM, checkString(addressData.CITY_BU_NM), false);
+
+        document.querySelector("#modifyAddress #addr_zip").value = addressData.ZIP_CD;
+        document.querySelector("#modifyAddress #doroAddress").value = doroAddress;
+        document.querySelector("#modifyAddress #jibunAddress").value = jibunAddress;
+        document.querySelector("#modifyAddress #hdAddr1Modify").value = checkString(jibunAddress);
+        document.querySelector("#modifyAddress #hdAddr3Modify").value = checkString(simpleDoroName);
+        document.querySelector("#modifyAddress #hdAddr4Modify").value = doroDongCity;
+        document.querySelector("#modifyAddress #hdBuMngNoModify").value = addressData.BU_MNG_NO;
+        document.querySelector("#modifyAddress #detailAddress").value = "";
+        chkAddressVal(true);
+    }
+
+    //주소정보 쿠키 저장
+    function setAddressCookieInfo(zipcd, zipSeq, addr, buMngNo) {
+        setCookie("MEM_ZIPCODE_BU_MNG_NO", buMngNo, 30);
+        setCookie("MEM_ZIPCODE_ADDR_TEXT", addr, 30);
+        setCookie("MEM_ZIPCODE_SEQ", zipSeq, 30);
+        setCookie("MEM_ZIPCODE", zipcd, 30);
+    }
+
+    //쿠키 설정
+    function setCookie(name, value) {
+        document.cookie = name + "=" + escape(value) + "; path=/;domain=.yes24.com;";
+    }
+
+    //지하 설명 가져오기
+    function getJihaDesc(gb) {
+        let where = '';
+        switch (gb) {
+            case '0':
+                where = '';
+                break;
+            case '1':
+                where = '지하';
+                break;
+            default:
+                break;
+        }
+        return where;
+    }
+
+    //도로 동 시 체크
+    function doroDongCityCheck(dong, city, isUsePrefix) {
+        let ret = '';
+        const beginPrefix = isUsePrefix ? '(' : '';
+        const endPrefix = isUsePrefix ? ')' : '';
+
+        if ((!dong && !city)) return '';
+        if (!dong) return `${beginPrefix}${city}${endPrefix}`;
+        if (!city) return `${beginPrefix}${dong}${endPrefix}`;
+        return `${beginPrefix}${dong},${city}${endPrefix}`;
+    }
+
+    //부 번호 체크
+    function buNoCheck(str) {
+        return (!str || str === 'null' || str === '0') ? '' : `-${str}`;
+    }
+
+    //값 체크
+    function valueCheck(str) {
+        return (str && str !== 'null') ? ` ${str}` : '';
+    }
+
+    //간단한 도로명 가져오기
+    function getSimpleDoroName(data) {
+        return `${data.ADDR1}${valueCheck(data.ADDR2)}${valueCheck(data.ADDR3)}${valueCheck(data.ST_NM)}${valueCheck(getJihaDesc(data.BF_GB))}${valueCheck(data.BU_MAIN_NO)}${buNoCheck(data.BU_SUB_NO)}`;
+    }
+
+    function getAddressBookDoroName(data) {
+        return `${valueCheck(data.ADDR3)}, ${valueCheck(data.ADDR2)}(${valueCheck(data.ADDR4)})`;
+    }
+
+    //전체 도로명 가져오기
+    function getFullDoroName(data, detailAddress) {
+        const tempDetailAddress = detailAddress ? `, ${detailAddress}` : '';
+        return `${getSimpleDoroName(data)}${tempDetailAddress}${doroDongCityCheck(data.DONG_NM, data.CITY_BU_NM, true)}`;
+    }
+
+    //지번명 가져오기
+    function getJibuName(data) {
+        return `${data.ADDR1}${valueCheck(data.ADDR2)}${valueCheck(data.DONG_NM)}${valueCheck(data.SAN_GB === undefined || data.SAN_GB === '0' ? '' : '산')}${valueCheck(data.JIBUN_MAIN_NO)}${buNoCheck(data.JIBUN_SUB_NO)}${valueCheck(data.CITY_BU_NM)}`;
+    }
+
+    //검색어 유효성 검사
+    function validateSearchword() {
+        const searchAddr = document.querySelector("#txt_search_word").value;
+        if (searchAddr.trim() === "" || searchAddr.trim().length < 2) {
+            alert('검색어는 최소 2자리 이상 입력해야 합니다.');
+            return false;
+        }
+        return true;
+    }
+
+    //키 코드 비교
+    function compareKey(event, compareKeycode) {
+        const keyCode = event.keyCode || event.which || event.charCode;
+        return keyCode === compareKeycode;
+    }
+
+    //엔터키 확인
+    function isEnteryKey(e) {
+        return compareKey(e, 13);
+    }
+
+    //문자열 체크
+    function checkString(str) {
+        let replaceStr = str;
+        if (str != undefined && str != '' && typeof (str) == 'string') {
+            replaceStr = replaceAll(replaceStr, '\'', '\\\'');
+            replaceStr = replaceAll(replaceStr, '"', '\\"');
+            replaceStr = replaceAll(replaceStr, '\r', '');
+            replaceStr = replaceAll(replaceStr, '\n', '');
+        }
+        return replaceStr;
+    }
+
+    //바디 스크롤 막기
+    function disableBodyScroll() {
+        const body = document.body;
+        const html = document.documentElement;
+        const yesWrap = document.getElementById('yesWrap');
+
+        if (!body.classList.contains('notScl') && !body.classList.contains('schMod')) {
+            kFocusY = window.scrollY;
+            html.classList.add('notScl');
+            body.classList.add('notScl');
+            yesWrap.style.top = `-${kFocusY}px`;
+        }
+    }
+
+    //바디 스크롤 풀기
+    function enableBodyScroll() {
+        const body = document.body;
+        const html = document.documentElement;
+        const yesWrap = document.getElementById('yesWrap');
+        const yesPagePopAreas = document.querySelectorAll('#yesWrap .yesPagePopArea');
+
+        if (yesPagePopAreas.length === 0 && body.classList.contains('notScl')) {
+            html.classList.remove('notScl');
+            body.classList.remove('notScl');
+            yesWrap.style.top = '';
+            window.scrollTo(0, kFocusY);
+        }
+    }
+
+    /**
+     * 로그인 페이지 이동
+     * @param {string} platform - 플랫폼 구분 ('m': 모바일, 'p': PC)
+     */
+    function moveLoginUrl(platform) {
+        if (platform == 'm') {
+            location.href = "https://m.yes24.com/Momo/Templates/FTLogin.aspx?ReturnURL=" + location.href;
+        }
+        else if (platform == 'p') {
+            location.href = "https://www.yes24.com/Templates/FTLogin.aspx?ReturnURL=" + location.href;
+        }
+    }
+
+    //주소록 탭 변경
+    function changeAddrBox(obj) {
+        if ($(obj).attr("data-type") == "add") {
+            $(obj).siblings().removeClass("on")
+            $(obj).addClass("on");
+            const isDomestic = $(obj).attr("data-isDomestic");
+            if (isDomestic == "true") {
+                $("#addrBox").show();
+                $("#addrBox_nat").hide();
+            } else {
+                $("#addrBox_nat").show();
+                $("#addrBox").hide();
+            }
+        }
+    }
+
+    /**
+     * 레이어 페이지 팝업 감추기
+     * @param {string} id - 팝업 아이디
+     */
+    function hide(id) {
+        pageNo = 1;
+        document.getElementById(id).remove();
+        enableBodyScroll();
+
+        const $maskArea = $('#maskYUI');
+        if ($maskArea.length > 0) {
+            $maskArea.hide();
+        }
+    }
+
+    //로그인여부 체크
+    function checkLogin() {
+        return (getCookie('ServiceCookies') == '' || getCookie('ServiceCookies') == null) ? false : true;
+    }
+
+    /**
+     * 주소찾기 팝업 모듈을 호출하여 HTML을 비동기 로드하고, 플랫폼에 따라 동작을 분기 처리
+     * @param {string} platform - [필수] 플랫폼 구분 ('m': 모바일, 'p': PC)
+     * @param {string} page - [선택] 호출 페이지 식별값
+     *   - 'detail': 팝업 타이틀 '배송지역 변경', 공통 동작 적용
+     *   - 'cart': 팝업 타이틀 '주소찾기', 공통 동작 적용
+     *   - 기타: 팝업 타이틀 '주소찾기', 공통 동작 미적용
+     * 
+     *   → 공통 동작: (미로그인) 로그인 버튼 노출, (로그인) 나의 주소 또는 마지막 배송지 정보 노출
+     * @param {function} callback - [필수] 주소 선택 시 실행될 콜백 함수
+     * @param {boolean} isDev - [선택] 개발 환경 여부 (true면 개발 API 사용)
+     * @param {object} options - [조건부 필수] PC 플랫폼일 경우에만 필수 옵션
+     * @param {number} options.Width - 팝업 너비 (px 단위)
+     * @param {HTMLElement} [options.Element] - 기준이 되는 버튼 요소
+     * @param {boolean} [options.Mask] - 마스크 노출 여부
+     */
+    function showFindAddress(platform, page, callback, isDev, options) {
+        if (isDev) {
+            ADDRESS_API_URL = "https://frontapi-dev.yes24.com";
+        }
+
+        setFindAddressCallback(callback);
+        parentPage = page;
+        currentPlatform = platform;
+        const url = `${ADDRESS_API_URL}/Module/FindAddress?platform=${platform}&page=${page}`;
+        fetch(url, {
+            method: 'GET', mode: 'cors', credentials: 'include'
+        }).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            $('#yesWrap').append(data);
+            if (platform === 'm') {
+                disableBodyScroll();
+            }
+            else if (platform === 'p') {
+                setPopupPositionForPC('findAddress', options);
+            }
+            init();
+        }).catch(function (error) { });
+    }
+    
+    /**
+     * PC 팝업의 위치를 지정
+     * @param {string} popupId - 팝업 최상위 요소의 아이디
+     * @param {object} options - 팝업 옵션 객체
+     * @param {number} options.Width - 팝업 너비(px 단위)
+     * @param {HTMLElement} [options.Element] - 기준이 되는 버튼 요소
+     * @param {boolean} [options.Mask] - 마스크 노출 여부
+     */
+    function setPopupPositionForPC(popupId, options) {
+        const $findAddress = $(`#${popupId}`);
+        const $popupInner = $findAddress.find('.popYUIArea');
+        const $popupContainer = $findAddress.find('.yesPopUp');
+        
+        //내부 팝업 너비 고정
+        $popupInner.css('width', options.Width + 'px');
+
+        let top;
+        let marginLeft;
+        let position;
+
+        const windowWidth = $(window).width();
+        const windowCenterX = windowWidth / 2;
+        const popupWidth = options.Width || $popupInner.outerWidth();
+        
+        if (options.Mask) {
+            //마스크 노출
+            const $maskArea = $('#maskYUI');
+            if ($maskArea.length > 0) {
+                $maskArea.show();
+            }
+            else {
+                $('#yesWrap').append(`<div id="maskYUI" style="display: block;"></div>`);
+            }
+
+            const windowHeight = $(window).height();
+            const windowCenterY = windowHeight / 2;
+            const popupHeight = $popupContainer.outerHeight() || 200;
+
+            top = windowCenterY - (popupHeight / 2);
+            marginLeft = - popupWidth / 2;
+            position = 'fixed';
+        }
+        else {
+            const $button = $(options.Element);
+            const buttonOffset = $button.offset();
+            const buttonHeight = $button.outerHeight();
+            const elementCenter = buttonOffset.left + ($button.outerWidth() / 2);
+            const popupOffsetLeft = elementCenter - (popupWidth / 2);
+            
+            top = buttonOffset.top + buttonHeight + 10;
+            marginLeft = popupOffsetLeft - windowCenterX;
+            position = 'absolute';
+        }
+
+        $popupContainer.css({ position: `${position}`, marginLeft: `${marginLeft}px`, top: `${top}px` });
+    }
+
+    /**
+     * 주소찾기 팝업 콜백 실행
+     * @param {function} callback - 콜백 함수
+     */
+    function setFindAddressCallback(callback) {
+        if (typeof callback === 'function') {
+            findAddressCallbackFunc = callback;
+        }
+    }
+    
+    //주소 선택 팝업 오픈
+    function showMyAddress(platform, page, callback) {
+        if (!checkLogin()) {
+            alert("주소록은 로그인 후 이용할 수 있습니다.");
+            return;
+        }
+        if (typeof callback != 'undefined') {
+            myAddressCallbackFunc = callback;
+        }
+        currentPlatform = platform;
+        parentPage = page;
+        const url = `${ADDRESS_API_URL}/Module/MyAddress?platform=${platform}&page=${page}`;
+        if (platform == "m") {
+            fetch(url, {
+                method: 'GET', mode: 'cors', credentials: 'include'
+            }).then(function (response) {
+                return response.text();
+            }).then(function (data) {
+                const elements = document.querySelectorAll("#myAddress");
+                if (elements.length > 0) {
+                    elements[0].remove();
+                }
+
+                $('#yesWrap').append(data);
+                pageNo++;
+                disableBodyScroll();
+                init();
+            }).catch(function (error) { });
+        }
+        else if (platform == "p") {
+
+        }
+    }
+
+    //주소록 더보기 HTML 생성
+    function appendMyAddressHtml(data) {
+        let resultHtml = '';
+        for (let i = 0; i < data.length; i++) {
+            let templateHtml = document.getElementById('templateMyAddress').innerHTML;
+            const result = `{ZIP_CD: '${data[i].Zip}',ZIP_SEQ: '${data[i].ZipSeq}', ADDR1: '${data[i].Addr1}',ADDR2: '${data[i].Addr2}',ADDR3: '${data[i].Addr3}',ADDR4: '${data[i].Addr4}',BU_MNG_NO: '${data[i].BU_MNG_NO}',NAT_GB: '${data[i].NAT_GB}',TEL_NO: '${data[i].TelNo}', MOB_NO: '${data[i].MobNo}',ADDR_NM: '${data[i].ADDR_NM}'}`;
+
+            templateHtml = templateHtml
+                .replaceAll('{SEQ}', data[i].Seq)
+                .replaceAll('{ADDR_NM}', data[i].ADDR_NM)
+                .replaceAll('{ADDR_NICK}', data[i].ADDR_NICK)
+                .replaceAll('{ADDRESS_STYLE}', data[i].NAT_GB == '101' ? '' : 'display:none;')
+                .replaceAll('{GLOBAL_STYLE}', data[i].NAT_GB == '101' ? 'display:none;' : '')
+                .replaceAll('{ZIP_CODE}', data[i].Zip !== '' ? `(${data[i].Zip}) ` : ``)
+                .replaceAll('{ADDRESS_TEXT}', `${data[i].Addr3}, ${data[i].Addr2} (${data[i].Addr4})`)
+                .replaceAll('{ADDRESS_TEXT2}', `${data[i].Addr1} ${data[i].Addr2}`)
+                .replaceAll('{MOB_NO}', data[i].MobNo)
+                .replaceAll('{TELNO_STYLE}', data[i].TelNo == '' ? 'display:none;' : '')
+                .replaceAll('{TEL_NO}', data[i].TelNo == '' ? '' : data[i].TelNo)
+                .replaceAll('{MY_ADDRESS_JSON}', result);
+            resultHtml += templateHtml;
+        }
+        const moreButtonArea = document.getElementById('addressMoreButtonArea');
+        if (moreButtonArea) {
+            moreButtonArea.insertAdjacentHTML('beforebegin', resultHtml);
+        } else {
+            document.getElementById('myAddrList').insertAdjacentHTML('beforeend', resultHtml);
+        }
+    }
+
+    //주소록 더보기
+    function moreMyAddress(platform, page, totalCount) {
+        if (!checkLogin()) {
+            alert("주소록은 로그인 후 이용할 수 있습니다.");
+            return;
+        }
+        const url = `${ADDRESS_API_URL}/Module/MoreMyAddress?platform=${platform}&page=${page}&pageNo=${pageNo}`;
+        if (platform == "m") {
+            fetch(url, {
+                method: 'GET', mode: 'cors', credentials: 'include'
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                appendMyAddressHtml(data);
+                pageNo++;
+                const displayCount = document.querySelectorAll('#myAddrList .addrBox').length;
+                if (totalCount === displayCount) {
+                    document.getElementById('addressMoreButton').remove();
+                }
+            }).catch(function (error) { });
+        }
+        else if (platform == "p") {
+
+        }
+    }
+
+    //주소록 등록/수정 팝업 오픈
+    function showMofifyAddress(platform, page, type, addrSeq, callback) {
+        if (!isAjaxDoing && $("#modifyAddress").length == 0) {
+            if (!checkLogin()) {
+                alert("주소록은 로그인 후 이용할 수 있습니다.");
+                return;
+            }
+            if (typeof callback != 'undefined') {
+                modifyAddressCallbackFunc = callback;
+            }
+            const url = `${ADDRESS_API_URL}/Module/AddModifyAddress?platform=${platform}&page=${page}&type=${type}&addrSeq=${addrSeq}`;
+            if (platform == "m") {
+                isAjaxDoing = true;
+                fetch(url, {
+                    method: 'GET', mode: 'cors', credentials: 'include'
+                }).then(function (response) {
+                    return response.text();
+                }).then(function (data) {
+                    $('#yesWrap').append(data);
+                    disableBodyScroll();
+                    init();
+                }).catch(function (error) {
+                }).finally(function () {
+                    isAjaxDoing = false;
+                });
+            }
+            else if (platform == "p") {
+
+            }
+        }
+    }
+
+    //초기화 및 이벤트 설정
+    function init() {
+        document.querySelector("#txt_search_word").addEventListener("keydown", function (e) {
+            if (isEnteryKey(e)) {
+                if (validateSearchword()) {
+                    resetAndSearchAddress();
+                }
+            }
+        });
+
+        document.querySelector("#resultArea").addEventListener('scroll', function () {
+            const scrollTop = this.scrollTop;
+            const scrollHeight = this.scrollHeight;
+            const offsetHeight = this.offsetHeight;
+
+            // 스크롤이 끝에 도달했을 때
+            if (scrollTop + offsetHeight >= scrollHeight) {
+                searchMoreAddress();
+            }
+        });
+        document.querySelector("#txt_search_word").focus();
+    }
+
+    function chkNatVal(element) {
+        //키보드 상의 특수문자와 알파벳, 숫자만 허용
+        element.value = element.value.replace(/[^a-zA-Z0-9 !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/g, '');
+    }
+
+    function openThisUrl(url) {
+        var strInfo = '';
+        var iosUrlScheme = '';
+        var andUrlScheme = '';
+
+        strInfo = '?url=' + escape(url);
+
+        iosUrlScheme = 'YES24://OPENURL' + strInfo;
+        andUrlScheme = 'intent://OPENURL' + strInfo + '#Intent;scheme=YES24;package=com.yes24.commerce;end';
+
+        if (APP_GB == 'YES24') {
+            if (IS_ANDROID) {
+                location.href = andUrlScheme;
+            } else if (IS_IOS) {
+                location.href = iosUrlScheme;
+            }
+        } else {
+            location.href = IS_ANDROID ? andUrlScheme : 'https://yes24app.page.link/MAIN';
+        }
+    }
+
+    return {
+        showFindAddress,
+        showMyAddress,
+        moreMyAddress,
+        showMofifyAddress,
+        hide,
+        resetAndSearchAddress,
+        addModifyMyAddress,
+        deleteMyAddress,
+        getAddressData,
+        getMemberAddr,
+        setAddress,
+        moveLoginUrl,
+        chkAddressVal,
+        changeAddrBox,
+        doroDongCityCheck,
+        checkString,
+        chkNatVal,
+        openThisUrl
+    };
+})();

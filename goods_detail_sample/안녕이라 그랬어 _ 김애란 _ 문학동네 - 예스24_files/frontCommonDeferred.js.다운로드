@@ -1,0 +1,163 @@
+﻿$(document).ready(function () {
+    if (IS_NATIVE_APPS && APP_GB == 'YES24') {
+        $("body").addClass("isApp");
+
+        //앱 버전 체크
+        var getAppVersion = getCookie('APP_V');
+        var currentAppV = (getAppVersion == '0.0.0' || getAppVersion == null) ? null : getAppVersion;
+        if (currentAppV != null && currentAppV != undefined) {
+            if (IS_ANDROID) {
+                var androidVersion = getAndroidVersion();
+                if (androidVersion != null && parseFloat(androidVersion) >= 8) {
+                    var targetAppVAnd = Date.now() >= new Date("2026-04-27T00:00:00+09:00").getTime() ? "2.9.46" : "2.9.43";
+                    var arrCurrentAppV = currentAppV.split('.');
+                    var arrTargetAppVAnd = targetAppVAnd.split('.');
+                    var iCurrentAppV = (parseInt(arrCurrentAppV[0]) * 1000) + (parseInt(arrCurrentAppV[1]) * 100) + parseInt(arrCurrentAppV[2]);
+                    var iTargetAppVAnd = (parseInt(arrTargetAppVAnd[0]) * 1000) + (parseInt(arrTargetAppVAnd[1]) * 100) + parseInt(arrTargetAppVAnd[2]);
+                    if (iCurrentAppV < iTargetAppVAnd) {
+                        var message = '안정적인 서비스 이용을 위해 <br/>최신버전으로 업데이트해 주세요.';
+                        oneBtnDialog.callbackShow('도서앱 업데이트 안내', message, '업데이트하기'
+                            , function () { location.href = 'market://details?id=com.yes24.commerce'; }
+                            , function () { location.href = 'market://details?id=com.yes24.commerce'; });
+                    }
+                }
+            }
+            else if (IS_IOS) {
+                var targetAppVIOS = "3.7.37";
+                var arrCurrentAppV = currentAppV.split('.');
+                var arrTargetAppVIOS = targetAppVIOS.split('.');
+                var iCurrentAppV = (parseInt(arrCurrentAppV[0]) * 1000) + (parseInt(arrCurrentAppV[1]) * 100) + parseInt(arrCurrentAppV[2]);
+                var iTargetAppVIOS = (parseInt(arrTargetAppVIOS[0]) * 1000) + (parseInt(arrTargetAppVIOS[1]) * 100) + parseInt(arrTargetAppVIOS[2]);
+                if (iCurrentAppV < iTargetAppVIOS) {
+                    var message = '안정적인 서비스 이용을 위해 <br/>최신버전으로 업데이트해 주세요.';
+                    oneBtnDialog.callbackShow('도서앱 업데이트 안내', message, '업데이트하기'
+                        , function () { location.href = 'https://itunes.apple.com/app/id360051536?mt=8'; }
+                        , function () { location.href = 'https://itunes.apple.com/app/id360051536?mt=8'; });
+                }
+            }
+        }
+    }
+
+    //로그인/아웃 버튼 설정 (MobCommonFooter.js 미포함 하는 경우)
+    if (getCookie('ServiceCookies') != null && getCookie('ServiceCookies') != '') {
+        var queryString = "";
+        if (location.host.toLocaleLowerCase() == "ssl.yes24.com") {
+            queryString = "?ReturnURL=https://m.yes24.com";
+        }
+        var logoutUrl = MOBILE_URL + "/Momo/Templates/FTLogOut.aspx";
+        logoutUrl = logoutUrl + queryString;
+
+        $("#loginOutLink").attr("href", "javascript:setMcodeNRedirection('" + logoutUrl + "', '003_001')");
+        $("#loginOutLink").attr("onclick", "brazeHelper.logout(); airbridgeHelper.logout();");
+        $("#loginOutLink").find(".txt").text("로그아웃");
+    }
+
+    if ($("#content_wrap").length > 0) {
+        //웰컴이 아닌 푸터가 있는 모든 페이지에서 노출
+        $("#yesBackBtn").addClass("btn_topActive");
+        if (typeof (isDetail) != "undefined" && isDetail == true) {
+            if ($("#goodsBuyWrap .gd_buyBtnLi .btnDes").length > 0) {
+                $("#yesBotBtnWrap").addClass("dBar85");//.css("bottom", "85px");
+            } else {
+                $("#yesBotBtnWrap").addClass("dBar65");//.css("bottom", "65px");
+            }
+
+            //이북대표상품 안드로이드앱에서 구매바 제거
+            if (typeof (isEBookMaster) != "undefined" && isEBookMaster == "True" && isInAppPay == "True") {
+                $("#yesBotBtnWrap").removeClass("dBar65");
+            }
+
+        } else {
+            //뒤로가기를 통해 웰컴으로 이동한 경우 '앞으로가기 버튼' 노출
+            if ($("#contentArea").length > 0) {
+                var thisPage = getCookie("PageName");
+                if (GetLocalStorageValue('clickMoreNewUsed') == 'Y' && thisPage == "New") {
+                    $("#yesBackBtn").show();
+                } else {
+                    $("#yesBackBtn").hide();
+                    var fowardBtnURL = GetLocalStorageValue("FowardBtnURL");
+                    if (fowardBtnURL != null && fowardBtnURL != "") {
+                        $("#yesForwardBtn").addClass("btn_topActive");
+                    }
+                }
+            }
+        }
+
+        var lastScrollY = 0;
+        var ticking = false;
+
+        var update = function () {
+            // do your stuff
+            var welPageName = GetCookie("PageName");
+            // welcome top nav
+            if ($("#navRow").length > 0) {
+                if (lastScrollY >= $("#content_wrap").offset().top + 54) {
+                    $("#navRow").addClass("fixed");
+                    if (isSubMnu && welPageName == "Ebook") {
+                        $("#subMnu").addClass("fixed");
+                    }
+                    else if (isSubMnu && welPageName == "Best") {
+                        $("#bestMnu").addClass("fixed");
+                    }
+                    else if (welPageName == "New") {
+                        $("#newMnu").addClass("fixed");
+                    }
+                } else {
+                    $("#navRow").removeClass("fixed");
+                    $("#subMnu").removeClass("fixed");
+                    $("#bestMnu").removeClass("fixed");
+                    $("#newMnu").removeClass("fixed");
+                }
+            }
+
+            // top button
+            if (lastScrollY > $("#content_wrap").offset().top) {
+                $("#yesTopBtn").addClass("btn_topActive");
+            } else {
+                $("#yesTopBtn").removeClass("btn_topActive");
+            }
+
+            // 모바일 전시 리스트 타이틀
+            if ($("#subTitle_wrap.renew").length > 0) {
+                if (lastScrollY >= $("#content_wrap").offset().top) {
+                    $("#subTitle_wrap").addClass("fixed");
+                } else {
+                    $("#subTitle_wrap").removeClass("fixed");
+                }
+            }
+            //// 모바일 전시개편 삭제
+            //// 모바일 전시 리스트 카테고리
+            //if ($("#cateRenewSTop").length > 0) {
+            //    // 26px 70 - 44 (리스트 카테고리 높이 - 카테고리바 높이)
+            //    if (lastScrollY >= $("#cateRenewSTop").offset().top + 26) {
+            //        $("#cateRenewSTop").addClass("fixed");
+            //    } else {
+            //        $("#cateRenewSTop").removeClass("fixed");
+            //    }
+            //}
+            ticking = false;
+        };
+
+        var requestTick = function () {
+            if (!ticking) {
+                var requestAnimationFrame = window.requestAnimationFrame
+                    || window.webkitRequestAnimationFrame
+                    || window.mozRequestAnimationFrame
+                    || window.msRequestAnimationFrame
+                    || function (callback) { return setTimeout(callback, 1000 / 60); };
+
+                requestAnimationFrame(update);
+
+                ticking = true;
+            }
+        };
+        var onScroll = function () {
+            lastScrollY = window.scrollY;
+            requestTick();
+        };
+
+        $(window).on('scroll', onScroll);
+    }
+
+    $(window).on('scroll', showOrHideTopButton());
+});

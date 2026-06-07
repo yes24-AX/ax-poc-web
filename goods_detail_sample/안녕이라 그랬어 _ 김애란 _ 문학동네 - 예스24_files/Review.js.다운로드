@@ -1,0 +1,1088 @@
+﻿const review = createReview();
+
+function createReview() {
+    var isDebug = false;
+
+    var isAjaxDoing = "N";
+    var pageNumber = 1;
+    var pageSize = 10;
+    var event_tp = 'page_load';
+    var sort_tp = 2;
+    var review_tp = 1;
+    var check_dojung = 0;
+
+    var goodsNo = g_GoodsNo;
+    var goodsGb = g_GoodsGb;
+    var goodsSetYn = g_sSetYn;
+
+    var photoReviewDetailSwiper;
+    var isSlideTransition = false;      // 포토/동영상 리뷰 슬라이드 변경 여부
+    var isPhotoReviewLoading = false;   // 포토/동영상 리뷰 로딩 동작 여부
+    var isLoadPhotoReviewList = false;  // 포토/동영상 리뷰 목록 추가 여부
+    var isHistoryChenage = false;       // history 변경 여부
+
+    var photoReviewCount = 0;
+    var photoReviewPageSize = 30;
+    var photoReviewThumbPageNo = 1;
+    var photoReviewDetailPageNo = 1;
+
+    var arrRecommendList = [];          // 리뷰 추쳔 목록
+
+    return {
+        setIsDebug: function (val) {
+            if (typeof val === 'boolean') {
+                isDebug = val;
+            }
+        },
+        setCheckDojung: function (val) {
+            if (typeof val === 'number') {
+                check_dojung = val;
+            }
+        },
+        setGoodsNo: function (val) {
+            if (typeof val === 'string') {
+                goodsNo = val;
+            } else {
+                goodsNo = val;
+            }
+        },
+        setGoodsGb: function (val) {
+            if (typeof val === 'string') {
+                goodsGb = val;
+            } else {
+                goodsNo = val;
+            }
+        },
+        setPageSize: function (val) {
+            if (typeof val === 'number') {
+                pageSize = val;
+            }
+        },
+        setPhotoReviewCount: function (val) {
+            if (typeof val === 'number') {
+                photoReviewCount = val;
+            }
+        },
+        // 포토/동영상 리뷰 타이틀 표시
+        setPhotoReviewTitleCount: function () {
+            $('#photoReviewTitleCount').children('h3.tit_txt').html('포토/동영상 (' + photoReviewCount + ')');
+        },
+        getSortTp: function () {
+            return sort_tp;
+        },
+        getReviewTp: function () {
+            return review_tp;
+        },
+        getCheckDojung: function () {
+            return check_dojung;
+        },
+        getReviewPhotoCount: function () {
+            return photoReviewCount;
+        },
+        toggleRecommendList: function (val) {
+            var recommendListIndex = arrRecommendList.indexOf(val);
+
+            if (recommendListIndex !== -1) {
+                arrRecommendList.splice(recommendListIndex, 1);
+            } else {
+                arrRecommendList.push(val);
+            }
+        },
+        // 디버그 로그 출력
+        log: function (msg) {
+            if (isDebug) {
+                console.log(msg);
+            }
+        },
+        // 저자 소개
+        viewOrigin: function (obj) {
+            var tarObj = $(obj).parents('.authIntroduce');
+            tarObj.addClass('viewOrigin');
+        },
+        // 리뷰 더보기
+        toggleRevw: function (obj) {
+            var tarObj = $(obj).parents('.revwSet');
+            tarObj.toggleClass('revwOpen');
+            if (!tarObj.hasClass('revwOpen')) {
+                sclTop(tarObj, -100, 0);
+
+                setTimeout(function () {
+                    sclTop(tarObj, -50, 300);
+                }, 50);
+            }
+        },
+        // 스포일러 보기
+        showSpoiler: function (obj) {
+            var tarObj = $(obj).parents('.spoiler').parent().parent();
+
+            setTimeout(function () {
+
+                var reviewNo = $(obj).parent().parent().attr('data-review-seq');
+
+                if (typeof reviewNo === 'undefined') {
+                    reviewNo = $('#hdPhotoReviewShowIdx').val();
+                }
+
+                if (reviewNo > 0) {
+                    $('#revwSetItem' + reviewNo).children('.revwSpoiler').remove();
+                    $('#revwSetItem' + reviewNo).removeClass('spoiler');
+
+                    $('#photoReviewThumbTop' + reviewNo).children('.spoilerMsg').remove();
+                    $('#photoReviewThumbTop' + reviewNo).removeClass('spoiler');
+                    $('#photoReviewThumb' + reviewNo).children('.spoilerMsg').remove();
+                    $('#photoReviewThumb' + reviewNo).removeClass('spoiler');
+
+                    if (reviewNo == $('#hdPhotoReviewShowIdx').val()) {
+                        var reviewIdx = review.getReviewIdxByReviewNo(reviewNo);
+
+                        $('#yDetailBot[name=photoReviewDetail' + reviewIdx).find('.revwSpoiler').remove();
+                        $('#yDetailBot[name=photoReviewDetail' + reviewIdx).find('.spoiler').removeClass('spoiler');
+
+                        review.setDetailReviewAdjust(reviewIdx, reviewNo);
+                    }
+                }
+            }, 500);
+        },
+        // 리뷰 더보기
+        getMore: function () {
+            event_tp = 'change_page';
+
+            review.dataLoad();
+        },
+        // 리뷰 순서 변경
+        changeSort: function (sortTp) {
+            event_tp = 'page_load'
+            sort_tp = sortTp;
+
+            review.dataLoad();
+        },
+        // 리뷰 종류 변경
+        changeType: function (reviewTp, checkDojung = 0) {
+            review_tp = reviewTp;
+            check_dojung = checkDojung;
+            event_tp = 'page_load'
+
+            review.dataLoad();
+        },
+        // 시리즈 권수 변경
+        changeSeries: function () {
+            event_tp = 'page_load_series'
+
+            var obj = $('#reviewSeriesList option:selected');
+
+            var goods_no = obj.data("goodsno");
+            var goods_gb = obj.data("goodsgb");
+
+            if (goods_no == '') {
+                goods_no = g_GoodsNo;
+                goods_gb = g_GoodsGb;
+            }
+
+            review.setGoodsNo(goods_no);
+            review.setGoodsGb(goods_gb);
+
+            review.dataLoad();
+
+            if (obj.text() === "전체") {
+                $('label[for="reviewSeriesList"] .txt').text(obj.val());
+            } else {
+                $('label[for="reviewSeriesList"] .txt').text(obj.text());
+            }
+        },
+        // 이벤트에 따른 페이지 설정
+        setEventTypePageNumber: function () {
+            if (event_tp === 'change_page') {
+                pageNumber++;
+            }
+            else {
+                pageNumber = 1;
+            }
+        },
+        // 리뷰 불러오기
+        dataLoad: function () {
+            $("#reviewMoreBtn").css("display", "none");
+
+            review.setEventTypePageNumber();
+
+            var actionUri = '/Goods/ReviewList/' + goodsNo + '?pageSize=' + pageSize + '&pageNumber=' + pageNumber + '&goodsSetYn=' + goodsSetYn
+                + '&sort_tp=' + sort_tp + '&review_tp=' + review_tp + '&goodsGb=' + goodsGb + '&checkDojung=' + check_dojung;
+
+            loadingShow();
+
+            try {
+                var param = {
+                    method: 'GET', headers: { 'Content-Type': 'application/json' }, timeout: 5000,
+                    url: actionUri, async: true, queryString: '',
+                    callback: function (response) {
+
+                        loadingHide();
+
+                        if (pageNumber == 1) {
+                            $('#reviewList').html(response);
+
+                            const photoReviewList = document.getElementById('photoReviewList');
+
+                            if (photoReviewList?.children.length === 0) {
+                                review.photoReviewDataLoad();
+                            }
+                        } else {
+                            $('#reviewList').append(response);
+                        }
+
+                        if (event_tp == 'change_page' || event_tp == undefined) {
+                            window.scrollBy({
+                                top: $('.revwSet').height(),
+                                behavior: 'smooth',
+                            });
+                        }
+
+                        if (event_tp == 'page_load_series') {
+                            review.photoReviewDataLoad();
+                        }
+
+                        //리뷰 추천여부 바인딩
+                        review.setMemberRecommendList();
+                    }
+                };
+                yes_ajax(param);
+            } catch (e) { }
+        },
+        // 포토/동영상 리뷰 불러오기
+        photoReviewDataLoad: function () {
+            var actionUri = '/Goods/PhotoReview/' + goodsNo;
+
+            loadingShow();
+
+            try {
+                var param = {
+                    method: 'GET', headers: { 'Content-Type': 'application/json' }, timeout: 5000,
+                    url: actionUri, async: true, queryString: '',
+                    callback: function (response) {
+                        loadingHide();
+
+                        var targetElement = $(response).filter('#photoReviewList').clone().wrapAll("<div/>").parent().html();
+
+                        if (targetElement !== undefined) {
+                            $('#photoReviewSection').css('display', '');
+                            $('#photoReviewList').replaceWith(targetElement);
+                            review.setBackgroundImageLazyLoad();
+                        } else {
+                            $('#photoReviewSection').css('display', 'none');
+                            $('#photoReviewList').html('');
+                        }
+
+                        $('#dPop_pagePhoto').remove();
+                    }
+                };
+                yes_ajax(param);
+            } catch (e) { }
+        },
+        // 리뷰 추천
+        likeThis: function (obj, seqNo) {
+            var current_review = $('[data-review-seq=' + seqNo + ']');
+            var review_writer = current_review.attr('data-review-writerNo');
+            var review_goodsNo = current_review.attr('data-review-goodsNo');
+            
+            if (!check_login()) {
+                basicDialog.confirm('알림', '로그인이 필요합니다.<br/>로그인 하시겠습니까?', '확인', '취소', _goLoginPage);
+                return;
+            }
+            else if (review_writer == _CurrentMemNo) {
+                oneBtnDialog.show('알림', '자신의 리뷰는 추천할 수 없습니다.', '확인');
+                return;
+            }
+            if (isAjaxDoing == 'N') {
+                isAjaxDoing = 'Y';
+
+                try {
+                    var queryString = 'seqNo=' + seqNo;
+                    queryString += '&goodsNo=' + review_goodsNo;
+
+                    var isToggleClass = false;
+
+                    var param = {
+                        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 5000,
+                        url: '/Goods/AddReviewRecommend', async: true, queryString: queryString,
+                        callback: function (response) {
+                            if (response.result == '1') {
+
+                                //현재 추천수
+                                var current_count = $(current_review.find('em[name=recommend_count]')[0]).text();
+                                var recommend_count = parseInt(current_count) + 1;
+
+                                //추천수 변경
+                                current_review.find('em[name=recommend_count]').text(recommend_count);
+
+                                current_review.find(".lnk_like").addClass('likeOn');
+                                review.toggleRecommendList(seqNo);
+
+                                isToggleClass = true;
+                                brazeHelper.setBrazeLog("YS_review_like_completed", { product_id: g_GoodsNo, product_name: g_GoodsName });
+
+                            }
+                            else if (response.result == '-1') {
+
+                                //현재 추천수
+                                var current_count = $(current_review.find('em[name=recommend_count]')[0]).text();
+                                var recommend_count = parseInt(current_count);
+
+                                if (recommend_count > 0) {
+                                    recommend_count--;
+
+                                    //추천수 변경
+                                    current_review.find('em[name=recommend_count]').text(recommend_count);
+
+                                    current_review.find(".lnk_like").removeClass('likeOn');
+                                    review.toggleRecommendList(seqNo);
+
+                                    isToggleClass = true;
+                                }
+                            }
+                            else if (response.result == "-2") {
+                                document.location.href = SARAK_URL + '/popup/sarak-open';
+                            }
+                            else if (response.result == "-99") {
+                                basicDialog.confirm('알림', '로그인이 필요합니다.<br/>로그인 하시겠습니까?', '확인', '취소', _goLoginPage);
+                            }
+                            else if (response.result == "-10") {
+                                oneBtnDialog.show('알림', '존재하지 않는 리뷰 입니다.', '확인');
+                            }
+                            else if (response.result == "-20") {
+                                oneBtnDialog.show('알림', '자신의 리뷰는 추천할 수 없습니다.', '확인');
+                            }
+                            else {
+                                oneBtnDialog.show('알림', '오류가 발생하였습니다.', '확인');
+                            }
+                        }
+                    };
+                    yes_ajax(param);
+                }
+                catch (e) { }
+                finally {
+                    isAjaxDoing = 'N';
+
+                    if (isToggleClass) {
+                        $(obj).toggleClass('likeOn');
+                    }
+                }
+            }
+        },
+        // 리뷰 추천 항목 조회 및 처리
+        setMemberRecommendList: function () {
+            try {
+                var arr_seq_no = [];
+                var arr_area = $('.revwSet');
+
+                arr_area.each(function (i) {
+                    var seq_no = $(this).attr('data-review-seq');
+                    if (seq_no !== undefined) {
+                        arr_seq_no.push(seq_no);
+                    }
+                });
+
+                arr_area = $('.thumbSet');
+
+                arr_area.each(function (i) {
+                    var seq_no = $(this).attr('data-review-seq');
+                    if (seq_no !== undefined) {
+                        arr_seq_no.push(seq_no);
+                    }
+                });
+
+                arr_seq_no = arr_seq_no.reduce((ac, v) => ac.includes(v) ? ac : [...ac, v], []);    // 중복 제거
+
+                // 바인딩된 리뷰의 SEQ 번호
+                var seq_no_list = arr_seq_no.join(',');
+                var request_url = '/Goods/GetMemberReviewRecommendList';
+                var queryString = '?seqNoList=' + seq_no_list + '&goodsNo=' + goodsNo;
+
+                request_url += queryString;
+
+                if (seq_no_list.length > 0 && g_UserId.length > 0) {
+                    var param = {
+                        method: 'GET', headers: { 'Content-Type': 'application/json' }, timeout: 5000,
+                        url: request_url, async: true,
+                        callback: function (response) {
+                            arrRecommendList = [];
+
+                            for (i = 0; i < response.result.length; i++) {
+                                var ar_seq_no = response.result[i].SeqNo;
+                                arrRecommendList.push(ar_seq_no);
+                            }
+
+                            review.bindMemberRecommend();
+                        }
+                    };
+                    yes_ajax(param);
+                }
+            } catch (e) { }
+        },
+        // 리뷰 추천 아이콘 활성
+        bindMemberRecommend: function () {
+            for (i = 0; i < arrRecommendList.length; i++) {
+                var ar_seq_no = arrRecommendList[i];
+                var recommend_element = $('[data-review-seq=' + ar_seq_no + ']');
+                var element_seq_no = $(recommend_element).attr('data-review-seq');
+
+                if (element_seq_no == ar_seq_no) {
+                    $(recommend_element).find('.lnk_like').addClass('likeOn');
+                } else {
+                    $(recommend_element).find('.lnk_like').removeClass('likeOn');
+                }
+            }
+        },
+        // 리뷰 신고
+        openReport: function (reviewNo) {
+            if (!check_login()) {
+                basicDialog.confirm('알림', '로그인이 필요합니다.<br/>로그인 하시겠습니까?', '확인', '취소', _goLoginPage);
+                return;
+            }
+            else {
+                $.ajax({
+                    type: "POST",
+                    dataType: 'json',
+                    url: '/Goods/CheckSarakBlackList',
+                    success: function (result) {
+                        if (result.IsSarakBlackList) {
+                            review.showBlackListMsg();
+                        } else {
+                            window.open(SARAK_URL + '/popup/report/' + reviewNo);
+                        }
+                    }
+                });
+            }
+        },
+        // 평점, 연령대 그래프 설정
+        setChartGraph: function () {
+            var percent10 = $("#starChart li").eq(0).attr('data-percent');
+            var percent8 = $("#starChart li").eq(1).attr('data-percent');
+            var percent6 = $("#starChart li").eq(2).attr('data-percent');
+            var percent4 = $("#starChart li").eq(3).attr('data-percent');
+            var percent2 = $("#starChart li").eq(4).attr('data-percent');
+
+            var average10 = $("#ageChart li").eq(0).attr('data-average');
+            var average20 = $("#ageChart li").eq(1).attr('data-average');
+            var average30 = $("#ageChart li").eq(2).attr('data-average');
+            var average40 = $("#ageChart li").eq(3).attr('data-average');
+            var average50 = $("#ageChart li").eq(4).attr('data-average');
+
+            setTimeout(function () {
+                $("#starChart li").eq(0).find('span[name=chart_graph]').css('width', percent10 + '%');
+                $("#ageChart li").eq(0).find('span[name=chart_graph]').css('width', (average10 * 10) + '%');
+            }, 0);
+            setTimeout(function () {
+                $("#starChart li").eq(1).find('span[name=chart_graph]').css('width', percent8 + '%');
+                $("#ageChart li").eq(1).find('span[name=chart_graph]').css('width', (average20 * 10) + '%');
+            }, 0);
+            setTimeout(function () {
+                $("#starChart li").eq(2).find('span[name=chart_graph]').css('width', percent6 + '%');
+                $("#ageChart li").eq(2).find('span[name=chart_graph]').css('width', (average30 * 10) + '%');
+            }, 0);
+            setTimeout(function () {
+                $("#starChart li").eq(3).find('span[name=chart_graph]').css('width', percent4 + '%');
+                $("#ageChart li").eq(3).find('span[name=chart_graph]').css('width', (average40 * 10) + '%');
+            }, 0);
+            setTimeout(function () {
+                $("#starChart li").eq(4).find('span[name=chart_graph]').css('width', percent2 + '%');
+                $("#ageChart li").eq(4).find('span[name=chart_graph]').css('width', (average50 * 10) + '%');
+            }, 0);
+        },
+        // 이미지 지연 로딩
+        setImageLazyLoad: function (element) {
+            var lazyImages = [].slice.call(element);
+
+            if ("IntersectionObserver" in window) {
+                var lazyImageObserver = new IntersectionObserver(function (entries, observer) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            var image = entry.target;
+
+                            if (image.hasAttributes("data-original") && image.classList.contains("lazy")) {
+                                image.classList.remove("lazy");
+                                image.src = image.getAttribute("data-original");
+                                image.removeAttribute("data-original");
+                            }
+                            lazyImageObserver.unobserve(image);
+                        }
+                    });
+                });
+
+                lazyImages.forEach(function (lazyImage) {
+                    lazyImageObserver.observe(lazyImage);
+                });
+            }
+        },
+        // 배경 이미지 지연 로딩
+        setBackgroundImageLazyLoad: function () {
+            var lazyLinks = [].slice.call(document.querySelectorAll("a.lazy"));
+            var lazyButtons = [].slice.call(document.querySelectorAll("button.lazy"));
+            var lazyDivs = [].slice.call(document.querySelectorAll("div.lazy"));
+            var lazyBackgrounds = lazyLinks.concat(lazyButtons).concat(lazyDivs);
+
+            if ("IntersectionObserver" in window) {
+                let lazyBackgroundObserver = new IntersectionObserver(function (entries, observer) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            let background = entry.target;
+                            background.style.backgroundImage = 'url(' + background.getAttribute("data-original") + ')';
+                            lazyBackgroundObserver.unobserve(background);
+                        }
+                    });
+                });
+
+                lazyBackgrounds.forEach(function (lazyBackground) {
+                    lazyBackgroundObserver.observe(lazyBackground);
+                });
+            }
+        },
+        // 현재 주소를 history에 추가
+        setHistoryCurrentUrl: function () {
+            if (document.referrer && document.referrer != window.location.href && !isHistoryChenage) {
+                history.pushState({}, '', window.location.href);
+                isHistoryChenage = true;
+            }
+        },
+        // 상품 상세 영역 스크롤 제한 적용
+        setBodyScrollFreezing: function () {
+            if (!$("html, body").hasClass("notScl")) {
+                posY = window.scrollY;
+
+                $("html, body").addClass("notScl");
+            }
+        },
+        // 포토 모아보기 더보기 팝업 호출
+        showPhotoReviewList: function (isDetail) {
+            if ($("#dPop_pagePhoto").length == 0) {
+                review.initPhotoReviewListPopup(0, isDetail);
+            } else {
+                review.showPhotoReviewListProcess(isDetail);
+            }
+
+            review.setHistoryCurrentUrl();
+        },
+        // 포토 모아보기 더보기 팝업 최초 호출
+        initPhotoReviewListPopup: function (reviewNo, isDetail) {
+            var photoReviewListPopUrl = "/Goods/PhotoReviewListPopup?goodsNo=" + goodsNo;
+
+            $.get(photoReviewListPopUrl, function (data) {
+                var wrap = $("#yesWrap");
+                var targetElement = $(data).filter('#dPop_pagePhoto').clone().wrapAll("<div/>").parent().html();
+
+                $(targetElement).insertBefore(wrap);
+
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '0px',
+                    threshold: 0
+                };
+
+                const observer = new IntersectionObserver(review.onIntersect, observerOptions);
+
+                const observerTarget = document.querySelector('#photoReviewThumbList').lastElementChild;
+
+                if (observerTarget) {
+                    observer.observe(observerTarget);
+                }
+
+                if (reviewNo > 0) {
+                    review.showPhotoReviewDetailProcess(reviewNo, isDetail);
+                } else {
+                    review.showPhotoReviewListProcess(isDetail);
+                }
+
+                review.setBodyScrollFreezing();
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("Error loading content: " + textStatus, errorThrown);
+            });
+        },
+        // 포토 모아보기 더보기 팝업 호출 동작
+        showPhotoReviewListProcess: function (isDetail) {
+            var dPop_pagePhoto = $("#dPop_pagePhoto");
+
+            if (dPop_pagePhoto.length > 0) {
+                dPop_pagePhoto.css("display", "");
+            }
+
+            $("#photoReviewDetailWrap").css("display", "none");
+            $("#photoReviewThumbWrap").css("display", "");
+            $("#hdPhotoReviewShowIdx").val(-1);
+
+            if (isDetail) {
+                $("#photoReviewThumbWrap").find("div.yesPP_con").scrollTop(0);
+            }
+
+            review.setBodyScrollFreezing();
+        },
+        // 포토 모아보기 더보기 팝업 닫기
+        hidePhotoReviewList: function () {
+            $("#dPop_pagePhoto").css("display", "none");
+            $("#hdPhotoReviewShowIdx").val(-1);
+
+            if ($("html, body").hasClass("notScl")) {
+                $("html, body").removeClass("notScl");
+                $(window).scrollTop(posY);
+            }
+        },
+        // 포토 모아보기 리뷰 교차 감지
+        onIntersect: function (entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    review.loadPhotoReviewData(entry, observer);
+                }
+            });
+        },
+        // 포토 모아보기 리뷰 불러오기
+        loadPhotoReviewData: function (entry, observer) {
+            review.log('loadPhotoReviewData');
+
+            if (isPhotoReviewLoading) {
+                return;
+            }
+
+            if (review.getReviewThumbCount() >= photoReviewCount) {
+                return;
+            }
+
+            photoReviewThumbPageNo++;
+
+            loadingShow();
+
+            var url = review.getLoadPhotoReviewListUrl("Thumb", photoReviewPageSize, photoReviewThumbPageNo);
+
+            isPhotoReviewLoading = true;
+
+            $.get(url, function (data) {
+                review.appendPhotoReviewData(data);
+
+                review.setBackgroundImageLazyLoad();
+
+                isPhotoReviewLoading = false;
+
+                observer.unobserve(entry.target);
+
+                const observerTarget = document.querySelector('#photoReviewThumbList').lastElementChild;
+
+                if (observerTarget) {
+                    observer.observe(observerTarget);
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.error("Error loading content: " + textStatus, errorThrown);
+            });
+        },
+        // 포토/동영상 모아보기 리뷰 불러온 데이터 추가
+        appendPhotoReviewData: function (data) {
+            if (data) {
+                var photoReviewThumbList = $(data).filter('#photoReviewThumbList').clone().wrapAll("<div/>").html();
+                var photoReviewDetailList = $(data).filter('#photoReviewDetailList').clone().wrapAll("<div/>").html();
+
+                // 포토/동영상 리뷰 모아보기 썸네일 영역
+                if (review.getReviewThumbCount() < photoReviewCount) {
+                    $("#photoReviewThumbList").append(photoReviewThumbList);
+                }
+
+                // 포토/동영상 리뷰 상세 영역
+                if (photoReviewDetailList) {
+                    if (photoReviewDetailSwiper) {
+                        photoReviewDetailSwiper.destroy();
+                    }
+
+                    $("#photoSwiper").children('.swiper-wrapper').html(photoReviewDetailList);
+                }
+            }
+
+            loadingHide();
+        },
+        // 포토 모아보기 상세 리뷰 팝업 호출
+        showPhotoReviewDetail: function (reviewNo, isDetail) {
+            var reviewIdx = review.getReviewIdxByReviewNo(reviewNo);
+
+            if ($("#dPop_pagePhoto").length == 0) { // 최초 호출
+                review.initPhotoReviewListPopup(reviewNo, isDetail);
+            } else {
+                if ($("div[name=photoReviewDetail" + reviewIdx + "]").length > 0) { // Detail 존재
+                    review.showPhotoReviewDetailProcess(reviewNo, isDetail);
+                } else {
+                    review.showPhotoReviewDetailProcessExt(reviewNo, isDetail);
+                }
+
+                review.setBodyScrollFreezing();
+            }
+
+            review.setHistoryCurrentUrl();
+        },
+        // 포토 모아보기 상세 리뷰 팝업 동작
+        showDetailPopupProcess: function (reviewNo, isDetail) {
+            var yesPhotoReviewWrap = $("#yesPhotoReviewWrap");
+
+            if (yesPhotoReviewWrap.length > 0) {
+                yesPhotoReviewWrap.css("display", "block");
+            }
+
+            $("#photoReviewDetailWrap").css("display", "block");
+
+            if (isDetail) {
+                $("#photoReviewThumbWrap").css("display", "none");
+            }
+
+            var reviewIdx = review.getReviewIdxByReviewNo(reviewNo);
+
+            review.setDetailReviewContents(reviewNo);
+
+            review.setDetailReviewAdjust(reviewIdx, reviewNo);
+        },
+        // 포토 모아보기 상세 리뷰 팝업 동작
+        showPhotoReviewDetailProcess: function (reviewNo, isDetail) {
+            var dPop_pagePhoto = $("#dPop_pagePhoto");
+
+            if (dPop_pagePhoto.length > 0) {
+                dPop_pagePhoto.css("display", "");
+            }
+
+            $("#photoReviewDetailWrap").css("display", "");
+            $("#photoReviewThumbWrap").css("display", "none");
+
+            if (isDetail) {
+                $("#photoReviewThumbWrap").css("display", "none");
+            }
+
+            var reviewIdx = review.getReviewIdxByReviewNo(reviewNo);
+
+            review.setDetailReviewContents(reviewNo);
+
+            review.setDetailReviewAdjust(reviewIdx, reviewNo);
+        },
+        // 포토 모아보기 상세 리뷰 팝업 동작 (데이터 로딩 후)
+        showPhotoReviewDetailProcessExt: function (reviewNo, isDetail) {
+            review.loadPhotoReviewDetailList(reviewNo, isDetail);
+        },
+        // 포토 모아보기 상세 리뷰 불러온 후 팝업 호출
+        loadPhotoReviewDetailList: function (reviewNo, isDetail) {
+            var reviewIdx = review.getReviewIdxByReviewNo(reviewNo);
+            var pageNo = review.getPhotoReviewDetailPageNo(reviewIdx);
+
+            if (pageNo) {
+                photoReviewDetailPageNo = pageNo;
+
+                loadingShow();
+
+                var url = review.getLoadPhotoReviewListUrl("Detail", photoReviewPageSize, pageNo);
+
+                $.get(url, function (data) {
+                    review.appendPhotoReviewData(data);
+
+                    review.showPhotoReviewDetailProcess(reviewNo, isDetail);
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Error loading content: " + textStatus, errorThrown);
+                });
+            }
+        },
+        // 포토 모아보기 상세 리뷰 불러온 후 팝업 호출 (썸네일 로딩 전)
+        loadPhotoReviewDetailListExt: function (showIdx, isDetail) {
+            if (review.getReviewThumbCount() == photoReviewCount) {
+                switch (showIdx) {
+                    case -1:
+                        showIdx = Number(photoReviewCount) - 1;
+                        break;
+                    case photoReviewCount:
+                        showIdx = 0;
+                        break;
+                }
+            }
+
+            var pageNo = review.getPhotoReviewDetailPageNo(showIdx);
+
+            if (pageNo) {
+                photoReviewDetailPageNo = pageNo;
+
+                loadingShow();
+
+                var url = review.getLoadPhotoReviewListUrl("ALL", photoReviewPageSize, pageNo);
+
+                photoReviewThumbPageNo = pageNo;
+
+                $.get(url, function (data) {
+                    review.appendPhotoReviewData(data);
+
+                    var reviewNo = review.getReviewNoByReviewIdx(showIdx);
+
+                    review.showDetailPopupProcess(reviewNo, isDetail);
+
+                    review.setBackgroundImageLazyLoad();
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    console.error("Error loading content: " + textStatus, errorThrown);
+                });
+            }
+        },
+        // 포토 모아보기 현재 썸네일 리뷰 개수
+        getReviewThumbCount: function () {
+            return $("#photoReviewThumbList").find("div.thumbSet").length;
+        },
+        // 할당된 리뷰 30개의 실제 리뷰 인덱스
+        getCalculateReviewIdxByReviewIdx: function (currentIdx) {
+            var isLoop = photoReviewCount <= 30;
+            var calcIdx = $('#photoSwiper').children(".swiper-wrapper").find('.revwDtl:eq(' + currentIdx + ')').attr('data-review-idx');
+
+            if (isLoop) {   // swiper의 loop가 true인 경우 첫번째 슬라이드에서 마지막 슬라이드로 이전 이동하기 위한 swiper-slide-duplicate가 존재함
+                calcIdx = $('#yDetailBot[name=photoReviewDetail' + currentIdx + ']').attr('data-review-idx');
+            }
+
+            return calcIdx;
+        },
+        // 리뷰 인덱스 해당 리뷰 번호
+        getReviewNoByReviewIdx: function (reviewIdx) {
+            return $('div[name=photoReviewThumb' + reviewIdx + ']').attr("data-review-seq");
+        },
+        // 리뷰 번호 해당 리뷰 인덱스
+        getReviewIdxByReviewNo: function (reviewNo) {
+            return $('#photoReviewThumb' + reviewNo).attr("data-review-idx");
+        },
+        // 리뷰 해당 페이지 번호
+        getPhotoReviewDetailPageNo: function (reviewIdx) {
+            return (Math.ceil((Number(reviewIdx) + 1) / photoReviewPageSize));
+        },
+        // 포토 모아보기 리뷰 불러오기 주소
+        getLoadPhotoReviewListUrl: function (load_type, page_size, page_no) {
+            return "/Goods/PhotoReviewListPopupAdd?GoodsNo=" + goodsNo + "&PageSize=" + page_size + "&PageNo=" + page_no + "&loadType=" + load_type;
+        },
+        // 포토/동영상 리뷰 이미지 지연 로딩 설정
+        setPhotoReviewDetailImageLazyLoad: function (currentIdx) {
+            var calcIdx = review.getCalculateReviewIdxByReviewIdx(currentIdx);
+
+            review.setImageLazyLoad($("#photoSwiper" + review.getReviewNoByReviewIdx(calcIdx) + " img.lazy"));
+        },
+        // 포토 모아보기 상세 리뷰 설정
+        setDetailReviewContents: function (reviewNo) {
+            if (photoReviewDetailSwiper) {
+                photoReviewDetailSwiper.destroy();
+            }
+
+            var index = review.getReviewIdxByReviewNo(reviewNo);
+
+            // 할당된 리뷰 30개 대응하는 리뷰 인덱스
+            index = (Number(index) - ((Number(photoReviewDetailPageNo) - 1) * photoReviewPageSize));
+
+            var isLoop = false;
+
+            if (photoReviewCount <= 30) {
+                isLoop = true;
+            }
+
+            if (photoReviewCount > 1) {
+
+                review.log('photoReviewDetailSwiper Init')
+
+                photoReviewDetailSwiper = new Swiper('#photoSwiper', {
+                    loop: isLoop,
+                    initialSlide: index,
+                    autoHeight: true,
+                    on: {
+                        init: function () {
+                            review.setPhotoReviewDetailImageLazyLoad(this.realIndex + 1);
+                        },
+                        transitionStart: function () {
+                            review.log('====> transitionStart');
+
+                            if (this.swipeDirection !== undefined) {
+                                review.setPhotoReviewDetailImageLazyLoad(this.realIndex);
+
+                                if (this.realIndex > 0) {
+                                    review.setPhotoReviewDetailImageLazyLoad(this.realIndex + 1);
+                                }
+                            }
+                        },
+                        transitionEnd: function () {
+                            review.log('====> transitionEnd');
+
+                            if (this.swipeDirection !== undefined) {
+                                var calcIdx = review.getCalculateReviewIdxByReviewIdx(this.realIndex);
+
+                                var nextIdx = Number(calcIdx) + 1;
+                                var prevIdx = Number(calcIdx) - 1;
+
+                                var firstChildIdx = $(".swiper-wrapper").find('div.revwDtl:first-child').attr('data-review-idx');
+                                var lastChildIdx = $(".swiper-wrapper").find('div.revwDtl:last-child').attr('data-review-idx');
+
+                                isLoadPhotoReviewList = false;
+
+                                if (!isSlideTransition) {
+                                    if ((this.swipeDirection == "next" && Number(lastChildIdx) == calcIdx) ||
+                                        (this.swipeDirection == "prev" && Number(firstChildIdx) == calcIdx)) {
+                                        isLoadPhotoReviewList = true;
+                                    }
+                                }
+
+                                var reviewNo = review.getReviewNoByReviewIdx(calcIdx);
+                                review.setDetailReviewAdjust(calcIdx, reviewNo);
+
+                                review.log("prevIdx: " + prevIdx + " / realIndex: " + this.realIndex + " / calcIdx: " + calcIdx + " / nextIdx: " + nextIdx + " / swipeDirection: " + this.swipeDirection + " / isLoadPhotoReviewList: " + isLoadPhotoReviewList);
+
+                                if (isLoadPhotoReviewList && photoReviewCount > 30) {  //  리뷰 개수 30개 미만은 loop 값이 ture
+                                    var showIdx = nextIdx;
+
+                                    if (this.swipeDirection == "prev") {
+                                        showIdx = prevIdx;
+                                    }
+
+                                    if (!$("div[name=photoReviewDetail" + showIdx + "]").length > 0) {
+                                        if (Number(showIdx) + 1 <= photoReviewCount) {
+                                            if ($("#photoReviewThumbLink" + showIdx).length > 0) {
+                                                var reviewNo = review.getReviewNoByReviewIdx(showIdx);
+                                                review.loadPhotoReviewDetailList(reviewNo, false);
+                                            } else {
+                                                review.loadPhotoReviewDetailListExt(showIdx, false);
+                                            }
+                                        } else if (showIdx == photoReviewCount) {
+                                            review.loadPhotoReviewDetailListExt(showIdx, false);
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        slidePrevTransitionStart: function () {
+                            review.log('====> slidePrevTransitionStart');
+                            isSlideTransition = true;
+                        },
+                        slideNextTransitionStart: function () {
+                            review.log('====> slideNextTransitionStart');
+                            isSlideTransition = true;
+                        },
+                        slidePrevTransitionEnd: function () {
+                            review.log('====> slidePrevTransitionEnd');
+                            isSlideTransition = false;
+                        },
+                        slideNextTransitionEnd: function () {
+                            review.log('====> slideNextTransitionEnd');
+                            isSlideTransition = false;
+                        },
+                        slideChangeTransitionEnd: function () {
+                            review.log('====> slideChangeTransitionEnd');
+                        },
+                        orientationchange: function () {
+                            review.log('====> orientationchange');
+                        },
+                    }
+                });
+            }
+        },
+        // 포토 모아보기 상세 리뷰 조정
+        setDetailReviewAdjust: function (reviewIdx, reviewNo) {
+            review.log('[setDetailReviewAdjust] reviewIdx: ' + reviewIdx);
+            review.log('[setDetailReviewAdjust] reviewNo: ' + reviewNo);
+            if ($("#hdPhotoReviewShowIdx").val() != reviewNo) {
+                $("#photoReviewDetailWrap.yesPagePop").find("h2.yesPP_tit").html("포토/동영상 (" + (Number(reviewIdx) + 1) + "/" + photoReviewCount + ")");
+
+                $("#photoReviewDetailWrap").find("div.yesPP_con").scrollTop(0);
+                $("#hdPhotoReviewShowIdx").val(reviewNo);
+
+                review.setImageLazyLoad($("#photoSwiper" + reviewNo + " img.lazy"));
+            }
+
+            $('#photoSwiper').find('div.revwGrp').css('height', '');
+            $('#photoSwiper').find('div.revwGrp').css('overflow', '');
+
+            review.log('[setDetailReviewAdjust] height: ' + $('div[name=photoReviewDetail' + reviewIdx + ']').find('.revwGrp').css('height'));
+
+            var revwGrpHeight = $('div[name=photoReviewDetail' + reviewIdx + ']').find('.revwGrp').css('height');
+            review.log('revwGrpHeight: ' + revwGrpHeight);
+
+            $('#photoSwiper').find('div.revwGrp').css('height', revwGrpHeight);
+            $('#photoSwiper').find('div.revwGrp').css('overflow', 'hidden');
+
+            var detailHeight = $("div[name=photoReviewDetail" + reviewIdx + "]").find("div.gdRevwDtlSec").css("height");
+
+            review.log('detailHeight:' + detailHeight);
+
+            if (detailHeight && parseInt(detailHeight) > 0) {
+                $('#photoSwiper').children('div.swiper-wrapper').css('height', detailHeight);
+            }
+
+            review.bindMemberRecommend();
+        },
+        // 리뷰작성
+        writeGoodsReview: function (blogID) {
+            if (!check_login()) {
+                _returnUrl = location.href;
+                basicDialog.confirm('알림', '로그인이 필요합니다.<br/>로그인 하시겠습니까?', '확인', '취소', _goLoginPage);
+                return;
+            }
+
+            // 성인인증 체크
+            review.checkGoodsDetailCallback_NoReadyYN(
+                // 성인인증 성공
+                function (data) {
+                    $.ajax({
+                        type: "POST",
+                        dataType: 'json',
+                        url: '/Goods/CheckSarakBlackList',
+                        success: function (result) {
+                            if (result.IsSarakBlackList) {
+                                oneBtnDialog.show('알림', '회원님은 운영 원칙에 위배되는 활동으로 인해 이용이 제한됩니다.\r\n관련 문의는 고객센터(1:1문의)를 이용해주세요.', '확인');
+                            } else {
+                                if (blogID != null && blogID != '') {
+                                    //document.location.href = SARAK_URL + "/review-write/" + goodsNo;
+                                    brazeHelper.setBrazeLog("YS_review_write_click", { product_id: g_GoodsNo, product_name: g_GoodsName });
+                                    window.open(SARAK_URL + "/review-write/" + goodsNo);
+                                    
+                                }
+                                else {
+                                    //document.location.href = SARAK_URL + '/popup/sarak-open';
+                                    window.open(SARAK_URL + '/popup/sarak-open');
+                                }
+                            }
+                        }
+                    });
+                },
+                // 성인인증 실패
+                function (data) {
+                    if (data.ErrorCode == -3)
+                        oneBtnDialog.show('알림', data.Goods.GoodsName + '은(는) 나이제한 상품으로<br/>' + data.Goods.LimitAge + '세 이상 회원님만<br/>이용하실 수 있습니다.', '확인');
+                    else if (data.ErrorCode == undefined)
+                        oneBtnDialog.show('알림', '시스템 오류 입니다.<br/>고객센터에 문의 하세요.', '확인');
+                }
+            );
+        },
+        // 성인 인증 체크
+        checkGoodsDetailCallback_NoReadyYN: function (successCB, failCB) {
+            $.ajax({
+                url: '/Goods/AjaxDetailCheck?goodsNo=' + goodsNo + '&adultReadCheck=0'
+                , type: 'GET'
+                , success: function (data) {
+                    if (data.IsSuccess || data.ErrorCode == -4) {
+                        if (successCB !== 'undefined' && successCB != null)
+                            successCB(data);
+                    }
+                    else {
+                        if (failCB !== 'undefined' && failCB != null)
+                            failCB(data);
+                    }
+                }
+                , error: function (xhr, e) {
+                    if (failCB !== 'undefined' && failCB != null)
+                        failCB(data);
+                }
+            });
+        },
+        // 차단 사용자 메세지 표시
+        showBlockUserMsg: function (isBlackList) {
+            if (isBlackList) {
+                review.showBlackListMsg();
+            } else {
+                oneBtnDialog.show('알림', '사용자 차단에 의해 접근이 허용되지 않습니다.', '확인');
+            }
+        },
+        // 블랙 사용자 메세지 표시
+        showBlackListMsg: function() {
+            oneBtnDialog.show('알림', '회원님은 운영 원칙에 위배되는 활동으로 인해 이용이 제한됩니다.\r\n관련 문의는 고객센터(1:1문의)를 이용해주세요.', '확인');
+        },
+        // 초기화
+        init: function () {
+            setTimeout(review.setMemberRecommendList, 500);
+        },
+    }
+}
+
+(function () {
+    //review.setIsDebug(true);    // 테스트 로그 활성
+
+    review.init();
+})();

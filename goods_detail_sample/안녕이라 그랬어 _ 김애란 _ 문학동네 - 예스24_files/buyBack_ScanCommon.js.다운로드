@@ -1,0 +1,21 @@
+﻿// javacsript isbn reader
+function searchReaderValue(isbn) { 
+    setTimeout(
+        function(){
+			var tarURL = '//m.yes24.com/BuyBack/Search?gb=3&searchWord='+isbn;
+			$(location).attr('href',tarURL);
+			/*
+            basicDialog.confirm('알림', 'YES24 APP이 최신버전이 아닙니다.<br/>최신버전을 설치 하시겠습니까?'
+                                , '확인', '취소'
+                                , function () { 
+                                    var IsIOs = (navigator.userAgent.indexOf("iPhone") > -1 || navigator.userAgent.indexOf("iPad") > -1 || navigator.userAgent.indexOf("iPod") > -1);
+                                    var IsAndroid = (navigator.userAgent.indexOf("Android") > -1);
+
+                                    if (IsIOs)
+                                        window.location.href = "itms-apps://itunes.apple.com/app/id360051536?mt=8";
+                                    else if (IsAndroid)
+                                        window.location.href = "market://details?id=com.yes24.commerce";
+                                });
+			*/
+        }, 800);
+}

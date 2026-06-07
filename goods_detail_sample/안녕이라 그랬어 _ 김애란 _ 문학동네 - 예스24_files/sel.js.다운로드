@@ -1,0 +1,102 @@
+(function ($) {
+
+    $.fn.txtSelBox = function (options) {
+        return this.each(function () {
+            $.txtSelBox(this, options);
+        });
+    };
+
+    $.fn.labSelBox = function (options) {
+        return this.each(function () {
+            $.labSelBox(this, options);
+        });
+    };
+
+    // 셀렉트 박스
+    $.txtSelBox = function (container, options) {
+
+        var settings = {
+            changeEvent: function (container, obj, text, pVal) { },
+            pramEtc: '',
+            chkDim: false,
+            dimSelector: 'dim',
+            labSelector: '.fLab',
+            lstSelector: '.fLi',
+            idDev: false,
+            selRowSelector: '.lnk_fSel'
+        };
+        if (options) { $.extend(settings, options); };
+
+        var lab = $(container).find(settings.labSelector);
+        var lst = $(container).find(settings.lstSelector);
+        var selRow = $(container).find(settings.selRowSelector);
+
+        // 클릭스 리스트 열고 닫기
+        lab.bind('click', function (event) {
+            if ((!settings.chkDim) || (settings.chkDim && !$(container).hasClass(settings.dimSelector))) {
+                if ($(container).hasClass("txtSelOn")) {
+                    $(container).removeClass("txtSelOn");
+                    lst.hide();
+                } else {
+                    $(container).parent().find(".txtSelOn").removeClass("txtSelOn");
+                    $(container).addClass("txtSelOn");
+					var lst_w = Math.floor( lst.width() / 2 ) - 10;
+                    lst.css({"margin-left": -lst_w + "px"});
+                    lst.show();
+                }
+                event.stopPropagation();
+            }
+        });
+
+        // 영역 밖에서 클릭 할 경우 닫기
+        $('body').bind('click', function (event) {
+            $(container).removeClass("txtSelOn");
+            lst.hide();
+        });
+
+        // 리스트 항목 선택시 이벤트
+        selRow.bind('click', function (event) {
+            var text = $(this).html();
+            var parm;
+            if (settings.pramEtc != '') {
+                parm = $(this).attr(settings.pramEtc);
+            }
+
+            $(container).removeClass("txtSelOn");
+            if (!settings.idDev)
+            {
+                lab.find('.txt').html(text);
+            }
+
+            settings.changeEvent(container, this, text, parm);
+        });
+
+        // 클릭스 리스트 열고 닫기
+        selRow.bind('change', function (val) {
+            settings.changeEvent(container, this, text, parm);
+        });
+
+    };
+
+    // 셀렉트 박스
+    $.labSelBox = function (container, options) {
+
+        var settings = {
+            changeEvent: function (container, obj, val) { },
+            pramEtc: '',
+            chkDim: false,
+            dimSelector: 'dim',
+            labSelector: '.txt'
+        };
+        if (options) { $.extend(settings, options); };
+
+		var sel = $(container).find("select");
+
+        // 클릭스 리스트 열고 닫기
+        sel.bind('change', function (val) {
+            settings.changeEvent(container, this, this.value);
+        });
+
+    };
+
+})(jQuery);
