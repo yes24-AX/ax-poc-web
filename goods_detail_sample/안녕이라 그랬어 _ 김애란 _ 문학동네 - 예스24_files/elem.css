@@ -202,7 +202,7 @@
 }
 
 /* common image */
-.bgC { display:inline-block;width:auto;height:20px;overflow:hidden;word-break:break-all;font-size:1px;color:transparent;vertical-align:top;background-image:url('/sysimage/mV2/bgC_big.png?ver=20150610');background-size:250px auto;text-shadow:none !important; }
+.bgC { display:inline-block;width:auto;height:20px;overflow:hidden;word-break:break-all;font-size:1px;color:transparent;vertical-align:top;background-image:url('https://image.yes24.com/sysimage/mV2/bgC_big.png?ver=20150610');background-size:250px auto;text-shadow:none !important; }
 
 /* chkbox base */
 .yesChk { display:inline-block;min-height:20px;line-height:20px;font-size:15px;color:#666;font-weight:400;vertical-align:top; }
@@ -225,7 +225,7 @@
 .btn_rnd * { box-sizing:border-box; }
 .btn_rnd em.txt { display:inline-block;height:28px;line-height:28px;font-size:15px;color:#333;font-weight:400;overflow:hidden;vertical-align:top; }
 .btn_rnd .ico_arr { display:inline-block;margin:4px -8px 0 0;width:20px;height:20px;vertical-align:top; }
-.btn_rnd .ico_arr.ico_arrMD { background:url('/sysimage/mv3/com/ico_arrD_blackM.svg') no-repeat left top; }
+.btn_rnd .ico_arr.ico_arrMD { background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrD_blackM.svg') no-repeat left top; }
 .btn_rnd.l_size { height:40px;line-height:38px;border-radius:20px; }
 .btn_rnd.l_size em.txt { height:38px;line-height:38px; }
 .btn_rnd.w_140 { width:140px; }
@@ -301,10 +301,10 @@
 .btn_c .bgC_com.ico_arr.ico_arrMR { margin:6.5px 0 0 -2px;width:20px !important;height:20px !important;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top !important;vertical-align:top !important; }
 .btn_c .bgC_com.ico_arr.ico_arrSR { margin:6.5px 0 0 -2px;width:20px !important;height:20px !important;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top !important;vertical-align:top !important; }
 .btn_c .bgC_com.ico_arr.ico_arrSSR { margin:6.5px 0 0 2px;width:5px;height:7px;background-position:-30px -35px; }
-.btn_c.btn_red .bgC_com.ico_arr.ico_arrSR { background:url('/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
-.btn_c.btn_blue .bgC_com.ico_arr.ico_arrSR { background:url('/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
-.btn_c.btn_red .ico_arr.ico_arrSR { background:url('/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
-.btn_c.btn_blue .ico_arr.ico_arrSR { background:url('/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
+.btn_c.btn_red .bgC_com.ico_arr.ico_arrSR { background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
+.btn_c.btn_blue .bgC_com.ico_arr.ico_arrSR { background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
+.btn_c.btn_red .ico_arr.ico_arrSR { background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
+.btn_c.btn_blue .ico_arr.ico_arrSR { background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrR_whiteM.svg') no-repeat left top; }
 .btn_c.sss_size { padding:1px 5px 0;height:20px;line-height:18px;font-size:11px; }
 .btn_c.sss_size em.txt { line-height:18px; }
 .btn_c.ss_size { height:24px;line-height:22px;font-size:12px; }
@@ -395,8 +395,8 @@ button.btn_c:disabled { opacity:0.4; }
 .btn_t em.ico_blueArrU { margin-top:4px;width:10px;height:12px;vertical-align:top;background-position:-200px -146px; }
 
 /* icon */
-.iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-size:0 !important;color:transparent !important;border:none !important;border-radius:0;background:url('/sysimage/mv3/com/ico_q.svg?v=240701') no-repeat left top; }
-a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;border:none !important;border-radius:0;background:url('/sysimage/mv3/com/ico_q.svg?v=240701') no-repeat left top; }
+.iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-size:0 !important;color:transparent !important;border:none !important;border-radius:0;background:url('https://image.yes24.com/sysimage/mv3/com/ico_q.svg?v=240701') no-repeat left top; }
+a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;border:none !important;border-radius:0;background:url('https://image.yes24.com/sysimage/mv3/com/ico_q.svg?v=240701') no-repeat left top; }
 .iconC { box-sizing:border-box;display:inline-block;padding:0 5px;height:20px;line-height:18px;border:solid 1px #eee;border-radius:3px;vertical-align:top;background-color:#eee; }
 .iconC em.txt { display:inline-block;height:18px;overflow:hidden;line-height:18px;font-size:11px;font-weight:700;color:#333;vertical-align:top; } /* 1픽셀 더 줘서 방어코드 */
 .iconC.accent { border-color:#e5f2ff;background-color:#e5f2ff; }
@@ -466,7 +466,7 @@ a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-s
 .alertP { line-height:20px;font-size:13px;color:#666;word-wrap:break-word;word-break:keep-all; }
 .alertP .iconC.icon_ques { margin-top:0;vertical-align:top; }
 .alertP a.lnk_go { color:#333; }
-.alertP a.lnk_go:after { content:'';display:inline-block;margin:0 0 0 -2px;width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;vertical-align:top;background:url('/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top; }
+.alertP a.lnk_go:after { content:'';display:inline-block;margin:0 0 0 -2px;width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;vertical-align:top;background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top; }
 .alertDl { }
 .alertDl+.alertDl { margin-top:15px; }
 .alertDl.bdr_top { padding-top:15px;border-top:solid 1px #d8d8d8; }
@@ -481,7 +481,7 @@ a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-s
 .alertDl.alertDlToggle > dt { line-height:22px; }
 .alertDl.alertDlToggle > dt a { display:inline-block;line-height:22px;font-size:15px;color:#333;font-weight:700;vertical-align:top; }
 .alertDl.alertDlToggle > dt a em.ico_upDn.bgC_com { -webkit-transition:-webkit-transform 0.4s ease;transition:transform 0.4s ease;-webkit-transform:rotate(0);transform:rotate(0); }
-.alertDl.alertDlToggle > dt a em.ico_upDn.bgC_com { margin:0;width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('/sysimage/mv3/com/ico_arrD_blackM.svg') no-repeat left top;vertical-align:top; }
+.alertDl.alertDlToggle > dt a em.ico_upDn.bgC_com { margin:0;width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrD_blackM.svg') no-repeat left top;vertical-align:top; }
 .alertDl.alertDlToggle.toggleOn > dt a em.ico_upDn.bgC_com { -webkit-transform:rotate(180deg);transform:rotate(180deg); }
 .alertDl.alertDlToggle > dd { display:none; }
 .alertDl.alertDlToggle.toggleOn > dd { display:block; }
@@ -510,7 +510,7 @@ a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-s
 .alertLi.alertLiChk li { padding:0 0 0 17px;text-indent:-17px; }
 .alertLi li em.bl_rnd { display:inline-block;margin:9px 5px 9px 0;width:2px;height:2px;overflow:hidden;border:none;border-radius:2px;background-color:#666;text-indent:-999em;text-decoration:none;vertical-align:top; }
 .alertLi li em.bl_bar { display:inline-block;margin:10px 4px 9px 0;width:3px;height:1px;overflow:hidden;border:none;border-radius:2px;background-color:#666;text-indent:-999em;text-decoration:none;vertical-align:top; }
-.alertLi li em.bl_chk { margin:0.25rem 5px 0 0;width:12px;height:12px;background:url('/sysimage/mv3/com/bl_chk.svg') no-repeat left top;vertical-align:top; }
+.alertLi li em.bl_chk { margin:0.25rem 5px 0 0;width:12px;height:12px;background:url('https://image.yes24.com/sysimage/mv3/com/bl_chk.svg') no-repeat left top;vertical-align:top; }
 .alertLi li .iconC.icon_ques { width:0.8rem;height:0.8rem;line-height:0.8rem;vertical-align:-0.2rem; }
 .alertLiSmall { font-size:12px;color:#999;text-align:left; }
 .alertLiSmall:after { content:'';clear:both;display:block; }
@@ -521,7 +521,7 @@ a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-s
 
 /* text btn 02 (commonV4.css 의 btn_t) */
 .btn_tM { display:inline-block;height:22px;line-height:22px;text-indent:0;font-size:15px;color:#333;font-weight:700;white-space:nowrap;vertical-align:top; }
-.btn_tM:after { content:'';display:inline-block;margin:1px 0 0 -2px;width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top;vertical-align:top; }
+.btn_tM:after { content:'';display:inline-block;margin:1px 0 0 -2px;width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top;vertical-align:top; }
 .btn_tM em.txt { color:#333; }
 
 /* 기본 토글 스타일 */
@@ -531,7 +531,7 @@ a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-s
 .yesToggleDl > dt .txt_dt { display:block;padding:9px 35px 9px 10px;min-height:20px;line-height:20px;color:#333;font-size:15px;text-align:left;border:solid 1px #ebebeb;border-right:solid 1px #d8d8d8;border-bottom:solid 1px #d8d8d8;border-radius:3px;background-color:#fff; }
 .yesToggleDl > dt a { display:block;padding:9px 35px 9px 10px;min-height:20px;line-height:20px;color:#333;font-size:15px;text-align:left;border:solid 1px #ebebeb;border-right:solid 1px #d8d8d8;border-bottom:solid 1px #d8d8d8;border-radius:3px;background-color:#fff; }
 .yesToggleDl > dt a .bgC_com { -webkit-transition:-webkit-transform 0.4s ease;transition:transform 0.4s ease;-webkit-transform:rotate(0);transform:rotate(0); }
-.yesToggleDl > dt a .bgC_com { width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('/sysimage/mv3/com/ico_arrD_blackM.svg') no-repeat left top; }
+.yesToggleDl > dt a .bgC_com { width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('https://image.yes24.com/sysimage/mv3/com/ico_arrD_blackM.svg') no-repeat left top; }
 .yesToggleDl > dt a .bgC_com { position:absolute;right:9px;top:50%;margin-top:-10px; }
 .yesToggleDl.s_size > dt a { display:block;padding:7px 20px 7px 10px;min-height:19px;line-height:19px;font-size:14px; }
 .yesToggleDl.s_size > dt a .bgC_com { position:absolute;right:9px;top:50%;margin-top:-4px;width:12px;height:8px;background-position:-115px -95px;-webkit-transition:-webkit-transform 0.4s ease;transition:transform 0.4s ease;-webkit-transform:rotate(0);transform:rotate(0); }
@@ -626,7 +626,7 @@ a .iconC.icon_ques { width:20px;height:20px;overflow:hidden;line-height:0;font-s
 .btnGrpLi li .btn_lnk.xl_size { min-height:48px;line-height:48px;text-align:left; }
 .btnGrpLi li .btn_lnk .txt { display:block;height:22px;overflow:hidden;line-height:22px;font-size:15px;white-space:nowrap;text-overflow:ellipsis; }
 .btnGrpLi li .btn_lnk .txt em.txt { font-weight:normal; }
-.btnGrpLi li .btn_lnk .ico_goB { position:absolute;right:9px;top:50%;margin-top:-10px;width:20px;height:20px;background: url('/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top; }
+.btnGrpLi li .btn_lnk .ico_goB { position:absolute;right:9px;top:50%;margin-top:-10px;width:20px;height:20px;background: url('https://image.yes24.com/sysimage/mv3/com/ico_arrR_blackM.svg') no-repeat left top; }
 .btnGrpLiGrp .btnGrpLi li+li { margin-top:0;border-top:solid 1px #ebebeb; }
 .btnGrpLiGrp .btnGrpLi .btn_lnk.btn_c { min-height:40px;line-height:40px;border-radius:0;border:none; }
 .btnGrpLiGrp .btnGrpLi .btn_lnk.btn_c .txt { font-weight:normal; }
