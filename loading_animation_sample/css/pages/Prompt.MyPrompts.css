@@ -1,0 +1,75 @@
+.my-tabs-bar { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:.75rem; }
+.my-tab {
+    display:inline-flex; align-items:center; gap:.4rem; padding:.6rem .85rem; border:none; background:none;
+    font-size:.82rem; font-weight:500; color:var(--muted-foreground); cursor:pointer; font-family:inherit;
+    border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap;
+}
+.my-tab:hover { color:var(--foreground); }
+.my-tab.active { color:var(--foreground); border-bottom-color:var(--primary); font-weight:600; }
+.my-tab-count {
+    font-size:.68rem; font-weight:700; padding:.1rem .4rem; border-radius:999px;
+    background:var(--muted); color:var(--muted-foreground);
+}
+.my-tab.active .my-tab-count { background:color-mix(in oklch,var(--primary) 12%,transparent); color:var(--primary); }
+
+.prompt-card-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:.75rem;
+}
+.prompt-card {
+    background:var(--card); border:1px solid var(--border); border-radius:calc(var(--radius)+2px);
+    padding:0; display:flex; flex-direction:column; transition:box-shadow .15s,border-color .15s; cursor:pointer; overflow:hidden;
+    box-shadow:var(--shadow-sm,0 1px 2px rgba(0,0,0,.05));
+}
+.prompt-card:hover { border-color:var(--primary); box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.prompt-card-body,
+.prompt-card-content { padding:.85rem 1rem .6rem; flex:1; min-height:0; }
+.prompt-card-title {
+    font-size:.9rem; font-weight:600; color:var(--foreground); margin:0 0 .35rem; line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;
+}
+.prompt-card-desc {
+    font-size:.78rem; color:var(--muted-foreground); line-height:1.55; margin:0 0 .5rem;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.prompt-card-cat {
+    display:inline-flex; font-size:.65rem; font-weight:600; padding:.12rem .45rem; border-radius:4px;
+    background:oklch(0.92 0.04 240); color:oklch(0.42 0.14 240); margin-bottom:.45rem;
+}
+html.dark .prompt-card-cat { background:oklch(0.26 0.06 240); color:oklch(0.72 0.12 240); }
+.prompt-card-tags { display:flex; gap:.3rem; flex-wrap:wrap; margin-bottom:.4rem; }
+.prompt-tag {
+    font-size:.65rem; font-weight:600; padding:.12rem .4rem; border-radius:999px;
+    background:var(--muted); color:var(--muted-foreground);
+}
+.prompt-card-footer {
+    padding:.55rem 1rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:.5rem;
+}
+.prompt-card-author { font-size:.72rem; color:var(--muted-foreground); display:flex; align-items:center; gap:.3rem; }
+.prompt-card-actions { display:flex; gap:.15rem; }
+.prompt-action-btn {
+    display:inline-flex; align-items:center; gap:.2rem; padding:.2rem .4rem; border:none; background:none;
+    font-size:.7rem; color:var(--muted-foreground); cursor:pointer; border-radius:var(--radius); transition:all .12s; font-family:inherit;
+}
+.prompt-action-btn:hover { background:var(--muted); color:var(--foreground); }
+.prompt-action-btn.liked { color:oklch(0.55 0.2 15); }
+.prompt-action-btn.favorited { color:oklch(0.6 0.18 85); }
+.prompt-action-btn svg { width:13px; height:13px; }
+
+.prompt-empty { display:flex; flex-direction:column; align-items:center; padding:3rem 1rem; color:var(--muted-foreground); }
+.prompt-empty-icon { width:48px; height:48px; color:var(--muted-foreground); margin-bottom:.75rem; }
+.prompt-empty-title { font-size:.9rem; font-weight:600; color:var(--foreground); margin-bottom:.25rem; }
+.prompt-empty-desc,
+.prompt-loading-text { font-size:.82rem; color:var(--muted-foreground); }
+.prompt-loading-text { margin-top:.5rem; }
+.prompt-spinner {
+    width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--primary);
+    border-radius:50%; animation:prompt-spin .7s linear infinite;
+}
+@keyframes prompt-spin { to { transform:rotate(360deg); } }
+.prompt-toast {
+    position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999; padding:.6rem 1.1rem;
+    border-radius:var(--radius); font-size:.82rem; font-weight:500;
+    background:var(--foreground); color:var(--background);
+    opacity:0; transform:translateY(10px); transition:opacity .2s,transform .2s; pointer-events:none;
+}
+.prompt-toast.show { opacity:1; transform:translateY(0); pointer-events:auto; }

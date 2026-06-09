@@ -1,0 +1,314 @@
+/* ─── Stats Row ─── */
+.ailog-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+.ailog-stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+}
+.ailog-stat-label {
+    font-size: 0.8rem;
+    color: var(--muted-foreground);
+    margin-bottom: 0.25rem;
+}
+.ailog-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--foreground);
+}
+.ailog-stat-success { color: var(--success, #22c55e); }
+
+/* ─── Filter ─── */
+.ailog-filter-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.ailog-search-stretch { flex: 1; min-width: 180px; }
+.ailog-select-shrink { width: 140px; flex-shrink: 0; }
+.ailog-date-input { width: 140px; flex-shrink: 0; }
+.ailog-reset-btn { flex-shrink: 0; }
+
+/* ─── Table ─── */
+.ailog-table-wrap { overflow-x: auto; }
+.ailog-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.ailog-table thead { background: var(--muted); }
+.ailog-table th {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+}
+.ailog-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+}
+.ailog-table tbody tr {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ailog-table tbody tr:hover { background: var(--accent); }
+
+.ailog-th-id { width: 50px; }
+.ailog-th-feature { width: 140px; max-width: 180px; }
+.ailog-th-model { width: 110px; }
+.ailog-th-user { width: 80px; }
+.ailog-th-status { width: 70px; white-space: nowrap; }
+.ailog-table .ailog-th-tokens { width: 70px; text-align: center; }
+.ailog-table .ailog-th-time { width: 80px; text-align: center; }
+.ailog-table .ailog-th-date { width: 155px; text-align: center; white-space: nowrap; }
+
+.ailog-td-feature { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ailog-td-model { white-space: nowrap; }
+.ailog-td-status { white-space: nowrap; }
+.ailog-table .ailog-td-date { white-space: nowrap; text-align: center; }
+
+.ailog-table .ailog-td-tokens { text-align: center; font-variant-numeric: tabular-nums; }
+.ailog-table .ailog-td-time { text-align: center; font-variant-numeric: tabular-nums; }
+
+/* ─── Status Badge ─── */
+.ailog-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.ailog-badge-success { background: oklch(0.92 0.05 145); color: oklch(0.35 0.12 145); }
+.ailog-badge-failed { background: oklch(0.92 0.05 25); color: oklch(0.4 0.15 25); }
+.ailog-badge-running { background: oklch(0.92 0.05 250); color: oklch(0.4 0.12 250); }
+
+:root.dark .ailog-badge-success { background: oklch(0.3 0.06 145); color: oklch(0.8 0.1 145); }
+:root.dark .ailog-badge-failed { background: oklch(0.3 0.06 25); color: oklch(0.8 0.1 25); }
+:root.dark .ailog-badge-running { background: oklch(0.3 0.06 250); color: oklch(0.8 0.1 250); }
+
+/* ─── Empty / Loading ─── */
+.ailog-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted-foreground);
+}
+.ailog-empty-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 0.75rem;
+    opacity: 0.4;
+}
+.ailog-empty-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+.ailog-empty-desc { font-size: 0.85rem; }
+.ailog-spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: ailog-spin 0.6s linear infinite;
+    margin: 0 auto;
+}
+@keyframes ailog-spin { to { transform: rotate(360deg); } }
+
+/* ─── Pagination ─── */
+.ailog-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem 0;
+}
+.ailog-page-btn {
+    min-width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--foreground);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ailog-page-btn:hover { background: var(--accent); }
+.ailog-page-btn.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+}
+.ailog-page-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* ─── Toast ─── */
+.ailog-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    padding: 0.6rem 1.5rem;
+    background: var(--foreground);
+    color: var(--background);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 1000;
+}
+.ailog-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.ailog-toast.error { background: var(--destructive, #ef4444); color: #fff; }
+
+/* ─── Modal ─── */
+.ailog-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 2rem;
+}
+.ailog-modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) * 2);
+    width: 100%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+.ailog-modal-xl { max-width: 900px; }
+.ailog-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+.ailog-modal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+}
+.ailog-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 0.25rem;
+}
+.ailog-modal-close:hover { color: var(--foreground); }
+.ailog-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+}
+.ailog-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+/* ─── Tabs ─── */
+.ailog-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+}
+.ailog-tab {
+    padding: 0.6rem 1rem;
+    border: none;
+    background: none;
+    color: var(--muted-foreground);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+}
+.ailog-tab:hover { color: var(--foreground); }
+.ailog-tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.ailog-tab-panel { display: none; }
+.ailog-tab-panel.active { display: block; }
+
+/* ─── Detail Grid ─── */
+.ailog-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 1.5rem;
+}
+.ailog-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.ailog-detail-label {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    font-weight: 500;
+}
+.ailog-detail-value {
+    font-size: 0.9rem;
+    color: var(--foreground);
+    word-break: break-all;
+}
+.ailog-detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+/* ─── Code Block ─── */
+.ailog-section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--foreground);
+    margin-bottom: 0.5rem;
+}
+.ailog-detail-section { margin-bottom: 1.25rem; }
+.ailog-code-block {
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    font-size: 0.8rem;
+    font-family: 'Consolas', 'Menlo', monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow-y: auto;
+    color: var(--foreground);
+    margin: 0;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+    .ailog-stats-row { grid-template-columns: repeat(2, 1fr); }
+    .ailog-filter-row { flex-direction: column; }
+    .ailog-search-stretch,
+    .ailog-select-shrink,
+    .ailog-date-input { width: 100%; }
+    .ailog-detail-grid { grid-template-columns: 1fr; }
+}

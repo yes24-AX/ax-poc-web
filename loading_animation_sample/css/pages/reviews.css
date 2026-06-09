@@ -1,0 +1,252 @@
+/* ============================================================
+   Reviews 페이지 전용 CSS
+   공통 구조/버튼/카드/테이블/폼은 style.css 사용.
+   이 파일은 Reviews 화면에만 필요한 시각적 요소만 정의합니다.
+   ============================================================ */
+
+/* --- Summary Bar ---
+   카드 대신 인라인 바 형태의 집계 요약 영역 (page-specific layout)
+   -------------------------------------------------------------- */
+.review-summary-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.rsb-card {
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.rsb-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+}
+
+.rsb-label {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.rsb-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--foreground);
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* 플랫폼별 색상 토큰 없어 oklch 직접 사용 (--success/--destructive와 유사한 계열) */
+.rsb-android { color: oklch(0.5 0.17 145); }
+.rsb-ios     { color: oklch(0.45 0.01 250); }
+.rsb-replied { color: oklch(0.5 0.15 145); }
+.rsb-replied-val { color: oklch(0.45 0.17 145); }
+
+/* 미답변: 주황 계열. style.css에 --warning이 있으나 노랑 계열이므로 별도 정의 */
+.rsb-pending     { color: oklch(0.7 0.17 45); }
+.rsb-pending-val { color: oklch(0.55 0.2 45); }
+
+/* --- Stars ---
+   별점 시각화 (font-icon 방식, style.css에 없음)
+   -------------------------------------------------------------- */
+.stars-row { display: inline-flex; gap: 1px; line-height: 1; }
+.star { font-size: 14px; }
+.star.full  { color: oklch(0.75 0.17 75); }
+.star.half  { color: oklch(0.75 0.17 75); opacity: 0.6; }
+.star.empty { color: var(--border); }
+.stars-row.compact .star { font-size: 12px; }
+.rating-num { font-size: 0.7rem; color: var(--muted-foreground); margin-top: 1px; }
+
+/* --- Platform badges ---
+   플랫폼 표시 칩 (Android/iOS). style.css .badge와 유사하나 더 넓은 padding 필요
+   -------------------------------------------------------------- */
+.platform-icon-sm { width: 14px; height: 14px; }
+
+.platform-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.55rem;
+    border-radius: 9999px;
+}
+
+.platform-badge.android { background: oklch(0.92 0.06 145); color: oklch(0.35 0.15 145); }
+.platform-badge.ios     { background: oklch(0.92 0.02 250); color: oklch(0.35 0.05 250); }
+
+html.dark .platform-badge.android { background: oklch(0.3 0.08 145); color: oklch(0.75 0.15 145); }
+html.dark .platform-badge.ios     { background: oklch(0.25 0.03 250); color: oklch(0.75 0.05 250); }
+
+/* style.css의 .badge와 충돌하지 않도록 별도 클래스로 정의 */
+.platform-badge svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+/* --- Status chips ---
+   리뷰 처리 상태 표시. style.css .badge와 유사하나 Reviews 전용 색상
+   -------------------------------------------------------------- */
+.status-chip {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+}
+
+.status-pending { background: oklch(0.93 0.06 55);  color: oklch(0.5 0.18 45); }
+.status-replied { background: oklch(0.93 0.06 145); color: oklch(0.38 0.15 145); }
+.status-hidden  { background: var(--muted); color: var(--muted-foreground); }
+
+html.dark .status-pending { background: oklch(0.28 0.07 45);  color: oklch(0.78 0.15 55); }
+html.dark .status-replied { background: oklch(0.27 0.06 145); color: oklch(0.72 0.14 145); }
+
+/* --- Version badge ---
+   모노스페이스 버전 표기 (muted 배경). style.css .badge와 다른 모노 폰트 사용
+   -------------------------------------------------------------- */
+.version-badge {
+    font-size: 0.72rem;
+    font-family: monospace;
+    background: var(--muted);
+    color: var(--muted-foreground);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+}
+
+/* --- Review cell ---
+   리뷰 본문 셀 레이아웃
+   -------------------------------------------------------------- */
+.review-cell { display: flex; flex-direction: column; gap: 0.2rem; }
+.review-cell-title { font-size: 0.875rem; font-weight: 600; color: var(--foreground); }
+.review-cell-body  { font-size: 0.82rem; color: var(--muted-foreground); line-height: 1.5; }
+
+/* 2줄 말줄임 (CSS 표준 아님, 브라우저 지원 필요) */
+.clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.review-has-reply {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: oklch(0.5 0.12 200);
+    background: oklch(0.93 0.04 200);
+    padding: 0.1rem 0.4rem;
+    border-radius: 9999px;
+    width: fit-content;
+}
+.review-has-reply svg { width: 11px; height: 11px; }
+html.dark .review-has-reply { background: oklch(0.25 0.05 200); color: oklch(0.72 0.1 200); }
+
+/* --- Reviewer info --- */
+.reviewer-name   { font-size: 0.82rem; font-weight: 500; color: var(--foreground); }
+.reviewer-device { font-size: 0.72rem; color: var(--muted-foreground); }
+
+/* --- App name cell --- */
+.app-name-cell {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--foreground);
+    max-width: 105px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* --- Urgent row highlight --- */
+.review-row.row-urgent td { background: oklch(0.985 0.01 30); }
+html.dark .review-row.row-urgent td { background: oklch(0.2 0.03 30); }
+
+/* --- Date cell --- */
+.date-cell { font-size: 0.78rem; color: var(--foreground); white-space: nowrap; }
+
+/* --- Result count badge ---
+   card-header 우측 건수 표시. style.css .badge 사용하되 외형 차별화
+   -------------------------------------------------------------- */
+.result-count-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    background: var(--muted);
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+}
+
+/* --- Filter form layout ---
+   최소 보정 클래스. style.css의 form-row는 align-items: flex-end라서
+   라벨 없는 인라인 필터에는 flex + wrap + center 정렬이 적합
+   -------------------------------------------------------------- */
+.review-filter-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* date input 너비 고정 (브라우저 기본 width가 너무 넓음) */
+.review-date-input { width: 140px; }
+
+/* 인라인 필터 셀렉트는 내용에 맞게 width auto 처리 */
+.review-filter-select { width: auto; }
+
+/* 탭 내부 아이콘 크기 (inline style 대체) */
+.tabs .tab-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* 플랫폼 탭 활성 색상 (Reviews 전용) */
+.tab-btn.tab-android.active { color: oklch(0.35 0.15 145); }
+.tab-btn.tab-ios.active     { color: oklch(0.35 0.05 250); }
+
+/* 탭 내 건수 pill (Reviews 전용) */
+.tab-count { font-size: .7rem; background: var(--border); padding: .05rem .35rem; border-radius: 999px; font-weight: 600; }
+.tab-btn.active .tab-count  { background: color-mix(in oklch, var(--foreground) 12%, transparent); }
+
+/* --- Pagination disabled state ---
+   style.css .pagination-btn은 :disabled 가상클래스만 처리하므로
+   <span> 또는 <a class="disabled"> 처리를 위해 별도 추가
+   -------------------------------------------------------------- */
+.pagination-btn.disabled {
+    color: var(--muted-foreground);
+    cursor: not-allowed;
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+/* 페이지네이션 아이콘 크기 (inline style 대체) */
+.pagination-btn svg { width: 13px; height: 13px; }
+
+/* --- empty-state 아이콘 크기 ---
+   style.css .empty-state-icon은 width/height를 다르게 정의할 수 있으므로
+   Reviews용으로 별도 크기 지정
+   -------------------------------------------------------------- */
+.empty-icon { width: 40px; height: 40px; opacity: 0.35; }
+
+/* --- 테이블 컬럼 너비 ---
+   <th class="col-*">에 고정 너비 부여.
+   style.css data-table에는 width 유틸리티가 없으므로 페이지 전용으로 정의.
+   -------------------------------------------------------------- */
+.data-table .col-platform { width: 88px;  min-width: 88px; }
+.data-table .col-app      { width: 130px; min-width: 130px; }
+.data-table .col-rating   { width: 90px;  min-width: 90px; }
+.data-table .col-reviewer { width: 110px; min-width: 110px; }
+.data-table .col-version  { width: 100px; min-width: 100px; }
+.data-table .col-status   { width: 90px;  min-width: 90px; }
+.data-table .col-date     { width: 90px;  min-width: 90px; }
+.data-table .col-action   { width: 60px;  min-width: 60px; }
