@@ -1,0 +1,2167 @@
+﻿/*GLOBAL VALUE v1.0*/
+var YES_HTTP_URL = "http://www.yes24.com";
+var YES_HTTPS_URL = "https://www.yes24.com";
+var NOW_YES_HTTP_URL = (document.location.protocol == "https:" ? YES_HTTPS_URL : YES_HTTP_URL);
+var YES_BLOG_URL = "http://blog.yes24.com";
+var YES_BLOG_SURL = "https://blog.yes24.com";
+var YES_SARAK_SURL = "https://sarak.yes24.com";
+var YES_ORDER_URL = 'http://ssl.yes24.com';
+var YES_ORDER_SURL = 'https://ssl.yes24.com';
+var YES_CART_URL = (document.location.protocol == "https:" ? YES_ORDER_SURL : YES_ORDER_URL) + '/Cart/Cart';
+var YES_CART_AJAX_URL = '/24/Content/AjaxPage/Cart/Cart.ashx';
+var YES_DIRECT_ORDER_URL = YES_ORDER_SURL + '/OrderGift/OrderGift';
+var YES_DIGITAL_ORDER_URL = YES_ORDER_SURL + '/DigitalMoney/DigitalMoney';
+var YES_DIRECTPAY_TYPE = ''; // 간편결제 미리 지정시 사용
+
+var URLUtil = function () {
+    URLUtil.prototype.getClickCodeUrl = function (originUrl, codeName, code) {
+        if (originUrl.indexOf('?') > 0)
+            if (originUrl.substr(originUrl.length - 1, 1) == "&")
+                return originUrl + codeName + "=" + code;
+            else
+                return originUrl + "&" + codeName + "=" + code;
+        else
+            if (originUrl.substr(originUrl.length - 1, 1) == "?")
+                return originUrl + codeName + "=" + code;
+            else
+                return originUrl + "?" + codeName + "=" + code;
+    };
+    URLUtil.prototype.getURL = function () {
+        return window.location.href.split("?")[0];
+    };
+    URLUtil.prototype.getQueryString = function () {
+        var arr = new Array();
+        arr = window.location.href.split("?");
+        if (arr.length > 1)
+            return arr[1];
+        else
+            return "";
+    };
+}
+
+var LoginUtil = function () {
+    var urlU = new URLUtil();
+
+    this.isLogin = function () {
+        var logYn = false;
+        try { logYn = ($("#LoginYnH").val() == "N") ? false : true; }
+        catch (Exception) { }
+        return logYn;
+    };
+    this.redirectLoginPage = function (returnUrl, returnParams) {
+        var loginUrl = YES_HTTPS_URL + "/Templates/FTLogin.aspx?ReturnURL=" + returnUrl;
+        if (returnParams != '') loginUrl += "&ReturnParams=" + returnParams.replace(/&/g, "`");
+        document.location = loginUrl;
+    };
+    LoginUtil.prototype.checkLoginByMsg = function (msg) {
+        if (!this.isLogin()) {
+            if (confirm(msg)) {
+                this.redirectLoginPage(urlU.getURL(), urlU.getQueryString());
+            }
+            return false;
+        }
+        return true;
+    };
+    LoginUtil.prototype.checkLoginByMsg2 = function (msg) {
+        if (!this.isLogin()) {
+            if (confirm(msg)) {
+                this.redirectLoginPage(urlU.getURL(), urlU.getQueryString());
+                return true;
+            }
+            return false;
+        }
+        return true;
+    };
+    LoginUtil.prototype.checkLoginByMsgWithRedirectUtl = function (msg, url, param) {
+        if (!this.isLogin()) {
+            if (confirm(msg)) {
+                if (param.substring(0, 1) === "?") {
+                    param = param.substring(1);
+                }
+                this.redirectLoginPage(url, param);
+                return true;
+            }
+            return false;
+        }
+        return true;
+    };
+    LoginUtil.prototype.checkLoginByMsgAlert = function (msg) {
+        if (!this.isLogin()) {
+            alert(msg);
+            this.redirectLoginPage(urlU.getURL(), urlU.getQueryString());
+            return false;
+        }
+        return true;
+    };
+    LoginUtil.prototype.redirectAdultPage = function (returnUrl, returnParams) {
+        var AdultPage = YES_HTTPS_URL + "/Member/Adult.aspx?ReturnURL=" + returnUrl;
+        if (returnParams != '') AdultPage += "&ReturnParams=" + returnParams.replace(/&/g, "`");
+        document.location = AdultPage;
+    };
+}
+
+var GoodsUtil = function () {
+    var urlU = new URLUtil();
+    var loginU = new LoginUtil();
+
+    this.getFormInstance = function () {
+        var form = document.createElement("FORM");
+        form.method = "POST";
+        document.body.appendChild(form);
+        return form;
+    };
+
+    this.canBuyGoodsByAge = function (data) {
+        var bRet = true;
+        try {
+            if (data.limit_age_yn == "Y") {
+                if (data.limit_age >= 19) {
+                    bRet = false;
+                } else if (data.limit_age != 0) {
+                    bRet = false;
+                }
+            }
+        } catch (Exception) { alert("연령 체크 오류 입니다."); }
+        return bRet;
+    };
+
+    //리스트 -성인 상품 체크
+    this.isAvailableGoodsByMyList = function (data) {
+        var result = true;
+        if (!this.canBuyGoodsByAge(data)) {
+            if (data.limit_age == null) {
+                data.limit_age = 19;
+            }
+
+            if (!loginU.checkLoginByMsg("[" + data.limit_age.toString() == "15" ? "15" : "19" + "세 이상] 나이제한 상품입니다.\n로그인을 하시겠습니까?")) {
+                result = false;
+            } else {
+                //회원 연령 체크
+                if (data.limit_age <= data.member_age && data.limit_age >= 19) {
+                    //인증 체크
+                    if (!this.AdultCheck()) {
+                        if (getCookie("AdultAuthYN") == "N") {
+                            alert("[" + data.limit_age.toString() == "15" ? "15" : "19" + "세 이상] 나이제한 상품입니다.");
+                            result = false;
+                        }
+                        else result = false;
+                    }
+                }
+                else {
+                    if (data.limit_age > data.member_age) {
+                        //TICKET-17596 나이제한 얼럿 문구 수정 요청
+                        this.checkUnder19AdultMsgAlert(data.limit_age);
+                        result = false;
+                    }
+                }
+            }
+        }
+        return result;
+    };
+
+    //인증 체크
+    this.AdultCheck = function () {
+        var bRet = "";
+        if (getCookie("AdultAuthYN") == "") {
+            loginU.redirectAdultPage(urlU.getURL(), urlU.getQueryString());
+            bRet = false;
+            return false;
+        }
+        else if (getCookie("AdultAuthYN") == "Y") {
+            bRet = true;
+        }
+        else if (getCookie("AdultAuthYN") == "N") {
+            bRet = false;
+        }
+        return bRet;
+    }
+
+    // 성인 상품 체크
+    this.isAvailableAdultGoodsCheck = function (chkControlList, ordCountList, goodsOptList, goodsOptMsgList, loginYn, CartorList, categoryNumber, islayerUI, layerid, codeName, code) {
+        var bRet;
+        var sMsg;
+        var CheckGoods = "";
+        var ReturnGoods = "";
+        var list_yn, cart_yn = true;
+        var sMsg = "";
+
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                var goods = eval("(" + $(goodsOptList[i]).val() + ")");
+                if (i == 0) CheckGoods = goods.goods_no;
+                else CheckGoods += ',' + goods.goods_no;
+            } //if checked
+        }
+
+        if (CheckGoods == "") {
+            alert("상품을 선택하세요.");
+            return false;
+        }
+        else {
+
+            this.checkValidGoodsToJson(CheckGoods, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+                        if (CartorList == "Cart") {
+                            yes24GU.CreateCartData(chkControlList, ordCountList, goodsOptList, goodsOptMsgList, categoryNumber, islayerUI, layerid, codeName, code);
+                        }
+                        else if (CartorList == "List") {
+                            yes24GU.CreateMyListData(chkControlList, ordCountList, goodsOptList);
+                        }
+                        return true;
+                    }
+                    else {
+                        //상품 유효성 체크
+                        if (yes24GU.VailableAdultGoodsErrorCheck(data, loginYn)) {
+                            if (CartorList == "Cart") {
+                                yes24GU.CreateCartData(chkControlList, ordCountList, goodsOptList, goodsOptMsgList, categoryNumber, islayerUI, layerid, codeName, code);
+                            }
+                            else if (CartorList == "List") {
+                                yes24GU.CreateMyListData(chkControlList, ordCountList, goodsOptList);
+                            }
+                        } //if
+                    } //else
+                } //fn
+            ,
+            function (data) { return false; }
+           );
+        } //else
+        return bRet;
+    };
+
+    this.CreateCartData = function (chkControlList, ordCountList, goodsOptList, goodsOptMsgList, categoryNumber, islayerUI, layerid, codeName, code) {
+        var isSubmit;
+        var cartData = "";
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                isCheckedGoods = true;
+                var goods = eval("(" + $(goodsOptList[i]).val() + ")");
+                var cnt = 1;
+                if (ordCountList.length != 0 && $(ordCountList[i]) != null)
+                    cnt = $(ordCountList[i]).val();
+                isSubmit = yes24GU.isValidGoods(goods, cnt, true, true);
+                if (isSubmit) {
+                    var optMsg = "";
+                    if (goodsOptMsgList.length != 0 && $(goodsOptMsgList[i]) != null)
+                        optMsg = $(goodsOptMsgList[i]).val();
+                    cartData += this.getCartData(goods, cnt, optMsg);
+                    isSelectedGoods = true;
+                }
+                else { break; }
+            }
+        } //for
+
+        if (isSubmit) {
+            if (islayerUI) {
+                var msg = this.ajaxCartData(cartData, categoryNumber, codeName, code);
+                if (msg == '') $("#" + layerid).show();
+                else alert(msg);
+            } else {
+                this.submitCartData(cartData, categoryNumber, codeName, code);
+            }
+        }
+    };
+
+    this.CreateMyListData = function (chkControlList, ordCountList, goodsOptList) {
+        var isSubmit;
+        var selectedGoodsList = "";
+        var isCheckedGoods = false;
+
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                isCheckedGoods = true;
+
+                var data = eval("(" + $(goodsOptList[i]).val() + ")");
+                isSubmit = this.isAvailableGoodsByMyList(data);
+                if (isSubmit) {
+                    selectedGoodsList += data.goods_no + ",";
+                    isSelectedGoods = true;
+                }
+                else { break; }
+            }
+        } //for
+
+        if (!isCheckedGoods) {
+            alert("상품을 선택하세요.");
+            return false;
+        }
+
+        if (isSubmit) {
+            centerNewWinNoScroll(YES_BLOG_URL + '/yes24/listAddGoodsPop.aspx?goodsno=' + selectedGoodsList, 'addinlist', "320", "180");
+            return;
+        }
+    };
+
+    this.VailableAdultGoodsErrorCheck = function (data, loginYn) {
+        var bRet = false;
+        var IsAdult = false;
+        var IsUnder19 = false;
+        var AdultGoods = [];
+        var returnErrorGoods = [];
+        var returnErrorCode = [];
+        var IsUnder19Goods = [];
+
+        if (data.ErrorCount > 0) {
+            for (var i = 0; i < data.ErrorCount; i++) {
+                if (data.ErrorCodes[i] == -4 || data.ErrorCodes[i] == -10 || data.ErrorCodes[i] == -5) {
+                    AdultGoods.push(data.Goods[i]);
+                    IsAdult = true;
+                    if (data.ErrorCodes[i] == -5) {
+                        IsUnder19 = true;
+                        IsUnder19Goods.push(data.Goods[i]);
+                    }
+                } else {
+                    returnErrorCode.push(data.ErrorCodes[i]);
+                    returnErrorGoods.push(data.Goods[i]);
+                }
+            }
+
+            if (IsAdult) {
+                sMsg = "나이제한 상품이 포함되어 있습니다.\n";
+                //19세 상품.
+                if (AdultGoods.length > 0) {
+                    if (!loginYn) {
+                        sMsg += "로그인 후 이용하세요.\n";
+
+                        alert(sMsg + this.returnAdultGoodsList(AdultGoods));
+                        if (!loginU.isLogin()) loginU.redirectLoginPage(urlU.getURL(), urlU.getQueryString());
+                        bRet = false;
+                    }
+                    else {
+                        //회원 연령 체크
+                        if (IsUnder19) {
+                            alert(sMsg + this.returnAdultGoodsList(IsUnder19Goods));
+                            bRet = false;
+                        }
+                        else {
+                            if (!this.AdultCheck()) {
+                                bRet = false;
+                            }
+                            else bRet = true;
+                        }
+                    }
+                }
+                else {
+                    bRet = true;
+                }
+            }
+            else {
+                var checkErrorCode = 0;
+                var checkErrorGoods;
+                var sMsgArr = [];
+
+                //리턴될 에러코드 체크
+                for (var i = 0; i < returnErrorCode.length; i++) {
+                    if (i == 0) checkErrorCode = returnErrorCode[i];
+                    else {
+                        if (checkErrorCode > returnErrorCode[i]) {
+                            checkErrorCode = checkErrorCode;
+                        }
+                        else {
+                            checkErrorCode = returnErrorCode[i];
+                        }
+                    }
+                } //for
+
+                for (var i = 0; i < returnErrorGoods.length; i++) {
+                    switch (checkErrorCode) {
+                        case -2:
+                            if (!loginYn) {
+                                msg = 'eBook상품이 포함되어있어 로그인 후 사용가능합니다. 로그인 하시겠습니까?\n';
+                                sMsgArr += "- " + returnErrorGoods[i].GoodsName + "\n";
+
+                                var url = YES_HTTPS_URL + '/Templates/FTLogin.aspx?ReturnURL=' + escape(location.href);
+
+                                if (confirm(msg + sMsgArr)) {
+                                    location.href = url;
+                                }
+                                return false;
+                            }
+                            break;
+                        case -3:
+                            msg = '일시품절, 품절인 상품이 포함되어있습니다.\n';
+                            sMsgArr += "- " + returnErrorGoods[i].GoodsName + "\n";
+                            break;
+                        case -6:
+                            msg = '재고수량이 부족한 상품이 포함되어 있습니다.\n';
+                            sMsgArr += "- " + returnErrorGoods[i].GoodsName + "\n";
+                            break;
+                        case -7:
+                            msg = '카트에 담을 수 없는 상품이 포함되어 있습니다.\n';
+                            sMsgArr += "- " + returnErrorGoods[i].GoodsName + "\n";
+                            break;
+                        case -8:
+                            msg = '최대허용 주문수량이 초과된 상품이 포함되어있습니다.\n'
+                            sMsgArr += "- " + returnErrorGoods[i].GoodsName + "\n";
+                            break;
+                        case -9:
+                            msg = '상품상세 페이지에서 옵션 선택 후 구입 가능한 상품이 포함되어 있습니다\n';
+                            sMsgArr += "- " + returnErrorGoods[i].GoodsName + "\n";
+                            break;
+                    } //switch
+                } //for
+                if (sMsgArr != "") {
+                    alert(msg + sMsgArr);
+                    bRet = false;
+                    return false;
+                }
+            } //else
+        } else {
+            bRet = true;
+        }
+        //else
+        return bRet;
+    };
+
+    this.returnAdultGoodsList = function (AdultGoods) {
+        var goods = "";
+        for (var i = 0; i < AdultGoods.length; i++) {
+            goods += "- [" + AdultGoods[i].LimitAge + "세 이상] " + AdultGoods[i].GoodsName + "\n";
+        }
+        return goods;
+    };
+
+    // 성인 상품 체크
+    this.isAvailableAdultGoodsCheck2 = function (areaid, loginYn, CartorList) {
+        var bRet;
+        var sMsg;
+        var CheckGoods = "";
+        var ReturnGoods = "";
+        var list_yn, cart_yn = true;
+        var sMsg = "";
+        var loginMessage = "eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?";
+
+        var CheckGoodsCount = 0;
+        $('#' + areaid).find(":checkbox").each(function () {
+            if (this.checked == true) {
+                var goods = eval("(" + this.value + ")");
+
+                if (goods.resource_key != "12" && goods.resource_key != "13") {
+                    loginMessage = "로그인이 필요합니다.\r\n로그인 하시겠습니까?";
+                }
+
+                if (CheckGoodsCount == 0) CheckGoods = goods.goods_no;
+                else CheckGoods += ',' + goods.goods_no;
+                CheckGoodsCount++;
+            }
+        });
+
+        if (CheckGoods == "") {
+            alert("상품을 선택하세요.");
+            return false;
+        } else if (!loginU.checkLoginByMsg(loginMessage)) {
+            return;
+        }
+        else {
+
+            this.checkValidGoodsToJson(CheckGoods, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+                        yes24GU.CreateCartDataOrMyList(CheckGoodsCount, CheckGoods, CartorList);
+                    }
+                    else {
+                        //상품 유효성 체크
+                        if (yes24GU.VailableAdultGoodsErrorCheck(data, loginYn)) {
+                            yes24GU.CreateCartDataOrMyList(CheckGoodsCount, CheckGoods, CartorList);
+                        } //if
+                    } //else
+                } //fn
+            ,
+            function (data) { return false; }
+            , (CartorList == "List" ? true : false)
+           );
+        } //else
+        return bRet;
+    };
+
+    this.CreateCartDataOrMyList = function (CheckGoodsCount, CheckGoods, CartorList) {
+        var cartData = "";
+        var goodsNo = (CheckGoodsCount > 1) ? CheckGoods.split(',') : CheckGoods;
+        if (CartorList == "Cart") {
+            if (CheckGoodsCount > 1) {
+                for (var i = 0; i < CheckGoodsCount; i++) {
+                    cartData += yes24GU.getCartDataByNo(goodsNo[i], 1, 1, '');
+                }
+            }
+            else
+                cartData += yes24GU.getCartDataByNo(goodsNo, 1, 1, '');
+
+            if (cartData != "") yes24GU.submitCartData(cartData, '');
+        }
+        else if (CartorList == "List") {
+            centerNewWinNoScroll(YES_SARAK_SURL + '/popup/list-add/?goodsNo=' + goodsNo, 'addinlist', "461", "580");
+        }
+    }
+
+    //상품 정보 체크
+    this.isAvailableGoods = function (data, order_count, cart_yn, list_yn, isMyList) {
+        var result = true;
+
+        if (data.goods_state == "01" || data.goods_state == "02") {
+            if (!this.canBuyGoodsByAge(data)) {
+                if (data.limit_age == null) {
+                    data.limit_age = 19;
+                }
+
+                if (!loginU.checkLoginByMsgAlert("[" + data.limit_age.toString() == "15" ? "15" : "19" + "세 이상] 나이제한 상품입니다.\n로그인 후 이용하세요.")) {
+                    result = false;
+                } else {
+                    //회원 연령 체크
+                    if (data.limit_age <= data.member_age && data.limit_age >= 19) {
+                        //인증 체크
+                        if (!this.AdultCheck()) {
+                            if (getCookie("AdultAuthYN") == "N") {
+                                alert("[" + data.limit_age.toString() == "15" ? "15" : "19" + "세 이상] 나이제한 상품입니다.");
+                                result = false;
+                            }
+                            else result = false;
+                        }
+                    }
+                    else {
+                        if (data.limit_age > data.member_age) {
+                            //TICKET-17596 나이제한 얼럿 문구 수정 요청
+                            this.checkUnder19AdultMsgAlert(data.limit_age);
+                            result = false;
+                        }
+                    }
+                }
+            } else if (data.order_limit_yn == "Y" && order_count > data.order_remain_count) {
+                alert("[" + data.goods_name + "]의 재고수량이 부족합니다.");
+                result = false;
+            } else if (data.order_limit_count > 0 && order_count > data.order_limit_count) {
+                alert("[" + data.goods_name + "]은 최대허용 주문수량 [" + data.order_limit_count + "]을 초과하였습니다.");
+                result = false;
+            }
+
+            if (cart_yn) {
+                if (data.add_cart_yn == "N") {
+                    alert("[" + data.goods_name + "]은 카트에 담을 수 없는 상품입니다.");
+                    result = false;
+                } else if (data.min_cnt > 0 && data.max_cnt > 0 && !(order_count >= data.min_cnt && order_count <= data.max_cnt) && !list_yn) {
+                    alert("선택옵션에 맞는 주문수량을 구매하셔야 옵션가격을 적용받으실 수 있습니다.");
+                    result = false;
+                } else if ((data.opt_yn == "Y" || data.opt_inst_yn == "Y") && list_yn) {
+                    alert("옵션 상품은 상품상세페이지에서 카트에 담을 수 있습니다.\n카트에 담지 못한 상품을 확인해주세요.\n\n상품명: " + data.goods_name);
+                    result = false;
+                }
+            } else {
+                if (data.opt_inst_yn == "Y" && list_yn) {
+                    alert("주문옵션 기입이 필요한 상품이므로 바로구매 하실 수 없습니다.");
+                    result = false;
+                } else if (data.opt_yn == "Y" && list_yn) {
+                    alert("주문옵션 선택이 필요한 상품이므로 바로구매 하실 수 없습니다.");
+                    result = false;
+                } else if (data.min_cnt > 0 && data.max_cnt > 0 && !(order_count >= data.min_cnt && order_count <= data.max_cnt) && !list_yn) {
+                    alert("선택옵션에 맞는 주문수량을 구매하셔야 옵션가격을 적용받으실 수 있습니다.");
+                    result = false;
+                }
+            }
+        } else if (isMyList == false) {
+            alert("[" + data.goods_name + "](일시품절 상품)은 카트에 담을 수 없는 상품입니다.");
+            result = false;
+        }
+        return result;
+    };
+
+    // 상품 옵션 확인    
+    this.isValidGoods = function (goods, ordCnt, isCart, isListType, isMyList) {
+        if (goods == null) {
+            alert('상품의 옵션을 선택하세요.');
+            return false;
+        }
+
+        if (isMyList == undefined || isMyList == null)
+            isMyList = false;
+
+        if (goods.resource_key == '12' || goods.resource_key == '13') {
+            if (!loginU.checkLoginByMsg('eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?'))
+                return false;
+            else {
+                //북클럽
+                if (goods.flat_rate_yn == 'Y' && goods.bookclue_yn == 'Y' && !isMyList) {
+                    if (goods.rent_goods_yn == 'N') {
+                        if (!confirm('[크레마클럽] 서비스를 이용 중 이십니다.\n[크레마클럽] 이용 기간 동안은  본 상품을 무료로 이용하실 수 있습니다.\n\n추가로 해당 도서를 구매(소장) 하시겠습니까?\n아래 확인을 누르시면 결제가 진행 됩니다.'))
+                            return false;
+                    }
+                    else {
+                        alert('[크레마클럽] 서비스를 이용 중 이십니다.\n[크레마클럽] 이용 기간 동안은  본 상품을 무료로 이용하실 수 있습니다.\n\neBook App에서 본 상품을 다운로드 후 무료로 이용하세요!');
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (goods.resource_key == '27' || goods.resource_key == '37' || goods.resource_key == '40') {
+            if (!loginU.checkLoginByMsg('e러닝 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?'))
+                return false;
+        }
+
+        return (this.isAvailableGoods(goods, ordCnt, isCart, isListType, isMyList));
+    };
+
+    this.getCartData = function (goods, ordCnt, ordGoodsOptMsg) {
+        return ordCnt + String.fromCharCode(8) + goods.goods_no + String.fromCharCode(8) + goods.goods_seq + String.fromCharCode(8) + encodeURIComponent(ordGoodsOptMsg) + String.fromCharCode(7);
+    };
+    this.getCartDataByNo = function (goodsNo, goodsSeqNo, ordCnt, ordGoodsOptMsg) {
+        return ordCnt + String.fromCharCode(8) + goodsNo + String.fromCharCode(8) + goodsSeqNo + String.fromCharCode(8) + encodeURIComponent(ordGoodsOptMsg) + String.fromCharCode(7);
+    };
+    this.ajaxCartData = function (cartData, categoryNumber, codeName, code) {
+        var r = '';
+        var carturl = YES_CART_AJAX_URL + '?CategoryNumber=' + categoryNumber;
+        if (codeName != null)
+            carturl = urlU.getClickCodeUrl(carturl, codeName, code);
+
+        try {
+            jQuery.ajax({
+                type: 'POST',
+                cache: false,
+                async: false,
+                dataType: 'json',
+                url: carturl,
+                data: 'CART_GOODS_INFO=' + encodeURIComponent(cartData),
+                success: function (data) {
+                    if (!data.IsSuccess)
+                        r = data.ResultMessage;
+                },
+                error: function (xhr, ajaxOptions, thrownError) { r = thrownError; }
+            });
+        } catch (e) { r = e.description; }
+
+        return r;
+    };
+    this.submitCartDataWithOpt = function (cartData, categoryNumber, codeName, code, optSeqeNos) {
+        var mainForm = this.getFormInstance();
+        var inputControl = document.createElement("INPUT");
+        inputControl.type = "hidden";
+        inputControl.name = "PROC_CART_EXPEND";
+        inputControl.value = cartData;
+
+        var inputControlByOpt = document.createElement("INPUT");
+        inputControlByOpt.type = "hidden";
+        inputControlByOpt.name = "PROC_CART_OPTIONS";
+        inputControlByOpt.value = optSeqeNos;
+
+        mainForm.appendChild(inputControl);
+        mainForm.appendChild(inputControlByOpt);
+
+        var carturl = YES_CART_URL + '?CategoryNumber=' + categoryNumber;
+        if (codeName != null)
+            carturl = urlU.getClickCodeUrl(carturl, codeName, code);
+
+        mainForm.action = carturl;
+        mainForm.submit();
+
+    };
+    this.submitCartData = function (cartData, categoryNumber, codeName, code) {
+        var mainForm = this.getFormInstance();
+        var inputControl = document.createElement("INPUT");
+        inputControl.type = "hidden";
+        inputControl.name = "PROC_CART_EXPEND";
+        inputControl.value = cartData;
+
+        mainForm.appendChild(inputControl);
+
+        var carturl = YES_CART_URL + '?CategoryNumber=' + categoryNumber;
+        if (codeName != null)
+            carturl = urlU.getClickCodeUrl(carturl, codeName, code);
+
+        mainForm.action = carturl;
+        mainForm.submit();
+    };
+    this.checkSalesInterestFree = function (qty, index) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        if (goodsOptList.length >= index) {
+            var data = eval("(" + $(goodsOptList[index]).val() + ")");
+            if (data.noint_quotamonth > 0)
+                if (qty > 1)
+                    alert("주문수량이 2개 이상이면, " + data.noint_quotamonth + "개월 무이자할부 혜택을 받을 수 없습니다.");
+        }
+    };
+    this.checkSeller = function (entrNo, memNo) {
+        var r = '';
+        try {
+            jQuery.ajax({
+                type: 'POST',
+                url: NOW_YES_HTTP_URL + '/24/UsedShop/IsCheckSellerToMem?entrNo=' + entrNo + '&memNo=' + memNo,
+                data: '',
+                success: function (data) {
+                    r = data;
+                },
+                error: function (xhr, ajaxOptions, thrownError) { r = 'E'; }
+            });
+        } catch (e) { r = 'E'; }
+        return r;
+    };
+    this.getOrderDataWithCode = function (goodsNo, goodsSeqNo, ordCnt, categoryNumber, loginYn, optMsg, codeName, code) {
+        var data = "?ActionType=DIRECT&" + codeName + "=" + code + "&OrdGoodsNoH=" + goodsNo + "&OrdGoodsSeqH=" + goodsSeqNo + "&OCNT=" + ordCnt + "&DispNoH=" + categoryNumber;
+        if (loginYn == "Y")
+            data += "&LoginYnH=" + loginYn;
+        if (optMsg != "")
+            data += "&GoodsSeqOrdMsgH=" + optMsg;
+        return data;
+    };
+    this.getOrderData = function (goodsNo, goodsSeqNo, ordCnt, categoryNumber, loginYn, optMsg) {
+        var data = "?ActionType=DIRECT&OrdGoodsNoH=" + goodsNo + "&OrdGoodsSeqH=" + goodsSeqNo + "&OCNT=" + ordCnt + "&DispNoH=" + categoryNumber;
+        if (loginYn == "Y")
+            data += "&LoginYnH=" + loginYn;
+        if (optMsg != "")
+            data += "&GoodsSeqOrdMsgH=" + optMsg;
+        return data;
+    };
+    this.getOrderDataByDigital = function (goodsNo, goodsSeqNo, ordCnt, categoryNumber, optMsg) {
+        var data = "?Mode=G&ActionType=ONECLICK&OrdGoodsNoH=" + goodsNo + "&OrdGoodsSeqH=" + goodsSeqNo + "&OCNT=" + ordCnt + "&DispNoH=" + categoryNumber;
+        if (optMsg != "")
+            data += "&GoodsSeqOrdMsgH=" + optMsg;
+        return data;
+    };
+    this.isNumber = function (s) {
+        s += '';
+        s = s.replace(/^\s*|\s*$/g, '');
+        if (s == '' || isNaN(s)) return false;
+        return true;
+    };
+    GoodsUtil.prototype.setConfig = function (httpUrl, httpsUrl) {
+        if (httpUrl != null && httpUrl != "")
+            YES_HTTP_URL = httpUrl;
+        if (httpsUrl != null && httpsUrl != "")
+            YES_HTTPS_URL = httpsUrl;
+    };
+    GoodsUtil.prototype.insertOrderCount = function (index, isUsedGoods, remainCnt) {
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        if (ordCountList.length > 0) {
+            if (!this.isNumber(ordCountList[index].value)) {
+                alert('숫자만 입력 가능합니다.');
+                ordCountList[index].value = "1";
+                return false;
+            } else {
+                var cur_qty = parseInt(ordCountList[index].value, 10);
+                if (cur_qty >= 1) {
+                    if (isUsedGoods == null) { isUsedGoods = false; remainCnt = 0; }
+                    if (isUsedGoods && remainCnt < cur_qty)
+                        alert('본 상품은 한정수량 상품으로 ' + remainCnt + '개 이상으로는 주문할 수 없습니다.');
+                    if (!isUsedGoods)
+                        this.checkSalesInterestFree(ordCountList[index].value, index);
+                } else {
+                    alert("1개 이상 구매 가능합니다.");
+                    ordCountList[index].value = "1";
+                }
+            }
+        }
+        return;
+    };
+    GoodsUtil.prototype.upOrderCount = function (index, isUsedGoods, remainCnt) {
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+
+        var ordCnt = ordCountList.val();
+        var goods = eval("(" + $(goodsOptList[0]).val() + ")");
+
+        if (ordCountList.length > 0) {
+            old_qty = parseInt(ordCountList[index].value, 10);
+            if (isUsedGoods == null) { isUsedGoods = false; remainCnt = 0; }
+
+            if (isUsedGoods && remainCnt < old_qty + 1)
+                alert('본 상품은 한정수량 상품으로 ' + remainCnt + '개 이상으로는 주문할 수 없습니다.');
+            else {
+                if (ordCnt > 999) {
+                    alert("[" + goods.goods_name + "]은 최대허용 주문수량 1,000을 초과하였습니다.");
+                } else {
+                    ordCountList[index].value = old_qty + 1;
+                }
+            }
+
+            if (!isUsedGoods)
+                this.checkSalesInterestFree(ordCountList[index].value, index);
+        }
+        return;
+    };
+    GoodsUtil.prototype.downOrderCount = function (index, isUsedGoods, remainCnt) {
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        if (ordCountList.length > 0) {
+            old_qty = parseInt(ordCountList[index].value, 10);
+            if (isUsedGoods == null) { isUsedGoods = false; remainCnt = 0; }
+            if (old_qty > 1)
+                ordCountList[index].value = old_qty - 1;
+            else
+                alert("1개 이상 구매 가능합니다.");
+            if (!isUsedGoods)
+                this.checkSalesInterestFree(ordCountList[index].value, index);
+        }
+        return;
+    };
+
+    GoodsUtil.prototype.addToCartSetPos = function (btnid, isTopPosition, xgap, ygap, index, categoryNumber, islayerUI, layerid, codeName, code) {
+        var x = $("#" + btnid).offset().left + $("#" + btnid).width() / 2;
+        var y = $("#" + btnid).offset().top + $("#" + btnid).height();
+        if (isTopPosition)
+            y -= ($("#" + btnid).height() + 66);
+        $("#" + layerid).css("left", x + xgap);
+        $("#" + layerid).css("top", y + ygap);
+
+        this.addToCart(index, categoryNumber, islayerUI, layerid, codeName, code);
+    };
+
+    /*카트 담기*/
+    GoodsUtil.prototype.addToCart = function (index, categoryNumber, islayerUI, layerid, codeName, code) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var goodsOptMsgList = $("*[name='ORD_GOODS_OPT_MSG']"); // null처리
+
+        var isSubmit = false;
+        var cartData = "";
+        var AdultGoods = [];
+        if (chkControlList.length > 0) { // CHECKBOX LIST
+            if (index >= 0) chkControlList[index].checked = true;
+
+            var isSelectedGoods = false;
+            var isCheckedGoods = false;
+
+            //19세 상품 유무 체크
+            this.isAvailableAdultGoodsCheck(chkControlList, ordCountList, goodsOptList, goodsOptMsgList, (loginU.isLogin() ? true : false), "Cart", categoryNumber, islayerUI, layerid, codeName, code);
+
+        } else { // ONLY ONE GOODS
+            if (goodsOptList.length == 0) {
+                alert('옵션을 선택하세요.');
+                return;
+            }
+
+            var goods = eval("(" + $(goodsOptList[0]).val() + ")");
+            isSubmit = this.isValidGoods(goods, $(ordCountList[0]).val(), true, false)
+            if (isSubmit) {
+                var optMsg = "";
+                if (goodsOptMsgList.length != 0 && $(goodsOptMsgList[0]) != null)
+                    optMsg = $(goodsOptMsgList[0]).val();
+                if (goods.opt_inst_yn == "Y" && optMsg == "") {
+                    alert("문구입력란을 입력해주세요.");
+                    isSubmit = false;
+                }
+
+                cartData = this.getCartData(goods, $(ordCountList[0]).val(), optMsg);
+            }
+        }
+
+        if (isSubmit) {
+            if (islayerUI) {
+                var msg = this.ajaxCartData(cartData, categoryNumber, codeName, code);
+                if (msg == '') $("#" + layerid).show();
+                else alert(msg);
+            } else {
+                this.submitCartData(cartData, categoryNumber, codeName, code);
+            }
+        }
+    };
+    //카트담기 
+    GoodsUtil.prototype.addToCartByArea = function (areaid) {
+        var cartData = "";
+        var isSelectedGoods = false;
+        var isCheckedGoods = false;
+
+        //19세 상품 유무 체크
+        this.isAvailableAdultGoodsCheck2(areaid, (loginU.isLogin() ? true : false), "Cart");
+    };
+
+    GoodsUtil.prototype.addToCartSetPosByOnlyOneGoodsNo = function (goodsNo, btnid, isTopPosition, xgap, ygap, index, categoryNumber, islayerUI, layerid) {
+        if (btnid != null) {
+            var x = $("#" + btnid).offset().left + $("#" + btnid).width() / 2;
+            var y = $("#" + btnid).offset().top + $("#" + btnid).height();
+            if (isTopPosition)
+                y -= ($("#" + btnid).height() + 66);
+            $("#" + layerid).css("left", x + xgap);
+            $("#" + layerid).css("top", y + ygap);
+        }
+
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var ordCnt = 1;
+        if (ordCountList.length != 0) {
+            ordCnt = $(ordCountList[index]).val();
+        }
+        this.addToCartByGoodsNo(goodsNo, ordCnt, islayerUI, layerid, categoryNumber);
+    };
+
+    // 카트담기
+    GoodsUtil.prototype.addToCartByGoodsNo = function (goodsNo, ordCount, islayerUI, layerid, categoryNumber) {
+        if (goodsNo <= 0) { alert('상품을 선택하세요.'); return; }
+        if (categoryNumber == null) { categoryNumber = ""; }
+
+        if (document.referrer.indexOf("yes24.com/Animation") != -1) { //채널예스 > 동화 > 카트에 넣기
+            this.checkValidGoods(goodsNo, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+
+                        // dfinery 카트에 넣기 로그.
+                        sendDfineryAddCartLogByGoodsNo(goodsNo);
+
+                        var cartData = yes24GU.getCartDataByNo(goodsNo, 1, ordCount, '');
+
+                        if (islayerUI) {
+                            var msg = yes24GU.ajaxCartData(cartData, categoryNumber);
+                            if (msg == '') $("#" + layerid).show();
+                            else alert(msg);
+
+                        } else {
+                            yes24GU.submitCartData(cartData, categoryNumber);
+                        }
+                    }
+                    else {
+                        yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                    }
+                },
+                function (data) { }
+            );
+        }
+        else {
+            this.checkValidGoodsToJson(goodsNo, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+
+                        // dfinery 카트에 넣기 로그. // yes24common.js
+                        sendDfineryAddCartLogByGoodsNo(goodsNo);
+
+                        var cartData = yes24GU.getCartDataByNo(goodsNo, 1, ordCount, '');
+
+                        if (islayerUI) {
+                            var msg = yes24GU.ajaxCartData(cartData, categoryNumber);
+                            if (msg == '') $("#" + layerid).show();
+                            else alert(msg);
+
+                        } else {
+                            yes24GU.submitCartData(cartData, categoryNumber);
+                        }
+                    }
+                    else {
+                        yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                    }
+                },
+                function (data) { }
+            );
+        }
+    };
+
+    GoodsUtil.prototype.addToCartByGoodsList = function (goodsListNo, categoryNumber) {
+        var cartData = "";
+        for (var i = 0; i < goodsListNo.split(",").length; i++) {
+            cartData += this.getCartDataByNo(goodsListNo.split(",")[i], 1, 1, '');
+        }
+
+        this.submitCartData(cartData, categoryNumber);
+    };
+
+    GoodsUtil.prototype.addToCartByGoodsListByOptionNo = function (goodsListNo, goodsListSeqNo) {
+        var cartData = "";
+        var categoryNumber = "";
+        for (var i = 0; i < goodsListNo.split(",").length; i++) {
+            cartData += this.getCartDataByNo(goodsListNo.split(",")[i], 1, 1, '');
+        }
+        this.submitCartDataWithOpt(cartData, categoryNumber, '', '', goodsListSeqNo);
+    };
+
+    GoodsUtil.prototype.addToCartForData = function (index, categoryNumber, islayerUI, layerid, codeName, code) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var goodsOptMsgList = $("*[name='ORD_GOODS_OPT_MSG']"); // null처리
+
+        var cartData = "";
+        if (index >= 0) chkControlList[index].checked = true;
+
+        var isSelectedGoods = false;
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                var goods = eval("(" + $(goodsOptList[i]).val() + ")");
+                var cnt = 1;
+                if (ordCountList.length != 0 && $(ordCountList[i]) != null)
+                    cnt = $(ordCountList[i]).val();
+                if (this.isValidGoods(goods, cnt, true, true)) {
+                    var optMsg = "";
+                    if (goodsOptMsgList.length != 0 && $(goodsOptMsgList[i]) != null)
+                        optMsg = $(goodsOptMsgList[i]).val();
+
+                    cartData += this.getCartData(goods, cnt, optMsg);
+                    isSelectedGoods = true;
+                }
+            }
+        }
+        if (!isSelectedGoods) {
+            alert('상품을 선택하세요.');
+            return;
+        }
+        return cartData;
+    };
+    GoodsUtil.prototype.addToCartForDataByGoodsNo = function (goodsNo, ordCount) {
+        if (goodsNo <= 0) { alert('상품을 선택하세요.'); return; }
+        return this.getCartDataByNo(goodsNo, 1, ordCount, '');
+    };
+
+    // 상품의 goods_state 변경(ex. 리스트 담기 시 품절인 경우도 가능하도록 상태 변경)
+    this._changeGoodsStateForList = function (data, changeStateList, changedState) {
+        for (var i in changeStateList) {
+            if (data.goods_state == changeStateList[i]) {
+                data.goods_state = changedState;
+                break;
+            }
+        }
+        return data;
+    };
+
+    //리스트담기 -베스트 셀러 메인
+    GoodsUtil.prototype.addToMyListByIndex = function (index) {
+        if (!loginU.checkLoginByMsg("로그인이 필요합니다.\r\n로그인 하시겠습니까?")) {
+            return;
+        }
+
+        var isMyList = true;
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+
+        var goods = eval("(" + $(goodsOptList[index]).val() + ")");
+        var isSubmit = this.isValidGoods(goods, $(ordCountList[index]).val(), true, false, isMyList)
+        if (isSubmit) {
+
+            // dfinery 디파이너리 리스트 넣기 로그.
+            sendDfineryAddWishListLog($(goodsOptList[index]).val());
+
+            centerNewWinNoScroll(YES_BLOG_URL + '/yes24/listAddGoodsPop.aspx?goodsno=' + goods.goods_no, 'addinlist', "320", "180");
+        }
+    };
+
+    //리스트담기
+    GoodsUtil.prototype.addToMyListByGoodsNo = function (goodsNo) {
+        var isMyList = true;
+        if (!loginU.checkLoginByMsg("로그인이 필요합니다.\r\n로그인 하시겠습니까?")) {
+            return;
+        }
+
+        if (document.referrer.indexOf("yes24.com/Animation") != -1) {
+            yes24GU.checkValidGoods(goodsNo, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+                        centerNewWinNoScroll(YES_SARAK_SURL + '/popup/list-add/?goodsNo=' + goodsNo, 'addinlist', "461", "580");
+                    }
+                    else {
+                        yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                    }
+                },
+            function (data) { }
+            );
+        }
+        else {
+            yes24GU.checkValidGoodsToJson(goodsNo, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+                        centerNewWinNoScroll(YES_SARAK_SURL + '/popup/list-add/?goodsNo=' + goodsNo, 'addinlist', "461", "580");
+                    }
+                    else {
+                        yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                    }
+                },
+            function (data) { }
+            , isMyList
+            );
+        }
+    };
+
+    //리스트 담기 - 전시
+    GoodsUtil.prototype.addToMyList = function (index, codeName, code) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var AdultGoods = [];
+        var isSubmit = false;
+        var loginMessage = "로그인이 필요합니다.\r\n로그인 하시겠습니까?";
+        var isSelectedGoods = false;
+
+        //선택된 상품있는지 확인
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                isSelectedGoods = true;
+                break;
+            }
+        }
+
+        if (!isSelectedGoods) {
+            alert('상품을 선택하세요.');
+            return;
+        }
+
+        //리스트담기는 로그인 필수
+        if (!loginU.checkLoginByMsg(loginMessage)) {
+            return;
+        }
+
+        if (chkControlList.length > 0) { // CHECKBOX LIST
+            if (index >= 0) chkControlList[index].checked = true;
+
+            var isCheckedGoods = false;
+            var selectedGoodsList = "";
+
+            yes24GU.CreateMyListData(chkControlList, ordCountList, goodsOptList);
+            /*
+            //19세 상품 유무 체크
+            this.isAvailableAdultGoodsCheck(chkControlList, ordCountList, goodsOptList, null, (loginU.isLogin() ? true : false), "List", null);
+            */
+
+        } else { // ONLY ONE GOODS
+            if (goodsOptList.length == 0) {
+                alert('옵션을 선택하세요.');
+                return;
+            }
+            var goods = eval("(" + $(goodsOptList[0]).val() + ")");
+            var changeStateList = ["03", "04", "05", "07"];
+            goods = this._changeGoodsStateForList(goods, changeStateList, "02");   // 리스트담기는 품절(03)/일시품절(04)/절판(05)인 경우도 가능 
+
+            isSubmit = this.isValidGoods(goods, $(ordCountList[0]).val(), true, false)
+            if (isSubmit) {
+                var optionValue = $("#SelectGoodsOptions option:selected").val();
+                if (optionValue != undefined && optionValue != null) {
+                    var goodsSeqNo = goods.goods_seq;
+                    var url = YES_BLOG_URL + '/yes24/listAddGoodsPop.aspx?goodsno=' + goods.goods_no + "&option=" + goodsSeqNo; //obj.goods_seq; (IE 오류)
+                }
+                else {
+                    var url = YES_BLOG_URL + '/yes24/listAddGoodsPop.aspx?goodsno=' + goods.goods_no;
+                }
+                if (codeName != null) url = urlU.getClickCodeUrl(url, codeName, code);
+
+                centerNewWinNoScroll(url, 'addinlist', "320", "180");
+            }
+        }
+
+    };
+
+    //리스트 담기 - 상세 left
+    GoodsUtil.prototype.addToMyListByArea = function (areaid) {
+        var goodsList = "";
+        var isSelectedGoods = false;
+        var isCheckedGoods = false;
+
+        this.isAvailableAdultGoodsCheck2(areaid, "Y", "List");
+    };
+
+    //바로구매
+    GoodsUtil.prototype.buyWithoutCart = function (index, categoryNumber, islayerUI, layerid, btnObj, codeName, code) {
+        var orderURI = null;
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var goodsOptMsgList = $("*[name='ORD_GOODS_OPT_MSG']");
+
+        if (goodsOptList.length == 0) {
+            alert('옵션을 선택하세요.');
+            return;
+        }
+
+        var data = eval("(" + $(goodsOptList[index]).val() + ")");
+        var ordCnt = $(ordCountList[index]).val();
+        var goods_price = $("*[name='Goods_Price']").val();
+
+        if (this.isValidGoods(data, ordCnt, false, (chkControlList != null && chkControlList.length > 0) ? true : false)) {
+            var optMsg = "";
+            if (goodsOptMsgList.length != 0 && $(goodsOptMsgList[index]) != null)
+                optMsg = $(goodsOptMsgList[index]).val();
+
+            if (data.opt_inst_yn == "Y" && optMsg == "") {
+                alert("문구입력란을 입력해주세요.");
+                return false;
+            }
+
+            if (!loginU.isLogin()) {
+                if (islayerUI) {
+                    open_layer(layerid, btnObj);
+                } else {
+                    if (!loginU.checkLoginByMsgWithRedirectUtl('로그인을 하시겠습니까?', YES_DIRECT_ORDER_URL, this.getOrderData(data.goods_no, data.goods_seq, ordCnt, categoryNumber, "N", optMsg) + ((YES_DIRECTPAY_TYPE == '') ? "" : "&DirectPayType=" + YES_DIRECTPAY_TYPE))) {
+                        orderURI = YES_DIRECT_ORDER_URL + this.getOrderData(data.goods_no, data.goods_seq, ordCnt, categoryNumber, "N", optMsg);
+
+                        if (codeName != null)
+                            orderURI = urlU.getClickCodeUrl(orderURI, codeName, code);
+                    }
+                }
+            } else {
+                orderURI = YES_DIRECT_ORDER_URL + this.getOrderData(data.goods_no, data.goods_seq, ordCnt, categoryNumber, "Y", optMsg);
+
+                if (codeName != null)
+                    orderURI = urlU.getClickCodeUrl(orderURI, codeName, code);
+            }
+
+            if (orderURI != null) {
+                var strUrl = orderURI + ((YES_DIRECTPAY_TYPE == '') ? "" : "&DirectPayType=" + YES_DIRECTPAY_TYPE);
+
+                //eBook 첫구매 여부 api 호출
+                if (data.resource_key == 12 || data.resource_key == 13) {
+                    this.checkBuyEbook(data,
+                        function (isSuccess, data) {
+                            if (isSuccess) {
+                                if (data.HasEbook != "1") {
+                                    //eBook 첫구매일 경우 eBook 구매 안내 팝업 호출
+                                    var popUrl = "/product/goods/Popup?id=dPop_dBuyEbook&param=" + escape(strUrl);
+                                    $.yesPop('dPop_dBuyEbook', layerid, { posTChg: true, posTGap: 0, cock: false, mask: true, fixed: false, pWidth: 480, ajaxURL: popUrl });
+                                } else {
+                                    location.href = strUrl;
+                                }
+                            }
+                        }
+                    );
+                } else {
+                    location.href = strUrl;
+                }
+            }
+        }
+    };
+
+    //eBook 첫구매 여부 호출
+    GoodsUtil.prototype.checkBuyEbook = function (data, successCallback, failCallback) {
+        $.ajax({
+            cache: false,
+            url: "https://ssl.yes24.com/Cart/GetEbookBuyHistoryExistsAjax?memNo=" + USERNO,
+            dataType: "jsonp",
+            data: "",
+            success: function (data) {
+                if (successCallback != undefined && successCallback != null)
+                    successCallback(true, data);
+            },
+            error: function (xhr, status, errorMsg) {
+                if (failCallback != undefined && failCallback != null)
+                    failCallback(data);
+            }
+        });
+    };
+
+    GoodsUtil.prototype.buyWithoutCartByMatchGoodsNo = function (goodsNo, isEbook, islayUI, layerid, btnObj, codeName, code, isGoodsOption) {
+        if (goodsNo <= 0) { alert('상품을 선택하세요.'); return; }
+        if (isGoodsOption == 'y') {
+            if (confirm("본 상품은 옵션 선택 후 구매하실 수 있습니다.\r\n확인 버튼을 클릭하면 상품 상세 페이지로 이동합니다")) {
+
+                location.href = NOW_YES_HTTP_URL + "/24/goods/" + goodsNo;
+                return;
+            }
+            else {
+                return;
+            }
+        }
+
+        if (isEbook) {
+            if (!loginU.checkLoginByMsg("로그인이 필요합니다.\r\n로그인 하시겠습니까?")) {
+                return;
+            }
+            else {
+                if (codeName != null) {
+                    location.href = urlU.getClickCodeUrl(YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, 1, 1, "000", "Y", ''),
+                                                codeName,
+                                                code);
+                }
+                else {
+                    location.href = YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, "1", 1, "000", "Y", '');
+                }
+            }
+        }
+        else {
+            if (!loginU.isLogin()) {
+                open_layer(layerid, btnObj);
+
+            }
+            else {
+                if (codeName != null) {
+                    location.href = urlU.getClickCodeUrl(YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, 1, 1, "000", "Y", ''),
+                                                codeName,
+                                                code);
+                }
+                else {
+                    location.href = YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, "1", 1, "000", "Y", '');
+                }
+            }
+        }
+    };
+
+    GoodsUtil.prototype.buyWithoutCartOnlyMatchEbookGoods = function (type, id) { //use goods detail page
+        var goods_no = $("#EboosMatchGodosNo").val();
+        var pcode = $("#pcode").val();
+        var optMsg = "";
+
+
+        if (type == "MEM_ORDER") {
+            loginU.redirectLoginPage(YES_DIRECT_ORDER_URL, this.getOrderDataWithCode(goods_no, 1, 1, '000', "Y", optMsg, "pcode", pcode).replace('?', ''));
+        } else if (type == "NONE_MEM_ORDER") {
+            location.href = urlU.getClickCodeUrl(YES_DIRECT_ORDER_URL + this.getOrderData(goods_no, 1, 1, '000', "N", optMsg), "pcode", pcode);
+        } else {
+            $('#' + id).parent().remove();
+            return;
+        }
+    };
+
+    GoodsUtil.prototype.buyWithoutCartByGoodsNo = function (goodsNo, ordCount, categoryNumber, entrNo, memNo) {
+        if (goodsNo <= 0) { alert('상품을 선택하세요.'); return; }
+        if (!loginU.isLogin()) {
+            if (categoryNumber == "018") {//소장용, 바로구매하기
+                if (!loginU.checkLoginByMsgWithRedirectUtl('로그인을 하시겠습니까?', YES_DIRECT_ORDER_URL, this.getOrderData(goodsNo, 1, ordCount, categoryNumber, "N", ''))) {
+                    location.href = YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, "1", ordCount, categoryNumber, "N", '');
+                }
+            }
+            else {
+                if (entrNo != null && memNo != null) {
+                    if (this.checkSeller(entrNo, memNo) == "Y") { alert('중고샵판매자 본인의 상품은 구매하실 수 없습니다.'); }
+                    else {
+                        this.checkUsedHub(goodsNo, YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, "1", ordCount, categoryNumber, "N", ''));
+                    }
+                } else {
+                    this.checkUsedHub(goodsNo, YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, "1", ordCount, categoryNumber, "N", ''));
+                }
+            }
+        } else {
+            if (entrNo != null && memNo != null) {
+                if (this.checkSeller(entrNo, memNo) == "Y") { alert('중고샵판매자 본인의 상품은 구매하실 수 없습니다.'); }
+                else { this.checkUsedHub(goodsNo, YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, "1", ordCount, categoryNumber, "Y", '')); }
+            } else {
+                this.checkUsedHub(goodsNo, YES_DIRECT_ORDER_URL + this.getOrderData(goodsNo, "1", ordCount, categoryNumber, "Y", ''));
+            }
+        }
+    };
+
+    // 중고샵 허브 채널예스 바로 구매
+    GoodsUtil.prototype.checkUsedHub = function (goodsNo, url) {
+        if (document.referrer.indexOf("yes24.com/Animation") != -1) {
+            this.checkValidGoods(goodsNo, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+                        location.href = url;
+                    }
+                    else {
+                        yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                    }
+                },
+                function (data) { }
+            );
+        }
+        else {
+            this.checkValidGoodsToJson(goodsNo, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+                        location.href = url;
+                    }
+                    else {
+                        yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                    }
+                },
+                function (data) { }
+            );
+        }
+    };
+
+    GoodsUtil.prototype.buyWithoutCartOnlyGoods = function (type, id) { //use goods detail page
+        var data = eval("(" + $("*[name='ORD_GOODS_OPT']").val() + ")");
+        var ordCnt = $("*[name='ORD_GOODS_CNT']").val();
+        var dispNo = $("#dispNo").val();
+        var goodsOptMsgList = $("*[name='ORD_GOODS_OPT_MSG']");
+        var optMsg = "";
+        var directPayParam = ((YES_DIRECTPAY_TYPE == '') ? "" : "&DirectPayType=" + YES_DIRECTPAY_TYPE);
+        var params;
+
+        if (goodsOptMsgList.length != 0 && $(goodsOptMsgList[0]) != null)
+            optMsg = $(goodsOptMsgList[0]).val();
+
+        if (type == "MEM_ORDER") {
+            params = this.getOrderData(data.goods_no, data.goods_seq, ordCnt, dispNo, "Y", optMsg).replace('?', '') + directPayParam;
+            loginU.redirectLoginPage(YES_DIRECT_ORDER_URL, params);
+        } else if (type == "NONE_MEM_ORDER") {
+            params = this.getOrderData(data.goods_no, data.goods_seq, ordCnt, dispNo, "N", optMsg) + directPayParam;
+            location.href = YES_DIRECT_ORDER_URL + params;
+        } else {
+            $('#' + id).parent().remove();
+            return;
+        }
+    };
+    //바로 구매 - 상세, 전시
+    GoodsUtil.prototype.buyDigitalMoney = function (index, categoryNumber, btnObj, gapX, gapY) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var goodsOptMsgList = $("*[name='ORD_GOODS_OPT_MSG']");
+
+        if (goodsOptList.length == 0) {
+            alert('상품을 선택하세요.');
+            return;
+        }
+
+        var data = eval("(" + $(goodsOptList[index]).val() + ")");
+        var ordCnt = $(ordCountList[index]).val();
+
+        if (this.isValidGoods(data, ordCnt, false, (chkControlList != null && chkControlList.length > 0) ? true : false)) {
+            var optMsg = "";
+            if (goodsOptMsgList.length != 0 && $(goodsOptMsgList[index]) != null)
+                optMsg = $(goodsOptMsgList[index]).val();
+
+            if (data.opt_inst_yn == "Y" && optMsg == "") {
+                alert("문구입력란을 입력해주세요.");
+                return false;
+            }
+
+            var url = YES_DIGITAL_ORDER_URL + this.getOrderDataByDigital(data.goods_no, data.goods_seq, ordCnt, categoryNumber, optMsg);
+            centerNewWin2(url, 'popGoodsDigitalMoney', 460, 488);
+        }
+    };
+    // 상품 유효성 Ajax로 체크 -채널yes 에서 사용.
+    // goodsNos : ","로 구분된 상품 번호
+    // successCallback(성공여부, 메타데이터);
+    // failCallback(실패메타데이터);
+    GoodsUtil.prototype.checkValidGoods = function (goodsNos, optionCheck, successCallback, failCallback) {
+        var data = {};
+        data.goodsNos = goodsNos;
+        data.checkOption = (optionCheck ? "Y" : "N");
+        $.ajax({
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            crossdomain: true,
+            dataType: "jsonp",
+            jsonp: 'callback',
+            url: NOW_YES_HTTP_URL + "/24/Order/GetCheckOrderGoods",
+            data: data,
+            success: function (data) {
+                if (successCallback != undefined && successCallback != null)
+                    successCallback(data.IsSuccess, data);
+            },
+            error: function (data) {
+                if (failCallback != undefined && failCallback != null)
+                    failCallback(data);
+            }
+        });
+    };
+
+    // 상품 유효성 Ajax로 체크
+    // goodsNos : ","로 구분된 상품 번호
+    // successCallback(성공여부, 메타데이터);
+    // failCallback(실패메타데이터);
+    GoodsUtil.prototype.checkValidGoodsToJson = function (goodsNos, optionCheck, successCallback, failCallback, isMyList) {
+        if (isMyList == undefined || isMyList == null)
+            isMyList = false;
+
+        $.ajax({
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            url: NOW_YES_HTTP_URL + "/24/Order/CheckOrderGoods?goodsNos=" + goodsNos + "&checkOption=" + (optionCheck ? "Y" : "N") + "&isMyList=" + isMyList,
+            data: "",
+            success: function (data) {
+                if (successCallback != undefined && successCallback != null)
+                    successCallback(data.IsSuccess, data);
+            },
+            error: function (data) {
+                if (failCallback != undefined && failCallback != null)
+                    failCallback(data);
+            }
+        });
+    };
+
+
+    // 에러코드에 맞는 메세지
+    /*
+    -1  : 상품정보 오류
+    -2  : 이북상품 오류
+    -3  : 판매예정, 판매중인 상품이 아닌 오류
+    -4  : 성인상품일시 로그인 안한 오류
+    -5  : 성인상품일시 제한 오류
+    -6  : 재고수량 오류
+    -7  : 카트담기 제한 상품 오류
+    -8  : 최대허용 주문수량 오류
+    -9  : 옵션상품일 경우 카트 담지 못하는 오류
+    -10 : 성인인증이 필요한 상품 오류
+    */
+    GoodsUtil.prototype.showCartError = function (errorCode, data, cartUrl, list_Yn) {//, list_Yn
+        var msg = '';
+        var isLoginType = false;
+        var isAdultAuth = false;
+        if (list_Yn == undefined) list_Yn = "N";
+
+        var returnGoods = "";
+        if (list_Yn) {
+            for (var i = 0; i < data.length; i++) {
+                returnGoods += "-" + data[i].GoodsName + "\n";
+            }
+        }
+        if (data.LimitAge == null) {
+            data.LimitAge = 19;
+        }
+
+        switch (errorCode) {
+            case -1:
+                msg = '유효한 상품이 아닙니다.\r\n다시확인해주세요.';
+                break;
+            case -2:
+                msg = 'eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?';
+                isLoginType = true;
+                break;
+            case -3:
+                msg = '[' + data.GoodsName + '](일시품절 상품)은 카트에 담을 수 없는 상품입니다.';
+                break;
+            case -4:
+                msg = '[' + data.LimitAge.toString() == "15" ? "15" : "19" + '세 이상] 나이제한 상품 입니다.\n로그인 후 이용하세요.';
+                isLoginType = true;
+                break;
+            case -5:
+                var todayDate = new Date();
+                //TICKET-17596 나이제한 얼럿 문구 수정 요청
+                if ((todayDate.getUTCMonth() + 1) == 1) {
+                    msg = '[' + data.LimitAge.toString() == "15" ? "15" : "19" + '세 이상] 나이제한 상품 입니다.\n제한 나이가 넘었으나 상품을 확인할 수 없는 고객님께서는 다시 로그인 후 이용해 주세요.';
+                } else {
+                    msg = '[' + data.LimitAge.toString() == "15" ? "15" : "19" + '세 이상] 나이제한 상품 입니다.';
+                }
+                break;
+            case -6:
+                msg = '[' + data.GoodsName + ']의 재고수량이 부족합니다.';
+                break;
+            case -7:
+                msg = '[' + data.GoodsName + ']은 카트에 담을 수 없는 상품입니다.'
+                break;
+            case -8:
+                msg = '[' + data.GoodsName + ']은 최대허용 주문수량 [' + data.MaxAmountPerOrd + ']을 초과하였습니다.'
+                break;
+            case -9:
+                msg = '상품 상세에서 옵션 선택 후, 구입 가능합니다.';
+                break;
+            case -10:
+                isAdultAuth = true;
+                break;
+        }
+
+        if (isLoginType) {
+
+            var url = YES_HTTPS_URL + '/Templates/FTLogin.aspx?ReturnURL=' + escape(location.href);
+
+            if (errorCode == -5 && cartUrl != undefined && cartUrl != null && cartUrl != '') {
+                url = cartUrl;
+            }
+
+            alert(msg);
+            location.href = url;
+
+        }
+        else if (isAdultAuth) {
+            location.href = YES_HTTPS_URL + '/Member/Adult.aspx?ReturnURL=' + escape(location.href);
+        }
+        else {
+            alert(msg);
+        }
+    }
+
+    GoodsUtil.prototype.showCartErrorDetailOptionCheck = function (errorCode, data, cartUrl, list_Yn) {//, list_Yn
+        var msg = '';
+        var sMsgArr = "";
+        var isLoginType = false;
+        var isAdultAuth = false;
+        if (list_Yn == undefined) list_Yn = "N";
+
+        var returnGoods = "";
+        if (list_Yn) {
+            for (var i = 0; i < data.length; i++) {
+                returnGoods += "-" + data[i].GoodsName + "\n";
+            }
+        }
+        for (var i = 0; i < errorCode.length; i++) {
+            if (data[i].LimitAge == null) {
+                data[i].LimitAge = 19;
+            }
+            switch (errorCode[i]) {
+                case -1:
+                    msg = '유효한 상품이 아닙니다.\r\n다시확인해주세요.\n\n';
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    break;
+                case -2:
+                    msg = 'eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?';
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    isLoginType = true;
+                    break;
+                case -3:
+                    msg = '일시품절, 품절인 상품이 포함되어있습니다.\n\n';
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    break;
+                case -4:
+                    msg = '[' + data[i].LimitAge.toString() == "15" ? "15" : "19" + '세 이상] 나이제한 상품 입니다.\n로그인 후 이용하세요.\n';
+                    isLoginType = true;
+                    break;
+                case -5:
+                    var todayDate = new Date();
+                    //TICKET-17596 나이제한 얼럿 문구 수정 요청
+                    if ((todayDate.getUTCMonth() + 1) == 1) {
+                        msg = '[' + data[i].LimitAge.toString() == "15" ? "15" : "19" + '세 이상] 나이제한 상품 입니다.\n\n';
+                    } else {
+                        msg = '[' + data[i].LimitAge.toString() == "15" ? "15" : "19" + '세 이상] 나이제한 상품 입니다.\n제한 나이가 넘었으나 상품을 확인할 수 없는 고객님께서는 다시 로그인 후 이용해 주세요.\n\n';
+                    }
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    break;
+                case -6:
+                    msg = '재고수량이 부족한 상품이 포함되어 있습니다.\n\n';
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    break;
+                case -7:
+                    msg = '[' + data[i].GoodsName + ']은 카트에 담을 수 없는 상품입니다.\n\n'
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    break;
+                case -8:
+                    msg = '[' + data[i].GoodsName + ']은 최대허용 주문수량 [' + data[i].MaxAmountPerOrd + ']을 초과하였습니다.\n\n'
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    break;
+                case -9:
+                    msg = '옵션상품은 상품상세페이지에서 카트에 담을 수 있습니다.\n카트에 담지 못한 상품을 확인해주세요.\n\n';
+                    sMsgArr += "상품명: " + data[i].GoodsName + "\n";
+                    break;
+                case -10:
+                    isAdultAuth = true;
+                    break;
+            }
+        }
+
+        if (isLoginType) {
+
+            var url = YES_HTTPS_URL + '/Templates/FTLogin.aspx?ReturnURL=' + escape(location.href);
+
+            if (errorCode == -5 && cartUrl != undefined && cartUrl != null && cartUrl != '') {
+                url = cartUrl;
+            }
+
+            alert(msg + sMsgArr);
+            location.href = url;
+
+        }
+        else if (isAdultAuth) {
+            location.href = YES_HTTPS_URL + '/Member/Adult.aspx?ReturnURL=' + escape(location.href);
+        }
+        else {
+            alert(msg + sMsgArr);
+        }
+    }
+    //미리보기 - 전시
+    GoodsUtil.prototype.openPreviewCheck = function (goodsNo) {
+
+        yes24GU.checkValidGoodsToJson(goodsNo, false,
+            function (isSuccess, data) {
+
+                if (isSuccess) {
+                    openPreviewForDisplay(goodsNo);
+                }
+                else {
+                    if ((data.ErrorCodes[0] == -4 || data.ErrorCodes[0] == -5 || data.ErrorCodes[0] == -10) && data.Goods[0].CanReadIfGoodsForAdultOnly == "Y") {
+                        openPreviewForDisplay(goodsNo);
+                    }
+                    else if (data.ErrorCodes[0] == -3 && data.Goods[0].CanReadIfGoodsForAdultOnly == "N") {
+                        openPreviewForDisplay(goodsNo);
+                    }
+                    else {
+                        yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                    }
+                }
+            },
+            function (data) { }
+        );
+    }
+    //미리보기 - ebook
+    GoodsUtil.prototype.openEBookPreview = function (goodsNo) {
+
+        var width = 790;
+        var height = 880;
+        var c = 0;
+        var d = 0;
+
+        if (screen.width >= screen.height) {
+            if (screen.width <= 1024 || screen.height <= 768) {
+                c = 50;
+                d = 30;
+                width = 618;
+                height = 708;
+            } else {
+                c = 100;
+                d = 30;
+            }
+        } else {
+            c = 30;
+            d = 30;
+        }
+        var url = "http://epreview.yes24.com/preview/viewer/viewer.html?ebookcode=" + goodsNo + "&dm=yes24.com"
+
+        window.open(url, "yes24preview", "menubar=no,status=no,toolbar=no,scrolling=no,resizable=yes,width=" + width + ",height=" + height + ", top=" + c + ",left=" + d);
+    }
+    //오디오북 미리듣기
+    GoodsUtil.prototype.PreviewAudioBookPlaying = function (previewInfo, goodsNo) {
+        if (previewInfo == undefined || previewInfo.length == 0) {
+            alert("미리듣기 정보 없습니다.");
+            return false;
+        }
+
+        previewInfo += "|";
+        previewInfo += encodeURIComponent("오디오북 미리듣기") + "|";
+        previewInfo += "01" + "|";
+
+        var form = this.getFormInstance();
+        var oInput = new Object();
+
+        oInput = document.createElement("INPUT");
+        oInput.type = "hidden";
+        oInput.id = "chkTrackList";
+        oInput.name = "chkTrackList";
+        oInput.value = previewInfo;
+
+        form.appendChild(oInput);
+
+        oInput = document.createElement("INPUT");
+        oInput.type = "hidden";
+        oInput.id = "goodsNo";
+        oInput.name = "goodsNo";
+        oInput.value = goodsNo;
+        form.appendChild(oInput);
+
+        oInput = document.createElement("INPUT");
+        oInput.type = "hidden";
+        oInput.id = "CategoryNumber";
+        oInput.name = "CategoryNumber";
+        oInput.value = "017";
+        form.appendChild(oInput);
+
+        oInput = document.createElement("INPUT");
+        oInput.type = "hidden";
+        oInput.id = "PreviewType";
+        oInput.name = "PreviewType";
+        oInput.value = "AUDIO";
+        form.appendChild(oInput);
+
+        var openWindowStyle = "width=430,height=230,toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=no,resizable=no;fullscreen;";
+        var actStr = '/Goods/player/PreMusicPlayer.aspx';
+        rtn = window.open("", "PreMusicPlay", openWindowStyle);
+        form.action = actStr;
+        form.target = 'PreMusicPlay';
+        form.method = "GET";
+        form.submit();
+    }
+    //상세 - 리스트 카트담기 
+    GoodsUtil.prototype.AddToCartByAreaOptionCheck = function (areaid) {
+        var cartData = "";
+        var isSelectedGoods = false;
+        var isCheckedGoods = false;
+
+        //19세 상품 유무 체크
+        this.isAvailableAdultGoodsCheckOptionCheck(areaid, (loginU.isLogin() ? true : false), "Cart");
+    };
+
+    // 성인 상품 체크
+    GoodsUtil.prototype.isAvailableAdultGoodsCheckOptionCheck = function (areaid, loginYn, islayerUI, layerid, categoryNumber) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var goodsOptMsgList = $("*[name='ORD_GOODS_OPT_MSG']"); // null처리
+
+        var bRet;
+        var sMsg;
+        var CheckGoods = "";
+        var ReturnGoods = "";
+        var list_yn, cart_yn = true;
+        var sMsg = "";
+        var CheckGoodsCount = 0;
+        $('#' + areaid).find(":checkbox:checked").each(function () {
+            if (this.checked == true) {
+                var goods = eval("(" + this.value + ")");
+                if (CheckGoodsCount == 0) CheckGoods = goods.goods_no;
+                else CheckGoods += ',' + goods.goods_no;
+                CheckGoodsCount++;
+            }
+        });
+
+        if (CheckGoods == "") {
+            alert("상품을 선택하세요.");
+            return false;
+        }
+
+        var isSubmit = false;
+        yes24GU.checkValidGoodsToJson(CheckGoods, true,
+            function (isSuccess, data) {
+                if (isSuccess) {
+                    var goodsNo = 0;
+                    var goodsSeqNo = 1;
+                    var ordCount = 1;
+                    var cartData = "";
+                    var optMsg = "";
+                    $('#' + areaid).find(":checkbox:checked").each(function () {
+                        isSubmit = false;
+                        if (this.checked == true) {
+                            var goods = eval("(" + this.value + ")");
+                            goodsNo = goods.goods_no;
+                            if (goods.goods_seq != undefined && goods.goods_seq > 0)
+                                goodsSeqNo = goods.goods_seq;
+                            isSubmit = yes24GU.isValidGoods(goods, ordCount, true, true);  //상품 옵션 확인 [goods,ordCnt,isCart,isListType,isMyList]
+                            if (isSubmit) {
+                                cartData += yes24GU.getCartData(goods, ordCount, optMsg);   //[goods,ordCnt,ordGoodsOptMsg]
+                            }
+                            else { return false; }
+                        }
+                    });
+
+                    if (isSubmit) {
+                        yes24GU.submitCartData(cartData, categoryNumber);
+                    }
+                } else {
+                    yes24GU.showCartErrorDetailOptionCheck(data.ErrorCodes, data.Goods, 'Y');
+                } //else
+            } //fn
+        ,
+        function (data) {
+            return false;
+        }
+        , false
+       );
+        return bRet;
+    };
+
+    //카트에 넣기 - 전시개편
+    GoodsUtil.prototype.addToCartNew = function (index, categoryNumber, islayerUI, layerid, codeName, code) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var goodsOptMsgList = $("*[name='ORD_GOODS_OPT_MSG']"); // null처리
+
+        var isSubmit = false;
+        var cartData = "";
+        var AdultGoods = [];
+        if (chkControlList.length > 0) { // CHECKBOX LIST
+            if (index >= 0) chkControlList[index].checked = true;
+
+            var isSelectedGoods = false;
+            var isCheckedGoods = false;
+
+            //19세 상품 유무 체크
+            this.isAvailableAdultGoodsCheckNew(chkControlList, ordCountList, goodsOptList, goodsOptMsgList, (loginU.isLogin() ? true : false), "Cart", categoryNumber, islayerUI, layerid, codeName, code);
+
+        } else {
+            alert("상품을 선택하세요.");
+            return;
+        }
+
+        if (isSubmit) {
+            if (islayerUI) {
+                var msg = this.ajaxCartData(cartData, categoryNumber, codeName, code);
+                if (msg == '') {
+                    $.yesPop('dPop_cart', layerid, { cock: false, mask: false, pWidth: 268 });
+                }
+                else alert(msg);
+            } else {
+                this.submitCartData(cartData, categoryNumber, codeName, code);
+            }
+        }
+    };
+
+    // 성인 상품 체크
+    this.isAvailableAdultGoodsCheckNew = function (chkControlList, ordCountList, goodsOptList, goodsOptMsgList, loginYn, CartorList, categoryNumber, islayerUI, layerid, codeName, code) {
+        var bRet;
+        var sMsg;
+        var CheckGoods = "";
+        var ReturnGoods = "";
+        var list_yn, cart_yn = true;
+        var sMsg = "";
+
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                var goods = eval("(" + $(goodsOptList[i]).val() + ")");
+                if (i == 0) CheckGoods = goods.goods_no;
+                else CheckGoods += ',' + goods.goods_no;
+            } //if checked
+        }
+
+        if (CheckGoods == "") {
+            alert("상품을 선택하세요.");
+            return false;
+        }
+        else {
+
+            this.checkValidGoodsToJson(CheckGoods, false,
+                function (isSuccess, data) {
+                    if (isSuccess) {
+                        if (CartorList == "Cart") {
+                            yes24GU.CreateCartDataNew(chkControlList, ordCountList, goodsOptList, goodsOptMsgList, categoryNumber, islayerUI, layerid, codeName, code);
+                        }
+                        else if (CartorList == "List") {
+                            yes24GU.CreateMyListData(chkControlList, ordCountList, goodsOptList);
+                        }
+                        return true;
+                    }
+                    else {
+                        //상품 유효성 체크
+                        if (yes24GU.VailableAdultGoodsErrorCheck(data, loginYn)) {
+                            if (CartorList == "Cart") {
+                                yes24GU.CreateCartDataNew(chkControlList, ordCountList, goodsOptList, goodsOptMsgList, categoryNumber, islayerUI, layerid, codeName, code);
+                            }
+                            else if (CartorList == "List") {
+                                yes24GU.CreateMyListData(chkControlList, ordCountList, goodsOptList);
+                            }
+                        } //if
+                    } //else
+                } //fn
+            ,
+            function (data) { return false; }
+           );
+        } //else
+        return bRet;
+    };
+
+    this.CreateCartDataNew = function (chkControlList, ordCountList, goodsOptList, goodsOptMsgList, categoryNumber, islayerUI, layerid, codeName, code) {
+        var isSubmit;
+        var cartData = "";
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                isCheckedGoods = true;
+                var goods = eval("(" + $(goodsOptList[i]).val() + ")");
+                var cnt = 1;
+                if (ordCountList.length != 0 && $(ordCountList[i]) != null)
+                    cnt = $(ordCountList[i]).val();
+                isSubmit = yes24GU.isValidGoods(goods, cnt, true, true);
+                if (isSubmit) {
+                    var optMsg = "";
+                    if (goodsOptMsgList.length != 0 && $(goodsOptMsgList[i]) != null)
+                        optMsg = $(goodsOptMsgList[i]).val();
+                    cartData += this.getCartData(goods, cnt, optMsg);
+                    isSelectedGoods = true;
+                }
+                else { break; }
+            }
+        } //for
+
+        if (isSubmit) {
+            if (islayerUI) {
+                var msg = this.ajaxCartData(cartData, categoryNumber, codeName, code);
+                if (msg == '') {
+                    $.yesPop('dPop_cart', layerid, { cock: false, mask: false, pWidth: 268 });
+                }
+                else alert(msg);
+            } else {
+                this.submitCartData(cartData, categoryNumber, codeName, code);
+            }
+        }
+    };
+
+    //전시 개편 - 단건 카트담기
+    GoodsUtil.prototype.addToCartSetPosByOnlyOneGoodsNoNew = function (goodsNo, index, categoryNumber, obj) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var ordCnt = 1;
+        if (ordCountList.length != 0) {
+            ordCnt = $(ordCountList[index]).val();
+        }
+        this.addToCartByGoodsNoNew(goodsNo, ordCnt, categoryNumber, obj);
+    }
+
+    //전시 개편 - 카트담기
+    GoodsUtil.prototype.addToCartByGoodsNoNew = function (goodsNo, ordCount, categoryNumber, obj) {
+        if (goodsNo <= 0) { alert('상품을 선택하세요.'); return; }
+        if (categoryNumber == null) { categoryNumber = ""; }
+
+        yes24GU.checkValidGoodsToJson(goodsNo, false,
+            function (isSuccess, data) {
+                if (isSuccess) {
+                    var cartData = yes24GU.getCartDataByNo(goodsNo, 1, ordCount, '');
+
+                    //dfinery 디파이너리 카트 넣기 로그. // yes24common.js
+                    sendDfineryAddCartLogByGoodsNo(goodsNo);
+
+                    var msg = yes24GU.ajaxCartData(cartData, categoryNumber);
+                    if (msg == '') {
+                        $.yesPop('dPop_cart', obj, { cock: false, mask: false, pWidth: 268 });
+                    }
+                    else alert(msg);
+                }
+                else {
+                    yes24GU.showCartError(data.ErrorCodes[0], data.Goods[0], '');
+                }
+            },
+            function (data) { }
+        );
+    }
+
+    //전시 개편 - 전시
+    GoodsUtil.prototype.addToMyListNew = function (index, codeName, code) {
+        var goodsOptList = $("*[name='ORD_GOODS_OPT']");
+        var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+        var ordCountList = $("*[name='ORD_GOODS_CNT']");
+        var AdultGoods = [];
+        var isSubmit = false;
+        var loginMessage = "eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?";
+        var checkBoxCount = 0;
+
+        for (var i = 0; i < chkControlList.length; i++) {
+            if (chkControlList[i].checked) {
+                checkBoxCount++;
+
+                var goods = eval("(" + $(goodsOptList[i]).val() + ")");
+
+                if (goods.resource_key != "12" && goods.resource_key != "13") {
+                    loginMessage = "로그인이 필요합니다.\r\n로그인 하시겠습니까?";
+                    break;
+                }
+            }
+        }
+
+        if (checkBoxCount == 0) {
+            alert("상품을 선택하세요.");
+            return;
+        }
+
+        if (!loginU.checkLoginByMsg(loginMessage)) {
+            return;
+        }
+
+        if (chkControlList.length > 0) { // CHECKBOX LIST
+            if (index >= 0) chkControlList[index].checked = true;
+
+            var isSelectedGoods = false;
+            var isCheckedGoods = false;
+            var selectedGoodsList = "";
+
+            yes24GU.CreateMyListData(chkControlList, ordCountList, goodsOptList);
+        } else {
+            alert("상품을 선택하세요.");
+            return;
+        }
+    };
+
+    this.checkUnder19AdultMsgAlert = function (limitAge) {
+        var todayDate = new Date();
+        if (limitAge == null) {
+            limitAge = 19;
+        }
+        //TICKET-17596 나이제한 얼럿 문구 수정 요청
+        if ((todayDate.getUTCMonth() + 1) == 1) {
+            alert("[" + limitAge.toString() == "15" ? "15" : "19" + "세 이상] 나이제한 상품입니다.\n제한 나이가 넘었으나 상품을 확인할 수 없는 고객님께서는 다시 로그인 후 이용해 주세요.");
+        } else {
+            alert("[" + limitAge.toString() == "15" ? "15" : "19" + "세 이상] 나이제한 상품입니다.");
+        }
+    }
+}
+
+function open_urllayerAddGap(url, obj, gapX, gapY) {
+    if ($('#popGoodsDigitalMoney').length == 0) {
+        var layer = document.createElement("div");
+        document.body.appendChild(layer);
+        $(layer).css("position", "absolute");
+        $(layer).hide();
+
+        var x, y;
+        x = get_objx(obj) + (gapX);
+        y = get_objy(obj) + (gapY);
+
+        $(layer).html("<iframe frameborder='0' width='445' height='540' margin='0' padding='0' src='" + url + "'>");
+        set_layerxy($(layer), x, y);
+        $(layer).show();
+    }
+}
+function close_urllayerAddGap() {
+    $('#popGoodsDigitalMoney').parent().remove();
+}
+function get_objx(obj) {
+    return $(obj).offset().left + $(obj).width() / 2;
+}
+function get_objy(obj) {
+    return $(obj).offset().top + $(obj).height();
+}
+function set_layerxy(obj, x, y) {
+    $(obj).css("top", y);
+    $(obj).css("left", x - $(obj).width() / 2);
+}
+
+function openPreviewForDisplay(goodsid, querystring) {
+
+    var popleftgap = 0;
+    var poptopgap = 0;
+    var owinwidth = 0;
+    var owinheight = 0;
+
+    if (screen.width >= screen.height) {
+        if (screen.width <= 1024 || screen.height <= 768) {
+            popleftgap = 50;
+            poptopgap = 30;
+            owinwidth = screen.availWidth - 100;
+            owinheight = screen.availHeight - 90;
+        } else {
+            popleftgap = 100;
+            poptopgap = 30;
+            owinwidth = screen.availWidth - 200;
+            owinheight = screen.availHeight - 90;
+        }
+    } else {
+        popleftgap = 30;
+        poptopgap = 30;
+        owinwidth = screen.availWidth - 60;
+        owinheight = screen.availHeight - 190;
+    }
+    if (querystring) {
+        if (querystring.indexOf("?") < 0) {
+            querystring = "?" + querystring;
+        }
+        window.open('/Product/Viewer/Preview/' + goodsid + querystring, 'yes24preview', 'menubar=no,status=no,toolbar=no,resizable=yes,top=' + poptopgap + ',left=' + popleftgap + ',width=' + owinwidth + ',height=' + owinheight);
+    } else {
+        window.open('/Product/Viewer/Preview/' + goodsid, 'yes24preview', 'menubar=no,status=no,toolbar=no,resizable=yes,top=' + poptopgap + ',left=' + popleftgap + ',width=' + owinwidth + ',height=' + owinheight);
+    }
+    return false;
+}
+
+// !!!
+var yes24GU = new GoodsUtil();
+
+//배송예정일 조회:리스트UI
+function getDeliveryPlannedDateFrom24(zipCd, zipSeq, buMngNo, type) {
+    //상품영역 Wrapper: 공통모듈 호출하는 부분
+    var goodsItem = $(".clearfix > li");
+    if (type == "SpecialDisplay") {
+        goodsItem = $(".list > tbody > tr");
+    }
+    var delvTextArea = $("[name=delvTextArea]");
+    var arrGoodsNoList = [];
+    var goodsNos = '';
+    var SSL_API_PATH = "https://sslapi.yes24.com";
+
+    if (PAYMENT_API_URL) {
+        SSL_API_PATH = PAYMENT_API_URL;
+    }
+
+    if (goodsItem.length > 0 && delvTextArea.length > 0) {
+        //상품번호 파라미터 생성
+        goodsItem.each(function () {
+            if (this.dataset.goodsNo) {
+                arrGoodsNoList.push(this.dataset.goodsNo);
+            }
+        });
+        goodsNos = arrGoodsNoList.join(",");
+
+        var ajaxParam = {
+            goodsNos: goodsNos,
+            goodsSeq: 1,
+            goodsCnt: 1,
+            _partBookSeq: 0,
+            zipCd: zipCd,
+            zipSeq: zipSeq,
+            buMngNo: buMngNo
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: SSL_API_PATH + '/DelvTraceInfo/GetDelvDateV2List',
+            data: ajaxParam,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                setGoodsDeliveryPlanFrom24(data, type);
+            },
+            error: function (x, e) { }
+        });
+    }
+}
+
+//배송예정일 영역 업데이트
+function setGoodsDeliveryPlanFrom24(data, type) {
+    for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        var currnetGoodsItem = $("li[data-goods-no=" + item.GoodsNo + "]")
+        if (type == "SpecialDisplay") {
+            currnetGoodsItem = $("tr[data-goods-no=" + item.GoodsNo + "]")
+        }
+        if (item.deliBoxRowFullText != '') {
+            var delvText = String.Format('<span class="deli_des">{0} ', item.deliBoxRowText2);
+            delvText += String.Format('<strong class="deli_act">{0}</strong> {1} </span>', item.deliBoxRowText3, item.deliBoxRowText4);
+            currnetGoodsItem.find("[name=delvTextArea]").html(delvText);
+        }
+    }
+}

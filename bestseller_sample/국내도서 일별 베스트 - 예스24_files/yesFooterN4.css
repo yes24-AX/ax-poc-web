@@ -1,0 +1,346 @@
+/* yesFooter.css 와 https_yesFooter.css 두개 파일 수정 필요 */
+.yBlind,legend  { display:block;position:absolute;top:-1000em;left:0;width:1px;height:1px;overflow:hidden; }
+
+/* YESUI.CSS없는 경우 방어코드 */
+.bgYUI { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;text-indent:-999em;vertical-align:top;background-image:url('https://image.yes24.com/sysimage/yesUI/bgYUI.png?ver=210806a');} /* 기본 이미지 대체 태그 */
+* html .bgYUI {text-indent:0 !important; line-height:0 !important; font-size:0 !important; overflow:hidden !important;}/*ie6 hack */  
+*:first-child+html .bgYUI { text-indent:0 !important; line-height:0 !important; font-size:0 !important; overflow:hidden !important;}/*ie7 hack */
+
+.bgFooter { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;text-indent:-999em;vertical-align:top;background-image:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405');} /* 기본 이미지 대체 태그 */
+* html .bgFooter {text-indent:0 !important; line-height:0 !important; font-size:0 !important; overflow:hidden !important;}/*ie6 hack */  
+*:first-child+html .bgFooter { text-indent:0 !important; line-height:0 !important; font-size:0 !important; overflow:hidden !important;}/*ie7 hack */
+
+/* noData YESUI.CSS없는 경우 방어코드 */
+.noData { padding:50px 0 50px 0 !important;width:100% !important;min-height:auto !important;max-height:auto !important;text-align:center;font-size:13px;word-break:break-word;word-wrap:break-word; }
+.noData .icon_err { display:block;margin:0 auto; }
+.noData .txt_tit { display:block;margin:0 auto;padding:0 0 0 0;width:80%;min-width:290px;max-width:600px;font-size:1.21em;line-height:1.3em;font-weight:600 !important;color:#333;word-break:break-word; }
+.noData .icon_err+.txt_tit { margin:20px auto 0; }
+.noData p.cmt { margin-top:5px;padding-bottom:15px;font-size:0.85em;word-break:break-word;word-wrap:break-word;line-height:1.4em;color:#666; }
+.noData .yesAlertLi { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;text-align:left;vertical-align:top; }
+.noData .yesAlertLi { margin:0 10px;max-width:460px;text-align:left; }
+.noData .noData_cmt { margin:0 auto;width:80%;min-width:230px;max-width:460px;font-size:13px;color:#999;line-height:1.4em; }
+.noData .txt_tit+.noData_cmt { margin-top:13px; }
+.noData .txt_tit+.yesAlertLi { margin-top:13px; }
+.noData .btn_area { margin-top:20px;text-align:center; }
+
+#yesFooter { position:relative;clear:both;margin-top:20px;min-width:960px;min-height:304px;_height:314px;border-top:solid 1px #cbcbcb;background-color:#dfdfdf; }
+#yesFooter:before { content:'';position:absolute;left:0;right:0;top:0;z-index:0;height:42px;border-bottom:solid 1px #cbcbcb;background-color:#dfdfdf; }
+#yesFooter * { -webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box; }
+#yesFooter img { vertical-align:top; }
+#yesFooter #footerWrap { position:relative;z-index:2;margin:0 auto;width:960px;text-align:left; }
+#yesFooter .yFootTop { height:44px; }
+#yesFooter .yFootTop:after { content:'';clear:both;display:block; }
+#yesFooter .yFootTop .yFootMnuLi { float:left; }
+#yesFooter .yFootTop .yFootFamDl { float:right;margin-top:9px;position:relative;z-index:2;text-align:left; }
+#yesFooter .yFootTop .yFootFamDl.tp_fam { margin:9px 50px 0 0; }
+#yesFooter .yFootTop .yFootMnuLi li { position:relative;float:left;height:44px; }
+#yesFooter .yFootTop .yFootMnuLi li a { text-indent:0;background:none; }
+#yesFooter .yFootTop .yFootMnuLi li a { display:block;padding:0 8px;height:44px;line-height:44px;overflow:hidden;letter-spacing:-1px;font-size:12px;color:#666;font-family:'맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter .yFootTop .yFootMnuLi li a strong { color:#333; }
+#yesFooter .yFootTop .yFootMnuLi li:first-child a { padding-left:0; }
+#yesFooter .yFootTop .yFootMnuLi li+li:after { content:'';position:absolute;left:0;top:18px;height:10px;border-left:solid 1px #ccc; }
+
+#yesFooter a.txtLnk { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top; }
+#yesFooter a.txtLnk { position:relative;padding-right:8px;height:16px;line-height:16px;font-size:12px;color:#666; }
+#yesFooter a.txtLnk:after { content:'';position:absolute;right:0;top:2px;width:12px;height:13px;overflow:hidden;line-height:14px;letter-spacing:-1px;vertical-align:top;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat right -269px;_background-position:right -268px; }
+#yesFooter .yFootTop .yFootSnsLi { position:absolute;right:126px;top:12px; }
+#yesFooter .yFootTop .yFootSnsLi li { float:left;margin-right:4px; }
+#yesFooter .yFootTop .yFootSnsLi li a { display:block;width:20px;height:20px;overflow:hidden;text-indent:-999em; }
+#yesFooter .yFootTop .yFootSnsLi li a.sns_ka { background-position:-370px -120px; }
+#yesFooter .yFootTop .yFootSnsLi li a.sns_fb { background-position:-400px -120px; }
+#yesFooter .yFootTop .yFootSnsLi li a.sns_tw { background-position:-430px -120px; }
+#yesFooter .yFootTop .yFootSnsLi li a.sns_ig { background-position:-460px -120px; }
+#yesFooter .yFootTop .yFootFamDl { width:120px;height:24px; }
+#yesFooter .yFootTop .yFootFamDl dt { width:120px;height:24px;overflow:hidden;cursor:pointer;text-indent:-999em; }
+#yesFooter .yFootTop .yFootFamDl dt.on { background-position:-840px -30px; }
+#yesFooter .yFootTop .yFootFamDl dt a { display:block;overflow:hidden;position:absolute;left:0;top:0; }
+#yesFooter .yFootTop .yFootFamDl dt a.bgFooter { width:120px;height:24px;background-position:-840px top; }
+#yesFooter .yFootTop .yFootFamDl dt.on a.bgFooter { background-position:-840px -30px; }
+#yesFooter .yFootTop .yFootFamDl dd { position:absolute;left:0;top:24px;padding:5px 0;width:118px;border:solid 1px #c1c1c1;border-top:none;border-bottom-left-radius:3px;border-bottom-right-radius:3px;background-color:#eaeaea; }
+#yesFooter .yFootTop .yFootFamDl dd strong.famDepth { display:block;padding-top:5px;height:18px;_height:23px;line-height:18px;font-size:11px;color:#666;text-indent:10px;font-weight:bold; }
+#yesFooter .yFootTop .yFootFamDl dd ul { }
+#yesFooter .yFootTop .yFootFamDl dd ul li a { display:block;width:120px;height:18px;line-height:18px;font-size:11px;color:#666;text-indent:13px; }
+#yesFooter .yFootTop .yFootFamDl dd ul li a:hover { color:#333;text-decoration:underline; }
+#yesFooter .yFootTop .yFootFamDl dd div.famBot { width:120px;height:5px;font-size:1px;line-height:1px; }
+#yesFooter .yFootCon { position:relative;z-index:1;min-height:148px;_height:148px; }
+#yesFooter .yFootCon .yFootAddr dt .fLogo { position:absolute;left:0;top:0;width:135px;height:135px; }
+#yesFooter .yFootCon .yFootAddr dt .fLogo.bgFooter { position:absolute;left:0;top:0;width:135px;height:135px;background-position:0 -60px; }
+#yesFooter .yFootCon .yFootAddr dt .fCName { position:absolute;left:164px;top:21px;width:88px;height:15px;overflow:hidden;text-indent:-999em;background-position:-179px -60px; }
+#yesFooter .yFootCon .yFootAddr dd { position:absolute;left:164px;top:43px;width:450px;color:#999;font-size:11px; }
+#yesFooter .yFootCon .yFootAddr dd address { font-style:normal; }
+#yesFooter .yFootCon .yFootAddr dd a { color:#666; }
+#yesFooter .yFootCon .yFootAddr dd a:hover { color:#666;text-decoration:underline; }
+#yesFooter .yFootCon .yFootAddr dd a#corpNumLnk { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;margin-top:-1px;padding:0 7px 0 5px;height:15px;overflow:hidden;line-height:15px;letter-spacing:-1px;vertical-align:middle;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat right -269px;_background-position:right -268px; }
+#yesFooter .yFootCon .yFootAddr dd adress { color:#999;font-size:11px; }
+#yesFooter .yFootCon .yFootAddr dd .addrRow { display:block;margin-top:2px;line-height:16px; }
+#yesFooter .yFootCon .yFootAddr dd .txt_copyright { margin-top:5px; }
+#yesFooter .yFootCon .yFootCsDl dt { position:absolute;left:683px;top:17px; }
+#yesFooter .yFootCon .yFootCsDl dt em.txt { display:block;width:220px;height:20px;overflow:hidden;text-indent:-999em;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat -179px -90px; }
+#yesFooter .yFootCon .yFootCsDl dt em.txt.bgFooter { background-position:-179px -90px; }
+#yesFooter .yFootCon .yFootCsDl dd { position:absolute;top:49px;font-size:11px; }
+#yesFooter .yFootCon .yFootCsDl dd li { height:16px;color:#666;font-size:11px; }
+#yesFooter .yFootCon .yFootCsDl dd span.item { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top;letter-spacing:-1px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel { left:682px;width:280px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel:after { content:'';clear:both;display:block; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li { float:left;width:140px;height:17px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li a.lnk { color:#333; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li a.lnk .ico_arr { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;margin-top:-1px;padding:0 7px 0 0;height:13px;overflow:hidden;line-height:14px;letter-spacing:-1px;vertical-align:middle;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat right -269px;_background-position:right -268px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.lftPos { margin-right:9px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.rgtPos { width:130px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel span.item { width:78px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.rgtPos span.item { width:68px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.csTelF { width:279px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.csTelF span.item { width:75px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.csTelL { margin-right:9px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.csTelL span.item { width:75px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.csTelR { width:130px; }
+#yesFooter .yFootCon .yFootCsDl dd.csTel li.csTelR span.item { width:68px; }
+#yesFooter .yFootCon .yFootCsDl dd.csFAQ { left:683px;top:87px; }
+#yesFooter .yFootCon .yFootCsDl dd.csFAQ a { width:88px;height:22px; }
+#yesFooter .yFootCon .yFootCsDl dd.csFAQ a.btnCs1 { background-position:-179px -120px; }
+#yesFooter .yFootCon .yFootCsDl dd.csFAQ a.btnCs2 { margin:0 1px;background-position:-179px -150px; }
+#yesFooter .yFootCon .yFootCsDl dd.csFAQ a.btnCs3 { background-position:-179px -180px; }
+#yesFooter .yFootCon .yFootCsDl dd.csEtc { left:683px;top:117px;color:#666; }
+#yesFooter .yFootCon .yFootCsDl dd.csEtc span.item { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top;letter-spacing:-1px; }
+#yesFooter .yFootCon .yFootCsDl dd.csEtc span.item { width:68px; }
+#yesFooter .yFootCon .yFootCsLi { position:absolute;right:4px;top:17px; }
+#yesFooter .yFootCon .yFootCsLi * { font-family:'맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter .yFootCon .yFootCsLi li.csTel { }
+#yesFooter .yFootCon .yFootCsLi li.csTel dl { width:275px; }
+#yesFooter .yFootCon .yFootCsLi li.csTel dl dt { font-weight:bold;font-size:15px;color:#999;font-family:'Noto Sans KR';font-weight:450; }
+#yesFooter .yFootCon .yFootCsLi li.csTel dl dd { margin-top:6px; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p { margin:0;line-height:16px; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p+p { margin-top:1px; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p .item { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;text-align:left;vertical-align:top; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p .item { margin-right:3px;min-width:48px;color:#666;font-size:11px;white-space:nowrap; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p .item.w35 { min-width:35px; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p .yes_b { font-size:13px;color:#333; }
+#yesFooter .yFootCon .yFootCsLi li.csTel p:nth-child(even) { margin-left:5px; }
+#yesFooter .yFootCon .yFootCsLi li.csFaq { margin-top:10px; }
+#yesFooter .yFootCon .yFootCsLi li.csFaq a { width:88px;height:22px; }
+#yesFooter .yFootCon .yFootCsLi li.csFaq a.btnCs1 { background-position:-179px -120px; }
+#yesFooter .yFootCon .yFootCsLi li.csFaq a.btnCs2 { margin:0 1px;background-position:-179px -150px; }
+#yesFooter .yFootCon .yFootCsLi li.csFaq a.btnCs3 { background-position:-179px -180px; }
+#yesFooter .yFootCon .csInfoD { position:absolute;left:460px;top:-1px;width:498px;_width:490px;border:solid 1px #ababab;background-color:#fff;border-radius:3px; }
+#yesFooter .yFootCon .csInfoD .csInfoDCon { padding:15px;position:relative;text-align:left; }
+#yesFooter .yFootCon .csInfoD strong.tit { display:block;width:82px;height:15px;overflow:hidden;text-indent:-999em;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat -280px -60px; }
+#yesFooter .yFootCon .csInfoD strong.tit.bgFooter { display:block;width:82px;height:15px;background-position:-280px -60px; }
+#yesFooter .yFootCon .csInfoD em.des { color:#999;letter-spacing:-1px; }
+#yesFooter .yFootCon .csInfoD .infoDLi { margin-top:10px; }
+#yesFooter .yFootCon .csInfoD .infoDLi li { line-height:18px;font-size:11px;color:#666; }
+#yesFooter .yFootCon .csInfoD .infoDLi li strong.item { float:left;min-width:79px;_width:79px;color:#666;font-weight:normal;letter-spacing:-1px; }
+#yesFooter .yFootCon .csInfoD .infoDLi li em.telNum { margin-right:3px;color:#333;font-weight:bold; }
+#yesFooter .yFootCon .csInfoD .infoDLi li .txtLnk { font-size:11px; }
+#yesFooter .yFootCon .csInfoD .csInfoCmt { margin-top:8px;color:#999;font-size:11px;line-height:1.4em; }
+#yesFooter .yFootCon .csInfoD .btnCloseCsInfo { position:absolute;left:459px;_left:444px;top:0;width:30px;height:30px;overflow:hidden;text-indent:-999em;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat -285px -140px; }
+#yesFooter .yFootCon .csInfoD .btnCloseCsInfo.bgFooter { position:absolute;left:459px;_left:444px;top:0;width:30px;height:30px;background-position:-285px -140px; }
+#yesFooter .yes24Glory { height:88px; }
+#yesFooter .yesUSafe { padding:20px 0;_height:55px; }
+#yesFooter .yesUSafe dl:after { content:'';clear:both;display:block; }
+#yesFooter .yesUSafe dt { float:left;color:#333;letter-spacing:-1px; }
+#yesFooter .yesUSafe dt .imgAlt { margin-top:-3px;width:70px;height:18px;overflow:hidden;text-indent:-999em;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat -285px -120px; }
+#yesFooter .yesUSafe dd { float:left;padding-left:4px;font-size:11px;color:#999; }
+#yesFooter .yesUSafe dd a { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;margin-top:-1px;padding:0 7px 0 5px;height:13px;overflow:hidden;line-height:14px;letter-spacing:-1px;vertical-align:middle;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat right -269px;_background-position:right -268px; }
+#yesFooter .yesUSafe dd a:hover { color:#333; }
+#yesFooter .mobileGoBtn { padding:10px 0 30px 0;text-align:center; }
+#yesFooter .mobileGoBtn img { vertical-align:top; }
+#yesFooter #footerWrap .btnSTop { position:absolute;right:-50px;top:9px;width:45px; }
+#yesFooter #footerWrap .btnSTop a.sclTop { display:block;width:45px;height:25px;overflow:hidden;text-indent:-999em;background:url('https://image.yes24.com/sysimage/renew/footer/footer_160317.png?v=140508a') no-repeat -179px -210px; }
+#partnerFooter { margin-top:15px;padding-bottom:15px;border-top:solid 1px #cbcbcb;text-align:center;background-color:#fff; }
+#partnerFooter .partner_txt { margin:0 auto;width:960px;height:50px;line-height:50px;font-size:11px;color:#999;text-align:center; }
+#partnerFooter .partner_txt em.accent { color:#333; }
+#partnerFooter .partner_info { margin:0 auto;padding-bottom:15px;width:960px;text-align:center; }
+#partnerFooter .partner_html { text-align:center; }
+#partnerFooter .partner_html table { margin:0 auto; }
+#partnerFooter .partnerCsLi { margin:0 auto 20px auto;width:958px;height:40px;_width:960px;_height:42px;border:solid 1px #e8e8e8;border-radius:3px; }
+#partnerFooter .partnerCsLi ul { padding:13px 0 0 16px; }
+#partnerFooter .partnerCsLi li { float:left;margin-right:20px;color:#666;font-size:11px;line-height:15px; }
+#partnerFooter .partnerCsLi li.partnertCsLast { margin-right:0; }
+#partnerFooter .partnerCsLi li.partnerCsTel { width:209px;height:15px; }
+#partnerFooter .partnerCsLi li.partnerCsTel em { display:block;width:184px;height:15px;overflow:hidden;text-indent:-999em;background:url('https://image.yes24.com/sysimage/renew/footer/footerN4.png?v=170405') no-repeat -405px -90px; }
+#partnerFooter .partnerCsLi li em.division { margin:0 5px;color:#dfdfdf; }
+#partnerFooter .partnerCsLi li a { color:#666;font-size:11px; }
+
+/* top btn & 최근본 */
+#yesFooter #yesSclTop { position:relative; }
+#yesFooter #yesSclTop a.sclTopBtn { position:absolute;right:30px;bottom:30px;z-index:110001; }
+#yesFooter #yesSclTop.fixed a.sclTopBtn { position:fixed; }
+#yesFooter #yesSclTop a.sclTopBtn .ico { display:block;padding:15px;width:20px;height:20px;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #yesSclTop a.sclTopBtn .ico img { width:20px;height:20px; }
+
+#yesFooter #yesSclTop .yRecentBtn { position:fixed;right:90px;bottom:30px;z-index:110001; }
+#yesFooter #yesSclTop.absBot .yRecentBtn { position:absolute; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent { flex-direction: row;flex-wrap: nowrap;align-items: center; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent { padding:0 19px;height:50px;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent * { font-family:'ptd','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent:hover { text-decoration:none; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent .recent_txt { margin-right:2px;font-size:15px;font-weight:600;color:#333; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent .recent_img { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent .recent_img { flex-direction: row-reverse;flex-wrap: nowrap; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent .recent_img { margin-right:-19px;min-width:17px;white-space:nowrap; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent .recent_img .rImg { box-sizing:border-box;display:inline-block;width:50px;height:50px;border:solid 5px #fff;border-radius:50px;background-position:center center;background-size:102% auto; }
+#yesFooter #yesSclTop .yRecentBtn a.lnk_recent .recent_img .rImg+.rImg { margin-right:-30px; }
+
+#yesFooter #yesSclTop .yRecentBox { position:fixed;right:90px;bottom:30px;width:380px;z-index:110005; }
+#yesFooter #yesSclTop.absBot .yRecentBox { position:absolute; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet { position:relative;padding-bottom:20px;width:380px;text-align:left;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet * { font-family:'ptd','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet .yRBox_tit { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet .yRBox_tit { flex-direction: column;flex-wrap: nowrap;justify-content: center; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet .yRBox_tit { margin:0 30px;height:60px;font-size:16px;font-weight:600;color:#333; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet .yRBox_close { position:absolute;right:0;top:0; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet .yRBox_close a { display:block;padding:22px; }
+#yesFooter #yesSclTop .yRecentBox .yRBoxSet .yRBox_close a .bgYUI.btn_popClose { width:15px;height:15px;background-position:0 -280px; }
+#yesFooter #yesSclTop .yRecentBox .yRBox_cont { margin:0 15px 0 30px;min-height:430px;max-height:calc(100vh - 375px); }
+#yesFooter #yesSclTop.recentMaxH .yRecentBox .yRBox_cont { max-height:calc(100vh - 140px); }
+#yesFooter #yesSclTop .yRecentBox .yRBox_cont .contScl { height:100%;max-height:100%; }
+#yesFooter #yesSclTop .yRecentBox .noData { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #yesSclTop .yRecentBox .noData { flex-direction: column;flex-wrap: nowrap;justify-content: center; }
+#yesFooter #yesSclTop .yRecentBox .noData { box-sizing:border-box;height:430px; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi { flex-direction: row;flex-wrap: wrap;justify-content: flex-start; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi li { margin:0 10px 10px 0; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit { position:relative; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img {  }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas { flex-direction: column;flex-wrap: nowrap;align-items: center;justify-content: center; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas { position:relative;width:100px;height:100px; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band { position:absolute;left:0;right:0;bottom:0;z-index:2;height:17px;line-height:17px;font-size:11px;color:#fff;font-weight:bold;text-align:center;border:solid 1px #e8655b;border-top:none;background-color:#f66b60; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band.band_15 { border-color:#dc7317;background-color:#dc7317; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band.band_16 { border-color:#dc7317;background-color:#dc7317; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band.band_17 { border-color:#dc7317;background-color:#dc7317; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico { position:absolute; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.rank { left:0;top:0;z-index:2;width:30px;height:37px;line-height:30px;text-align:center;font-size:13px;font-weight:bold;color:#fff;background:url('https://image.yes24.com/sysimage/reNew/corner/partnerShop/ico_rank.svg') no-repeat left top; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.eBook { right:-6px;bottom:10px;z-index:3;width:50px;height:30px;background:url('https://image.yes24.com/sysimage/mv3/com/ico_dtl_eBookSR.svg?v=0804a') no-repeat left top; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.audio { right:-6px;bottom:10px;z-index:3;width:50px;height:30px;background:url('https://image.yes24.com/sysimage/mv3/com/ico_dtl_audioSR.svg?v=0804a') no-repeat left top; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age { box-sizing:border-box;left:auto;right:5px;top:5px;width:24px;height:24px;text-align:center;line-height:20px;overflow:hidden;border:solid 2px #ff4a08;border-radius:12px;text-align:center;letter-spacing:0;text-indent:0;background-color:#fff; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age { padding-left:1px;font-size:12px;color:#333;font-family:'ptd','Noto Sans KR','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif !important;font-weight:700; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age.age_15 { border-color:#dc7317; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age.age_16 { border-color:#dc7317; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age.age_17 { border-color:#dc7317; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img { display:inline-block;vertical-align:top; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img .img_bdr { display:inline-block;overflow:hidden;vertical-align:top; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img .img_bdr img { margin:-1px;max-width:102px;max-height:102px; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img:after { box-sizing:border-box;content:'';position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;border:solid 1px rgba(0,0,0,0);background-color:rgba(0,0,0,0.03) }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .lnk_del { display:none;position:absolute;right:0;top:0;z-index:2;padding:0 0 10px 10px; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items:center; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico { width:20px;height:20px;background-color:#000; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico .ico_del { width:9px;height:9px;overflow:hidden;background-position:-200px -240px; }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit:hover .item_img .img_canvas .img_item .img_grp .lnk_img:after { border-color:rgba(0,0,0,1); }
+#yesFooter #yesSclTop .yRecentBox .yRGoodsLi .itemUnit:hover .lnk_del { display:block; }
+
+/* top btn & 최근본 v2 */
+#yesFooter #toolBtn { position:relative; }
+#yesFooter #toolBtn .toolBtnRow { position:fixed;right:30px;bottom:30px;z-index:110001; }
+#yesFooter #toolBtn:not(.fixed):not(.absBot) a.sclTopBtn { display:none; }
+#yesFooter #toolBtn.fixed a.sclTopBtn { display:block; }
+#yesFooter #toolBtn.absBot .toolBtnRow { position:absolute; }
+#yesFooter #toolBtn a.sclTopBtn .ico { display:block;margin-top:10px;padding:15px;width:20px;height:20px;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #toolBtn a.sclTopBtn .ico img { width:20px;height:20px; }
+
+#yesFooter #toolBtn .yChatBtn {  }
+#yesFooter #toolBtn .yChatBtn a.lnk_chat { display:block;padding:5px 0 10px;width:50px;text-align:center;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #toolBtn .yChatBtn a.lnk_chat:hover { text-decoration:none; }
+#yesFooter #toolBtn .yChatBtn a.lnk_chat * { font-family:'ptd','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter #toolBtn .yChatBtn a.lnk_chat .chat_img { display:block;margin:0 auto;width:36px;height:36px;overflow:hidden;background:url('https://image.yes24.com/sysimage/reNew/common/ico_chat.svg') no-repeat left top; }
+#yesFooter #toolBtn .yChatBtn a.lnk_chat .chat_txt { display:block;margin-top:-5px;height:24px;overflow:hidden;line-height:12px;font-size:10px;font-weight:600;color:#0080ff; }
+
+#yesFooter #toolBtn .yAIChatBtn {  }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai { display:block;position:relative;padding:0;width:50px;text-align:center;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai * { box-sizing:border-box; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai * { font-family:'맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico { display:block;position:relative;z-index:2;margin:0 auto;width:50px;height:50px;overflow:hidden;border-radius:25px;background:url('https://image.yes24.com/sysimage/mv3/com/ico_ai.svg') no-repeat left top;background-size:50px auto; } /* https://image.yes24.com/sysimage/mv3/com/ico_ai.svg */
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp02 { box-sizing:border-box;display:block;position:relative;z-index:2;margin:0 auto;width:50px;height:50px;overflow:hidden;border-radius:25px;background:none; } /* https://image.yes24.com/sysimage/mv3/com/ico_ai.svg */
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp02:after { transform:translateY(12px);transition:transform 0.3s ease-out; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp02:after { content:'';position:absolute;z-index:2;left:-1px;right:-1px;top:-1px;width:50px;height:50px;overflow:hidden;border-radius:25px;background:url('https://image.yes24.com/sysimage/mv3/com/ico_ai02.svg') no-repeat left top;background-size:50px auto; } /* https://image.yes24.com/sysimage/mv3/com/ico_ai02.svg */
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp03 { box-sizing:border-box;display:block;position:relative;z-index:2;margin:0 auto;width:50px;height:50px;overflow:hidden;border-radius:25px;background:none; } /* https://image.yes24.com/sysimage/mv3/com/ico_ai.svg */
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp03:after { transform:translateY(12px);transition:transform 0.3s ease-out; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp03:after { content:'';position:absolute;z-index:2;left:-1px;right:-1px;top:-1px;width:50px;height:50px;overflow:hidden;border-radius:25px;background:url('https://image.yes24.com/images/00_Event/2026/season/05/ico/ani_cremaAI_lotus.svg') no-repeat left top;background-size:50px auto; } /* https://image.yes24.com/sysimage/mv3/com/ico_ai02.svg */
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg { flex-direction: row;flex-wrap: nowrap; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg:after { flex-shrink:0; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg:after { content:'';display:block;width:50px;height:50px;overflow:hidden; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg { opacity:0;transition:opacity .5s;transition-timing-function:ease; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg { position:absolute;right:-5px;top:-5px;bottom:-5px;z-index:1;padding:4px;height:60px;border:solid 1px #0080ff;border-radius:30px;background-color:#fff; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp02+.ai_msg { border-color:#333; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_ico.tp03+.ai_msg { border-color:#333; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg .msg { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg .msg { flex-direction: row;flex-wrap: nowrap;align-items: center; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg .msg { padding:0;max-width:0;overflow:hidden; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg .msg { transition:all .5s;transition-timing-function:ease; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai .ai_msg .msg p { line-height:19px;text-align:right;font-size:12px;color:#333;font-weight:bold;white-space:nowrap;text-overflow:ellipsis; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai:hover .ai_ico.tp02:after { transform:translateY(0); }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai:hover .ai_ico.tp03:after { transform:translateY(0); }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai:hover .ai_msg { opacity:1; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai:hover .ai_msg .msg { padding:0 10px 0 15px;max-width:300px; }
+#yesFooter #toolBtn .yAIChatBtn a.lnk_ai:hover { text-decoration:none; }
+#yesFooter #toolBtn .yAIChatBtn.showOn a.lnk_ai .ai_ico.tp02:after { transform:translateY(0); }
+#yesFooter #toolBtn .yAIChatBtn.showOn a.lnk_ai .ai_ico.tp03:after { transform:translateY(0); }
+#yesFooter #toolBtn .yAIChatBtn.showOn a.lnk_ai .ai_msg { opacity:1;transition:opacity .1s;transition-timing-function:ease; }
+#yesFooter #toolBtn .yAIChatBtn.showOn a.lnk_ai .ai_msg .msg { padding:0 10px 0 15px;max-width:300px; }
+#yesFooter #toolBtn .yAIChatBtn.showOn a.lnk_ai { text-decoration:none; }
+
+#yesFooter #toolBtn .yRecentBtn { position:relative;margin-top:10px; }
+#yesFooter #toolBtn .yRecentBtn a.lnk_recent { display:block;height:50px;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #toolBtn .yRecentBtn a.lnk_recent * { font-family:'ptd','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter #toolBtn .yRecentBtn a.lnk_recent:hover { text-decoration:none; }
+#yesFooter #toolBtn .yRecentBtn a.lnk_recent .recent_num { box-sizing:border-box;position:absolute;right:0;top:0;padding:0 4px;min-width:16px;height:16px;line-height:16px;font-size:11px;color:#fff;font-weight:500;border-radius:8px;background-color:#0080ff; }
+#yesFooter #toolBtn .yRecentBtn a.lnk_recent .recent_img { display:block;width:50px;height:50px;overflow:hidden;border-radius:50px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #toolBtn .yRecentBtn a.lnk_recent .recent_img .rImg { display:block;height:50px;background-position:center center;background-size:102% auto; }
+
+#yesFooter #toolBtn .yRecentBox { position:fixed;right:30px;bottom:90px;width:380px;z-index:110005; }
+#yesFooter #toolBtn:not(.fixed):not(.absBot) .yRecentBox { bottom:30px; }
+#yesFooter #toolBtn.absBot .yRecentBox { position:absolute;right:0; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet { position:relative;padding-bottom:20px;width:380px;text-align:left;border-radius:25px;box-shadow:0 0 10px 0 rgba(0, 0, 0, 0.1);background-color:#fff; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet * { font-family:'ptd','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet .yRBox_tit { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet .yRBox_tit { flex-direction: column;flex-wrap: nowrap;justify-content: center; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet .yRBox_tit { margin:0 30px;height:60px;font-size:16px;font-weight:600;color:#333; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet .yRBox_close { position:absolute;right:0;top:0; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet .yRBox_close a { display:block;padding:22px; }
+#yesFooter #toolBtn .yRecentBox .yRBoxSet .yRBox_close a .bgYUI.btn_popClose { width:15px;height:15px;background-position:0 -280px; }
+#yesFooter #toolBtn .yRecentBox .yRBox_cont { margin:0 15px 0 30px;min-height:430px;max-height:calc(100vh - 475px); }
+#yesFooter #toolBtn.recentMaxH .yRecentBox .yRBox_cont { max-height:calc(100vh - 240px); }
+#yesFooter #toolBtn:not(.fixed):not(.absBot) .yRecentBox .yRBox_cont { max-height:calc(100vh - 375px); }
+#yesFooter #toolBtn.recentMaxH:not(.fixed):not(.absBot) .yRecentBox .yRBox_cont { max-height:calc(100vh - 140px); }
+#yesFooter #toolBtn .yRecentBox .yRBox_cont .contScl { height:100%;max-height:100%; }
+#yesFooter #toolBtn .yRecentBox .noData { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #toolBtn .yRecentBox .noData { flex-direction: column;flex-wrap: nowrap;justify-content: center; }
+#yesFooter #toolBtn .yRecentBox .noData { box-sizing:border-box;height:430px; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi { flex-direction: row;flex-wrap: wrap;justify-content: flex-start; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi li { margin:0 10px 10px 0; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit { position:relative; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img {  }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas { flex-direction: column;flex-wrap: nowrap;align-items: center;justify-content: center; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas { position:relative;width:100px;height:100px; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band { position:absolute;left:0;right:0;bottom:0;z-index:2;height:17px;line-height:17px;font-size:11px;color:#fff;font-weight:bold;text-align:center;border:solid 1px #e8655b;border-top:none;background-color:#f66b60; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band.band_15 { border-color:#dc7317;background-color:#dc7317; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band.band_16 { border-color:#dc7317;background-color:#dc7317; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .band.band_17 { border-color:#dc7317;background-color:#dc7317; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico { position:absolute; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.rank { left:0;top:0;z-index:2;width:30px;height:37px;line-height:30px;text-align:center;font-size:13px;font-weight:bold;color:#fff;background:url('https://image.yes24.com/sysimage/reNew/corner/partnerShop/ico_rank.svg') no-repeat left top; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.eBook { right:-6px;bottom:10px;z-index:3;width:50px;height:30px;background:url('https://image.yes24.com/sysimage/mv3/com/ico_dtl_eBookSR.svg?v=0804a') no-repeat left top; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.audio { right:-6px;bottom:10px;z-index:3;width:50px;height:30px;background:url('https://image.yes24.com/sysimage/mv3/com/ico_dtl_audioSR.svg?v=0804a') no-repeat left top; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age { box-sizing:border-box;left:auto;right:5px;top:5px;width:24px;height:24px;text-align:center;line-height:20px;overflow:hidden;border:solid 2px #ff4a08;border-radius:12px;text-align:center;letter-spacing:0;text-indent:0;background-color:#fff; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age { padding-left:1px;font-size:12px;color:#333;font-family:'ptd','Noto Sans KR','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif !important;font-weight:700; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age.age_15 { border-color:#dc7317; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age.age_16 { border-color:#dc7317; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.age.age_17 { border-color:#dc7317; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.ico_txt { box-sizing:border-box;left:0;top:0;z-index:3;padding:0 5px;height:20px;line-height:20px;font-size:12px;color:#fff;font-weight:700;border-top-left-radius:3px;border-bottom-right-radius:3px;background-image:linear-gradient(95deg, #0080ff 2%, #0043ff 97%); }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .ico.ico_txt { font-family:'ptd','Noto Sans KR','맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif !important; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img { display:inline-block;vertical-align:top; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img .img_bdr { display:inline-block;overflow:hidden;vertical-align:top; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img .img_bdr img { margin:-1px;max-width:102px;max-height:102px; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .item_img .img_canvas .img_item .img_grp .lnk_img:after { box-sizing:border-box;content:'';position:absolute;left:0;top:0;right:0;bottom:0;z-index:2;border:solid 1px rgba(0,0,0,0);background-color:rgba(0,0,0,0.03) }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .lnk_del { display:none;position:absolute;right:0;top:0;z-index:2;padding:0 0 10px 10px; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items:center; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico { width:20px;height:20px;background-color:#000; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit .lnk_del .ico .ico_del { width:9px;height:9px;overflow:hidden;background-position:-200px -240px; }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit:hover .item_img .img_canvas .img_item .img_grp .lnk_img:after { border-color:rgba(0,0,0,1); }
+#yesFooter #toolBtn .yRecentBox .yRGoodsLi .itemUnit:hover .lnk_del { display:block; }

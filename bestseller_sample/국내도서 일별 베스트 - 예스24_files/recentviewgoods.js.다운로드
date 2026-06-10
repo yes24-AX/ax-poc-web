@@ -1,0 +1,746 @@
+﻿var notCookie = "Y";
+var reloadInterval = 5;
+var HTTP_URL = "http://" + window.location.host;
+var HTTPS_URL = "https://" + window.location.host;
+var NOW_HTTP_URL = (document.location.protocol == "https:" ? HTTPS_URL : HTTP_URL);
+var IMG_HOST_SYS = "//image.yes24.com";
+
+var _frontApiUrl = (function () {
+    var url = "";
+
+    if (typeof YesData !== "undefined"
+        && YesData
+        && typeof YesData.FRONT_API_URL === "function") {
+        url = YesData.FRONT_API_URL();
+
+        if (url) {
+            return url;
+        }
+    }
+
+    if (typeof FRONT_API_URL !== "undefined" && FRONT_API_URL) {
+        return FRONT_API_URL;
+    }
+
+    return "https://frontapi.yes24.com";
+})();
+
+// 최근본 상품 관리 스크립트
+function RecentViewGoods(memNo) {
+    if (memNo != undefined && memNo != null) {
+        this.cookieName = "RecentViewGoods" + memNo.toString();
+        this.cookieInfo = "RecentViewInfo" + memNo.toString();
+    }
+    else {
+        this.cookieName = "RecentViewGoods";
+        this.cookieInfo = "RecentViewInfo";
+    }
+    this.delimiter = '`';
+    this.cookieValue = "";
+    this.maxLength = 30;
+    this.index = 0;
+    this.list = new Array();
+
+    // 숫자 체크(자연수)
+    this._isNum = function (val) {
+        var chars = "0123456789";
+        for (var inx = 0; inx < val.length; inx++) {
+            if (chars.indexOf(val.charAt(inx)) == -1)
+                return false;
+        }
+        return true;
+    };
+
+    // 상품 추가 하기
+    this._add = function (goodsNo) {
+        this.sort();
+
+        var findIndex = this._find(goodsNo);
+        if (findIndex >= 0) {
+            this.list[findIndex].seq = this.list.length;
+        }
+        else {
+            if (this.maxLength <= this.index) {
+                this.list.shift();
+                this.list.push({ seq: this.index, item: goodsNo });
+            }
+            else {
+                this.list.push({ seq: this.index, item: goodsNo });
+            }
+            this.index++;
+        }
+
+        this.sort();
+
+        for (var i in this.list) {
+            this.list[i].seq = parseInt(i);
+        }
+        
+        this._setCookie();
+    };
+
+    // 쿠키에 셋팅
+    this._setCookie = function () {
+        var value = '';
+        for (var i = 0; i < this.list.length; i++) {
+            if (this._isNum(this.list[i].item.toString())) {
+                if (value == '')
+                    value = this.list[i].item.toString();
+                else
+                    value += this.delimiter + this.list[i].item.toString();
+            }
+        }
+
+        var todayDate = new Date();
+        todayDate.setDate(todayDate.getDate() + 1);
+        document.cookie = this.cookieName + '=' + escape(value) + '; path=/;domain=.yes24.com;expires=' + todayDate.toGMTString() + ';';
+    };
+
+    // 상품번호로 속한 상품 찾기
+    this._find = function (goodsNo) {
+        var findIndex = -1;
+        try {
+            $.each(this.list, function (e, i) {
+                if (goodsNo == i.item)
+                    findIndex = e;
+            });
+        } catch (e) { }
+        return findIndex;
+    };
+
+    // 최근본상품 등록
+    this._addRecentViewGoods = function (goodsNo, callBackFun, useCache) {
+
+        $.ajax({
+            cache: false,
+            type: 'POST',            
+            url: _frontApiUrl + "/api/goods/addRecentGoods",
+            data: JSON.stringify(Number(goodsNo)),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            xhrFields: { withCredentials: true },            
+            success: function (data) {
+                SetReloadTimeExtend();
+                if (callBackFun != null) {
+                    callBackFun(useCache);
+                }
+            },
+            error: function (xhr, textStatus, thrownError) {
+            }
+        });
+    };
+
+    // 최근본상품 삭제
+    this._delRecentViewGoods = function (goodsNo, callBackFun, useCache) {
+        var url = NOW_HTTP_URL;
+        if (url.includes("ssl.yes24.com")) {
+            url = url.replaceAll("devssl", "ramses").replaceAll("qassl", "it-qatest").replaceAll("ssl", "www");
+        }
+
+        // 이벤트 도메인 예외처리 추가
+        if (url.includes("event-dev.yes24.com") || url.includes("event.yes24.com")) {
+            url = url.replaceAll("event-dev", "it-qatest").replaceAll("event", "www");
+        }
+
+        // 전송할 데이터를 객체로 정의
+        var requestData = {
+            goodsNo: goodsNo
+        };
+
+        fetch(
+            url + "/product/goods/DelRecentViewGoods", {
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'include', // withCredentials 옵션 추가
+            body: new URLSearchParams(requestData),
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            }
+        })
+       .then((response) => response.json())
+       .then((data) => {
+           SetReloadTimeExtend();
+           if (callBackFun != null) {
+               callBackFun(useCache);
+           }
+       });
+    };
+
+    this.cookieValue = getCookie(this.cookieName) || '';
+    if (this.cookieValue != '') {
+        var splitItems = this.cookieValue.split(this.delimiter);
+
+        for (var i = 0; i < splitItems.length; i++) {
+            if (splitItems[i] != '') {
+                if (this._isNum(splitItems[i].toString())) {
+                    this._add(splitItems[i]);
+                }
+            }
+        }
+    }
+    else {
+        this._setCookie();
+    }
+
+    var todayDate = new Date();
+    todayDate.setDate(todayDate.getDate() + 1);
+    var valueInfo = "NotCookie=" + notCookie;
+    valueInfo += "&Interval=" + reloadInterval;
+    var reloadTime = GetKeyValue(getCookie(this.cookieInfo), "ReloadTime");
+    if (reloadTime != null) {
+        valueInfo += "&ReloadTime=" + reloadTime;
+    }
+    var first = GetKeyValue(getCookie(this.cookieInfo), "First");
+    if (first != null && notCookie == "Y") {
+        valueInfo += "&First=" + first;
+    }
+    document.cookie = this.cookieInfo + '=' + escape(valueInfo) + '; path=/;domain=.yes24.com;expires=' + todayDate.toGMTString() + ';';
+}
+
+// 상품 추가
+RecentViewGoods.prototype.add = function (goodsNo) {
+    this._add(goodsNo);
+};
+
+// 상품 삭제
+RecentViewGoods.prototype.remove = function (index) {
+    this.list.splice(index, 1);
+
+    this._setCookie();
+    return this.list;
+};
+
+// 상품 삭제
+RecentViewGoods.prototype.removeByGoodsNo = function (goodsNo) {
+    // SORT ASC
+    this.list.sort(function (a, b) {
+        return a.seq - b.seq;
+    });
+
+    var index = this._find(goodsNo);
+    return this.remove(index);
+};
+
+// 특정 상품 가져오기
+RecentViewGoods.prototype.get = function (index) {
+
+    if (this.list.length - 1 > index) {
+        this.descSort();
+        return this.list[index];
+    }
+    else
+        return null;
+};
+
+// 첫번째 상품 가져오기 없을시 -1 반환
+RecentViewGoods.prototype.getFirst = function () {
+    if (this.list.length > 0) {
+        this.descSort();
+        return this.list[0].item || -1;
+    }
+    else
+        return -1;
+};
+
+// 마지막 상품 가져오기 없을시 -1 반환
+RecentViewGoods.prototype.getLast = function () {
+    if (this.list.length > 0) {
+        this.descSort();
+        return this.list[this.list.length - 1].item || -1;
+    }
+    else
+        return -1;
+};
+
+// 특정 범위 상품 가져오기 범위 외 검색시 null 반환
+RecentViewGoods.prototype.getRange = function (start, end) {
+    this.descSort();
+    //if (start > end || this.list.length - 1 < start || this.list.length - 1 < end) {
+    //    return null;
+    //}
+
+    return this.getAll().filter(
+        function (e, i, a) {
+            return (i >= start && i <= end);
+        }
+    );
+};
+
+// 상품 전제 가져오기 
+RecentViewGoods.prototype.getAll = function () {
+    this.descSort();
+    return this.list;
+};
+
+// 상품 본 순서대로 정렬하기 ( 최근본 상품 상단 )
+RecentViewGoods.prototype.descSort = function () {
+    // SORT DESC
+    this.list.sort(function (a, b) {
+        return b.seq - a.seq;
+    });
+};
+
+// 상품 본 순서대로 정렬하기 ( 최근본 상품 하단 )
+RecentViewGoods.prototype.sort = function () {
+    // SORT ASC
+    this.list.sort(function (a, b) {
+        return a.seq - b.seq;
+    });
+};
+
+// 상품 번호가 존재하는 특정 항목 가져오기
+RecentViewGoods.prototype.find = function (goodsNo) {
+    return this._find(goodsNo);
+};
+
+// 상품번호 배열로 받기
+RecentViewGoods.prototype.getGoodsNo = function () {
+    var array = new Array();
+
+    this.descSort();
+
+    for (var i = 0; i < this.list.length; i++) {
+        array.push(this.list[i].item);
+    }
+
+    return array;
+}
+
+// 상품번호 배열로 받기
+RecentViewGoods.prototype.getGoodsNo = function (startIndex, increaseCount) {
+    var array = new Array();
+
+    this.descSort();
+    
+    var _tempList = this.getRange(startIndex, parseInt(startIndex) + parseInt(increaseCount));
+
+    for (var i = 0; i < _tempList.length; i++) {
+        array.push(_tempList[i].item);
+    }
+
+    return array;
+}
+
+// 전체갯수
+RecentViewGoods.prototype.length = function () { return this.list.length; }
+
+// 상품 추가
+RecentViewGoods.prototype.addRecentViewGoods = function (params) {
+    if (params.isLogin.toString().toLowerCase() == "true" && notCookie == "Y" && this._find(params.goodsNo) == -1) {
+        this._add(params.goodsNo);
+        this._addRecentViewGoods(params.goodsNo, params.callBackFun, params.useCache);
+    }
+    else {
+        this._add(params.goodsNo);
+        SetReloadTimeExtend();
+        if (params.callBackFun != null) {
+            params.callBackFun(params.useCache);
+        }
+    }
+};
+
+// 상품 삭제
+RecentViewGoods.prototype.delRecentViewGoods = function (params) {
+    this.removeByGoodsNo(params.goodsNo);
+
+    if (params.isLogin.toString().toLowerCase() == "true" && notCookie == "Y") {
+        this._delRecentViewGoods(params.goodsNo, params.callBackFun, params.useCache);
+    }
+    else {
+        SetReloadTimeExtend();
+        if (params.callBackFun != null) {
+            params.callBackFun(params.useCache);
+        }
+    }
+};
+
+
+/**
+ * XhrUtil 
+ * @param url
+ * @param params       : 로그인상태(isLogin:"true"/"false"), 캐싱사용(useCache:true/false)
+ * @param callbackmethod
+ * @param responseType : JSON 
+ * @returns
+ * 
+ * @example 
+ * 			new XhrUtil(url, params ,callbackmethod , responseType);
+ */
+var XhrUtil = function (url, params, callbackmethod, responseType) {
+
+    var actionUrl = url;
+    var xmlHttp = window.ActiveXObject ? new ActiveXObject('Microsoft.XMLHTTP') : new XMLHttpRequest();
+
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 0) {
+            //UNINITIALIZED :: open()이 아직 호출되지 않은 상태
+        } else if (xmlHttp.readyState == 1) {
+            //LOADING :: send()가 호출되지 않은 상태 (load중)
+        } else if (xmlHttp.readyState == 2) {
+            //LOADED::send() 호출 완료하여 header 와 status 사용이 가능한 상태이며, load완료
+
+        } else if (xmlHttp.readyState == 3) {
+            //INTERACTIVE :: 일부 data 를 받을 수 있는 상태로 처리중
+
+        } else if (xmlHttp.readyState == "4") {
+            //COMPLETE :: 모든 데이터를 받을 수 있는 상태로 완료
+            if (xmlHttp.status == "200") {
+                //this.handleResponse(xmlHttp, callbackmethod, responseType);
+                new AjaxResponseUtil(xmlHttp, callbackmethod, responseType);
+            } else if (xmlHttp.status == "304") {
+            } else if (xmlHttp.status == "404") {
+            } else if (xmlHttp.status == "500") {
+            }
+        }
+    };
+
+    var newCachingString = new Date().getTime().toString().substring(0, 10);
+    var reloadTime = GetKeyValue(getCookie("RecentViewInfo"), "ReloadTime");
+
+    if (params.useCache && reloadTime != null) {
+        var utcNow = new Date(new Date().toUTCString());
+        var outputReloadTime = new Date(reloadTime);
+        outputReloadTime.setMinutes(outputReloadTime.getMinutes() + reloadInterval);
+
+        if (utcNow > outputReloadTime) {
+            actionUrl = actionUrl + "?_=" + newCachingString;
+        }
+        else {
+            var cachingString = new Date(reloadTime).getTime().toString().substring(0, 10);
+            actionUrl = actionUrl + "?_=" + cachingString;
+        }
+    }
+    else {
+        actionUrl = actionUrl + "?_=" + newCachingString;
+    }
+
+    xmlHttp.open("GET", actionUrl, true);
+
+    //xmlHttp.setRequestHeader("Pragma", "cache");
+    xmlHttp.setRequestHeader("Cache-Control", "private");
+    xmlHttp.setRequestHeader("Cache-Control", "max-age=" + (reloadInterval * 60).toString());
+
+    xmlHttp.send(null);
+};
+XhrUtil.prototype = {
+    handleResponse: function (response, callbackmethod) {
+    },
+
+    uninitialized: function () {//readyState 0
+    },
+
+    open: function () {//readyState 1	
+    },
+
+    sent: function () {//readyState 2
+    },
+
+    receiving: function () {//readyState 3
+    },
+
+    loaded: function () {//readyState 4	
+    }
+};
+
+var newXhrUtil = function (url, params, callbackmethod, responseType) {
+    if (url.indexOf("ssl.yes24.com") > 0) {
+        url = url.replaceAll("devssl", "ramses").replaceAll("qassl", "it-qatest").replaceAll("ssl", "www");
+    }
+
+    var actionUrl = url;
+    var newCachingString = new Date().getTime().toString().substring(0, 10);
+    var reloadTime = GetKeyValue(getCookie("RecentViewInfo"), "ReloadTime");
+
+    if (params.useCache && reloadTime != null) {
+        var utcNow = new Date(new Date().toUTCString());
+        var outputReloadTime = new Date(reloadTime);
+        outputReloadTime.setMinutes(outputReloadTime.getMinutes() + reloadInterval);
+
+        if (utcNow > outputReloadTime) {
+            actionUrl = actionUrl + "?_=" + newCachingString;
+        }
+        else {
+            var cachingString = new Date(reloadTime).getTime().toString().substring(0, 10);
+            actionUrl = actionUrl + "?_=" + cachingString;
+        }
+    }
+    else {
+        actionUrl = actionUrl + "?_=" + newCachingString;
+    }
+
+    $.ajax({
+        cache: false,
+        url: actionUrl,
+        data: params,
+        dataType: "json",
+        xhrFields: {
+            withCredentials: true
+        },
+        success: function (data) {
+            callbackmethod(data);
+        },
+        error: function (xhr, status, errorMsg) {
+            console.log(xhr);
+        }
+    });
+};
+
+/**
+ *기본 response Handling Ajaxutil 
+ *
+ *@param response 
+ *@param callbackmethod 종료후 실행 function
+ *@param responseType json
+ */
+var AjaxResponseUtil = function (response, callbackmethod, responseType) {
+
+    var handlingData = this.responseHandling(response, responseType)
+
+    if (callbackmethod != null) {
+        callbackmethod(handlingData);
+    }
+
+    var reload = GetKeyValue(getCookie("RecentViewInfo"), "Reload");
+    if (reload != null && reload.toString().toLowerCase() == "true" && typeof(recentViewGoods) == "object") {
+        recentViewGoods = new RecentViewGoods();
+    }
+}
+
+AjaxResponseUtil.prototype = {
+    responseHandling: function (response, responseType) {
+        var resJSON = eval('(' + response.responseText + ')');  //JSON
+        var resXML = response.responseXML;                      //XML
+        var resText = response.responseText;                    //Text	
+
+        var resObj = new Object();
+        switch (responseType.toLowerCase()) {
+            case "json": resObj = resJSON;
+                break;
+            case "xml": resObj = resXML;
+                break;
+            case "text": resObj = resText;
+                break;
+            default: resObj = resJSON;
+                break;
+
+        }
+        return resObj;
+    }
+}
+
+/**
+ * JsonpUtil 
+  * @param params       : isLogin(로그인상태:true/false), useCache(캐싱사용:true/false)
+ * @returns
+ * 
+ * @example 
+ *          var params = { "isLogin": "false", "useCache": true };
+ * 			GetRecentViewGoodsSelect(params);
+ */
+function GetRecentViewGoodsSelect(params) {
+    if (getCookie("RecentViewGoods").length > 0 || (params.isLogin.toString().toLowerCase() == "true" && notCookie == "Y")) {
+        var actionUrl = NOW_HTTP_URL + "/product/goods/RecentViewGoodsDisplay";
+        var newCachingString = new Date().getTime().toString().substring(0, 10);
+        var reloadTime = GetKeyValue(getCookie("RecentViewInfo"), "ReloadTime");
+
+        if (params.useCache && reloadTime != null) {
+            var utcNow = new Date(new Date().toUTCString());
+            var outputReloadTime = new Date(reloadTime);
+            outputReloadTime.setMinutes(outputReloadTime.getMinutes() + reloadInterval);
+
+            if (utcNow > outputReloadTime) {
+                actionUrl = actionUrl + "?_=" + newCachingString;
+            }
+            else {
+                var cachingString = new Date(reloadTime).getTime().toString().substring(0, 10);
+                actionUrl = actionUrl + "?_=" + cachingString;
+            }
+        }
+        else {
+            actionUrl = actionUrl + "?_=" + newCachingString;
+        }
+
+        $.ajax({
+            type: "GET",
+            contentType: "application/json",
+            crossdomain: true,
+            dataType: "jsonp",
+            url: actionUrl,
+            jsonpCallback: "myCalback",
+            cache: params.useCache,
+            success: function (data) {
+
+                try {
+
+                    if (data.recentGoodsCount > 0) {
+                        $("#remoRctGCont").css("display", "");
+
+                        var shtml = "";
+                        var shtmlhide = "";
+                        var j = 0;
+                        var idx = 0;
+                        for (var i = data.recentGoodsCount - 1; i >= 0; i--) {
+
+                            if (j % 3 == 0) {
+                                shtml += "<ul class='rctGLi' style='display:none'>";
+                            }
+                            idx++;
+
+                            if (idx > 2) {
+                                shtml += "<li " + shtmlhide + ">\n" +
+                                "<a href=\"" + HTTP_URL + "/product/goods/" + data.recentGoods[i].goodsNo + "\" onclick=\"setWcode('003_003_002')\"  class=\"rctLnk\"><img class=\"lazy\" data-original='"+IMG_HOST_SYS+"/goods/" + data.recentGoods[i].goodsNo + "/S' border=\"0\" alt=\"" + data.recentGoods[i].goodsName + "\"/></a>\n" +
+                                "<span class=\"rctInfo\">\n" +
+                                    "<p class=\"rctName\"><a href=\"" + HTTP_URL + "/product/goods/" + data.recentGoods[i].goodsNo + "\" onclick=\"setWcode('003_003_002')\"  >" + data.recentGoods[i].goodsName + "</a></p>\n" +
+                                    "<p class=\"rctPrice\">" + data.recentGoods[i].Price + "</p>\n" +
+                                "</span>\n" +
+                                "<a href='javascript:void(0);' onclick='SetRecentViewGoodsDelete(" + data.recentGoods[i].goodsNo + ", \"" + params.isLogin.toString() + "\")' class=\"btnDel\">최근본상품 삭제</a>\n" +
+                                "</li>\n";
+                            }
+                            else {
+                                shtml += "<li " + shtmlhide + ">\n" +
+                                "<a href=\"" + HTTP_URL + "/product/goods/" + data.recentGoods[i].goodsNo + "\" onclick=\"setWcode('003_003_002')\"  class=\"rctLnk\"><img src='"+IMG_HOST_SYS+"/goods/" + data.recentGoods[i].goodsNo + "/S' border=\"0\" alt=\"" + data.recentGoods[i].goodsName + "\"/></a>\n" +
+                                "<span class=\"rctInfo\">\n" +
+                                    "<p class=\"rctName\"><a href=\"" + HTTP_URL + "/product/goods/" + data.recentGoods[i].goodsNo + "\" onclick=\"setWcode('003_003_002')\"  >" + data.recentGoods[i].goodsName + "</a></p>\n" +
+                                    "<p class=\"rctPrice\">" + data.recentGoods[i].Price + "</p>\n" +
+                                "</span>\n" +
+                                "<a href='javascript:void(0);' onclick='SetRecentViewGoodsDelete(" + data.recentGoods[i].goodsNo + ", \"" + params.isLogin.toString() + "\")' class=\"btnDel\">최근본상품 삭제</a>\n" +
+                                "</li>\n";
+                            }
+
+                            if (j % 3 == 2 || j == data.recentGoodsCount - 1) {
+                                shtml += "</ul>";
+                            }
+                            j++;
+                        }
+
+                        $("#ulRecentViewGoods").html(shtml);
+
+                        if (data.recentGoodsCount > 9) {
+                            $("#RecentViewGoodsCount").html("9+");
+                        } else {
+                            $("#RecentViewGoodsCount").html(data.recentGoodsCount);
+                        }
+
+                        $('#ulRecentViewGoods').switchDiv({
+                            current: 0,
+                            pageBtnsClassSelector: ".gnbSquareBtn",
+                            pageNumTextSelector: ".yPgNum",
+                            isShowBtn: true
+                        });
+
+                        $("#remoRctGCont li").bind("mouseover focus", function () {
+                            $(this).attr("class", "on");
+                        });
+                        $("#remoRctGCont li").bind("mouseleave", function () {
+                            $(this).attr("class", "");
+                        });
+
+                        $(".rctPrice").each(function (index) {
+                            $(this).text($(this).text().split(/(?=(?:\d{3})+(?:\.|$))/g).join(',') + "원");
+                        });
+
+                        $("#remoThemGCont").hide();
+                    }
+                    else {
+                        $("#RecentViewGoodsNodata").show();
+                        $("#ulRecentViewGoods").hide();
+                        $(".skyPagen").html("");
+                        $("#RecentViewGoodsCount").html("");
+                    }
+
+                    $(".rctGLi").lazyload({
+                        failure_limit: 10,
+                        threshold: 200,
+                        placeholder: "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==",
+                        skip_invisible: true
+                    });
+                }
+                catch (e) { }
+            },
+            error: function (data) {
+            }
+        });
+    }
+    else {
+        $("#RecentViewGoodsNodata").show();
+        $("#ulRecentViewGoods").hide();
+        $(".skyPagen").html("");
+        $("#RecentViewGoodsCount").html("");
+        $("#remoRctGCont").hide();
+    }
+}
+
+/**
+ * JsonpUtil 
+  * @param goodsNo       : 상품번호
+  * @param isLogin       : 로그인상태("true"/"false")
+ * @returns
+ * 
+ * @example 
+  * 			SetRecentViewGoodsDelete(0, 'false');
+ */
+function SetRecentViewGoodsDelete(goodsNo, isLogin) {
+    var recentViewGoods = new RecentViewGoods();
+
+    recentViewGoods.removeByGoodsNo(goodsNo);
+
+    if (isLogin.toString().toLowerCase() == "true" && notCookie == "Y") {
+        $.ajax({
+            type: "GET",
+            contentType: "application/json",
+            crossdomain: true,
+            dataType: "jsonp",
+            url: NOW_HTTP_URL + "/product/goods/RecentViewGoodsDel",
+            data: { 'goodsNo': goodsNo },
+            success: function (data) {
+                SetReloadTimeExtend();
+                var params = { "isLogin": isLogin, "useCache": true };
+                GetRecentViewGoodsSelect(params);
+            },
+            error: function (data) {
+            }
+        });
+    }
+    else {
+        SetReloadTimeExtend();
+        var params = { "isLogin": isLogin, "useCache": true };
+        GetRecentViewGoodsSelect(params);
+    }
+}
+
+//Key값 가져오기
+function GetKeyValue(url, name) {
+    if (!url) url = window.location.href;
+    var regex = new RegExp(name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+//쿠키값 가져오기
+function getCookie(name) {
+    var cookieValue = "; " + document.cookie;
+    var cookieParts = cookieValue.split("; " + name + "=");
+    if (cookieParts.length == 2) {
+        return decodeURIComponent(cookieParts.pop().split(";").shift());
+    }
+    return '';
+}
+
+//ReloadTime 연장
+function SetReloadTimeExtend() {
+    var cookieName = "RecentViewInfo";
+    var todayDate = new Date();
+    var newReloadTime = todayDate.toUTCString();
+    todayDate.setDate(todayDate.getDate() + 1);
+
+    var valueInfo = "NotCookie=" + notCookie;
+    valueInfo += "&Interval=" + reloadInterval;
+    valueInfo += "&ReloadTime=" + newReloadTime;
+    var first = GetKeyValue(getCookie(cookieName), "First");
+    if (first != null && notCookie == "Y") {
+        valueInfo += "&First=" + first;
+    }
+    document.cookie = cookieName + '=' + escape(valueInfo) + '; path=/;domain=.yes24.com;expires=' + todayDate.toGMTString() + ';';
+}

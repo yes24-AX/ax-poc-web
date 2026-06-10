@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+    <defs>
+        <clipPath id="clip-path">
+            <path fill="none" d="M0 0H12V12H0z"/>
+        </clipPath>
+        <style>
+            .cls-4{fill:#333}
+        </style>
+    </defs>
+    <g id="icon_viewtype_image" transform="translate(.247 -.052)">
+        <g id="반복_그리드_7" clip-path="url(#clip-path)" transform="translate(3.753 4.052)">
+            <g transform="translate(-24.001 -1312)">
+                <path id="사각형_79" d="M0 0H5V5H0z" class="cls-4" transform="translate(24.001 1312)"/>
+            </g>
+            <g transform="translate(-17.001 -1312)">
+                <path id="사각형_79-2" d="M0 0H5V5H0z" class="cls-4" transform="translate(24.001 1312)"/>
+            </g>
+            <g transform="translate(-24.001 -1305)">
+                <path id="사각형_79-3" d="M0 0H5V5H0z" class="cls-4" transform="translate(24.001 1312)"/>
+            </g>
+            <g transform="translate(-17.001 -1305)">
+                <path id="사각형_79-4" d="M0 0H5V5H0z" class="cls-4" transform="translate(24.001 1312)"/>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,1002 @@
+﻿//총알검색 (검색개편 2021)
+var bulletDebugMode = false;
+
+var InputTextBoxID = ":text#query";
+
+
+var KeyCode;
+var KsanaIndex = 0;
+var KsanaCount = 0;
+
+var strPrevKeyword = ""; // 이전검색어와 같은지 검사를 위한 변수
+var dtsPrevTime = new Date(); // 입력시간 체크용 변수
+var iSearchCount = 0; // 디버그용 스나이퍼 검색카운터
+
+// 검색 파라미터
+var Parsing = false;
+var Domain = 0;
+var SIDO = "SN";
+var iPage = 1;
+var iPageSize = 3;
+
+// 페이징 관련 변수
+var iTotalCount = 0;
+var iTotalPage = 0;
+var iDispPageCnt = 5;
+var iItemCount = 0;
+
+// 동기화 관련변수
+var iKC = 0;
+var iSC = 0;
+var iKIgnoreCount = 0;
+var iSIgnoreCount = 0;
+var iTimerIgnoreCount = 0;
+var iKTimerIgnoreCount = 0;
+
+// 기타 환경 변수
+var iLimitGap = 200;
+var iKLimitGap = 50;
+var oTimer;
+var oKTimer;
+
+var seqCnt = -1;
+var timeCnt = -1;
+
+// 검색 빈도 재조정
+var _searchFinalTimer = 0;
+var _searchNow = false;
+var _searchLast = '';
+
+// 키 위,아래 버튼 이동시 키워드 검색 불가 처리
+var keyMoveEnd = true;
+
+var xdsPc = null;
+var srchHistory = {};
+var protocol = 'http:';
+if (window != null && window.location != null && window.location.protocol != null) {
+    protocol = window.location.protocol;
+}
+
+//방향키(아래위) 클릭 여부
+var isKeyUpDown = false;
+/*파이어폭스에서 한글 키입력 자동완성 트릭*/
+var db = "";
+var istrick = true;
+
+var BulletSearchRenewal = {
+
+    //총알검색 초기화 
+    InitBulletSearch: function () {
+        $('body').click(function () {
+            try{
+                if (!$(window.event.target).is("#latestDel") && !$(window.event.target).is("#latestDelAll")) {
+                    hideLatestSearchList();
+                    hideSuggestSearchList();
+                }
+            } catch (e) {
+            }
+        });
+
+        $("div#suggestSearchList").click(function (event) {
+            event.stopPropagation();
+        });
+
+        $(InputTextBoxID).click(function (event) {
+            event.stopPropagation();
+        });
+    }
+    ,
+    //통화 형식으로 변환
+    formatCurrency: function (num) {
+        num = num.toString().replace(/\$|\,/g, '');
+        if (isNaN(num))
+            num = "0";
+
+        sign = (num == (num = Math.abs(num)));
+        num = Math.floor(num * 100 + 0.50000000001);
+        cents = num % 100; num = Math.floor(num / 100).toString();
+
+        if (cents < 10)
+            cents = "0" + cents;
+
+        for (var i = 0; i < Math.floor((num.length - (1 + i)) / 3); i++)
+            num = num.substring(0, num.length - (4 * i + 3)) + ',' + num.substring(num.length - (4 * i + 3));
+
+        return (((sign) ? '' : '-') + num);
+    }
+    ,
+    // HTML을 제거해주는 함수
+    stripHTMLtag: function (string) {
+        var objStrip = new RegExp();
+        objStrip = /[<][^>]*[>]/gi;
+        return string.replace(objStrip, "");
+    }
+    ,
+    //글자를 byte단위로 잘라준다.
+    NSubstring: function (str, len) {
+        var s = 0;
+        for (var i = 0; i < str.length; i++) {
+            s += (str.charCodeAt(i) > 128) ? 2 : 1;
+            if (s > len) {
+                return str.substring(0, i);
+            }
+        }
+        return str;
+    }
+    ,
+    // 저자정보를 파싱해주는 Function
+    fnConvertAuthorInfo: function (strProductAuthor, res_GB, param) {
+        var strResult = "";
+        strResult = strProductAuthor;
+        strResult = strResult.replace(/<b>/g, "");
+        strResult = strResult.replace(/<\/b>/g, "");
+        strResult = strResult.replace(/</g, "");
+        strResult = strResult.replace(/>/g, "");
+
+        var arrTemp = strResult.split('`');
+        if (arrTemp.length >= 2) {
+            if (arrTemp[0].length > 0 && arrTemp[1].length > 0) {
+                strResult = arrTemp[0];
+            } else {
+                strResult = strResult.replace("`", "");
+            }
+        } else {
+            strResult = arrTemp[0];
+        }
+
+        if (strResult != null) {
+            strResult = strResult.cutByte2(120, '...');
+        }
+
+        return strResult;
+    }
+    ,
+    //클릭스트림 전송
+    setAcodeWithExtraCode: function (code, keyWord, goods_no, tag_no) {
+        if (code != null) {
+            try {
+                var extra_code = {
+                    ExtraKindCode: 'search_suggest_goods_click',
+                    keyword: keyWord,
+                    GoodsNo: goods_no,
+                    TagNo: tag_no
+                };
+                clickstream.setClickstreamLog(code, extra_code);
+            }
+            catch (e) { }
+        }
+    }
+    ,
+    // 총알검색 기능 끄기
+    HideBulletSearch: function () {
+        $('#searchKeyLayer').hide();
+        $('#suggestSearchList').hide();
+    }
+    ,
+    // 도메인 문자를 변환해주는 함수
+    GetDomain: function (strDomain) {
+        switch (strDomain) {
+            case "00": case "0": return "전체";
+            case "01": case "1": return "도서";
+            case "02": case "2": return "외서";
+            case "03": case "3": return "eBook";
+            //case "04": case "4": return "e러닝";
+            case "05": case "5": return "CD";
+            case "06": case "6": return "DVD";
+            case "07": case "7": return "GIFT";
+            case "09": case "9": return "웹소설/코믹"
+            case "통합검색": return "0";
+            case "전체": return "0";
+            case "UsedGoods": return "0";
+            case "국내도서": return "1";
+            case "외국도서": return "2";
+            case "eBook": return "3";
+            //case "e-러닝": return "4";
+            case "음반": return "5";
+            case "CD": return "5";
+            case "CD/LP": return "5";
+            case "DVD/비디오": return "6";
+            case "DVD/BD": return "6";
+            case "GIFT": return "7";
+            case "문구/GIFT": return "7";
+            case "ESTORY": case "웹소설/코믹": case "e연재": return "9";
+            default: return "99";
+        }
+    }
+    ,
+    //추천 검색어 선택 (키 이동,최근 검색어 클릭)
+    SelectItem: function () {
+        //방향키 이동 여부 변수 값 변경
+        isKeyUpDown = true;
+        iPage = 1;
+
+        var kw = $("div#suggestSearchList ul#suggest_wordList li#k" + String(KsanaIndex)).attr("kw");
+        $("div#suggestSearchList ul#suggest_wordList li.on").attr("class", "");                         //이전 아이템의 컬러를 없애준다.
+        $("div#suggestSearchList ul#suggest_wordList li#k" + String(KsanaIndex)).attr("class", "on");   //선택된 아이템의 색상을 바꿔준다.
+
+        $(InputTextBoxID).val(kw);
+        $(InputTextBoxID).focus();
+
+        //키워드 변경에 따른 우측 상품 영역 변경
+        BulletSearchRenewal.BulletSearchGoods(kw);
+    }
+    ,
+    //검색창 입력,삭제 시 (완)
+    ShowSuggest: function () {
+        if ($('input#query').val().trim().length > 0) {
+            BulletSearchRenewal.getRecommentList();
+        }
+        else { //최근 검색어
+            $('#latestSearchList').show();
+            $('#searchKeyLayer').show();
+            srchHistory.show();
+
+            $('#suggestSearchList').hide();
+        }
+        setRemoveSearchword();
+
+    }
+    ,
+    // keypress에 대한 이벤트
+    Check: function (e) {
+        KeyCode = e.keyCode;
+
+        switch (KeyCode) {
+            case 38: // 위로
+                if ($("#suggest_wordList").children().length == 1) {
+                    return false;
+                }
+                istrick = false;
+                if (KsanaIndex > 0) {
+                    KsanaIndex--;
+                } else {
+                    KsanaIndex = KsanaCount - 1;
+                }
+                BulletSearchRenewal.clickLoggingTrace("105");
+                BulletSearchRenewal.SelectItem();
+                break;
+            case 40: // 아래로
+                if ($("#suggest_wordList").children().length == 1) {
+                    return false;
+                }
+                istrick = false;
+                if (KsanaIndex < (KsanaCount - 1)) {
+                    KsanaIndex++;
+                } else {
+                    KsanaIndex = 0;
+                }
+                BulletSearchRenewal.clickLoggingTrace("105");
+                BulletSearchRenewal.SelectItem();
+                break;
+            case 16: // 쉬프트, 아무액션없는 키들
+            case 17: // 컨트롤
+            case 18: // 알트
+            case 19: // pause,break
+            case 20: // caps lock
+            case 37: // 좌
+            case 39: // 우
+            case 32: // 공백
+                break;
+            case 13: // enter;
+                e.preventDefault();
+                BulletSearchRenewal.ShowSuggest();
+                $("#yesSForm").submit();
+                break;
+            case 27: // ESC
+                BulletSearchRenewal.HideBulletSearch();
+                break;
+            case 8: // 백스페이스
+                BulletSearchRenewal.ShowSuggest();
+                break;
+            default:
+                BulletSearchRenewal.ShowSuggest();
+                break;
+        }
+    }
+    ,
+    // 읽어온 총개수에 따라 페이저를 그려준다.
+    getPager: function () {
+        if ($.trim($(InputTextBoxID).val()) == "") {
+            return;
+        }
+        if (iTotalCount < 1) {
+            return;
+        }
+        var iStartPage = 0;
+        var iEndPage = 0;
+
+        var sbPager = "";
+        if (iTotalCount > 0) {
+            iTotalPage = iTotalCount / iPageSize;
+
+            if ((iTotalCount % iPageSize) > 0) {
+                iTotalPage = iTotalPage + 1;
+            }
+
+            iStartPage = (iPage - (iPage % iDispPageCnt == 0 ? iDispPageCnt : iPage % iDispPageCnt)) + 1;
+
+            if (iTotalPage < (iStartPage + (iDispPageCnt - 1)))
+                iEndPage = iTotalPage;
+            else
+                iEndPage = iStartPage + (iDispPageCnt - 1);
+
+
+            if (iEndPage > 5) iEndPage = 5;
+            for (var j = iStartPage; j <= iEndPage; j++) {
+                if (j == iPage) {
+                    sbPager = sbPager + "<strong class=\"num\">" + j + "</strong> ";
+                }
+                else {
+                    sbPager = sbPager + "<a href=\"javascript:BulletSearchRenewal.GoPage(" + j + ");\" class=\"num\">" + j + "</a> ";
+                }
+            }
+
+        }
+
+        $("#suggestPaging").html(sbPager);
+        $("#suggestPaging").unbind("mouseover");
+    }
+    ,
+    // 총알검색 추천상품 페이지 변경
+    GoPage: function (page) {
+        if ($.trim($(InputTextBoxID).val()) == "") {
+            return;
+        }
+        iPage = page;
+
+        //상품검색
+        BulletSearchRenewal.searchGoodsList($(InputTextBoxID).val(), page);
+    }
+    ,
+    //총알검색 : 상품
+    BulletSearchGoods: function (strQuery) {
+        $("#suggestPaging").hide();
+        var strKeyword = (escape(strQuery));
+        var $gl = $("ul#suggest_goodsList");
+
+        if (strKeyword == "") {
+            $gl.html(" ");
+            return;
+        }
+
+        $gl.hide();
+        //$.ajaxSetup({ cache: false });
+        BulletSearchRenewal.searchGoodsList(strKeyword, iPage - 1);
+        //BulletSearchRenewal.getPager();
+
+    }
+    ,
+    GetDomainNaem: function (qdomainName) {
+        var domainName = "ALL";
+        switch (qdomainName) {
+            case "TICKET":
+            case "공연":
+            case "티켓":
+                domainName = "TICKET";
+                break;
+            case "블로그":
+            case "BLOG_REVIEW":
+                domainName = "BLOG_REVIEW";
+                break;
+            case "채널예스":
+            case "CHYES":
+                domainName = "CHYES";
+                break;
+            case "STORE":
+                domainName = "STORE";
+                break;
+            case "UsedGoods":
+            case "USED_GOODS":
+                domainName = "USED_GOODS";
+                break;
+            case "BOOK":
+            case "국내도서":
+                domainName = "BOOK";
+                break;
+            case "FOREIGN":
+            case "외국도서":
+                domainName = "FOREIGN";
+                break;
+            case "eBook":
+            case "EBOOK":
+                domainName = "EBOOK";
+                break;
+            case "GIFT":
+            case "문구/GIFT":
+                domainName = "GIFT";
+                break;
+            case "ESTORY":
+            case "웹소설/코믹":
+            case "e연재":
+                domainName = "ESTORY";
+                break;
+            case "CD":
+            case "CD/LP":
+            case "음반":
+                domainName = "MUSIC";
+                break;
+            case "DVD":
+            case "DVD/비디오":
+            case "DVD/BD":
+                domainName = "DVD";
+                break;
+        }
+        return domainName;
+    }
+    ,
+    // 우측 상품검색
+    searchGoodsList: function (query, page) {
+        var QDomainName = $("#qdomain").val();
+        var domainName = BulletSearchRenewal.GetDomainNaem(QDomainName);
+
+        if (domainName == "TICKET" || domainName == "BLOG_REVIEW" || domainName == "CHYES" || domainName == "STORE" || domainName == "USED_GOODS") {
+            return false;
+        }
+        if (document.URL.toLowerCase().indexOf("www.yes24.com", 0) != -1) {
+            $.getJSON("/Product/searchapi/bulletsearch/goods",
+                { query: query, domain: domainName, page: page }
+                , function (data) {
+                    //$.ajaxSetup({ cache: false });
+                    BulletSearchRenewal.BulletSearchGoodsCallBack(data);
+                });
+        } else {
+            var webApiUrl = protocol + "//www.yes24.com/Product/searchapi/bulletsearch/goodsJsonp";
+            $.ajax({
+                url: webApiUrl 
+                , dataType: 'jsonp'
+                , data:
+                    { query: query, domain: domainName, page: page }
+                , success: function (data) {
+                    BulletSearchRenewal.BulletSearchGoodsCallBack(data);
+                }
+            });
+        }
+    }
+    ,
+    //우측상품검색: API 콜백 함수
+    BulletSearchGoodsCallBack: function (data) {
+        //추천 상품있으면 영역 노출
+        $('#latestSearchList').hide();
+        $('#suggestSearchList').show();
+        $('#searchKeyLayer').show();
+
+        var $gl = $("#suggest_goodsList");
+
+        if (data != null && data.lstSearchKeywordResult.length > 0) {
+            if ($("#query").val().trim() == '') {
+                $('#suggestSearchList').hide();
+                $('#latestSearchList').show();
+                return;
+            }
+            var GoodsList = " ";
+            $.each(
+                data.lstSearchKeywordResult,
+                function (i, entity) {
+                    //우측 검색결과 영역 HTML 생성
+                    GoodsList += BulletSearchRenewal.getSuggestGoodsHtml(i, entity);
+                }
+            );
+
+            $gl.html(GoodsList);
+            $("#suggestPaging").show();
+            $gl.show();
+
+            // 총수량을 올바르게 가져왔다면 페이저를 refresh해준다.
+            iTotalCount = data.iGoodsTotalCount;
+            BulletSearchRenewal.getPager();
+        }
+        else {
+            //추천 상품 없는 경우 숨김처리
+            $('#suggestSearchList').hide();
+            $('#searchKeyLayer').hide();
+        }
+    },
+
+
+
+
+    //우측 검색결과 영역 HTML 
+    getSuggestGoodsHtml: function (i, entity) {
+        var GOODS = entity.GOODDS_INDEXES;
+        var EBOOK_INFO = entity.EBOOK_MASTER_GOODS;
+        var ESTORY_SERIALNO = GOODS.MCODE;    // e연재 serialNo
+        var strLink = protocol + "//www.yes24.com/product/goods/" + GOODS.GOODS_NO;
+
+        if (parseInt(ESTORY_SERIALNO) > 0) {
+            if (GOODS.RES_KEY_GB == "41") {
+                strLink = 'http://shiftbooks.yes24.com/Detail/' + ESTORY_SERIALNO;
+            }
+            else if (GOODS.RES_KEY_GB == "47") {
+                strLink = protocol + '//story24.yes24.com/story/detail?goodsNo=' + GOODS.GOODS_NO;
+            }
+        }
+
+        var strTitle = GOODS.GOODS_NM;
+        if (GOODS.SUB_TTL != "") { // 부제
+            strTitle += " : " + GOODS.SUB_TTL;
+        }
+        var issDm = String(GOODS.ISS_DM).substring(0, 4) + "년 " + String(GOODS.ISS_DM).substring(4, 6) + "월";
+        var strAuthInfo = BulletSearchRenewal.fnConvertAuthorInfo(GOODS.AUTH_INFO, GOODS.RES_KEY_GB, "");
+        if (String(strAuthInfo).length != 0) {
+            strAuthInfo = "<span class=\"authPub info_auth\">" + strAuthInfo + "</span> ";
+        }
+        if (GOODS.COMPANY2 == "" || GOODS.COMPANY2 == "`") {
+            strAuthInfo += "<span class=\"authPub goods_date\">" + issDm + "</span>";
+        } else {
+            var displayCompanys = GOODS.COMPANY2.split('`');
+
+            switch (GOODS.DOMAIN) {
+                case "8":
+                    if (String(displayCompanys[0]).length != 0) {
+                        strAuthInfo += "<span class=\"authPub info_pub\">" + displayCompanys[0];
+                        if (String(displayCompanys[1]).length != 0) {
+                            strAuthInfo += "(" + displayCompanys[1] + ")";
+                        }
+                        strAuthInfo += "</span>";
+                    }
+                    strAuthInfo += issDm;
+                    break;
+                case "7":
+                    if (String(displayCompanys[1]).length != 0) {
+                        strAuthInfo += "<span class=\"authPub info_pub\">" + displayCompanys[1] + "</span>";
+                    }
+                    if (String(issDm).length != 0) {
+                        strAuthInfo += "<span class=\"authPub goods_date\">" + issDm + "</span> ";
+                    }
+                    break;
+                default:
+                    if (String(displayCompanys[0]).length != 0) {
+                        strAuthInfo += "<span class=\"authPub info_pub\">" + displayCompanys[0] + "</span>";
+                    }
+                    if (String(issDm).length != 0) {
+                        strAuthInfo += "<span class=\"authPub goods_date\">" + issDm + "</span> ";
+                    }
+                    break;
+            }
+        }
+
+        // 성인 인증 여부 체크
+        var viewImage = true;
+        if (Number(GOODS.LMT_AGE) >= 19 && (GOODS.AGE_LMT_YN == "1" || GOODS.AGE_LMT_YN == "Y")) {
+            if (_ISADULT != "Y") {
+                viewImage = false;
+            }
+        }
+
+        var goodsImg = "https://image.yes24.com/Goods/" + GOODS.GOODS_NO + "/S" + (viewImage ? "" : "?Adult=N");
+        var goodsReskeyNm = (BulletSearchRenewal.GetDomain(String(GOODS.DOMAIN)) == "99") ? "" : "[" + (String(GOODS.RES_KEY_GB) == "49" ? "클래스24" : BulletSearchRenewal.GetDomain(String(GOODS.DOMAIN))) + "] ";
+        var GoodsItem =
+            "<li><div class=\"itemUnit\">"
+            + "<div class=\"item_img\"><div class=\"img_canvas\"><span class=\"img_item\"><span class=\"img_grp\">"
+            + "     <a href=\"" + strLink + "\"" + (parseInt(ESTORY_SERIALNO) > 0 ? " target=\"_blank\"" : "") + "class=\"lnk_img\" onclick=\"BulletSearchRenewal.setAcodeWithExtraCode('111_002', '" + $("#query").val() + "', '" + GOODS.GOODS_NO + "', 0);\">"
+            + "         <em class=\"img_bdr\"><img src=\"" + goodsImg + "\" border=\"0\" alt=\"\"></em>"
+            + "     </a>"
+            + " </span></span></div></div>"
+            + "<div class=\"item_info\">"
+            + "     <div class=\"info_row info_name\">"
+            + "         <span class=\"gd_res\">" + goodsReskeyNm + "</span>"
+            + "         <a href =\"" + strLink + "\"" + (parseInt(ESTORY_SERIALNO) > 0 ? " target=\"_blank\"" : "") + "class=\"gd_name\" onclick=\"BulletSearchRenewal.setAcodeWithExtraCode('111_002', '" + $("#query").val() + "', '" + GOODS.GOODS_NO + "', 0);\">" + strTitle + "</a>"
+            + "     </div>"
+            + "     <div class=\"info_row info_pubGrp\">" + strAuthInfo + "</div>"
+            + "     <div class=\"info_row info_price\">";
+
+        if (parseInt(ESTORY_SERIALNO) > 0 && GOODS.DOMAIN == "09") {
+            GoodsItem += "화당 <strong class=\"txt_num\"><em class=\"yes_b\">" + BulletSearchRenewal.formatCurrency(GOODS.SPRICE) + "</em>원</strong>";
+        }
+        else if (GOODS.GOODS_GB == "15") //eBook대표상품
+        {
+            GoodsItem += "구매 <strong class=\"txt_num\"><em class=\"yes_b\">" + BulletSearchRenewal.formatCurrency(GOODS.SPRICE) + "</em>원";
+            if (EBOOK_INFO.length >= 2) {
+                if (EBOOK_INFO[1].GOODS_GB == "11") {
+                    GoodsItem += "</strong> 대여 <strong class=\"txt_num\"><em class=\"yes_b\">" + BulletSearchRenewal.formatCurrency(EBOOK_INFO[1].SALE_PR) + "</em>원</strong>";
+                }
+            }
+        }
+        else if (GOODS.GOODS_STAT_GB == "07" && BulletSearchRenewal.formatCurrency(GOODS.SPRICE) == 1) //미출간, 정가1원 상품
+        {
+            GoodsItem += "<strong class=\"txt_num\"><em class=\"yes_b\">가격 미정</em></strong>";
+        }
+        else {
+            GoodsItem += "<strong class=\"txt_num\"><em class=\"yes_b\">" + BulletSearchRenewal.formatCurrency(GOODS.SPRICE) + "</em>원</strong>";
+        }
+        GoodsItem += "</li>";
+
+        return GoodsItem;
+    }
+    ,
+    clickLoggingTrace: function (acode) {
+        try {
+            clickstream.setClickstreamLog(acode);
+        }
+        catch (Exception) {
+        }
+        return;
+    }
+    ,
+
+    getRecommentList: function () {
+        var QDomainName = $("#qdomain").val();
+        var domainName = BulletSearchRenewal.GetDomainNaem(QDomainName);
+
+        if (domainName == "TICKET" || domainName == "BLOG_REVIEW" || domainName == "CHYES" || domainName == "STORE" || domainName == "USED_GOODS") {
+            return false;
+        }
+
+        clearTimeout(_searchFinalTimer);
+        _searchFinalTimer = setTimeout(function () {
+
+            var strKeyword = (escape($(InputTextBoxID).val()));
+            strKeyword = $.trim(strKeyword);
+            if (strKeyword != _searchLast) {
+                BulletSearchRenewal.getRecommentList2();
+                //BulletSearchRenewal.searchGoodsList($(InputTextBoxID).val(), 1);
+            }
+        }, 300);
+
+        if (_searchNow == true)
+            return;
+
+        // 0.3초 딜레이 총알검색
+        BulletSearchRenewal.getRecommentList2();
+        //BulletSearchRenewal.searchGoodsList($(InputTextBoxID).val(), 1);
+    }
+    ,
+    // 추천 키워드 목록을 가져온다.
+    getRecommentList2: function () {
+
+        var mySeq = ++seqCnt;
+        var $InputTb = $(InputTextBoxID);
+        var $rl = $("div#suggestSearchList ul#suggest_wordList");
+
+        // 키워드를 가져온다.
+        var strKeyword = (escape($InputTb.val()));
+        strKeyword = $.trim(strKeyword);
+        _searchLast = strKeyword;
+
+        if (!keyMoveEnd) {
+            return;
+        }
+
+        // 값이없다면 HTML을 비우고 종료
+        if (strKeyword == "") {
+            seqCnt = -1;
+            $rl.html(" ");
+            return;
+        }
+
+        // qdomain 초기화
+        if ($("#qdomain").val() == '') {
+            $("#qdomain").val('통합검색');
+        }
+
+        $("div#latestSearchList").hide();
+        $('#searchKeyLayer').show();
+        $("div#suggestSearchList").show();
+        _searchNow = true;
+
+        if (window.event != undefined && (window.event.code == 'ArrowDown' || window.event.code == 'ArrowUp')) {
+            return false;
+        }
+
+        if (document.URL.toLowerCase().indexOf("www.yes24.com", 0) != -1) {
+            $.getJSON("/Product/searchapi/bulletsearch/keyword"
+                , { query: strKeyword }
+                , function (data) {
+                    BulletSearchRenewal.KsanaCallBack(data, seqCnt, mySeq);
+                });
+        } else {
+            var webApiUrl = protocol + "//www.yes24.com/Product/searchapi/bulletsearch/keywordJsonp";
+            $.ajax({
+                url: webApiUrl
+                , dataType: 'jsonp'
+                , data: { query: strKeyword }
+                , success: function (data) {
+                    BulletSearchRenewal.KsanaCallBack(data, seqCnt, mySeq); }
+            });
+        }
+    }
+    ,
+    //추천키워드 검색: API 콜백 함수
+    KsanaCallBack: function (data, seqCnt, mySeq) {
+        if (isKeyUpDown) {
+            isKeyUpDown = false;
+            return false;
+        }
+        //sleep(50);
+        //_searchNow = false;
+        setTimeout(function () { _searchNow = false; }, 300);
+
+        var $InputTb = $(InputTextBoxID);
+        var $rl = $("div#suggestSearchList ul#suggest_wordList");
+
+        if (seqCnt != mySeq)
+            return;
+        KsanaCount = data.iKeywordCount > 10 ? 10 : data.iKeywordCount;
+
+        // 추천검색어가 하나라도 있으면 형태소 분석을 하지않은채 검색을 한다.
+        if (data.iKeywordCount > 0) {
+            KsanaIndex = 0;
+            var KeywordList = " ";
+
+            $.each(data.lstKeyword, function (i, entity) {
+                entity = entity.replace("?", $InputTb.val());
+                var dispWord = String(entity).replace($InputTb.val(), "<strong class=\"keyword\" >" + $InputTb.val() + "</strong>");
+                var KeywordItem = (i != 0) ?
+                    "<li id=\"k" + i + "\" kw=\"" + entity + "\"><a href=\"javascript:BulletSearchRenewal.SelectItem('k" + i + "');\" class=\"lnk_key\">" + dispWord + "</a></li>" :
+                    "<li id=\"k" + i + "\" kw=\"" + entity + "\" class=\"on\"><a href=\"javascript:BulletSearchRenewal.SelectItem('k" + i + "');\" class=\"lnk_key\">" + dispWord + "</a></li>";
+                KeywordList += KeywordItem;
+
+                if (i == 0) {
+                    iPage = 1;
+                    //무조건 입력어 검색
+                    BulletSearchRenewal.BulletSearchGoods($InputTb.val());
+                    //BulletSearchRenewal.InitPager();
+                    iSearchCount++;
+                }
+            });
+
+            $rl.html(KeywordList);
+            $("ul#suggest_wordList li").click(function () {
+                KsanaIndex = $(this).attr("id").replace("k", "");
+
+                //BulletSearchRenewal.SelectItem();
+                BulletSearchRenewal.clickLoggingTrace("111_001");
+            });
+
+        } else { // 추천검색어가 없으면 형태소 분석을 하여 텍스트 박스내의 내용을 검색한다.
+            iPage = 1;
+            BulletSearchRenewal.BulletSearchGoods($InputTb.val());
+            $rl.html("<li id=\"k1\" kw=\"1\" class=\"on\"><a class=\"lnk_key\"><strong class=\"keyword\"></strong></a></li>");
+            $rl.find("strong").text($InputTb.val());
+        }
+    }
+    ,
+    // 추천검색어 선택 시
+    SearchRecommendKeyword: function (query) {
+        $("#searchKeyLayer").hide();
+
+        $(InputTextBoxID).val(query.trim());
+        document.charset = 'utf-8';
+        $("#yesSForm").submit();
+    }
+    ,
+    trick: function () {
+
+        if (!istrick) return; //커서이동하는것에서는 중지시킨당.
+
+        if (db != $(InputTextBoxID).val()) {
+            db = $(InputTextBoxID).val();
+            BulletSearchRenewal.ShowSuggest();
+        }
+        else {
+        }
+        setTimeout("BulletSearchRenewal.trick()", 100);
+    }
+    /*파이어폭스 트릭 끝*/
+};
+
+// 바이트로 자르기
+String.prototype.cutByte2 = function (len, suffix) {
+    var str = this;
+    var count = 0;
+    var fixedSuffix = ''
+
+    for (var i = 0; i < str.length; i++) {
+        if (escape(str.charAt(i)).length >= 4) {
+            count += 2;
+        } else {
+            if (escape(str.charAt(i)) != "%0D") {
+                count++;
+            }
+        }
+
+        if (count > len) {
+            if (escape(str.charAt(i)) == "%0A")
+                i--;
+
+            fixedSuffix = suffix
+
+            break;
+        }
+    }
+    return str.substring(0, i) + fixedSuffix;
+}
+
+
+/*최근검색어*/
+//최근검색기록 삭제 버튼 제어
+function setRemoveSearchword() {
+    if ($("#latestSearchList .noData").length > 0) {
+        $("#latestDelAll").hide();
+    }
+    else {
+        $("#latestDelAll").show();
+    }
+}
+
+//최근검색기록 삭제
+function clearSearchword() {
+    srchHistory.clear();
+    $("#latestDelAll").hide();
+}
+
+function removeSearchItem(sender, searchword) {
+    if ($(sender).parent().siblings().length == 0) {
+        clearSearchword();
+    }
+    else {
+        sender.parentElement.remove();
+        srchHistory.removeItem(searchword);
+    }
+    $("#searchKeyLayer").show();
+    $("#latestSearchList").show();
+
+}
+
+
+$(document).ready(function () {
+    BulletSearchRenewal.InitBulletSearch();
+
+    // browser별 keyup binding
+    if (typeof jQuery.browser == 'undefined') {
+        jQuery.browser = {};
+        jQuery.browser.ie = /MSIE/.test(navigator.userAgent.toLowerCase());
+        jQuery.browser.mozilla = (/mozilla/.test(navigator.userAgent.toLowerCase()) && !/webkit/.test(navigator.userAgent.toLowerCase()))
+        jQuery.browser.opera = /opera/.test(navigator.userAgent.toLowerCase());
+    }
+
+    if (jQuery.browser.ie == true) {
+        $(InputTextBoxID).bind("keyup", function (e) { BulletSearchRenewal.Check(e); });
+    }
+    else if (jQuery.browser.mozilla == true || jQuery.browser.opera == true) {
+        $(InputTextBoxID).bind("keyup", function (e) {
+            BulletSearchRenewal.trick();
+            BulletSearchRenewal.Check(e);
+        });
+    }
+    else {
+        $(InputTextBoxID).bind("keyup", function (e) {
+            BulletSearchRenewal.Check(e);
+        });
+
+        $(InputTextBoxID).bind("keydown", function (e) {
+            switch (e.keyCode) {
+                case 38: // 위로
+                    e.preventDefault();
+                    break;
+            }
+        });
+    }
+
+    $(InputTextBoxID).click(function () {
+        if ($('input#query').val().trim().length > 0) {
+            BulletSearchRenewal.ShowSuggest();
+            //BulletSearchRenewal.searchGoodsList($(InputTextBoxID).val(), 1);
+        } else {
+            $("#ulSchScopeOpt").hide();
+            srchHistory.show();
+        }
+        istrick = true; //파폭에서 입력받기 위해서 처리함.
+    });
+
+    xdsPc = new xds(protocol + '//www.yes24.com/Product/Scripts/Common/XDS/xds-serve.html?v=20200410');
+    srchHistory = {
+        add: function (val) {
+            if ($.trim(val) == "")
+                return;
+
+            xdsPc.getItem("scrHistory", function (allval, response) {
+                if (allval == null || allval.length == 0)
+                    xdsPc.setItem("scrHistory", val);
+                else {
+                    var arrHistory = allval.split('。');
+                    var listcount = 0;
+
+                    var strHistory = "";
+                    for (var i = 0; i < arrHistory.length; i++) {
+                        if (arrHistory[i] == $.trim(val))
+                            continue;
+
+                        if (strHistory == "")
+                            strHistory = arrHistory[i];
+                        else
+                            strHistory += "。" + arrHistory[i];
+
+                        listcount++;
+
+                        if (listcount == 9)
+                            break;
+                    }
+
+                    strHistory = $.trim(val) + "。" + strHistory;
+                    xdsPc.setItem("scrHistory", strHistory);
+                }
+            });
+        },
+        removeItem: function (searchword) {
+            xdsPc.getItem("scrHistory", function (allval, response) {
+                var current_val = allval.replace(searchword + "。", "");
+                xdsPc.setItem("scrHistory", current_val);
+            });
+            $("#latestSearchList").css("display", "");
+            $("#searchKeyLayer").css("display", "");
+        },
+        removeItem: function (searchword) {
+            xdsPc.getItem("scrHistory", function (allval, response) {
+                var searchword_array = allval.split('。');
+                var join_searchword = '';
+                var current_idx = 0;
+                $.each(searchword_array, function (i, v) {
+                    if (v == searchword) {
+                        current_idx = i;
+                    }
+                    else {
+                        join_searchword += (searchword_array.length - 1) == i ? searchword_array[i] : searchword_array[i] + '。';
+                    }
+                });
+
+                if (join_searchword.charAt(join_searchword.length - 1) == '。') {
+                    join_searchword = join_searchword.slice(0, -1);
+                }
+                searchword_array.splice(current_idx, 1);
+                xdsPc.setItem("scrHistory", join_searchword);
+                srchHistory.show();
+            });
+            $("#latestSearchList").css("display", "");
+            $("#searchKeyLayer").css("display", "");
+        },
+        clear: function () {
+            xdsPc.setItem("scrHistory", "");
+            $("#latestSearchList dd").empty();
+            $("<div class=\"noData\"><p class=\"txt_tit\">최근 검색어가 없습니다.</p></div>").appendTo("#latestSearchList dd");
+
+        },
+        show: function () {
+            if ($("#query").val() != "")
+                return;
+            xdsPc.getItem("scrHistory", function (allval, response) {
+                if (allval == null || allval.length == 0) {
+                    $("#latestSearchList dd").empty();
+                    $("<div class=\"noData\"><p class=\"txt_tit\">최근 검색어가 없습니다.</p></div>").appendTo("#latestSearchList dd");
+                    $("#latestDelAll").css("display", "none");
+                }
+                else {
+                    $("#latestDelAll").css("display", "");
+                    var arrHistory = allval.split('。');
+                    $("#latestSearchList dd").empty();
+                    var historyCount = arrHistory.length;
+                    if (historyCount > 10)
+                        historyCount = 10;
+                    var searchword_text = "<ul>";
+                    for (var i = 0; i < historyCount; i++) {
+                        if ($.trim(arrHistory[i]) != "") {
+                            var url = protocol + "//www.yes24.com/product/search?query=" + encodeSearchQuery($.trim(arrHistory[i].replace('&#39;', '\'')));
+                            var searchword = "<li><a href=\"" + url + "\" class=\"lnk_key\" onclick=\"BulletSearchRenewal.clickLoggingTrace('110_001');\">" + srchHistory.encodeHtmlEntities($.trim(arrHistory[i])) + "</a><a href='javascript:void(0);' class=\"lnk_del\" onclick='removeSearchItem(this,\"" + $.trim(arrHistory[i]) + "\");'><em id=\"latestDel\" class=\"ico_del\">삭제</em></a></li>";
+                            searchword_text += searchword;
+                        }
+                    }
+                    searchword_text += "</ul>";
+                    $(searchword_text).appendTo("#latestSearchList dd");
+                }
+            });
+
+        },
+        hide: function () {
+            $('#latestSearchList').show();
+            $('#searchKeyLayer').show();
+        },
+        decodeHtmlEntities: function (val) { // HTML 특수문자 디코딩
+            var decodeHtmlEntity = document.createElement('textarea');
+            decodeHtmlEntity.innerHTML = val;
+            return decodeHtmlEntity.value;
+        },
+        encodeHtmlEntities: function (val) { // HTML 특수문자 인코딩
+            var encdoeHtmlEntity = document.createElement('div');
+            encdoeHtmlEntity.innerText  = val;
+            return encdoeHtmlEntity.innerHTML;
+        }
+    };
+    srchHistory.show();
+    setRemoveSearchword();
+});
+

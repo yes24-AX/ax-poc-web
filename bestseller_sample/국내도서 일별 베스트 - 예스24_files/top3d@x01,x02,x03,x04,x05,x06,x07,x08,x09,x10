@@ -1,0 +1,32 @@
+function OAS_RICH(position) {
+if (position == 'x01') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/1885817285/x01/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x02') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/1460439672/x02/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x03') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/236576962/x03/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x04') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/1009405126/x04/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x05') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/402404779/x05/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x06') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/1095323988/x06/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x07') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/299590607/x07/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x08') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/1494763637/x08/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x09') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/1212483490/x09/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+if (position == 'x10') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/bestseller/top3d/745295290/x10/default/empty.gif/37393864363236393661323862343430" target="_top"><IMG SRC="http://adgirl.yes24.com/RealMedia/ads/Creatives/default/empty.gif"  WIDTH=2 HEIGHT=2 ALT="" BORDER=0 BORDER="0"></A>');
+}
+}

@@ -1,0 +1,684 @@
+﻿var toggleReturn = false;           // 토글 변환 여부
+var bestBnSwiper = null;            // 광고 배너 스와이퍼
+var bestBnNo = null;                // 광고 배너 번호
+
+$(window).on("DOMContentLoaded", function () {
+    setLazyLoad($("#yesBestList img.lazy"), true);
+});
+
+$(document).ready(function () {
+    var url = window.location.search;
+    var queryString = new URLSearchParams(url);
+
+    if (bestType != "REALTIME_BESTSELLER") {
+        if (queryString == "") {
+            var baseUrl = window.location.href;
+            var newQueryString = "categoryNumber=001&pageNumber=1&pageSize=24";
+            if (bestType == "DAY_BESTSELLER") {
+                newQueryString = "categoryNumber=001&pageNumber=1&pageSize=24&type=day";
+            }
+            else if (bestType == "WEEK_BESTSELLER") {
+                newQueryString = "categoryNumber=001&pageNumber=1&pageSize=24&type=week";
+            }
+            else if (bestType == "MONTH_BESTSELLER") {
+                newQueryString = "categoryNumber=001&pageNumber=1&pageSize=24&type=month";
+            }
+            var newUrl = baseUrl + "?" + newQueryString;
+            window.history.replaceState(null, null, newUrl);
+        }
+    }
+
+    // 중고샵으로 들어올 때 중고도서 고정
+    if (categoryNumber != null) {
+        if (categoryNumber == "018" || categoryNumber == "018001") {
+            $("a.lnk_cate").removeClass("on");
+            $("#category018001001").addClass("open");
+            $("#category018001001 a.lnk_cate:first").addClass("on");
+        }
+    }
+
+    airbridgeHelper.setAirbridgeLog("view_bestproduct");
+});
+
+// 토글 열림/닫힘 이벤트
+function toggleBestCate(obj) {
+    var tarObj = $(obj).parent().parent();
+    if (!tarObj.hasClass("lastDpt")) {
+        if (tarObj.hasClass("open")) {
+            tarObj.removeClass("open");
+        } else {
+            tarObj.addClass("open");
+        }
+    }
+
+    toggleReturn = true;
+}
+
+// 베스트 셀러 상품 영역 조회
+function GetBestGoodsList(categoryNumber = "001", sumGb = "06", sex = "A", age = 255, goodsTp = 0, addOptionTp = 0, excludeTp = 2, pageNumber = 1, pageSize = 24, goodsStatGb = "",
+    eBookTp = 0, bestType, viewMode = "", type = "", saleYear = 0, saleMonth = 0, weekNo = 0, saleDts = "", freeYn = "") {
+
+    fullMaskLoadingShow();
+
+    goodsStatGb = (goodsStatGb == "" && categoryNumber.startsWith("022") ? "03" : (goodsStatGb == "" ? "06" : goodsStatGb));
+
+    if (bestType == "DAY_BESTSELLER") {
+        type = "day";
+    }
+    else if (bestType == "WEEK_BESTSELLER") {
+        type = "week";
+    }
+    else if (bestType == "MONTH_BESTSELLER") {
+        type = "month";
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "/product/category/BestSellerContents",
+        data: {
+            categoryNumber: categoryNumber,
+            sumGb: sumGb,
+            sex: sex,
+            age: age,
+            goodsTp: goodsTp,
+            addOptionTp: addOptionTp,
+            excludeTp: excludeTp,
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            goodsStatGb: goodsStatGb,
+            eBookTp: eBookTp,
+            bestType: bestType,
+            type: type,
+            saleYear: saleYear,
+            saleMonth: saleMonth,
+            weekNo: weekNo,
+            saleDts: saleDts,
+            viewMode: viewMode,
+            freeYn: freeYn
+        },
+        success: function (result) {
+            $("#bestContentsWrap").html(result);
+            sclTop("#yLocation", 0, 100);
+        },
+        complete: function () {
+            fullMaskLoadingHide();
+            setLazyLoad($("#yesBestList img.lazy"), true);
+        }
+    });
+}
+
+// 검색 파라미터 세팅
+function changeBestSellerParam(obj, val) {
+    hidePopup();
+
+    var url = window.location.search;
+    var queryString = new URLSearchParams(url);
+    var pageSize = queryString.get('pageSize') == null ? "24" : queryString.get('pageSize');
+
+    var dataType = $(obj).attr("data-search-type");
+    var params = "";
+    // type이 undefined 이면 부모 type 호출
+    if (dataType == undefined) {
+        dataType = $(obj).parent().attr("data-search-type");
+    }
+    // value 값 셋팅
+    var attrVal = $(obj).attr("data-search-value");
+    attrVal = (attrVal == '' || attrVal == undefined) ? val : attrVal;
+
+    bindFilterSelections(dataType, attrVal, obj);
+
+    switch (dataType) {
+        case "categoryNumber":
+            dictParam.categoryNumber = attrVal;
+            break;
+        case "page":
+            dictParam.pageNumber = attrVal;
+            break;
+        case "sex":
+        case "age":
+        case "goodsTp":
+        case "addOptionTp":
+        case "excludeTp":
+        case "goodsStatGb":
+        case "pageSize":
+        case "freeYn":
+            dictParam.pageNumber = 1;
+            dictParam.pageSize = pageSize;
+            break;
+        case "saleDts":
+            dictParam.pageNumber = 1;
+            dictParam.pageSize = pageSize;
+            attrVal = $("#scope_year").val() + "-" + $("#scope_month").val().padStart(2, "0") + "-" + $("#scope_day").val().padStart(2, "0");
+            dictParam.saleDts = attrVal;
+            break;
+        case "type":
+            var today = new Date();
+            var date = new Date(today);
+            date.setDate(today.getDate() - 1);
+            if (val == "month") {
+                delete dictParam.weekNo;
+            }
+            else if (val == "week") {
+                delete dictParam.saleMonth;
+                delete dictParam.weekNo;
+            }
+            dictParam.pageNumber = 1;
+            dictParam.pageSize = pageSize == "" || pageSize == null ? 24 : pageSize;
+            dictParam.type = attrVal;
+            break;
+        case "saleYear":
+            dictParam.saleYear = val;
+            dictParam.pageNumber = 1;
+            dictParam.pageSize = pageSize == "" || pageSize == null ? 24 : pageSize;
+            if (type == "month") {
+                dictParam.saleMonth = 1;
+            }
+            else if (type == "week") {
+                delete dictParam.weekNo;
+            }
+            break;
+        case "saleMonth":
+            dictParam.saleYear = $("#scope_year option:selected").val();
+            dictParam.saleMonth = val;
+            dictParam.pageNumber = 1;
+            dictParam.pageSize = pageSize == "" || pageSize == null ? 24 : pageSize;
+            break;
+        case "weekNo":
+            dictParam.saleYear = $("#scope_year option:selected").val();
+            dictParam.pageNumber = 1;
+            dictParam.pageSize = pageSize == "" || pageSize == null ? 24 : pageSize;
+            break;
+    }
+
+    var bestTypeUrl = "";
+
+    switch (bestType) {
+        case "YES24_BESTSELLER":
+            bestTypeUrl = "bestseller";
+            break;
+        case "REALTIME_BESTSELLER":
+            bestTypeUrl = "realtimebestseller";
+            break;
+        case "DAY_BESTSELLER":
+            bestTypeUrl = "daybestseller";
+            break;
+        case "WEEK_BESTSELLER":
+            bestTypeUrl = "weekbestseller";
+            break;
+        case "MONTH_BESTSELLER":
+            bestTypeUrl = "monthbestseller";
+            break;
+        case "PRICEOFF":
+            bestTypeUrl = "hotpricebestseller";
+            break;
+        case "STEADYSELLER":
+            bestTypeUrl = "steadyseller";
+            break;
+    }
+
+    var params = makeBestSellerParam(dataType, attrVal);
+
+    if (dataType == "age" || dataType == "sex") {
+        var cookieSex = $("#stat_sex").val();
+        var cookieAge = $("#stat_age").val();
+        setBestCookie("BestFilter", cookieSex + "`" + cookieAge, 1);
+    }
+
+    window.history.replaceState({ params: params }, '', String.Format('/product/category/{0}?', bestTypeUrl) + params);
+
+    if (dataType != 'viewMode') {
+        GetBestGoodsList(dictParam.categoryNumber, dictParam.sumGb, dictParam.sex, dictParam.age, dictParam.goodsTp, dictParam.addOptionTp, dictParam.excludeTp, dictParam.pageNumber, dictParam.pageSize, dictParam.goodsStatGb, dictParam.eBookTp, bestType, dictParam.viewMode, dictParam.type, dictParam.saleYear, dictParam.saleMonth, dictParam.weekNo, dictParam.saleDts, dictParam.freeYn);
+
+        var searchType = $(this).children().attr("data-search-type");
+        var searchValue = $(this).children().attr("data-search-value");
+
+        delete dictFilterItem[searchType + '_' + searchValue];
+    }
+}
+
+function bindFilterSelections(type, value, obj) {
+    dictFilterItem[type + '_' + value] = filterCnt;
+    filterCnt++;
+}
+
+// 검색 파라미터 생성하는 공통함수
+function makeBestSellerParam(searchKey, val) {
+    var url = window.location.search;
+    var queryString = new URLSearchParams(url);
+    type = queryString.get('type');
+
+    switch (searchKey) {
+        case "categoryNumber":
+            if (val.substring(0, 3) == "017") {
+                var eBookTp = (dictParam.eBookTp == null || dictParam.eBookTp == undefined) ? 0 : dictParam.eBookTp;
+                initBestSellerParam();
+                dictParam.eBookTp = eBookTp;
+            }
+            else {
+                initBestSellerParam();
+            }
+
+            dictParam.categoryNumber = val;
+            dictParam.pageNumber = 1;
+
+            if (val.length > 9) {
+                delete dictParam.age;
+                delete dictParam.sex;
+            }
+
+            if (bestType == "DAY_BESTSELLER") {
+                dictParam.type = "day";
+            }
+            else if (bestType == "WEEK_BESTSELLER") {
+                var today = new Date();
+                var date = new Date(today);
+                date.setDate(today.getDate() - 1);
+
+                var yearParam = date.getFullYear();
+                var monthParam = date.getMonth() + 1;
+                
+                dictParam.type = "week";
+                dictParam.saleYear = yearParam;
+            }
+            else if (bestType == "MONTH_BESTSELLER") {
+                var today = new Date();
+                var date = new Date(today);
+                date.setDate(today.getDate() - 1);
+
+                var yearParam = date.getFullYear();
+                var monthParam = date.getMonth() + 1;
+
+                dictParam.type = "month";
+                dictParam.saleYear = yearParam;
+                dictParam.saleMonth = monthParam;
+            }
+            break;
+        case "page":
+            dictParam.pageNumber = val;
+            if (dictParam.categoryNumber.substring(0, 3) == "022") {
+                dictParam.pageSize = 24;
+            }
+            else {
+                dictParam.pageSize = $("#pg_size option:selected").val();
+            }
+            break;
+        case "eBookTp":
+            dictParam.pageNumber = 1;
+        default:
+            dictParam[searchKey] = val;
+            break;
+    }
+
+    //Dictionary -> 검색파라미터로 변환
+    return convertDictionaryToSearchParam(dictParam);
+}
+
+// Dictionary -> 검색파라미터로 변환
+function convertDictionaryToSearchParam(dictParms) {
+    var searchParam = [];
+
+    Object.keys(dictParms).forEach(function (key) {
+        searchParam.push(String.Format("{0}={1}", key, encodeURIComponent(dictParms[key])));
+    });
+
+    return searchParam.join("&");
+}
+
+// 파라미터 초기화
+function initBestSellerParam() {
+    for (var key in dictParam) {
+        delete dictParam[key];
+    }
+
+    dictParam.pageNumber = 1;
+    dictParam.pageSize = 24;
+}
+
+// 전체 선택
+function checkAllNew() {
+    var txtcheckall = $("#txtCheckAll").html();
+
+    if (txtcheckall == '전체선택') {
+        $("#txtCheckAll").html('선택해제');
+        $("#txtCheckAllB").html('선택해제');
+    }
+    else {
+        $("#txtCheckAll").html('전체선택');
+        $("#txtCheckAllB").html('전체선택');
+    }
+
+    var obj = document.getElementById("searchCheckAll");
+
+    if (obj.checked) {
+        obj.checked = false;
+    } else if (!obj.checked && !obj.disabled) {
+        obj.checked = true;
+    }
+
+    check_all('yesBestList', obj);
+}
+
+// Excel 다운로드
+function DownloadExcel() {
+    if ($("#yesBestList li").length == 0) {
+        alert("엑셀다운로드할 목록이 없습니다.");
+        return false;
+    }
+
+    var url = window.location.search;
+    var queryString = new URLSearchParams(url);
+    var categoryNumber, sex, age, goodsTp, addOptionTp, excludeTp, pageNumber, pageSize, goodsStatGb, eBookTp, type, saleYear, saleMonth, weekNo, day, saleDts, freeYn;
+
+    var today = new Date();
+    var date = new Date(today);
+    date.setDate(today.getDate() - 1);
+
+    categoryNumber = queryString.get('categoryNumber') == null ? "001" : queryString.get('categoryNumber');
+    sex = queryString.get('sex') == null ? "A" : queryString.get('sex');
+    age = queryString.get('age') == null ? 255 : queryString.get('age');
+    goodsTp = queryString.get('goodsTp') == null ? 0 : queryString.get('goodsTp');
+    addOptionTp = queryString.get('addOptionTp') == null ? 0 : queryString.get('addOptionTp');
+    excludeTp = queryString.get('excludeTp') == null ? 2 : queryString.get('excludeTp');
+    pageNumber = queryString.get('pageNumber') == null ? 1 : queryString.get('pageNumber');
+    pageSize = queryString.get('pageSize') == null ? 24 : queryString.get('pageSize');
+    goodsStatGb = queryString.get('goodsStatGb') == null ? "" : queryString.get('goodsStatGb');
+    eBookTp = queryString.get('eBookTp') == null ? 0 : queryString.get('eBookTp');
+    type = queryString.get('type') == null ? "" : queryString.get('type');
+    saleYear = queryString.get('saleYear') == null ? "" : queryString.get('saleYear');
+    saleMonth = queryString.get('saleMonth') == null ? "" : queryString.get('saleMonth');
+    weekNo = queryString.get('weekNo') == null ? 0 : queryString.get('weekNo');
+    day = queryString.get('day') == null ? 0 : queryString.get('day');
+    saleDts = queryString.get('saleDts') == null ? "" : queryString.get('saleDts');
+    freeYn = queryString.get('freeYn') == null ? "" : queryString.get('freeYn');
+
+    goodsStatGb = (goodsStatGb == "" && categoryNumber.startsWith("022") ? "03" : (goodsStatGb == "" ? "06" : goodsStatGb));
+
+    $("#hdBestType").val(bestType);
+    $("#hdCategoryNumber").val(categoryNumber);
+    $("#hdSex").val(sex);
+    $("#hdAge").val(age);
+    $("#hdGoodsTp").val(goodsTp);
+    $("#hdAddOptionTp").val(addOptionTp);
+    $("#hdExcludeTp").val(excludeTp);
+    $("#hdPageNumber").val(pageNumber);
+    $("#hdPageSize").val(pageSize);
+    $("#hdGoodsStatGb").val(goodsStatGb);
+    $("#hdEBookTp").val(eBookTp);
+    $("#hdType").val(type);
+    $("#hdSaleYear").val(saleYear);
+    $("#hdSaleMonth").val(saleMonth);
+    $("#hdWeekNo").val(weekNo);
+    $("#hdDay").val(day);
+    $("#hdSaleDts").val(saleDts);
+    $("#hdFreeYn").val(freeYn);
+
+    $("#bestExcelForm").submit();
+}
+
+// eBook 미리보기
+function openEBookPreview(eBookCode) {
+    var width = 790;
+    var height = 880;
+    var c = 0;
+    var d = 0;
+
+    if (screen.width >= screen.height) {
+        if (screen.width <= 1024 || screen.height <= 768) {
+            c = 50;
+            d = 30;
+            width = 618;
+            height = 708;
+        } else {
+            c = 100;
+            d = 30;
+        }
+    } else {
+        c = 30;
+        d = 30;
+    }
+
+    var url = 'http://epreview.yes24.com/preview/viewer/viewer.html?ebookcode=' + eBookCode + '&dm=yes24.com';
+
+    window.open(url, "yes24preview", "menubar=no,status=no,toolbar=no,scrolling=no,resizable=yes,width=" + width + ",height=" + height + ", top=" + c + ",left=" + d);
+}
+
+// 하위 전시분류를 연다
+function OpenSubDepth(dispNo, e, obj) {
+    // 중고샵은 3Depth 까지만 연다.
+    if (dispNo.substring(0, 3) == "018" && dispNo.length > 9) {
+        return false;
+    }
+    // + 버튼 클릭 시
+    if ($(obj).hasClass("lnk_toggle")) {
+        // 해당 전시 분류의 하위 전시분류가 없을 때
+        if ($(obj).parents("li:first").children("ul.subDpt").length == 0) {
+            AddSubDepth(dispNo, '', obj);
+        }
+    }
+    // 메뉴 클릭 시
+    else {
+        AddSubDepth(dispNo);
+    }
+    // li의 이벤트가 propagation되는 것을 막는다.
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    e.cancelBubble = true;
+}
+
+// 하위 전시분류 비동기 호출
+// fullDispNo 는 도메인에 categoryNumber를 입력하여 들어온 경우, 페이지 새로고침 등 링크 이동된 경우에만 존재
+function AddSubDepth(dispNo, fullDispNo, obj) {
+    var category = $('#category' + dispNo);
+    var list = $(category).find("ul:first");
+    // 하위 전시분류가 있거나 2Depth 일때
+    if ($(list).length > 0 || dispNo.length == 6) {
+        if (fullDispNo != null) {
+            if (dispNo.length < fullDispNo.length) {
+                subDispNo = fullDispNo.substring(0, dispNo.length + 3);
+                AddSubDepth(subDispNo, fullDispNo);
+            }
+            else {
+                $("a.lnk_cate").removeClass("on");
+                $(category).find("a:first").addClass("on");
+            }
+        }
+    }
+    // 하위 전시분류가 없을 때
+    else {
+        // 일별 베스트의 경우 AJAX로 값을 부르지 않는다. 2depth이하를 보여주지 않는다.
+        if (bestType != "DAY_BESTSELLER") {
+            // 전시번호가 있고 최하위 전시가 아닐 때
+            if (dispNo != '' && !$(category).hasClass("lastDpt")) {
+                $.ajax({
+                    type: "GET",
+                    url: "/product/category/BestSellerSubCategory",
+                    data: {
+                        categoryNumber: dispNo,
+                        bestType: bestType
+                    },
+                    success: function (result) {
+                        $("#category" + dispNo).append(result);
+                        // 도메인에 카테고리 번호를 입력한 경우 좌측 전시 메뉴 세팅
+                        if ($(list).length == 0 && fullDispNo != null && dispNo.length < fullDispNo.length) {
+                            subDispNo = fullDispNo.substring(0, dispNo.length + 3);
+                            AddSubDepth(subDispNo, fullDispNo);
+                        }
+                        else {
+                            // + 버튼 클릭이 아닐 경우
+                            if (!$(obj).hasClass("lnk_toggle")) {
+                                $("a.lnk_cate").removeClass("on");
+                                $(category).find("a:first").addClass("on");
+                            }
+                            if (!$(category).hasClass("open")) {
+                                $(category).addClass("open");
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    if (!$(category).hasClass("open")) {
+        if (toggleReturn == false) {
+            $(category).toggleClass("open");
+        }
+        if ($(category).hasClass("lastDpt")) {
+            $("a.lnk_cate").removeClass("on");
+            $(category).find("a:first").addClass("on");
+        }
+    }
+}
+
+// 좌측 전시 메뉴 클래스 추가
+function ClickLeftMenu(obj, categoryNumber) {
+    toggleReturn = false;
+    if (categoryNumber == "018001") {
+        $("a.lnk_cate").removeClass("on");
+        $("#bSCateWrap li.open").removeClass("open");
+
+        $("#category018001001").addClass("open");
+        $("#category018001001 a.lnk_cate:first").addClass("on");
+    }
+    else {
+        $("#bSCateWrap li.open").removeClass("open");
+        $(obj).parents("li").addClass("open");
+
+        $("a.lnk_cate").removeClass("on");
+        $(obj).addClass("on");
+    }
+
+    changeBestSellerParam(obj, categoryNumber);
+
+    var bestSellerUrl = "";
+    var bestSellerTitle = "";
+    switch (bestType) {
+        case "YES24_BESTSELLER":
+            bestSellerUrl = "BestSeller";
+            bestSellerTitle = " 종합 베스트 - 예스24";
+            break;
+        case "REALTIME_BESTSELLER":
+            bestSellerUrl = "RealTimeBestSeller";
+            bestSellerTitle = " 실시간 베스트 - 예스24";
+            break;
+        case "DAY_BESTSELLER":
+            bestSellerUrl = "DayBestSeller";
+            bestSellerTitle = " 일별 베스트 - 예스24";
+            break;
+        case "WEEK_BESTSELLER":
+            bestSellerUrl = "WeekBestSeller";
+            bestSellerTitle = " 주별 베스트 - 예스24";
+            break;
+        case "MONTH_BESTSELLER":
+            bestSellerUrl = "MonthBestSeller";
+            bestSellerTitle = " 월별 베스트 - 예스24";
+            break;
+        case "PRICEOFF":
+            bestSellerUrl = "HotPriceBestSeller";
+            bestSellerTitle = " 특가 - 예스24";
+            break;
+        case "STEADYSELLER":
+            bestSellerUrl = "SteadySeller";
+            bestSellerTitle = " 스테디셀러 - 예스24";
+            break;
+    }
+
+    var subCategoryNumber, subCategoryName;
+    var categoryType = "";
+    // 로케이션 영역 표시
+    var locationList = $("#category" + categoryNumber).parents("li.open");
+    var locationHtml = "";
+    $("#yLocation div.yLocaSet:gt(0)").remove();
+    for (var i = locationList.length; i > 0; i--) {
+        subCategoryNumber = $(locationList[i - 1])[0].id.replace("category", "");
+        subCategoryName = $(locationList[i - 1]).children("span.dptRow").children("a.lnk_cate").children("em.txt")[0].innerText;
+        categoryType = "";
+
+        locationHtml += "<div class='yLocaSet'>";
+        locationHtml += "<span class='bgLoca ico_arr'>></span>";
+        locationHtml += String.Format("<a href='/product/category/{0}?CategoryNumber={1}{3}' class='yLocaDepthOnly'>{2}</a>",
+            bestSellerUrl, subCategoryNumber, subCategoryName, categoryType);
+        locationHtml += "</div>";
+    }
+    locationHtml += "<div class='yLocaSet'>";
+    locationHtml += "<span class='bgLoca ico_arr'>></span>";
+    locationHtml += String.Format("<a href='/product/category/{0}?CategoryNumber={1}{3}' class='yLocaDepthOnly'>{2}</a>",
+        bestSellerUrl, categoryNumber, $(obj).children("em.txt")[0].innerText, categoryType);
+    locationHtml += "</div>";
+
+    if (categoryNumber == "018" || categoryNumber == "018001") {
+        categoryNumber = "018001001";
+
+        locationHtml += "<div class='yLocaSet'>";
+        locationHtml += "<span class='bgLoca ico_arr'>></span>";
+        locationHtml += String.Format("<a href='/product/category/{0}?CategoryNumber={1}' class='yLocaDepthOnly'>{2}</a>",
+            bestSellerUrl, categoryNumber, "중고 도서");
+        locationHtml += "</div>";
+    }
+
+    $("div.yLocationCont").append(locationHtml);
+
+    document.title = $(obj).children("em.txt")[0].innerText + bestSellerTitle;
+
+    var categoryNumberParent = categoryNumber.substring(0, 3);
+    $("#ulCategoryList > li").removeClass("cateOn");
+    $("#ulCategoryList li.cate" + categoryNumberParent).addClass("cateOn");
+}
+
+// 전시분류 open 상태 변경
+function ExpendMenu(dispno) {
+    if (dispno.length > 2) {
+        AddSubDepth(dispno.substring(0, 3), dispno);
+    }
+}
+
+// SCM 광고 영역 삽입
+function adBestBnGen(txtId, txtPg, arr) {
+    $("#" + txtId + " .swiper-wrapper").html(arr);
+    bestBnSwiper = new Swiper('#' + txtId, {
+        loop: true,
+        pagination: {
+            el: '.' + txtPg,
+            type: 'fraction',
+        },
+        initialSlide: bestBnNo,
+        speed: 0,
+        autoplay: {
+            delay: 4500,
+            disableOnInteraction: false,
+        },
+        navigation: {
+            nextEl: '.adPubBestNext',
+            prevEl: '.adPubBestPrev',
+        },
+    });
+}
+
+// 비동기 호출 시 열려있는 팝업 창 닫기
+function hidePopup() {
+    // 예스24 배송비 안내 팝업창 닫기
+    if ($("#dPop_deliveryFee").css("display") != "none") {
+        $("#dPop_deliveryFee").css("display", "none");
+    }
+
+    // 판매 시작 알림 서비스 팝업창 닫기
+    if ($("#dPop_sellAlarmIs").css("display") != "none") {
+        $("#dPop_sellAlarmIs").css("display", "none");
+    }
+
+    // 판매 시작 알림신청 팝업창 닫기
+    if ($("#dPop_sellAlarmApply").css("display") != "none") {
+        $("#dPop_sellAlarmApply").css("display", "none");
+    }
+}
+
+// 쿠키 설정
+function setBestCookie(name, value, expiredays) {
+    try {
+        var todayDate = new Date();
+        todayDate.setDate(todayDate.getDate() + expiredays);
+        document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toGMTString() + ";domain=.yes24.com;"
+    }
+    catch (e) { }
+}

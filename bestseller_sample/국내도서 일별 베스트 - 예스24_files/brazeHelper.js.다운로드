@@ -1,0 +1,887 @@
+﻿var brazeHelper = (function (brazeHelper, undefined) {
+    const yes24MemNo = (typeof TUSERNO !== 'undefined') ? TUSERNO : (getCookieData('TUSERNO') || "");
+    const isChildMember = (typeof isUnder14 !== 'undefined') ? (isUnder14.toBool()) : (getCookieData('isUnder14') ? getCookieData('isUnder14').toBool() : false);
+    const isDebug = false;                  //디버깅로그 노출 여부
+    const isDisable = false;                //강제 비활성화 플래그
+    const isAppDisable = false;             //도서앱 로그전송 비활성화 여부
+    const isEBookAppDisable = true;        //이북앱 로그전송 비활성화 여부
+    const isTicketAppDisable = false;      //티켓앱 로그전송 비활성화 여부
+    const isWebDisable = false;             //프론트 로그전송 비활성화 여부
+    const isOrderDisable = false;           //결제관련 로그전송 비활성화 여부
+    const isCremaclubDisable = false;       //크레마클럽 로그전송 비활성화 여부
+    const isCremaclubOrderDisable = false;  //크레마클럽 결제관련 로그전송 비활성화 여부
+    const isEventDisable = false;           //이벤트 로그전송 비활성화 여부
+    
+    const userAgent = navigator.userAgent || "";
+    const isArgosCheck = userAgent.toUpperCase().includes("ARGOS_UXROBOT");
+    const isAppBook = userAgent.toUpperCase().includes("YESAPPBOOK_IOS") || userAgent.toUpperCase().includes("YESAPPBOOK_AND");
+    const isAppEBook = userAgent.toUpperCase().includes("YESAPPEBOOK_AND") || userAgent.toUpperCase().includes("YESAPPEBOOK_IOS");
+    const isAppTicket = userAgent.toUpperCase().includes("YES24TICKETIOS") || userAgent.toUpperCase().includes("YES24TICKETAOS");
+    const isNativeApp = isAppBook || isAppEBook;
+    
+    var API_KEY = "b0bae02d-84a6-48b3-96d0-498bd7843351";
+    var BASE_URL = "sdk.iad-07.braze.com";
+
+    var retryCount = 0;
+    var initialized = false;
+
+    /**
+     * 봇 또는 자동화 도구로 추정되는지 확인한다.
+     * @param {string} userAgent 사용자 에이전트
+     * @returns {boolean} 봇 추정 여부
+     */
+    function checkLikelyBot(userAgent) {
+        var botPattern = /googlebot|adsbot-google|bingbot|baiduspider|yeti|naverbot|duckduckbot|applebot|slurp|ccbot|gptbot|oai-searchbot|chatgpt-user|claudebot|perplexitybot|bytespider|amazonbot|facebookexternalhit|twitterbot|slackbot|discordbot|linkedinbot|pinterestbot|007ac9 crawler/i;
+
+        var automationPattern = /headlesschrome|phantomjs|puppeteer|playwright|selenium|scrapy|curl|wget|python-requests|go-http-client|apache-httpclient/i;
+
+        if (!userAgent || userAgent.length < 10) {
+            return true;
+        }
+
+        return botPattern.test(userAgent) || automationPattern.test(userAgent);
+    }
+
+    const isLikelyBot = checkLikelyBot(userAgent);
+
+    // QA Book, LG 라이프케어 제외 처리
+    const EXCLUDED_PARTNER_IDS = ["347943", "346433"];
+    const isPartnerCheck = EXCLUDED_PARTNER_IDS.includes(getCookieData('PID'));
+
+    (function () {
+        if (!isDisable && !isArgosCheck && !isChildMember && !isNativeApp && !isLikelyBot && !isPartnerCheck) {
+            if (typeof braze !== "undefined") {
+                try {
+                    braze.initialize(API_KEY, {
+                        baseUrl: BASE_URL,
+                        enableLogging: false,            
+                        allowCrawlerActivity: false,       
+                        allowUserSuppliedJavascript: true,
+                        inAppMessageZIndex: 9999999
+                    });
+
+                    braze.subscribeToInAppMessage(function(inAppMessage) {
+                        braze.showInAppMessage(inAppMessage);
+                    });
+
+                    braze.openSession();  
+                    if (yes24MemNo !== '') {
+                        braze.changeUser(yes24MemNo);  
+                    } 
+                    initialized = true; 
+                } 
+                catch (e) {
+                    if (isDebug) console.error("Braze SDK init error:", e);
+                }
+            } else {
+                if (isDebug) console.warn("Braze SDK library not loaded. Braze events will not be sent.");
+            }
+        }
+    })();
+
+    // 상품 정보 데이터를 표준화하여 Braze 이벤트 속성으로 사용
+    class BrazeProduct {
+        constructor(
+            product_id, product_name,
+            category_id = '', category_depth1_name = '', category_depth2_name = '', category_depth3_name = '', category_depth4_name = '', category_depth5_name = '',
+            m_category_depth1_id = '', m_category_depth1_name = '', m_category_depth2_id = '', m_category_depth2_name = '', m_category_depth3_id = '', m_category_depth3_name = '',
+            creator_id = '', creator_name = '', publisher_id = '', publisher_name = '', discounted_price = ''
+        ) {
+            this.product_id = product_id || "0";
+            this.product_name = String(product_name || '');
+            this.category_id = String(category_id || '');
+            this.category_depth1_name = category_depth1_name || '';
+            this.category_depth2_name = category_depth2_name || '';
+            this.category_depth3_name = category_depth3_name || '';
+            this.category_depth4_name = category_depth4_name || '';
+            this.category_depth5_name = category_depth5_name || '';
+            this.m_category_depth1_id = String(m_category_depth1_id || '');
+            this.m_category_depth1_name = m_category_depth1_name || '';
+            this.m_category_depth2_id = String(m_category_depth2_id || '');
+            this.m_category_depth2_name = m_category_depth2_name || '';
+            this.m_category_depth3_id = String(m_category_depth3_id || '');
+            this.m_category_depth3_name = m_category_depth3_name || '';
+            this.creator_id = String(creator_id || '');
+            this.creator_name = creator_name || '';
+            this.publisher_id = publisher_id || '';
+            this.publisher_name = publisher_name || '';
+            this.discounted_price = discounted_price || 0;
+            this.time = { $time : getNowDateTime()};
+        }
+    }
+
+    var brazeReady = function() {
+        return (typeof braze !== 'undefined');
+    }
+
+    function getCookieData(name) {
+        var cookies = document.cookie;
+        if (!cookies) return null;
+        var cookieArr = cookies.split(';');
+        for (var i = 0; i < cookieArr.length; i++) {
+            var cookie = cookieArr[i].trim();
+            if (cookie.indexOf(name + '=') === 0) {
+                return decodeURIComponent(cookie.substring(name.length + 1));
+            }
+        }
+        return null;
+    }
+
+    //로그전송 비활성화 여부 체크
+    var checkDisbleType = function(type){
+        var isDisable = false;
+        if (isArgosCheck || isDisable || isChildMember || isLikelyBot || isPartnerCheck) { 
+            isDisable = true;
+        }
+        else if(type == "order" && isOrderDisable){
+            isDisable = true;
+        }
+        else if(type == "cremaOrder" && isCremaclubOrderDisable){
+            isDisable = true;
+        }
+        else if(type == "crema" && isCremaclubDisable){
+            isDisable = true;
+        }
+        else if(type == "web" && isWebDisable){
+            isDisable = true;
+        }
+        else if(type == "event" && isEventDisable){
+            isDisable = true;
+        }
+        else if(isAppBook && isAppDisable){
+            isDisable = true;
+        }
+        else if(isAppEBook && isEBookAppDisable){
+            isDisable = true;
+        }
+        else if(isAppTicket && isTicketAppDisable){
+            isDisable = true;
+        }
+        return isDisable;
+    }
+
+    //티켓사이트 접근여부
+    var chechTicketApp = function(){
+        var urlParams = new URLSearchParams(window.location.search);
+        var platformParam = urlParams.get("platform");
+        return (platformParam === "yes24_ticket" || userAgent.toUpperCase().includes("YES24TICKETIOS") || userAgent.toUpperCase().includes("YES24TICKETAOS"));
+    }
+
+ 
+    //접속플랫폼
+    var getPlatformName = function(){
+        var platformName = "yes24_web";
+        var urlParams = new URLSearchParams(window.location.search);
+        var platformParam = urlParams.get("platform");
+
+        if(userAgent.toUpperCase().includes("YESAPPBOOK")){
+            platformName = "yes24_app";
+        } 
+        else if(userAgent.toUpperCase().includes("YESAPPEBOOK")){
+            platformName = "ebook_app";
+        }
+        else if(userAgent.toUpperCase().includes("YES24TICKETIOS") || userAgent.toUpperCase().includes("YES24TICKETAOS")){
+            platformName = "yes24_ticket_app";
+        }
+        else if (platformParam === "yes24_ticket") {
+            platformName = "yes24_ticket_web";
+        }
+        return platformName;
+    }
+    
+    //앱 이름 
+    var getAppName = function(){
+        var appName = "MOBILE_WEB";
+        if(userAgent.toUpperCase().includes("YESAPPBOOK_IOS")){
+            appName = "IOS_BOOK";
+        } 
+        else if(userAgent.toUpperCase().includes("YESAPPBOOK_AND")){
+            appName = "ANDROID_BOOK";
+        } 
+        else if(userAgent.toUpperCase().includes("YESAPPEBOOK_AND")){
+            appName = "ANDROID_EBOOK";
+        } 
+           else if(userAgent.toUpperCase().includes("YESAPPEBOOK_IOS")){
+            appName = "IOS_EBOOK";
+        }
+        else if (userAgent.toUpperCase().includes("YES24TICKETIOS")) {
+            appName = "IOS_TICKET";
+        }
+        else if (userAgent.toUpperCase().includes("YES24TICKETAOS")) {
+            appName = "ANDROID_TICKET";
+        } 
+        return appName;
+    }
+
+    //현재시간 계산: 2025-10-01 12:20:11 와 같은 포맷
+    var getNowDateTime = function() {
+        var d = new Date();
+        function pad(n) { return ('0' + n).slice(-2); }
+
+        var year = d.getFullYear();
+        var month = pad(d.getMonth() + 1);
+        var day = pad(d.getDate());
+        var hour = pad(d.getHours());
+        var min = pad(d.getMinutes());
+        var sec = pad(d.getSeconds());
+
+        // 타임존 오프셋 계산 (+09:00 형식)
+        var offset = -d.getTimezoneOffset(); // 분 단위
+        var sign = offset >= 0 ? '+' : '-';
+        var offsetHours = pad(Math.floor(Math.abs(offset) / 60));
+        var offsetMinutes = pad(Math.abs(offset) % 60);
+
+        return `${year}-${month}-${day}T${hour}:${min}:${sec}${sign}${offsetHours}:${offsetMinutes}`;
+    };
+
+    //로그아웃 시 쿠키삭제
+    var deleteMemberCookie =  function(){
+        document.cookie = "TUSERNO=; path=/; domain=.yes24.com; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        document.cookie = "IsUnder14=; path=/; domain=.yes24.com; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
+
+    //로그아웃 시 세션스토리지 삭제
+    var deleteSessionStorage =  function(){
+        var CART_COUNT_KEY = "cartCountCache";
+        var CART_COUNT_TIME_KEY = "cartCountCacheTime";
+        
+        window.sessionStorage.removeItem(CART_COUNT_KEY);
+        window.sessionStorage.removeItem(CART_COUNT_TIME_KEY);
+    }
+
+    //구매완료 이벤트 파싱
+    var convertNestedProducts = function(data){
+         // 원본 복사 (직접 수정 방지)
+        var result = JSON.parse(JSON.stringify(data));
+
+        // 변환 대상: properties.products[0]
+        var baseProducts = result.properties.products[0];
+        var keys = Object.keys(baseProducts);
+        var arrLength = 0;
+
+        // 배열 속성 중 가장 긴 길이를 상품 개수로 판단
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            if (Array.isArray(baseProducts[key]) && baseProducts[key].length > arrLength) {
+                arrLength = baseProducts[key].length;
+            }
+        }
+
+        // 상품별로 분리
+        var newProducts = [];
+        for (var idx = 0; idx < arrLength; idx++) {
+            var product = {};
+            for (var j = 0; j < keys.length; j++) {
+                var key = keys[j];
+                var value = baseProducts[key];
+
+                if (Array.isArray(value)) {
+                    product[key] = typeof value[idx] !== "undefined" ? value[idx] : "";
+                } else {
+                    // 배열이 아닌 값은 그대로 복사
+                    product[key] = value;
+                }
+            }
+            newProducts.push(product);
+        }
+
+        // 변환된 products로 교체
+        result.properties.products = newProducts;
+        return result;
+    }
+    
+    // 값 직렬화 유틸
+    var serializeValue = function (val) {
+        if (val === null || val === undefined) return '';
+        if (val instanceof Date) {
+            return val.toISOString();
+        }
+        if (typeof val === 'object') {
+            // 순수 객체, 배열, { $time: ... } 모두 여기서 처리
+            return JSON.stringify(val);
+        }
+        return String(val);
+    };
+
+    //product object를 구분자를 사용한 string 으로 변환하는 함수
+    var parseProductArray = function (items) {
+        delete items[0].product_name;
+        delete items[0].category_depth1_name;
+        delete items[0].category_depth2_name;
+        delete items[0].category_depth3_name;
+        delete items[0].category_depth4_name;
+        delete items[0].category_depth5_name;
+        delete items[0].m_category_depth1_name;
+        delete items[0].m_category_depth2_name;
+        delete items[0].m_category_depth3_name;
+        delete items[0].creator_name;
+        delete items[0].publisher_id;
+        delete items[0].discounted_price;
+
+        return items.map(function (obj) {
+            return Object.keys(obj)
+                .map(function (key) {
+                    var value = serializeValue(obj[key]);
+                    return key + ':::' + value;
+                })
+                .join('///');
+        });
+    };
+
+    //디버깅로그 
+    var setDebugLog = function(name, prop){
+        if (isDebug) {
+            if(typeof prop != 'undefined'){
+                console.log(`[braze] ${name}`, prop)
+            }
+            else{
+                console.log(`[braze] ${name}`);
+            }
+            return;
+        }
+    }
+
+    //로그아웃처리
+    var logout = function(){
+        braze.initialize(API_KEY, {
+            baseUrl: BASE_URL,
+            noCookies: true
+        });
+        deleteMemberCookie();
+        deleteSessionStorage();
+    }
+
+    // 앱 네이티브 브릿지용 이벤트 객체 생성
+    var createBrazeScheme = function (eventName, prop, eventType= 'event', dataFlush= false, action = "add") {
+        var propText = typeof prop == "undefined" ? "" : btoa(unescape(encodeURIComponent(JSON.stringify(prop))));
+        try {
+            var appBridgeObj = {
+                "property_type": eventType,
+                "event_name": eventName,
+                "action": action,
+                "data_flush": dataFlush,
+                "params": propText
+            };
+            var appBridgeText = JSON.stringify(appBridgeObj);
+            var appName = getAppName();
+            setDebugLog(appBridgeText);
+
+            if (appName === "ANDROID_BOOK" || appName === "ANDROID_EBOOK" || appName === "ANDROID_TICKET") {
+                if (window.brazeBridge) {
+                    window.brazeBridge.sendBrazeEvent(appBridgeText);
+                }
+            } 
+            else if (appName === "IOS_BOOK" || appName === "IOS_EBOOK" || appName === "IOS_TICKET") {
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.braze) {
+                    window.webkit.messageHandlers.braze.postMessage(appBridgeText);
+                }
+            }
+        } catch (e) {
+            if (isDebug) console.error("Braze scheme send error:", e);
+        }
+    };
+
+    //프론트 이벤트전송
+    var sendCustomEvent = function(name,prop,dataFlush){
+        var delayFunc = function () { sendEvent(name, prop); };
+        if (!isNativeApp && !brazeReady()) {
+            console.error("Braze SDK not ready or eventName missing");
+            if(retryCount < 3){
+                setTimeout(delayFunc, 1000);
+                retryCount++;
+            } else {
+                retryCount = 0;
+            }
+            return;
+        }
+
+        //통합회원가입 접속 플랫폼 추가
+        if(name =="signup_completed"){
+            prop.platform = getPlatformName();
+        }
+        //티켓사이트 유입 처리
+        else if (chechTicketApp()) {
+            if(name === "YS_mypage_view"){
+                prop = prop || {};
+                prop.platform = getPlatformName();
+                name = name.replace("YS_", "TK_");
+            }
+        }
+        
+        if (isAppBook || isAppTicket) {
+            createBrazeScheme(name, prop, "event",dataFlush);
+        } 
+        else if(!isAppEBook){
+            if(typeof prop == "undefined") {
+                 braze.logCustomEvent(name); 
+            }
+            else {
+                braze.logCustomEvent(name, prop); 
+            }
+            if(dataFlush){ 
+                braze.requestImmediateDataFlush();
+            }
+            //탈퇴처리
+            if(name == "YS_exit_membership_completed"){
+                setTimeout(() => { logout(); }, 3000);
+            }
+            setDebugLog(name, prop);
+        }
+    }
+
+     //결제 이벤트전송
+    var sendOrderEvent = function(name,prop,dataFlush){
+        var delayFunc = function () { sendOrderEvent(name, prop); };
+        if (!isNativeApp && !brazeReady()) {
+            console.error("Braze SDK not ready or eventName missing");
+            if(retryCount < 3){
+                setTimeout(delayFunc, 1000);
+                retryCount++;
+            } else {
+                retryCount = 0;
+            }
+            return;
+        }
+        
+    
+        if (isAppBook) {
+            createBrazeScheme(name,prop,"event",dataFlush);
+        } 
+        else if(!isAppEBook){
+            if(typeof prop == "undefined") {
+                braze.logCustomEvent(name); 
+            }
+            else {
+                braze.logCustomEvent(name, prop); 
+            }
+            if(dataFlush){ 
+                 braze.requestImmediateDataFlush();
+            }
+            setDebugLog(name, prop);
+        }
+    }
+
+    //크레마클럽 이벤트전송
+    var sendCremaclubEvent = function(name,prop,dataFlush){
+        var delayFunc = function () { sendCremaclubEvent(name, prop); };
+        if (!isNativeApp && !brazeReady()) {
+            console.error("Braze SDK not ready or eventName missing");
+            if(retryCount < 3){
+                setTimeout(delayFunc, 1000);
+                retryCount++;
+            } else {
+                retryCount = 0;
+            }
+            return;
+        }
+        prop = prop || {};
+        prop.platform = getPlatformName();
+        
+        if (isNativeApp) {
+            createBrazeScheme(name,prop,"event",dataFlush);
+        } 
+        else {
+            braze.logCustomEvent(name,prop); 
+            setDebugLog(name, prop);
+        }
+    }
+
+    /*
+        type 정의
+        add: array 형태로 저장되는 필드로 기존값에 신규 값을 추가
+        set: 하나의 값만 가질 수 있는 필드로 기존 값 교체
+        mix: option 값이 따라 add, remove 가 모두 발생할 수 있는 케이스 - 크클 내서재에 담기, 카트담기, 작가/시리즈 알림신청/취소
+    */
+    var brezeUserMap = {
+        "$dateOfBirth":                        { type: "web",    action: "set", flush: true  }, // 통합 회원가입 시 등록한 생년월: 회원가입완료
+        "$gender":                             { type: "web",    action: "set", flush: true  }, // 통합 회원가입 시 등록한 성별: 회원가입완료
+        "YS_mkt_partner_agree":                { type: "web",    action: "set", flush: false }, // 제휴사 수신 동의 여부 (TBD): 회원가입완료
+        "YS_mkt_sms_agree":                    { type: "web",    action: "set", flush: true  }, // SMS 수신동의 변경: 회원가입완료
+        "YS_mkt_kakao_agree":                  { type: "web",    action: "set", flush: true  }, // 카카오수신동의 변경: 회원가입완료
+        "YS_mkt_email_agree":                  { type: "web",    action: "set", flush: true  }, // 이메일수신동의 변경: 회원가입완료
+        "YS_signup_date":                      { type: "web",    action: "set", flush: false }, // 가입일자: 회원가입완료
+        "YS_is_adult_verified":                { type: "web",    action: "set", flush: false }, // 성인인증여부: 회원가입완료/성인인증완료
+        "YS_is_identity_verified":             { type: "web",    action: "set", flush: false }, // 본인인증여부: 회원가입완료/본인인증완료
+        "YS_mania_grade":                      { type: "web",    action: "set", flush: false }, // 마니아 등급: 회원가입완료
+        "YS_address":                          { type: "web",    action: "set", flush: false }, // 주소정보(도로명까지): 가입 및 회원정보 수정 완료 시
+        "YS_search_history":                   { type: "web",    action: "add", flush: false }, // 검색이력 (검색일시/검색어):검색완료
+        "YS_cart_product_info":                { type: "web",    action: "set", flush: false }, // 카트에 담은 상품정보
+        "YS_view_product_info":                { type: "web",    action: "set", flush: false }, // 조회한 상품정보
+        "YS_view_product_id_list":             { type: "web",    action: "add", flush: false }, // 조회 상품번호 리스트: 상품상세진입
+        "YS_short_review_count":               { type: "web",    action: "set", flush: false }, // 작성한 한줄평 갯수
+        "YS_subscribe_creator_list":           { type: "web",    action: "mix", flush: false }, // 관심 작가/아티스트 리스트
+        "YS_subscribe_series_list":            { type: "web",    action: "mix", flush: false }, // 관심 시리즈 리스트
+        "YS_download_coupon":                  { type: "web",    action: "add", flush: false }, // 다운로드 완료한 쿠폰 ID
+        "YS_download_giftcard":                { type: "web",    action: "add", flush: false }, // 다운로드 완료한 상품권 ID
+        "YS_event_view_id_list":               { type: "event",  action: "add", flush: false }, // 조회 이벤트번호 리스트
+        "YF_like_funding_list":                { type: "event",  action: "mixObject", flush: false, identifierKey: "funding_id" }, // 내가 좋아한 펀딩 리스트: 좋아요(하트) 클릭/취소 시점
+        "YF_funding_complete_list":            { type: "order",  action: "add", flush: false }, // 나의 펀딩 내역: 펀딩 결제 완료 시점
+        "YS_yes_money":                        { type: "order",  action: "set", flush: false }, // 예스머니: 지급/사용시점
+        "YS_yes_point":                        { type: "order",  action: "set", flush: false }, // 예스포인트: 지급/사용시점
+        "YS_yes_giftcard":                     { type: "order",  action: "set", flush: false }, // 예스상품권: 지급/사용시점
+        "YS_purchase_product_info":            { type: "order",  action: "set", flush: false }, // 구매한 제품 정보
+        "YS_is_easypay_registered":            { type: "order",  action: "set", flush: false }, // 간편 결제 가입 여부
+        "YS_first_purchased_at":               { type: "order",  action: "set", flush: false }, // 첫 구매일
+        "YS_last_purchased_at":                { type: "order",  action: "set", flush: false }, // 마지막 구매일
+        "YS_payment_method_list":              { type: "order",  action: "add", flush: false }, // 결제 수단 내역
+        "YS_purchase_product_id_list":         { type: "order",  action: "add", flush: false }, // 주문 제품 ID 리스트
+        "EB_book_viewed_id_list":              { type: "crema",  action: "add", flush: false }, // 크레마클럽 상세: 상품번호추가
+        "EB_book_viewed_category_id_list":     { type: "crema",  action: "add", flush: false }, // 크레마클럽 상세: 전시분류추가
+        "EB_library_added_book_id_list":       { type: "crema",  action: "mix", flush: false }, // 서재에 담은 도서 ID 리스트
+        "CC_bookclub_subscription_status":     { type: "crema",  action: "set", flush: false }, // 구독 상태
+        "CC_bookclub_subscription_plan":       { type: "crema",  action: "set", flush: false }, // 요금제
+        "CC_bookclub_subscription_started_at": { type: "crema",  action: "set", flush: false }, // 구독 시작일
+        "CC_bookclub_subscription_expire_at":  { type: "crema",  action: "set", flush: false }, // 구독 종료일
+        "CC_bookclub_payment_completed_at":    { type: "crema",  action: "set", flush: false }, // 결제 완료일
+        "CC_is_bookclub_cancel_reserved":      { type: "crema",  action: "set", flush: false }  // 해지 예약여부
+    };
+
+    var brazeEventMap = {
+        "YS_main_view":                    { type: "web",        flush: false }, // 웰컴진입
+        "YS_login_page_view":              { type: "web",        flush: false }, // 로그인 페이지 진입
+        "YS_signup_try":                   { type: "web",        flush: false }, // 회원가입 페이지 진입
+        "YS_login_completed":              { type: "web",        flush: false }, // 로그인 완료
+        "YS_coupon_page_view":             { type: "web",        flush: false }, // 쿠폰함조회 완료
+        "YS_menu_page_view":               { type: "web",        flush: false }, // 메뉴 페이지 조회
+        "YS_best_page_view":               { type: "web",        flush: false }, // 베스트진입
+        "YS_new_arrival_page_view":        { type: "web",        flush: false }, // 신상품진입
+        "YS_curation_page_view":           { type: "web",        flush: false }, // 큐레이션 페이지 조회
+        "YS_exit_membership_completed":    { type: "web",        flush: true  }, // 회원탈퇴 완료
+        "signup_completed":                { type: "web",        flush: true  }, // 통합 회원가입 완료
+        "YS_category_page_view":           { type: "web",        flush: false }, // 카테고리 페이지 조회
+        "YS_product_detail_view":          { type: "web",        flush: true  }, // 제품 상세페이지 조회
+        "YS_used_hub_view":                { type: "web",        flush: false }, // 중고허브 조회
+        "YS_search_completed":             { type: "web",        flush: true  }, // 검색완료
+        "YS_author_profile_view":          { type: "web",        flush: false }, // 작가 파일 페이지 조회
+        "YS_giftcard_issued":              { type: "web",        flush: false }, // 상품권등록/발급 완료
+        "YS_add_to_cart":                  { type: "web",        flush: true  }, // 카트담기
+        "YS_review_like_completed":        { type: "web",        flush: false }, // 리뷰 좋아요
+        "YS_review_write_click":           { type: "web",        flush: false }, // 리뷰쓰기 버튼 클릭
+        "YS_short_review_write_click":     { type: "web",        flush: false }, // 한줄평쓰기 버튼 클릭
+        "YS_short_review_completed":       { type: "web",        flush: false }, // 한줄평 작성완료
+        "YS_gift_list_add":                { type: "web",        flush: false }, // 선물함 담기
+        "YS_gift_list_view":               { type: "web",        flush: false }, // 선물함 조회
+        "YS_author_alert_submitted":       { type: "web",        flush: false }, // 관심작가알림 신청완료
+        "YS_series_alert_submitted":       { type: "web",        flush: false }, // 시리즈알림 신청완료
+        "YS_download_single_coupon":       { type: "web",        flush: true  }, // 쿠폰발급완료(싱글)
+        "YS_download_all_coupon":          { type: "web",        flush: true  }, // 쿠폰발급완료(전체)
+        "YS_giftcard_page_view":           { type: "web",        flush: true  }, // 상품권 페이지 조회
+        "YS_mypage_view":                  { type: "web",        flush: true  }, // 마이페이지 조회
+        "YS_event_category_view":          { type: "event",      flush: false }, // 이벤트세상 조회
+        "YS_event_page_view":              { type: "event",      flush: true  }, // 이벤트상세 조회
+        "YS_attendance_page_view":         { type: "event",      flush: false }, // 출석체크 이벤트 조회
+        "YS_readingkids_page_view":        { type: "event",      flush: false }, // 책읽는 아이들 이벤트 조회
+        "YS_attendance_check_complete":    { type: "event",      flush: false }, // 출석체크 완료
+        "YS_attendance_reward_received":   { type: "event",      flush: false }, // 출석체크 선물받기 완료
+        "YS_benefit_page_view":            { type: "event",      flush: false }, // 혜택모음 이벤트 진입
+        "YS_benefit_giftcard_click":       { type: "event",      flush: false }, // 혜택 상품권 받기
+        "YF_main_view":                    { type: "event",      flush: false }, // 펀딩 메인 페이지 조회
+        "YF_category_view":                { type: "event",      flush: false }, // 펀딩 카테고리 페이지 조회
+        "YF_like_funding":                 { type: "event",      flush: false }, // 펀딩 좋아요 클릭
+        "YF_myfunding_view":               { type: "event",      flush: false }, // 나의 펀딩 페이지 조회
+        "YF_funding_detail_view":          { type: "event",      flush: false }, // 펀딩 상품 상세 조회
+        "YF_funding_comment_complete":     { type: "event",      flush: false }, // 펀딩 응원 댓글 작성 완료
+        "readingrunteaser_page_view":      { type: "event",      flush: false }, // 리딩런 사전 이벤트 페이지 조회 완료
+        "readingrun_page_view":            { type: "event",      flush: false }, // 리딩런 이벤트 페이지 조회 완료
+        "readingrun_start_complete":       { type: "event",      flush: false }, // 리딩런 시작하기 버튼 클릭 완료
+        "readingrun_finish_complete":      { type: "event",      flush: false }, // 리딩런 완료 페이지 뷰 완료
+        "readingrun_record_page_view":     { type: "event",      flush: false }, // 리딩런 기록 탭 조회
+        "YF_funding_complete":             { type: "order",      flush: false }, // 펀딩 결제 완료
+        "YS_cart_view":                    { type: "order",      flush: true  }, // 카트페이지 조회
+        "YS_delete_from_cart":             { type: "order",      flush: true  }, // 카트상품삭제
+        "YS_gift_page_view":               { type: "order",      flush: false }, // 사은품선택 페이지 조회
+        "YS_order_page_entered":           { type: "order",      flush: true  }, // 결제 페이지 조회
+        "YS_Purchase":                     { type: "order",      flush: true  }, // 구매완료(주문단위)
+        "YS_product_order_completed":      { type: "order",      flush: true  }, // 구매완료(상품 단위)
+        "YS_product_canceled":             { type: "order",      flush: true  }, // 주문취소(상품 단위)
+        "YS_order_canceled":               { type: "order",      flush: true  }, // 주문취소완료
+        "CC_crema_home_view":              { type: "crema",      flush: false }, // 메인조회
+        "CC_recommend_page_view":          { type: "crema",      flush: false }, // 추천조회
+        "CC_popular_page_view":            { type: "crema",      flush: false }, // 인기조회
+        "CC_new_page_view":                { type: "crema",      flush: false }, // 신규조회
+        "CC_original_page_view":           { type: "crema",      flush: false }, // 오리지널 조회
+        "CC_original_all_view":            { type: "crema",      flush: false }, // 오리지널 전체보기
+        "CC_bookclub_signup_step1":        { type: "crema",      flush: true  }, // 가입1단계
+        "CC_bookclub_signup_step2":        { type: "crema",      flush: false }, // 가입2단계
+        "CC_bookclub_payment_view":        { type: "crema",      flush: false }, // 결제페이지 진입
+        "CC_recommend_theme_depth1_view":  { type: "crema",      flush: false }, // 테마별 추천 조회
+        "CC_recommend_theme_depth2_view":  { type: "crema",      flush: false }, // 테마 상세 조회
+        "CC_search_completed":             { type: "crema",      flush: false }, // 검색 완료
+        "CC_book_detail_view":             { type: "crema",      flush: true  }, // 상세 페이지 조회
+        "CC_single_book_library_add":      { type: "crema",      flush: true  }, // 내서재에 추가
+        "CC_all_book_library_add":         { type: "crema",      flush: true  }, // 내서재에 모두 추가
+        "CC_category_page_view":           { type: "crema",      flush: false }, // 카테고리 조회
+        "CC_bookclub_signup_completed":    { type: "crema",      flush: true  }, // 요금제 가입완료
+        "CC_bookclub_subscribe_completed": { type: "cremaOrder", flush: true  }, // 정기결제 완료
+        "CC_bookclub_cancel_click":        { type: "cremaOrder", flush: false }, // 해지예약 버튼 클릭
+        "CC_bookclub_cancel_reserved":     { type: "cremaOrder", flush: true  }, // 해지예약 완료
+        "CC_bookclub_cancel_revoked":      { type: "cremaOrder", flush: true  }, // 해지예약 취소
+        "CC_bookclub_cancel_completed":    { type: "cremaOrder", flush: true  }, // 해지완료
+        "CC_bookclub_plan_change":         { type: "cremaOrder", flush: false }, // 요금제 변경
+        "TK_login_completed":              { type: "web",        flush: false } // 로그인 완료
+    };
+
+    // ISO 8601 시간 값을 Braze $time 오브젝트로 변환
+    var createBrazeTimeObject = function (value) {
+        if (value && typeof value === "object" && value.$time) {
+            return value;
+        }
+
+        return {
+            "$time": value || getNowDateTime()
+        };
+    };
+
+    // Array of Object 속성에 사용할 객체 정규화
+    var normalizeArrayObjectAttribute = function (prop) {
+        // null/undefined 방어
+        if (!prop || typeof prop !== "object") {
+            return {
+                time: createBrazeTimeObject()
+            };
+        }
+
+        var result = {};
+
+        // 얕은 복사
+        for (var key in prop) {
+            if (prop.hasOwnProperty(key)) {
+                result[key] = prop[key];
+            }
+        }
+
+        // date -> time 자동 변환
+        // time 값이 이미 존재하면 우선 사용
+        if (typeof result.date !== "undefined" && typeof result.time === "undefined") {
+            result.time = result.date;
+            delete result.date;
+        }
+
+        // time 값 처리
+        // 1. string -> { $time: string }
+        // 2. null/empty -> 현재시간 생성
+        if (typeof result.time === "undefined" || result.time === null || result.time === "") {
+            result.time = createBrazeTimeObject();
+        }
+        else {
+            result.time = createBrazeTimeObject(result.time);
+        }
+
+        return result;
+    };
+
+    // Array of Object add/remove Payload 생성
+    var createArrayObjectPayload = function (prop, isAdd, identifierKey) {
+        if (isAdd) {
+            return {
+                "$add": [normalizeArrayObjectAttribute(prop)]
+            };
+        }
+
+        var removeObject = {
+            "$identifier_key": identifierKey,
+            "$identifier_value": String(prop[identifierKey] || "")
+        };
+
+        return {
+            "$remove": [removeObject]
+        };
+    };
+    
+    //Custom Attribute 설정
+    var setBrazeUser = function(name, prop, option){
+        if (typeof TUSERNO == 'undefined' || TUSERNO == '') { return; }
+        var userConfig = brezeUserMap[name];
+        if (checkDisbleType(userConfig.type)) { return; }
+        var delayFunc = function () { setBrazeUser(name, value,option); };
+        if (!isNativeApp && !brazeReady() && !initialized) {
+            console.error("Braze SDK not ready");
+            setTimeout(delayFunc, 300);
+            return;
+        }
+
+        if (isAppBook || (isAppEBook && (userConfig.type == "crema" || userConfig.type == "cremaOrder"))) {
+            var action  = userConfig.action;
+            if(userConfig.action == "mix"){
+                if(option){
+                    action = "add";
+                }
+                else{
+                    action = "remove";
+                }
+            }
+            else if (userConfig.action == "mixObject") {
+                // $add/$remove 페이로드를 객체 그대로 전달하기 위해 "set" 사용
+                action = "set";
+            }
+
+            if (userConfig.action == "mixObject") {
+                var identifierKey = userConfig.identifierKey || "id";
+
+                if (!prop || !prop[identifierKey]) {
+                    if (isDebug) {
+                        console.warn("[Braze] Array of Object identifier missing:", name, identifierKey, prop);
+                    }
+                    return;
+                }
+
+                prop = createArrayObjectPayload(prop, option, identifierKey);
+            }
+
+            if (name === "YS_view_product_info" && prop && prop.$add && prop.$add.length > 0) {
+                let targetProp = prop.$add;
+                targetProp[0].time = getNowDateTime();
+                const parsed = parseProductArray(targetProp);
+                const parsedString = parsed.toString();
+                name = "YS_view_product_info_sa";
+                prop = parsedString;
+                action = "add";
+            }
+
+            createBrazeScheme(name, prop, "user", userConfig.flush, action);
+        } 
+        else{
+             if(name == "YS_view_product_info"){
+                var targetProp = prop.$add;
+                targetProp[0].time = getNowDateTime();
+                name = "YS_view_product_info_sa";
+                const parsed = parseProductArray(targetProp);
+                const parsedProp = { "$add": parsed };
+                prop = parsedProp;
+                braze.getUser().addToCustomAttributeArray(name, parsed.toString());
+            }
+            else if(name == "$dateOfBirth"){
+                if (!prop) return;
+                var regex = /^(\d{4})-(\d{2})-(\d{2})$/;
+                var match = prop.match(regex);
+                if (!match) return;
+
+                var m = /^(\d{4})[-\/](\d{2})[-\/](\d{2})$/.exec(prop);
+                var year = parseInt(m[1], 10);
+                var month = parseInt(m[2], 10);
+                braze.getUser().setDateOfBirth(year, month, 1);
+            }
+            else if(name == "$gender"){
+                var gender = braze.User.Genders.FEMALE;
+                if(prop == "M"){
+                    gender = braze.User.Genders.MALE;
+                }
+                else if(prop == "F"){
+                    gender = braze.User.Genders.FEMALE;
+                }
+                else{
+                     gender = braze.User.Genders.UNKNOWN;
+                }
+                braze.getUser().setGender(gender);
+            }
+            else if(name =="YS_short_review_count"){
+                braze.getUser().incrementCustomUserAttribute(name, prop);
+            }
+            else if(userConfig.action == "add"){
+                braze.getUser().addToCustomAttributeArray(name, prop);
+            }
+            else if(userConfig.action == "set"){
+                //Array of object 타입 추가/삭제처리
+                if (prop && (prop["$remove"] || prop["$add"])) {
+                    braze.getUser().setCustomUserAttribute(name, prop,true);
+                }
+                else{
+                    braze.getUser().setCustomUserAttribute(name, prop);
+                }
+            }
+            else if(userConfig.action == "mix") {
+                if(option){
+                    braze.getUser().addToCustomAttributeArray(name, prop);
+                } else{
+                    braze.getUser().removeFromCustomAttributeArray(name, prop);
+                }
+            }
+            else if(userConfig.action == "mixObject") {
+                var identifierKey = userConfig.identifierKey || "id";
+
+                if (!prop || !prop[identifierKey]) {
+                    if (isDebug) {
+                        console.warn("[Braze] Array of Object identifier missing:", name, identifierKey, prop);
+                    }
+                    return;
+                }
+
+                var arrayObjectPayload = createArrayObjectPayload(prop, option, identifierKey);
+
+                braze.getUser().setCustomUserAttribute(name, arrayObjectPayload, true);
+            }
+            if(userConfig.flush) {
+                braze.requestImmediateDataFlush();
+            }
+            setDebugLog(`[UserAttribute] ${name}, type: ${userConfig.action}`, prop);
+        }
+    }
+    
+    //logPurchase
+    var setBrazeOrder = function(price, prop){
+        if (checkDisbleType("order")) { return; }
+         var delayFunc = function () { setBrazeOrder(price, prop); };
+        if (!isAppBook && !brazeReady()) {
+            console.error("Braze SDK not ready");
+            setTimeout(delayFunc, 300);
+            return;
+        }
+
+        if (isAppBook) {
+            var purchaseObject = {
+                product_id: "order",
+                price: price,
+                quantity: 1,
+                currency: "USD",
+                properties: prop
+            };
+            setDebugLog("YS_Purchase", purchaseObject);
+            createBrazeScheme("YS_Purchase", purchaseObject, "event", true);
+        }
+        else{
+            braze.logPurchase("order", price, "USD", 1, prop);
+            braze.requestImmediateDataFlush();
+        }
+        setDebugLog("YS_Purchase", prop);
+    }
+
+    //Custom Event
+    var setBrazeLog = function (name, prop) {
+        var config = brazeEventMap[name];
+        if (checkDisbleType(config.type)) { return; }
+        try {
+            if (!config) {
+                if (isDebug) console.warn("[Braze] Unknown event type:", name);
+                return;
+            }
+            switch (config.type) {
+                case "web":
+                case "event":
+                    sendCustomEvent(name, prop, config.flush);
+                    break;
+                case "order":
+                    sendOrderEvent(name, prop, config.flush);
+                    break;
+                case "crema":
+                case "cremaOrder":
+                    sendCremaclubEvent(name, prop, config.flush);
+                    break;
+                default:
+                    if (isDebug) console.warn("[Braze] Undefined event type mapping:", name);
+            }
+        } catch (e) {
+            if (isDebug) console.error("setBrazeLog error:", e);
+        }
+    };
+  
+    return {
+        setBrazeLog: setBrazeLog,
+        setBrazeUser: setBrazeUser,
+        setBrazeOrder: setBrazeOrder,
+        logout: logout,
+        product: BrazeProduct
+    };
+})(window.brazeHelper || {});
+
+
+

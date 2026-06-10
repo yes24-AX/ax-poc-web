@@ -1,0 +1,677 @@
+let addon = (() => {
+    let ADDON_API_URL = 'https://link.yes24.com';
+    let FRONT_API_URL = 'https://frontapi.yes24.com';
+    if (typeof isAjaxDoing == 'undefined') {
+        var isAjaxDoing = false;
+    }
+
+    // 애드온 체크
+    async function CheckAddon(platform, memNo, options) {
+        let isChecked = $("#cboxAddon input[type='checkbox']").is(":checked");
+
+        if (isChecked) {
+            const isValid = await ValidateAddonProcess(platform, memNo);
+
+            if (isValid) {
+                const { title, url, pageType } = options;
+                const result = await CreateAddon(title, url, pageType, platform, memNo);
+
+                if (result.success) {
+                    $("#hdAddonCode").val(result.addonCode);
+
+                    if (options.openPopup) {
+                        OpenAddonPopup("AddonPageShare", options.popId, options.obj, {
+                            platform: platform,
+                            goodsNo: options.goodsNo,
+                            goodsName: options.goodsName
+                        });
+                    }
+                }
+                else {
+                    alert(result.message);
+                    isVaildCss();
+                }
+            }
+        }
+    }
+
+    // 애드온 생성 검증 프로세스
+    async function ValidateAddonProcess(platrofm, memNo) {
+        // 로그인 체크
+        if (!check_login_alert("애드온 생성은 로그인 후 이용할 수 있습니다.\n로그인 하시겠습니까?")) {
+            isVaildCss();
+            return false;
+        }
+
+        // 본인인증 체크
+        let isIpinCheck = "N";
+        const apiUrl = `${ADDON_API_URL}/Addon/GetMemberIpinInfo?memNo=${encodeURIComponent(memNo)}`;
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                isIpinCheck = data.IsIpinCheck; // "Y" or "N"
+            }
+            else {
+                throw new Error(`HTTP 오류! 상태 코드: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('네트워크 요청 중 오류:', error);
+            return false;
+        }
+
+        if (isIpinCheck == "N") {
+            const message = '본인인증이 되어있지 않습니다.\r\n해당 서비스를 이용하시려면, 먼저 회원정보의 본인인증 수단을 변경해 주세요.';
+            openComfirm(message, '본인인증 하기', '취소', function () { goToIdentityVerification(platrofm); });
+
+            isVaildCss();
+            return false;;
+        }
+
+        // 부정사용자 여부 체크
+        const isNotBlackList = await CheckAddonBlackList(memNo, platrofm);
+        if (!isNotBlackList) {
+            isVaildCss();
+            return false;
+        }
+        // 동의여부 체크
+        const isAddonConsent = await CheckAddonConsent(memNo, platrofm);
+        if (!isAddonConsent) {
+            isVaildCss();
+            return false;
+        }
+
+        return true;
+    }
+
+    // 본인인증 페이지로 이동
+    function goToIdentityVerification(platform) {
+        const redirectUrl = encodeURIComponent(location.href);
+        const pcDomain = typeof HTTPS_URL === 'undefined' || !HTTPS_URL ? 'https://www.yes24.com' : HTTPS_URL;
+        const mobileDomain = typeof MOBILE_URL === 'undefined' || !MOBILE_URL ? 'https://m.yes24.com' : MOBILE_URL;
+        const pcUrl = `${pcDomain}/Member/ipin/ChangeMemberByIPIN.aspx?ReturnUrl=${redirectUrl}`;
+        const mobileUrl = `${mobileDomain}/Momo/Member/certification/ChangeCert.aspx?ReturnUrl=${redirectUrl}`;
+
+        window.location.href = platform == 'm' ? mobileUrl : pcUrl;
+    }
+
+    // 컨펌창
+    function openComfirm(message, confirmText, cancelText, confirmCallback) {
+        if (typeof basicDialog === 'object') {
+            basicDialog.confirm('알림', message, confirmText, cancelText, confirmCallback);
+        }
+        else {
+            const isConfirmed = confirm(message);
+            if (!isConfirmed) return;
+            if (typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+        }
+    }
+
+    // 유효성 부적합 시 css 처리
+    function isVaildCss() {
+        var checkedObj = $(".yesOnOff .chk input[type='checkbox']:checked");
+        // 체크된 상태인 경우
+        if (checkedObj.length > 0) {
+            $(".yesOnOff .chk input[type='checkbox']:checked").prop("checked", false);
+        }
+    }
+
+    // 블랙리스트 여부 조회 (async/await 버전)
+    async function CheckAddonBlackList(memNo, platform) {
+        const apiUrl = `${ADDON_API_URL}/Addon/GetAddonBlackList?memNo=${encodeURIComponent(memNo)}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP 오류! 상태 코드: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (!data.success) {
+                // 블랙리스트로 등록된 회원
+                if (data.errorCode == "02") {
+                    OpenAddonPopup('AddonBlackList', 'limitAdOn', $("#cboxAddon"), { mask: true, pWidth: 375, platform: platform });
+                    if (platform == "p") {
+                        setTimeout(function () {
+                            $("#liAddonPeriod").html("<em class=\"bl_dot bgYUI\">&nbsp;</em>소명 기간은 " + data.startDate + " 부터 30일간입니다.");
+                        }, 100);
+                    }
+                    else {
+                        setTimeout(function () {
+                            $("#liAddonPeriod").html("<em class=\"bl_rnd\">&nbsp;</em>소명 기간은 " + data.startDate + " 부터 30일간입니다.");
+                        }, 100);
+                    }
+
+                }
+
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error('네트워크 요청 중 오류:', error);
+            return false;
+        }
+    }
+
+    // 애드온 링크 생성
+    async function CreateAddon(title, url, pageType, platform, memNo) {
+        const apiUrl = FRONT_API_URL + '/a/api/create';
+
+        const formData = new URLSearchParams();
+        formData.append("title", title);
+        formData.append("url", url);
+        formData.append("pageType", pageType);
+        formData.append("platform", platform);
+        formData.append("memNo", memNo);
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("서버 요청 실패: " + response.status);
+            }
+
+            const data = await response.json();
+
+            if (data.Success) {
+                console.log("애드온 코드 생성 성공:", data.AddonCode);
+                return { success: true, addonCode: data.AddonCode };
+            } else {
+                return { success: false, addonCode: null, message: data.message };
+            }
+        } catch (err) {
+            console.error("애드온 생성 오류:", err);
+            return { success: false, addonCode: null, message: err.message };
+        }
+    }
+
+    /**
+     * 공통 애드온 팝업 호출 메서드
+     * @param {string} page - 서버단 액션 이름 (예: "AddonPageShare" 또는 "AddonCopy")
+     * @param {string} popId - 팝업 ID
+     * @param {HTMLElement} obj - 팝업 기준이 되는 객체
+     * @param {object} options - 팝업 옵션
+     */
+    function OpenAddonPopup(page, popId, obj, options) {
+        if ($("#dPop_" + popId).length > 0) {
+            $("#dPop_" + popId).remove();
+        }
+
+        const platform = options.platform;
+
+        if (isAjaxDoing == false && $("#dPop_" + popId).length == 0) {
+            let goodsNo = 0;
+            let goodsName = "";
+            let pageType = "";
+            let eventUrl = "";
+            let url = FRONT_API_URL + `/Module/${page}?platform=${platform}&popId=${popId}`;
+
+            // 공유하기 팝업인 경우
+            if (page == "AddonPageShare") {
+                goodsNo = options.goodsNo;
+                goodsName = options.goodsName;
+                pageType = options.pageType;
+                eventUrl = options.eventUrl;
+
+                url += "&goodsNo=" + goodsNo;
+                url += "&goodsName=" + SanitizeForQuery(goodsName);
+                url += "&pageType=" + pageType;
+                if (pageType == "02" || pageType == "03") {
+                    url += "&eventUrl=" + eventUrl;
+                }
+            }
+
+            fetchApi(url, popId, obj, options);
+        }
+    }
+
+    // fetchApi 공통화 (GET 요청)
+    function fetchApi(url, popId, obj, options) {
+        isAjaxDoing = true;
+
+        fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include'
+        })
+            .then(response => response.text())
+            .then(responseText => {
+                var targetWrap = $('#yesWrap').length ? '#yesWrap' : '#bookClubWrap';
+
+                if (options.pageType == "04") {
+                    // 채널예스 상세
+                    targetWrap = '#layout-wrapper';
+                }
+
+                // PC
+                if (options.platform == "p") {
+                    var yesPopWrapHTML = "";
+                    var settings = {
+                        mask: false,
+                        isCenter: false,
+                        pWidth: 760 // 기본 팝업 폭
+                    };
+
+                    if (options) {
+                        $.extend(settings, options);
+                    }
+
+                    var parsedHTML = $(responseText);
+
+                    // Element(NodeType === 1)만 추출
+                    var elementsOnly = parsedHTML.filter(function () {
+                        return this.nodeType === 1;
+                    });
+
+                    var targetElement = elementsOnly.filter('#dPop_' + popId);
+
+                    if (!targetElement.length) {
+                        targetElement = elementsOnly.find('#dPop_' + popId);
+                    }
+
+                    if (settings.mask) {
+                        yesPopWrapHTML += settings.isCenter
+                            ? '<div class="yesDefPopArea maskOn isCenter">'
+                            : '<div class="yesDefPopArea maskOn">';
+                    }
+                    else {
+                        yesPopWrapHTML += '<div class="yesDefPopArea">';
+                    }
+
+                    if (targetElement.length) {
+                        yesPopWrapHTML += targetElement[0].outerHTML;
+                    }
+                    else {
+                        console.log('팝업 내용을 찾을 수 없습니다.');
+                        isAjaxDoing = false;
+                        return;
+                    }
+                    yesPopWrapHTML += '</div>';
+
+
+                    $(targetWrap).append(yesPopWrapHTML);
+
+                    var $popup = $('#dPop_' + popId);
+                    var popupWidth = settings.pWidth;
+
+                    if (!settings.mask) {
+                        setTimeout(function () {
+                            var offset = $(obj).offset();
+                            var objWidth = $(obj).outerWidth();
+                            var objHeight = $(obj).outerHeight();
+
+                            var left = offset.left + (objWidth / 2) - (popupWidth / 2);
+                            var top = offset.top + objHeight + 10;
+
+                            if (left < 0) left = 10; // 좌측 벗어남 방지
+
+                            $popup.css({
+                                position: 'absolute',
+                                left: left + 'px',
+                                top: top + 'px',
+                                width: popupWidth + 'px',
+                                zIndex: 1000
+                            });
+                        }, 10);
+                    } else {
+                        $popup.css({ width: popupWidth + 'px' });
+                    }
+                }
+                // 모바일
+                else {
+                    var yesPopWrapHTML = "";
+                    var parsedHTML = $(responseText);
+                    var targetElement = parsedHTML.filter('#dPop_' + popId);
+                    if (!targetElement.length) {
+                        targetElement = parsedHTML.find('#dPop_' + popId);
+                    }
+                    var isRise = options.isRise == null ? false : options.isRise;
+
+                    if (isRise) {
+                        yesPopWrapHTML += '<div class="yesDefPopArea riseMod">';
+                        yesPopWrapHTML += '<a onclick="yesPopHide(this);" class="lnk_closeDefPop">창 닫기</a>';
+                    } else {
+                        yesPopWrapHTML += '<div class="yesDefPopArea">';
+                    }
+
+                    if (targetElement.length) {
+                        yesPopWrapHTML += targetElement[0].outerHTML;
+                    }
+                    else {
+                        console.log('팝업 내용을 찾을 수 없습니다.');
+                        isAjaxDoing = false;
+                        return;
+                    }
+                    yesPopWrapHTML += '</div>';
+
+                    $(targetWrap).append(yesPopWrapHTML);
+
+                    if (!$("body").hasClass("notScl") && !$("body").hasClass("schMod")) {
+                        kFocusY = $(window).scrollTop();
+                        $("html, body").addClass("notScl");
+                        $(targetWrap).css("top", -kFocusY);
+                    }
+
+                    if (isRise) {
+                        setTimeout(function () {
+                            $('#' + popId).addClass("riseOn");
+                        }, 200); // 200 milliseconds = 0.2 seconds
+                    }
+                }
+
+                isAjaxDoing = false;
+            })
+            .catch(error => {
+                console.error('Failed to load content from source page.', error);
+                isAjaxDoing = false;
+            });
+    }
+
+    // 애드온 동의여부 조회 (async/await 버전)
+    async function CheckAddonConsent(memNo, platform) {
+        const apiUrl = `${ADDON_API_URL}/Addon/GetAddonConsent?memNo=${encodeURIComponent(memNo)}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP 오류! 상태 코드: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (!data.success) {
+                // 애드온 동의 거부
+                if (data.Code == "03") {
+                    alert("애드온 동의 거부 상태입니다. 고객센터로 문의 부탁드립니다.");
+                    isVaildCss();
+                }
+                return false;
+            }
+
+            // 애드온 이용 동의가 아닐 때
+            if (data.Code != "02") {
+                OpenAddonPopup('AddonConsent', 'firstAdOn', $("#cboxAddon"), { mask: true, pWidth: 375, platform: platform });
+                isVaildCss();
+            }
+
+            return true;
+        } catch (error) {
+            console.error('네트워크 요청 중 오류:', error);
+            return false;
+        }
+    }
+
+    // 애드온 링크 생성
+    async function UpdateAddonConsent(memNo) {
+        const apiUrl = `${ADDON_API_URL}/Addon/UpdateAddonConsent`;
+
+        const formData = new URLSearchParams();
+        formData.append("memNo", memNo);
+        formData.append("consentYN", "Y");
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("서버 요청 실패: " + response.status);
+            }
+
+            const data = await response.json();
+
+            if (data.Success) {
+                alert("애드온 이용 동의하셨습니다.");
+                location.reload();
+                return { success: true };
+            } else {
+                return { success: false };
+            }
+        } catch (err) {
+            console.error("애드온 동의 정보 저장 오류:", err);
+            return { success: false, addonCode: null, message: err.message };
+        }
+    }
+
+    // 레이어 팝업 감추기 샘플 PC
+    function yesPcPopHide(obj, tarStr) {
+        var tarObj = $(obj).parents(".yesDefPopArea");
+        tarObj.remove();
+
+        // 현재 URL 정보        
+        var currentPath = window.location.pathname;
+
+        // PC 마이페이지 > 애드온 메뉴인 경우 마이페이지로
+        if (currentPath.toLowerCase().includes("member/ftmyaddon")) {
+            history.back();
+        }
+    }
+
+    // 레이어 팝업 감추기 샘플 모바일
+    function yesMobPopHide(obj, tarStr) {
+        var tarObj = $(obj).parents(".yesDefPopArea");
+        var targetWrap = $('#yesWrap').length ? '#yesWrap' : '#bookClubWrap';
+
+        if (tarObj.hasClass("riseMod")) {
+            tarObj.addClass("fallMod");
+            var tarPop = tarObj.find(".yesRisePop");
+            tarPop.removeClass("riseOn");
+            setTimeout(function () {
+                tarObj.remove();
+
+                if ($(targetWrap + ' .yesDefPopArea').length == 0 ||
+                    $(targetWrap + ' .yesDefPopArea').filter(function () {
+                        return $(this).css("display") !== "none";
+                    }).length == 0) {
+                    $("html, body").removeClass("notScl");
+                    $(targetWrap).attr("style", "");
+                    $(window).scrollTop(kFocusY);
+                }
+            }, 350);
+        }
+        else {
+            tarObj.remove();
+
+            if ($(targetWrap + ' .yesDefPopArea').length == 0 ||
+                $(targetWrap + ' .yesDefPopArea').filter(function () {
+                    return $(this).css("display") !== "none";
+                }).length == 0) {
+                $("html, body").removeClass("notScl");
+                $(targetWrap).attr("style", "");
+                $(window).scrollTop(kFocusY);
+            }
+        }
+
+        // 현재 URL 정보        
+        var currentPath = window.location.pathname;
+
+        // 모바일 마이페이지 > 애드온 메뉴인 경우 마이페이지로
+        if (currentPath.toLowerCase().includes("mypage/addon")) {
+            history.back();
+        }
+    }
+
+    // URL 복사하기 이벤트
+    function CopyUrl(page, popId, obj, options) {
+        let isChecked = $("#cboxAddon input[type='checkbox']").is(":checked");
+        const url = options.url;
+        const isFacebook = options.isFacebook;
+
+        // 애드온 링크 복사
+        if (isChecked) {
+            // 페이스북 공유하기 일 때 복사 완료 팝업만 호출
+            if (isFacebook) {
+                OpenAddonPopup(page, popId, obj, options);
+            }
+            else {
+                const addonCopyUrl = $("#hdAddonCode").val();
+
+                if (addonCopyUrl != null && addonCopyUrl != '') {
+                    const addonUrl = "https://link.yes24.com/a/" + addonCopyUrl;
+                    copyToClipboard(addonUrl);
+                    OpenAddonPopup(page, popId, obj, options);
+                } else {
+                    alert("애드온 코드가 없습니다. 다시 애드온을 생성해주세요.");
+                }
+            }
+        }
+        // 일반 링크 복사
+        else {
+            if (!isFacebook) {
+                copyToClipboard(url);
+                alert("URL이 복사되었습니다.");
+            }
+        }
+    }
+
+    // 클랩보드 텍스트 복사
+    function copyToClipboard(text) {
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.top = "-1000px";
+
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+            document.execCommand("copy");
+        } catch (e) {
+            console.error("Clipboard copy failed", e);
+        }
+
+        document.body.removeChild(textarea);
+    }
+
+
+    /**
+     * QueryString 전송 시 문제 유발 가능 문자를 제거
+     * - # : Fragment 시작
+     * - & = ? : QueryString 구조 문자
+     * - % : 잘못된 인코딩 시퀀스 유발 가능
+     * - + : 공백으로 해석될 수 있음
+     * @param {string} value 원본 문자열
+     * @returns {string} 정제된 문자열
+     */
+    function SanitizeForQuery(value) {
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        // 문자열 변환 + 양끝 공백 정리
+        var text = String(value).replace(/^\s+|\s+$/g, "");
+
+        // URL/Query 구조를 깨는 예약문자 제거
+        // 필요 시 제거 대상 문자를 줄이거나 늘리면 됨
+        text = text.replace(/[#&=?%+]/g, "");
+
+        return text;
+    }
+
+    //로그인 여부 후 메시지 처리
+    function check_login_alert(msg) {
+        if (!check_login()) {
+            if (confirm(msg) == true) {
+                var returnUrl = get_url();
+                var returnParams = get_param();
+                goto_login(returnUrl, returnParams);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    //로그인 체크
+    function check_login() {
+        var logYn = false;
+        try {
+            logYn = ((getCookie('ServiceCookies') != '' && getCookie('ServiceCookies') != null) || $("#LoginYnH").val() == "Y") ? true : false;
+        }
+        catch (Exception) {
+        }
+        return logYn;
+    }
+
+    //로그인 페이지로 이동
+    function goto_login(returnUrl, returnParams) {
+        returnUrl = returnUrl || get_url();
+        returnParams = returnParams || encodeURIComponent(get_param());
+
+        // 모바일 환경 여부 판단
+        var isMobile = /Android|iPhone|iPad|iPod|Windows Phone|webOS/i.test(navigator.userAgent);
+
+        // 환경별 로그인 페이지 URL 설정
+        var loginUrl;
+        if (isMobile) {
+            // 모바일 환경일 때
+            loginUrl = "https://m.yes24.com/Momo/Templates/FTLogin.aspx";
+        } else {
+            // PC 환경일 때
+            loginUrl = "https://www.yes24.com/Templates/FTLogin.aspx";
+        }
+
+        // 최종 이동 처리
+        document.location = loginUrl + "?ReturnURL=" + returnUrl + "&ReturnParams=" + returnParams.replace(/&/g, "`");
+    }
+
+    function get_url() {
+        return window.location.href.split("?")[0];
+    }
+
+    function get_param() {
+        var arr = new Array();
+        arr = window.location.href.split("?");
+        if (arr.length > 1)
+            return arr[1];
+        else
+            return "";
+    }
+
+    function getCookie(name) {
+        var cookieValue = "; " + document.cookie;
+        var cookieParts = cookieValue.split("; " + name + "=");
+        if (cookieParts.length == 2) {
+            return decodeURIComponent(cookieParts.pop().split(";").shift());
+        }
+        return null;
+    }
+
+    return {
+        CheckAddon,
+        CreateAddon,
+        OpenAddonPopup,
+        yesPcPopHide,
+        yesMobPopHide,
+        CopyUrl,
+        copyToClipboard,
+        CheckAddonBlackList,
+        CheckAddonConsent,
+        UpdateAddonConsent
+    };
+})();
