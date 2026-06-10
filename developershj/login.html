@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API 문서 — YES24 개발자센터</title>
-  <meta http-equiv="refresh" content="0; url=api-goods-item-list.html">
+  <title>로그인 — YES24 개발자센터</title>
   <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
   <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    .login-wrap { min-height: calc(100vh - 65px); display: flex; align-items: center; justify-content: center; padding: 48px 20px; }
+    .login-panel { width: 100%; max-width: 420px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow); }
+    .login-title { font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px; }
+    .login-desc { color: var(--color-text-secondary); margin-bottom: 24px; }
+    .login-links { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; font-size: 13px; }
+  </style>
 </head>
 <body>
 <nav class="nav">
@@ -17,21 +23,39 @@
     </a>
     <div class="nav-divider"></div>
     <ul class="nav-links">
-      <li><a href="docs.html" class="active">문서</a></li>
+      <li><a href="docs.html">문서</a></li>
       <li><a href="api-explorer.html">API 테스트</a></li>
       <li><a href="support.html">지원</a></li>
 
     </ul>
     <div class="nav-actions">
-      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <a href="login.html" class="btn btn-ghost btn-sm active" id="nav-login-btn">로그인</a>
       <span id="nav-user-info" style="display:none;align-items:center;gap:8px;"></span>
       <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
     </div>
   </div>
 </nav>
-<main class="content-container" style="padding:64px 0;">
-  <h1>API 문서로 이동 중입니다</h1>
-  <p><a href="api-goods-item-list.html">Goods API 문서 바로가기</a></p>
+
+<main class="login-wrap">
+  <section class="login-panel">
+    <div class="login-title">로그인</div>
+    <div class="login-desc">API Key 신청 시 입력한 이메일로 로그인하세요.</div>
+    <form id="login-form">
+      <div class="form-field">
+        <label class="form-label" for="email">이메일</label>
+        <input id="email" name="email" type="email" class="form-input" placeholder="you@example.com" required>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="password">비밀번호</label>
+        <input id="password" name="password" type="password" class="form-input" placeholder="비밀번호" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:11px;font-size:15px;margin-top:20px;">로그인</button>
+    </form>
+    <div class="login-links">
+      <a href="api-key-apply.html">API Key 신청</a>
+      <a href="docs-apikey.html">발급 가이드</a>
+    </div>
+  </section>
 </main>
 <footer class="footer">
   <div class="footer-inner">
@@ -70,5 +94,13 @@
   </div>
 </footer>
 <script src="assets/js/main.js"></script>
+<script>
+document.getElementById('login-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  setSession({ email });
+  location.href = 'my-applications.html';
+});
+</script>
 </body>
 </html>

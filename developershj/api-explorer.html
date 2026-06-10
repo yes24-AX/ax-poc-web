@@ -13,19 +13,19 @@
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
       <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
-      <span class="nav-logo-developers">Developers</span>
+      <span class="nav-logo-developers">개발자센터</span>
     </a>
     <div class="nav-divider"></div>
     <ul class="nav-links">
-      <li><a href="docs.html">Docs</a></li>
-      <li><a href="api-explorer.html" class="active">API Explorer</a></li>
-      <li><a href="my-applications.html">My Applications</a></li>
-      <li><a href="support.html">Support</a></li>
+      <li><a href="docs.html">문서</a></li>
+      <li><a href="api-explorer.html" class="active">API 테스트</a></li>
+      <li><a href="support.html">지원</a></li>
+
     </ul>
     <div class="nav-actions">
-      <span class="nav-version-badge">v1.0</span>
-      <a href="my-applications.html" class="btn btn-ghost btn-sm">로그인</a>
-      <a href="api-key-apply.html" class="btn btn-primary btn-sm">API Key 신청</a>
+      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <span id="nav-user-info" style="display:none"></span>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
     </div>
   </div>
 </nav>
@@ -33,54 +33,20 @@
 <div class="explorer-layout">
 
   <aside class="explorer-sidebar">
-    <div class="explorer-sidebar-search">
-      <input type="text" placeholder="Endpoint 검색..." oninput="filterEndpoints(this.value)">
-    </div>
     <div id="endpoint-list">
-      <div class="explorer-group-title">Books API</div>
-      <div class="explorer-endpoint-item active" data-method="GET" data-path="/v1/books" data-desc="도서 검색" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/books</span>
-      </div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/books/{id}" data-desc="도서 상세 조회" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/books/{id}</span>
-      </div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/books/{id}/preview" data-desc="도서 미리보기" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/books/{id}/preview</span>
-      </div>
-      <div class="explorer-group-title" style="margin-top:8px;">Products API</div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/products" data-desc="상품 목록 조회" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/products</span>
-      </div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/products/{id}" data-desc="상품 상세 조회" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/products/{id}</span>
-      </div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/products/bestseller" data-desc="베스트셀러 목록" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/products/bestseller</span>
-      </div>
-      <div class="explorer-group-title" style="margin-top:8px;">Search API</div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/search" data-desc="통합 검색" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/search</span>
-      </div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/search/suggest" data-desc="자동완성" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/search/suggest</span>
-      </div>
-      <div class="explorer-group-title" style="margin-top:8px;">Common Codes API</div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/codes/categories" data-desc="카테고리 코드 목록" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/codes/categories</span>
-      </div>
-      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/codes/publishers" data-desc="출판사 코드 목록" onclick="selectEndpoint(this)">
-        <span class="method-badge method-get" style="font-size:11px;padding:1px 6px;">GET</span>
-        <span class="ep-path">/v1/codes/publishers</span>
-      </div>
+      <div class="explorer-group-title">Category API</div>
+      <div class="explorer-endpoint-item active" data-method="GET" data-path="/v1/category/list" data-desc="카테고리 목록 조회" onclick="selectEndpoint(this)"><span class="ep-path">카테고리 목록 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/category/bestsellerRealtime" data-desc="실시간 베스트셀러 조회" onclick="selectEndpoint(this)"><span class="ep-path">실시간 베스트셀러 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/category/bestseller" data-desc="종합 베스트셀러 조회" onclick="selectEndpoint(this)"><span class="ep-path">종합 베스트셀러 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/category/bestsellerDeal" data-desc="특가 베스트셀러 조회" onclick="selectEndpoint(this)"><span class="ep-path">특가 베스트셀러 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/category/bestsellerSteady" data-desc="스테디셀러 조회" onclick="selectEndpoint(this)"><span class="ep-path">스테디셀러 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/category/newproduct" data-desc="신상품 조회" onclick="selectEndpoint(this)"><span class="ep-path">신상품 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/category/newproductAttention" data-desc="주목할 신상품 조회" onclick="selectEndpoint(this)"><span class="ep-path">주목할 신상품 조회</span></div>
+      <div class="explorer-group-title" style="margin-top:24px;">Goods API</div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/goods/itemList" data-desc="상품 검색" onclick="selectEndpoint(this)"><span class="ep-path">상품 검색</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/goods/itemDetail" data-desc="상품 상세 조회" onclick="selectEndpoint(this)"><span class="ep-path">상품 상세 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/goods/content" data-desc="상품 목차 조회" onclick="selectEndpoint(this)"><span class="ep-path">상품 목차 조회</span></div>
+      <div class="explorer-endpoint-item" data-method="GET" data-path="/v1/goods/author" data-desc="작가 기본 정보 조회" onclick="selectEndpoint(this)"><span class="ep-path">작가 기본 정보 조회</span></div>
     </div>
   </aside>
 
@@ -88,62 +54,33 @@
     <div class="explorer-endpoint-header">
       <div class="explorer-endpoint-title">
         <span class="method-badge method-get" id="ep-method-badge" style="font-size:13px;padding:3px 10px;">GET</span>
-        <h2 id="ep-title">/v1/books</h2>
+        <h2 id="ep-title">카테고리 목록 조회</h2>
       </div>
-      <p id="ep-desc" style="font-size:14px;color:var(--color-text-secondary);margin:0;">도서 검색 — 키워드, ISBN, 저자, 출판사 등으로 도서를 검색합니다.</p>
-      <a id="ep-docs-link" href="api-detail.html" style="font-size:13px;color:var(--color-brand);margin-top:8px;display:inline-block;">→ 상세 문서 보기</a>
+      <p id="ep-desc" style="font-size:14px;color:var(--color-text-secondary);margin:0;">카테고리 목록 조회 — YES24 분야별 카테고리 목록을 조회합니다.</p>
+      <a id="ep-docs-link" href="api-category-list.html" style="font-size:13px;color:var(--color-brand);margin-top:8px;display:inline-block;">→ 상세 문서 보기</a>
     </div>
 
     <div class="explorer-form-section">
       <div class="explorer-form-title">Authorization</div>
       <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;">
-        <label style="font-size:13px;color:var(--color-text-secondary);">Bearer Token</label>
-        <input type="password" id="auth-token" placeholder="Access Token을 입력하세요" style="padding:7px 10px;font-size:13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-bg);color:var(--color-text);font-family:var(--font-mono);outline:none;width:100%;transition:border-color 0.15s;">
+        <label style="font-size:13px;color:var(--color-text-secondary);">X-API-Key</label>
+        <input type="password" id="auth-token" placeholder="발급받은 API Key를 입력하세요" style="padding:7px 10px;font-size:13px;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-bg);color:var(--color-text);font-family:var(--font-mono);outline:none;width:100%;transition:border-color 0.15s;">
       </div>
       <p style="font-size:12px;color:var(--color-text-muted);margin-top:6px;">
-        Token이 없으신가요? <a href="api-key-apply.html">API Key 신청하기</a>에서 즉시 발급받으세요.
+        API Key가 없으신가요? <a href="api-key-apply.html">API Key 신청하기</a>에서 즉시 발급받으세요.
       </p>
     </div>
 
     <div class="explorer-url-bar">
       <span class="explorer-url-method" id="url-method">GET</span>
-      <input type="text" class="explorer-url-input" id="url-input" value="https://api.yes24.com/v1/books" readonly>
+      <input type="text" class="explorer-url-input" id="url-input" value="https://api.yes24.com/v1/category/list" readonly>
       <button class="explorer-url-btn" onclick="executeRequest()">Execute</button>
     </div>
 
     <div class="explorer-form-section" id="params-section">
       <div class="explorer-form-title">Query Parameters</div>
       <div id="params-container">
-        <div class="explorer-param-row">
-          <label>query <span style="color:var(--color-danger);font-size:11px;">*</span></label>
-          <input type="text" placeholder="검색 키워드 (예: 클린코드)" id="param-query">
-          <span style="font-size:12px;color:var(--color-text-muted);">string</span>
-        </div>
-        <div class="explorer-param-row">
-          <label>isbn</label>
-          <input type="text" placeholder="예: 9788966262250" id="param-isbn">
-          <span style="font-size:12px;color:var(--color-text-muted);">string</span>
-        </div>
-        <div class="explorer-param-row">
-          <label>sort</label>
-          <select id="param-sort">
-            <option value="">-- 선택 --</option>
-            <option value="relevance">relevance</option>
-            <option value="pubdate">pubdate</option>
-            <option value="sales">sales</option>
-          </select>
-          <span style="font-size:12px;color:var(--color-text-muted);">enum</span>
-        </div>
-        <div class="explorer-param-row">
-          <label>page</label>
-          <input type="number" placeholder="1" min="1" id="param-page">
-          <span style="font-size:12px;color:var(--color-text-muted);">integer</span>
-        </div>
-        <div class="explorer-param-row">
-          <label>size</label>
-          <input type="number" placeholder="20" min="1" max="100" id="param-size">
-          <span style="font-size:12px;color:var(--color-text-muted);">integer</span>
-        </div>
+        <p style="font-size:13px;color:var(--color-text-muted);margin:0;">요청 Query Parameter가 없습니다.</p>
       </div>
     </div>
 
@@ -166,60 +103,349 @@
     </div>
   </main>
 </div>
-
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-brand">
+        <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="28" style="display:block;">
+      </a>
+      <p class="footer-desc">YES24 Open API Developer Portal</p>
+      <p class="footer-copy">© 2026 YES24 Co., Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-link-group">
+        <h4>문서</h4>
+        <ul>
+          <li><a href="docs.html">시작하기</a></li>
+          <li><a href="api-catalog.html">API 카탈로그</a></li>
+          <li><a href="api-goods-item-list.html">API 문서</a></li>
+          <li><a href="docs-error-codes.html">오류 코드</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API 테스트</a></li>
+          <li><a href="my-applications.html">내 애플리케이션</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>지원</h4>
+        <ul>
+          <li><a href="support.html">공지사항</a></li>
+          <li><a href="support-faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
 <script src="assets/js/main.js"></script>
 <script>
-const ENDPOINTS = {
-  '/v1/books': { method:'GET', desc:'도서 검색 — 키워드, ISBN, 저자, 출판사 등으로 도서를 검색합니다.', docs:'api-detail.html',
-    mock:{ success:true, data:[{ id:"BK0001234", isbn:"9788966262250", title:"클린 코드", author:"로버트 C. 마틴", publisher:"인사이트", pubdate:"2013-12-24", price:33000, salePrice:29700, discount:10, salesRank:12, rating:4.7, reviewCount:482 }], meta:{ total:47, page:1, size:20, totalPages:3 } }},
-  '/v1/books/{id}': { method:'GET', desc:'도서 상세 조회 — 특정 도서의 상세 정보를 반환합니다.', docs:'api-detail.html#books-id',
-    mock:{ success:true, data:{ id:"BK0001234", isbn:"9788966262250", title:"클린 코드", author:"로버트 C. 마틴", publisher:"인사이트", pages:584 } }},
-  '/v1/books/{id}/preview': { method:'GET', desc:'도서 미리보기 — 도서 본문 미리보기 페이지를 반환합니다.', docs:'api-detail.html#books-preview',
-    mock:{ success:true, data:{ id:"BK0001234", previewPages:[{ page:1, content:"1장. 깨끗한 코드..." }], totalPreviewPages:10 } }},
-  '/v1/products': { method:'GET', desc:'상품 목록 조회 — YES24 판매 상품의 가격 및 재고 정보를 조회합니다.', docs:'#',
-    mock:{ success:true, data:[{ id:"PROD001", name:"클린 코드", price:33000, salePrice:29700, stock:50, status:"ON_SALE" }], meta:{ total:120, page:1, size:20 } }},
-  '/v1/products/{id}': { method:'GET', desc:'상품 상세 조회 — 특정 상품의 상세 가격 및 재고 정보를 반환합니다.', docs:'#',
-    mock:{ success:true, data:{ id:"PROD001", name:"클린 코드", price:33000, salePrice:29700, stock:50, status:"ON_SALE" } }},
-  '/v1/products/bestseller': { method:'GET', desc:'베스트셀러 목록 — 카테고리별 베스트셀러 상품 목록을 반환합니다.', docs:'#',
-    mock:{ success:true, data:[{ rank:1, id:"BK0001234", title:"클린 코드", author:"로버트 C. 마틴", salePrice:29700 }, { rank:2, id:"BK0005678", title:"리팩터링 2판", author:"마틴 파울러", salePrice:36000 }] }},
-  '/v1/search': { method:'GET', desc:'통합 검색 — YES24 상품 전체를 대상으로 검색합니다.', docs:'#',
-    mock:{ success:true, data:{ books:[], products:[], total:0 }, meta:{ query:"클린코드", took:12 } }},
-  '/v1/search/suggest': { method:'GET', desc:'자동완성 — 입력 키워드에 대한 자동완성 후보어를 반환합니다.', docs:'#',
-    mock:{ success:true, data:["클린 코드", "클린 아키텍처", "클린 코딩"] }},
-  '/v1/codes/categories': { method:'GET', desc:'카테고리 코드 목록 — YES24 상품 카테고리 분류 체계를 반환합니다.', docs:'#',
-    mock:{ success:true, data:[{ code:"IT001", name:"IT > 개발/프로그래밍", depth:2 }, { code:"IT002", name:"IT > 데이터베이스", depth:2 }] }},
-  '/v1/codes/publishers': { method:'GET', desc:'출판사 코드 목록 — YES24 등록 출판사 코드와 이름을 반환합니다.', docs:'#',
-    mock:{ success:true, data:[{ code:"PUB001", name:"인사이트" }, { code:"PUB002", name:"한빛미디어" }, { code:"PUB003", name:"위키북스" }] }}
+const PARAM_SETS = {
+  bestseller: [
+    { name:'cetegoryId', type:'string', required:true, placeholder:'예: 001', defaultValue:'001', desc:'카테고리 ID' },
+    { name:'sex', type:'string', required:false, defaultValue:'A', options:['A','M','F'], desc:'성별 필터' },
+    { name:'age', type:'integer', required:false, defaultValue:'255', options:['255','10','20','30','40','50','60'], desc:'연령 필터' },
+    { name:'page', type:'integer', required:false, defaultValue:'1', desc:'페이지 번호' },
+    { name:'pageSize', type:'integer', required:false, defaultValue:'20', desc:'페이지 크기, 최대 100' },
+    { name:'detail', type:'string', required:false, defaultValue:'N', options:['N','Y'], desc:'상세 정보 포함 여부' }
+  ],
+  newProduct: [
+    { name:'cetegoryId', type:'string', required:true, placeholder:'예: 001', defaultValue:'001', desc:'카테고리 ID' },
+    { name:'sort', type:'string', required:false, defaultValue:'RegDate', options:['RegDate','Sales','New','LowPrice','HighPrice','Name'], desc:'정렬 코드' },
+    { name:'page', type:'integer', required:false, defaultValue:'1', desc:'페이지 번호' },
+    { name:'pageSize', type:'integer', required:false, defaultValue:'20', desc:'페이지 크기, 최대 100' },
+    { name:'detail', type:'string', required:false, defaultValue:'N', options:['N','Y'], desc:'상세 정보 포함 여부' }
+  ],
+  goodsLookup: [
+    { name:'searchType', type:'string', required:true, defaultValue:'ISBN13', options:['ISBN13','ItemId'], desc:'검색 유형' },
+    { name:'query', type:'string', required:true, placeholder:'예: 9788966260959', defaultValue:'9788966260959', desc:'ISBN13 값 또는 상품 번호' }
+  ],
+  goodsDetail: [
+    { name:'searchType', type:'string', required:true, defaultValue:'ISBN13', options:['ISBN13','ItemId'], desc:'검색 유형' },
+    { name:'query', type:'string', required:true, placeholder:'예: 9788966260959', defaultValue:'9788966260959', desc:'ISBN13 값 또는 상품 번호' },
+    { name:'detail', type:'string', required:false, defaultValue:'N', options:['N','Y'], desc:'상세 정보 포함 여부' }
+  ]
 };
+
+const ENDPOINTS = {
+  '/v1/category/list': { method:'GET', desc:'카테고리 목록 조회 — YES24 분야별 카테고리 목록을 조회합니다.', docs:'api-category-list.html', params:[], mock:{ success:true, message:'성공', data:{ data:[{ categoryId:'001', categoryName:'국내도서' }] }, errorCode:null }},
+  '/v1/category/bestsellerRealtime': { method:'GET', desc:'실시간 베스트셀러 조회 — 지정 카테고리의 실시간 베스트셀러 목록을 조회합니다.', docs:'api-category-bestseller-realtime.html', params:[PARAM_SETS.bestseller[0], PARAM_SETS.bestseller[5]], mock:{ success:true, message:'성공', data:{ items:[{ sortOrder:1, itemId:12345678, title:'클린 코드' }] }, errorCode:null }},
+  '/v1/category/bestseller': { method:'GET', desc:'종합 베스트셀러 조회 — 성별·연령 필터를 적용한 종합 베스트셀러를 조회합니다.', docs:'api-category-bestseller.html', params:PARAM_SETS.bestseller, mock:{ success:true, message:'성공', data:{ currentPage:1, pageSize:20, items:[{ sortOrder:1, itemId:12345678, title:'클린 코드' }] }, errorCode:null }},
+  '/v1/category/bestsellerDeal': { method:'GET', desc:'특가 베스트셀러 조회 — 특가 집계 기준 베스트셀러 목록을 조회합니다.', docs:'api-category-bestseller-deal.html', params:PARAM_SETS.bestseller, mock:{ success:true, message:'성공', data:{ items:[{ sortOrder:1, itemId:22334455, title:'특가 도서' }] }, errorCode:null }},
+  '/v1/category/bestsellerSteady': { method:'GET', desc:'스테디셀러 조회 — 장기간 꾸준히 판매되는 상품 목록을 조회합니다.', docs:'api-category-bestseller-steady.html', params:PARAM_SETS.bestseller, mock:{ success:true, message:'성공', data:{ items:[{ sortOrder:1, itemId:99887766, title:'스테디셀러 도서' }] }, errorCode:null }},
+  '/v1/category/newproduct': { method:'GET', desc:'신상품 조회 — 특정 카테고리의 신상품 목록을 조회합니다.', docs:'api-category-newproduct.html', params:PARAM_SETS.newProduct, mock:{ success:true, message:'성공', data:{ items:[{ sortOrder:1, itemId:11223344, title:'새로 나온 책' }] }, errorCode:null }},
+  '/v1/category/newproductAttention': { method:'GET', desc:'주목할 신상품 조회 — 편집 기준으로 선별된 주목할 신상품을 조회합니다.', docs:'api-category-newproduct-attention.html', params:PARAM_SETS.newProduct, mock:{ success:true, message:'성공', data:{ items:[{ sortOrder:1, itemId:55667788, title:'주목할 신상품' }] }, errorCode:null }},
+  '/v1/goods/itemList': { method:'GET', desc:'상품 검색 — 검색어로 상품 목록을 페이지 조회합니다.', docs:'api-goods-item-list.html', params:[
+    { name:'query', type:'string', required:true, placeholder:'예: 클린 코드', defaultValue:'클린 코드', desc:'검색어' },
+    { name:'category', type:'string', required:false, defaultValue:'ALL', options:['ALL','BOOK','FOREIGN','EBOOK','MUSIC','DVD'], desc:'검색 카테고리' },
+    { name:'sort', type:'string', required:false, defaultValue:'DEFAULT', options:['DEFAULT','RELATION','RECENT','REG_DTS'], desc:'정렬 방식' },
+    { name:'page', type:'integer', required:false, defaultValue:'1', desc:'페이지 번호' },
+    { name:'pageSize', type:'integer', required:false, defaultValue:'20', desc:'페이지 크기' },
+    { name:'detail', type:'string', required:false, defaultValue:'N', options:['N','Y'], desc:'상세 정보 포함 여부' }
+  ], mock:{ success:true, message:'성공', data:{ items:[{ itemId:12345678, title:'클린 코드', isbn13:'9788966260959' }] }, errorCode:null }},
+  '/v1/goods/itemDetail': { method:'GET', desc:'상품 상세 조회 — 상품 번호 또는 ISBN13으로 상품 상세 정보를 조회합니다.', docs:'api-goods-item-detail.html', params:PARAM_SETS.goodsDetail, mock:{ success:true, message:'성공', data:{ itemId:12345678, title:'클린 코드', isbn13:'9788966260959' }, errorCode:null }},
+  '/v1/goods/content': { method:'GET', desc:'상품 목차 조회 — 상품 번호 또는 ISBN13으로 상품 목차 정보를 조회합니다.', docs:'api-goods-content.html', params:PARAM_SETS.goodsLookup, mock:{ success:true, message:'성공', data:{ itemId:12345678, contents:'1장 소개\n2장 의미 있는 이름' }, errorCode:null }},
+  '/v1/goods/author': { method:'GET', desc:'작가 기본 정보 조회 — 상품 번호 또는 ISBN13으로 작가 기본 정보를 조회합니다.', docs:'api-goods-author.html', params:PARAM_SETS.goodsLookup, mock:{ success:true, message:'성공', data:{ authorId:100001, author:'Robert C. Martin' }, errorCode:null }}
+};
+
+const RESPONSE_TITLES = {
+  '/v1/category/list': '카테고리 목록 조회',
+  '/v1/category/bestsellerRealtime': '실시간 베스트셀러 조회',
+  '/v1/category/bestseller': '종합 베스트셀러 조회',
+  '/v1/category/bestsellerDeal': '특가 베스트셀러 조회',
+  '/v1/category/bestsellerSteady': '스테디셀러 조회',
+  '/v1/category/newproduct': '신상품 조회',
+  '/v1/category/newproductAttention': '주목할 신상품 조회',
+  '/v1/goods/itemList': '상품 검색',
+  '/v1/goods/itemDetail': '상품 상세 조회',
+  '/v1/goods/content': '상품 목차 조회',
+  '/v1/goods/author': '작가 기본 정보 조회'
+};
+
+function currentParamValues(ep) {
+  const values = {};
+  ep.params.forEach(param => {
+    const value = document.getElementById(`param-${param.name}`)?.value.trim();
+    values[param.name] = value || param.defaultValue || '';
+  });
+  return values;
+}
+
+function apiSuccess(data) {
+  return {
+    success: true,
+    message: '성공',
+    data,
+    errorCode: null
+  };
+}
+
+function responseMeta(path, params) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([name, value]) => {
+    if (value) query.set(name, value);
+  });
+  const queryString = query.toString();
+  return {
+    apiTitle: RESPONSE_TITLES[path] || path,
+    apiLink: `https://api.yes24.com${path}`,
+    logoUrl: 'https://www.yes24.com/favicon.ico',
+    pubDate: '2026-06-08T00:00:00.0000000Z',
+    query: queryString ? `?${queryString}` : '',
+    version: 'v1'
+  };
+}
+
+function goodsSimpleItem(overrides = {}, includeDetail = false) {
+  const item = {
+    sortOrder: overrides.sortOrder || 1,
+    itemId: overrides.itemId || 12345678,
+    title: overrides.title || '클린 코드',
+    author: overrides.author || '로버트 C. 마틴',
+    goodsType: 'BOOK',
+    adultYn: 'N',
+    publisher: overrides.publisher || '인사이트',
+    isbn10: overrides.isbn10 || '8966260950',
+    isbn13: overrides.isbn13 || '9788966260959',
+    shopPrice: overrides.shopPrice || 33000,
+    salePrice: overrides.salePrice || 29700,
+    publishDate: overrides.publishDate || '2013-12-24',
+    itemStatus: '판매중',
+    cover: `https://image.yes24.com/goods/${overrides.itemId || 12345678}/L`,
+    link: `https://www.yes24.com/Product/Goods/${overrides.itemId || 12345678}`
+  };
+  if (includeDetail) {
+    item.contentDetail = {
+      summary: '좋은 코드와 나쁜 코드를 구분하고, 읽기 쉬운 코드로 개선하는 방법을 설명합니다.',
+      contents: '1장 깨끗한 코드\n2장 의미 있는 이름\n3장 함수\n4장 주석'
+    };
+  }
+  return item;
+}
+
+function goodsListItems(path, includeDetail) {
+  if (path === '/v1/category/bestsellerDeal') {
+    return [
+      goodsSimpleItem({ sortOrder:1, itemId:22334455, title:'하루 한 장 초등 문해력', author:'김지영', publisher:'YES24 기획', isbn13:'9791190000001', salePrice:13500, shopPrice:15000, publishDate:'2026-05-20' }, includeDetail),
+      goodsSimpleItem({ sortOrder:2, itemId:22334456, title:'특가로 만나는 경제 입문', author:'박준서', publisher:'위즈덤하우스', isbn13:'9791190000002', salePrice:16200, shopPrice:18000, publishDate:'2026-04-15' }, includeDetail)
+    ];
+  }
+  if (path === '/v1/category/bestsellerSteady') {
+    return [
+      goodsSimpleItem({ sortOrder:1, itemId:99887766, title:'불편한 편의점', author:'김호연', publisher:'나무옆의자', isbn13:'9791161571188', salePrice:12600, shopPrice:14000, publishDate:'2021-04-20' }, includeDetail),
+      goodsSimpleItem({ sortOrder:2, itemId:99887767, title:'아몬드', author:'손원평', publisher:'창비', isbn13:'9788936434267', salePrice:10800, shopPrice:12000, publishDate:'2017-03-31' }, includeDetail)
+    ];
+  }
+  if (path === '/v1/category/newproduct' || path === '/v1/category/newproductAttention') {
+    return [
+      goodsSimpleItem({ sortOrder:1, itemId:11223344, title:'AI 시대의 독서법', author:'이서윤', publisher:'북스톤', isbn13:'9791190000101', salePrice:17100, shopPrice:19000, publishDate:'2026-06-01' }, includeDetail),
+      goodsSimpleItem({ sortOrder:2, itemId:55667788, title:'주목할 신상품 큐레이션', author:'편집부', publisher:'YES24', isbn13:'9791190000102', salePrice:15300, shopPrice:17000, publishDate:'2026-05-28' }, includeDetail)
+    ];
+  }
+  return [
+    goodsSimpleItem({}, includeDetail),
+    goodsSimpleItem({ sortOrder:2, itemId:87654321, title:'실용주의 프로그래머', author:'앤드류 헌트, 데이비드 토머스', publisher:'인사이트', isbn13:'9788966263363', salePrice:29700, shopPrice:33000, publishDate:'2022-02-24' }, includeDetail)
+  ];
+}
+
+function buildMockResponse(path, ep) {
+  const params = currentParamValues(ep);
+  const meta = responseMeta(path, params);
+
+  if (path === '/v1/category/list') {
+    return apiSuccess({
+      meta,
+      data: [
+        { categoryId:'001', categoryName:'국내도서', categoryFullPath:'국내도서', categoryUrl:'https://www.yes24.com/Product/Category/Display/001' },
+        { categoryId:'002', categoryName:'외국도서', categoryFullPath:'외국도서', categoryUrl:'https://www.yes24.com/Product/Category/Display/002' },
+        { categoryId:'017', categoryName:'eBook', categoryFullPath:'eBook', categoryUrl:'https://www.yes24.com/Product/Category/Display/017' }
+      ]
+    });
+  }
+
+  if (path === '/v1/goods/itemDetail') {
+    return apiSuccess({
+      meta,
+      data: {
+        ...goodsSimpleItem({ sortOrder:1 }, params.detail === 'Y'),
+        subTitle: '애자일 소프트웨어 장인 정신',
+        originalTitle: 'Clean Code',
+        originalTranslation: 'Y',
+        pages: 584,
+        weight: 920,
+        size: '188*235*35mm',
+        goodsIntro: '소프트웨어 장인 정신과 클린 코드 원칙을 실무 예제로 설명하는 개발서입니다.',
+        categoryId: '001001003',
+        categoryName: '국내도서 > IT 모바일 > 프로그래밍'
+      }
+    });
+  }
+
+  if (path === '/v1/goods/content') {
+    return apiSuccess({
+      meta,
+      data: {
+        itemId: 12345678,
+        isbn13: params.searchType === 'ISBN13' ? params.query : '9788966260959',
+        title: '클린 코드',
+        contents: '1장 깨끗한 코드\n2장 의미 있는 이름\n3장 함수\n4장 주석\n5장 형식 맞추기\n6장 객체와 자료 구조'
+      }
+    });
+  }
+
+  if (path === '/v1/goods/author') {
+    return apiSuccess({
+      meta,
+      data: {
+        itemId: 12345678,
+        isbn13: params.searchType === 'ISBN13' ? params.query : '9788966260959',
+        authorId: 100001,
+        author: '로버트 C. 마틴',
+        authorType: '저자',
+        birthDate: '1952-12-05',
+        deathDate: '',
+        debutTitle: 'Clean Code',
+        details: '소프트웨어 장인 정신과 클린 코드 분야의 대표 저자입니다.',
+        link: 'https://www.yes24.com/Product/Search?domain=ALL&query=로버트%20C.%20마틴'
+      }
+    });
+  }
+
+  const page = Number(params.page || 1);
+  const pageSize = Number(params.pageSize || 20);
+  return apiSuccess({
+    meta,
+    items: goodsListItems(path, params.detail === 'Y'),
+    currentPage: Number.isFinite(page) ? page : 1,
+    pageSize: Number.isFinite(pageSize) ? pageSize : 20,
+    totalCount: path === '/v1/goods/itemList' ? 42 : 100
+  });
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[char]));
+}
+
+function currentPath() {
+  return document.querySelector('.explorer-endpoint-item.active')?.dataset.path || '/v1/category/list';
+}
+
+function paramInput(param) {
+  const id = `param-${param.name}`;
+  if (param.options) {
+    return `<select id="${id}" data-param="${escapeHtml(param.name)}" onchange="updateRequestUrl()">
+      ${param.options.map(option => `<option value="${escapeHtml(option)}"${option === param.defaultValue ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+    </select>`;
+  }
+  const inputType = param.type === 'integer' ? 'number' : 'text';
+  const attrs = param.type === 'integer' ? ' min="1"' : '';
+  return `<input type="${inputType}" id="${id}" data-param="${escapeHtml(param.name)}" placeholder="${escapeHtml(param.placeholder || param.defaultValue || '')}" value="${escapeHtml(param.defaultValue || '')}"${attrs} oninput="updateRequestUrl()">`;
+}
+
+function renderParams(ep) {
+  const container = document.getElementById('params-container');
+  if (!ep.params.length) {
+    container.innerHTML = '<p style="font-size:13px;color:var(--color-text-muted);margin:0;">요청 Query Parameter가 없습니다.</p>';
+    return;
+  }
+  container.innerHTML = ep.params.map(param => `
+    <div class="explorer-param-row">
+      <label>${escapeHtml(param.name)}${param.required ? ' <span style="color:var(--color-danger);font-size:11px;">*</span>' : ''}</label>
+      ${paramInput(param)}
+      <span style="font-size:12px;color:var(--color-text-muted);">${escapeHtml(param.type)}</span>
+      <div style="grid-column:2 / 4;font-size:12px;color:var(--color-text-muted);margin-top:-4px;">${escapeHtml(param.desc || '')}</div>
+    </div>
+  `).join('');
+}
+
+function updateRequestUrl() {
+  const path = currentPath();
+  const ep = ENDPOINTS[path];
+  const query = new URLSearchParams();
+  ep.params.forEach(param => {
+    const value = document.getElementById(`param-${param.name}`)?.value.trim();
+    if (value || param.required) query.set(param.name, value || param.defaultValue || '');
+  });
+  const queryString = query.toString();
+  document.getElementById('url-input').value = `https://api.yes24.com${path}${queryString ? `?${queryString}` : ''}`;
+}
 
 function selectEndpoint(el) {
   document.querySelectorAll('.explorer-endpoint-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   const ep = ENDPOINTS[el.dataset.path];
   if (!ep) return;
-  document.getElementById('ep-title').textContent = el.dataset.path;
+  document.getElementById('ep-title').textContent = el.dataset.desc || el.dataset.path;
   document.getElementById('ep-method-badge').textContent = ep.method;
   document.getElementById('ep-method-badge').className = `method-badge method-${ep.method.toLowerCase()}`;
   document.getElementById('url-method').textContent = ep.method;
-  document.getElementById('url-input').value = `https://api.yes24.com${el.dataset.path}`;
   document.getElementById('ep-desc').textContent = ep.desc;
   document.getElementById('ep-docs-link').href = ep.docs;
+  renderParams(ep);
+  updateRequestUrl();
   clearResponse();
 }
 
 function executeRequest() {
   const token = document.getElementById('auth-token').value.trim();
   if (!token) {
-    showResponse({ success:false, error:{ code:"AUTH_001", message:"Access Token이 필요합니다.", docs:"https://developers.yes24.com/docs-apikey.html" } }, 401, 0);
+    showResponse({ success:false, error:{ code:"AUTH_001", message:"API Key가 필요합니다.", docs:"https://developers.yes24.com/docs-apikey.html" } }, 401, 0);
     return;
   }
-  const path = document.querySelector('.explorer-endpoint-item.active')?.dataset.path || '/v1/books';
+  const path = currentPath();
   const ep = ENDPOINTS[path];
   document.getElementById('response-placeholder').style.display = 'none';
   document.getElementById('response-output').style.display = 'block';
   document.getElementById('response-output').textContent = '요청 중...';
   const start = Date.now();
-  setTimeout(() => showResponse(ep.mock, 200, Date.now() - start), 600 + Math.random() * 400);
+  setTimeout(() => showResponse(buildMockResponse(path, ep), 200, Date.now() - start), 600 + Math.random() * 400);
 }
 
 function showResponse(data, status, ms) {
@@ -244,11 +470,8 @@ function clearResponse() {
   document.getElementById('clear-btn').style.display = 'none';
 }
 
-function filterEndpoints(val) {
-  document.querySelectorAll('.explorer-endpoint-item').forEach(item => {
-    item.style.display = (item.dataset.path || '').toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
-  });
-}
+renderParams(ENDPOINTS[currentPath()]);
+updateRequestUrl();
 </script>
 </body>
 </html>
