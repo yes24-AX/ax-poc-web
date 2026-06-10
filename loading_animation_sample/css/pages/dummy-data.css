@@ -1,0 +1,283 @@
+/* ─── Dummy Data Generator Page ──────────────────────────────────────────────── */
+
+@keyframes dd-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Top row: format + table name + count */
+.dd-top-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.dd-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 160px;
+}
+
+.dd-label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 2px;
+}
+
+/* Format radio chips */
+.dd-format-wrap {
+    display: flex;
+    gap: 8px;
+}
+
+.dd-format-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    background: var(--card);
+    transition: border-color .15s, color .15s, background .15s;
+    user-select: none;
+}
+
+.dd-format-chip input[type="radio"] {
+    display: none;
+}
+
+.dd-format-chip:has(input:checked) {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.dd-format-chip span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.dd-chip-icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+/* Text inputs */
+.dd-input {
+    height: 38px;
+    padding: 0 10px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--background);
+    color: var(--foreground);
+    font-size: .875rem;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+}
+.dd-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+.dd-count-input {
+    width: 110px;
+}
+
+/* Schema textarea */
+.dd-textarea {
+    width: 100%;
+    min-height: 180px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--background);
+    color: var(--foreground);
+    font-size: .8rem;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color .15s, box-shadow .15s;
+}
+.dd-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+.dd-textarea::placeholder {
+    color: var(--muted-foreground);
+    opacity: .7;
+}
+
+.dd-hint {
+    font-size: .775rem;
+    color: var(--muted-foreground);
+    margin-top: 4px;
+}
+
+/* Parsed preview table */
+.dd-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: .75rem;
+    font-weight: 600;
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
+}
+
+.dd-preview-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.dd-preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .82rem;
+}
+
+.dd-preview-table th {
+    padding: 8px 12px;
+    text-align: left;
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-weight: 600;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.dd-preview-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.dd-preview-table tr:last-child td {
+    border-bottom: none;
+}
+
+.dd-preview-table tr:hover td {
+    background: color-mix(in srgb, var(--primary) 4%, transparent);
+}
+
+.dd-col-name {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.dd-type-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: .75rem;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    background: color-mix(in srgb, var(--muted-foreground) 12%, transparent);
+    color: var(--muted-foreground);
+}
+
+.dd-col-len {
+    font-size: .8rem;
+    color: var(--muted-foreground);
+    text-align: center;
+}
+
+.dd-null-yes {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: .72rem;
+    font-weight: 600;
+    background: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #b45309;
+}
+
+.dd-null-no {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: .72rem;
+    font-weight: 600;
+    background: color-mix(in srgb, #10b981 12%, transparent);
+    color: #065f46;
+}
+
+.dark .dd-null-yes { color: #fcd34d; }
+.dark .dd-null-no  { color: #6ee7b7; }
+
+.dd-col-cb {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* Result area */
+.dd-result-wrap {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.dd-result-pre {
+    margin: 0;
+    padding: 16px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: .8rem;
+    line-height: 1.7;
+    color: var(--foreground);
+    background: var(--muted);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 520px;
+    overflow-y: auto;
+}
+
+.dd-copy-feedback {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: .8rem;
+    color: #10b981;
+    font-weight: 500;
+}
+
+/* Responsive */
+@@media (max-width: 640px) {
+    .dd-top-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .dd-format-wrap {
+        flex-direction: column;
+    }
+    .dd-count-input {
+        width: 100%;
+    }
+}
+
+/* Provider chips (smaller than format chips) */
+.dd-provider-chip {
+    padding: 5px 12px;
+    font-size: .8rem;
+}

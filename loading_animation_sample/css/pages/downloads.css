@@ -1,0 +1,81 @@
+/* ============================================================
+   Downloads 페이지 전용 CSS
+   공통 구조/버튼/카드/테이블/폼은 dashboard.css 사용.
+   ============================================================ */
+
+/* --- 요약 통계 바 (reviews.css rsb 구조 재활용) --- */
+.dl-summary-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.dl-stat {
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.dl-stat-label {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: var(--muted-foreground);
+}
+.dl-stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--foreground);
+    line-height: 1.1;
+}
+.dl-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+}
+.dl-aos   { color: #3ddc84; }
+.dl-ios   { color: #555; }
+.dl-total { color: var(--primary); }
+
+/* --- 플랫폼 배지 --- */
+.badge-aos {
+    background: rgba(61, 220, 132, 0.12);
+    color: #2a9e60;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.badge-ios {
+    background: rgba(100, 100, 200, 0.12);
+    color: #4a4aaa;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* --- 다운로드 수 강조 --- */
+.dl-count {
+    font-weight: 700;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- 필터 폼 --- */
+.dl-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: flex-end;
+    margin-bottom: 0.75rem;
+}
+.dl-filter-row .form-select,
+.dl-filter-row .form-input {
+    min-width: 130px;
+}

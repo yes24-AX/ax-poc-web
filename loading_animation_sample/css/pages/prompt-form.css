@@ -1,0 +1,53 @@
+.form-layout { max-width: 720px; }
+.form-main { display: flex; flex-direction: column; gap: .6rem; }
+.form-group { display: flex; flex-direction: column; gap: .3rem; }
+.form-label { font-size: .82rem; font-weight: 600; color: var(--foreground); }
+.form-required { color: oklch(0.55 0.2 15); }
+.form-hint { font-size: .72rem; color: var(--muted-foreground); margin-bottom: .15rem; }
+.form-input {
+    padding: .5rem .65rem; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--background); color: var(--foreground); font-size: .85rem;
+    font-family: inherit; outline: none;
+    transition: border-color .12s, box-shadow .12s;
+}
+.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in oklch, var(--primary) 14%, transparent); }
+.form-textarea {
+    padding: .5rem .65rem; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--background); color: var(--foreground); font-size: .85rem;
+    font-family: inherit; outline: none; resize: vertical; min-height: 60px; line-height: 1.6;
+    transition: border-color .12s, box-shadow .12s;
+}
+.form-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in oklch, var(--primary) 14%, transparent); }
+.form-code { font-family: 'Paperlogy', monospace; font-size: .82rem; }
+.form-toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
+.form-toggle input { display: none; }
+.form-toggle-slider {
+    position: absolute; inset: 0; border-radius: 999px; background: var(--muted);
+    border: 1px solid var(--border); cursor: pointer; transition: background .2s;
+}
+.form-toggle-slider::before {
+    content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--foreground); left: 2px; top: 50%; transform: translateY(-50%); transition: transform .2s;
+}
+.form-toggle input:checked + .form-toggle-slider { background: var(--primary); border-color: var(--primary); }
+.form-toggle input:checked + .form-toggle-slider::before { transform: translateY(-50%) translateX(16px); background: var(--primary-foreground); }
+
+.prompt-toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+    padding: .6rem 1.1rem; border-radius: var(--radius);
+    font-size: .82rem; font-weight: 500;
+    background: var(--foreground); color: var(--background);
+    opacity: 0; transform: translateY(10px);
+    transition: opacity .2s, transform .2s; pointer-events: none;
+}
+.prompt-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.prompt-toast.error { background: var(--destructive); color: #fff; }
+
+/* Utility — page layout helpers */
+.u-flex-center-gap { display: flex; align-items: center; gap: .5rem; }
+.u-flex-end-gap { display: flex; justify-content: flex-end; gap: .5rem; padding-top: .5rem; border-top: 1px solid var(--border); margin-top: .5rem; }
+.u-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.u-icon-sm { width: 16px; height: 16px; }
+.u-icon-xs { width: 13px; height: 13px; }
+.u-btn-back { padding: 5px 8px; }
+.form-public-label { font-size: .82rem; color: var(--muted-foreground); }
