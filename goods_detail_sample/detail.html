@@ -3726,28 +3726,87 @@
 
                     <!-- #####0000000000 태그 영역 시작 0000000000##### -->
                     <div id="GoodsTag" class="gdBotSec gdTocSec tocTag">
+                        <style>
+                            /* AI 태그: 기존 태그(pill) UI를 그대로 따르되, AI 생성분만 옅은 포인트 컬러로 구분 */
+                            #yDetailBot .gdBotSec.tocTag .secContTag .tag.tagAi a {
+                                border-color: #c9d0fb;
+                                color: #4250c4;
+                                background-color: #f4f6ff;
+                                padding-left: 25px;
+                                position: relative;
+                            }
+                            #yDetailBot .gdBotSec.tocTag .secContTag .tag.tagAi a::before {
+                                content: "✨";
+                                position: absolute;
+                                left: 9px;
+                                top: 0;
+                                font-size: 11px;
+                            }
+                            #yDetailBot .gdBotSec.tocTag .secContTag .tag.tagAi.on a {
+                                border-color: #4250c4;
+                                color: #2f3aa8;
+                                font-weight: 600;
+                                background-color: #fff;
+                            }
+                            /* AI 태그 구분 라벨 (한 줄, 최소 높이) */
+                            #yDetailBot .gdBotSec.tocTag .tagAiLabel {
+                                display: inline-flex;
+                                align-items: center;
+                                margin: 0 15px 8px;
+                                font-size: 11px;
+                                line-height: 16px;
+                            }
+                            #yDetailBot .gdBotSec.tocTag .tagAiLabel .ico {
+                                display: inline-block;
+                                padding: 2px 6px;
+                                border-radius: 4px;
+                                background: linear-gradient(135deg, #5b6ef5, #8a5cf6);
+                                color: #fff;
+                                font-size: 10px;
+                                font-weight: 700;
+                                letter-spacing: 0.3px;
+                            }
+                        </style>
                         <div class="botTitSec">
                             <h3 class="tit_txt">이 상품의 태그</h3>
                         </div>
                         <div class="secCont">
                             <div class="secContTag" id="tagArea">
-                                <span class="tag on" data-hashtagno="5244" data-hashtagnm="새해나의첫책">
+                                <!-- AI 자동 생성 태그 (기존과 동일하게 클릭 시 연관 상품 노출) -->
+                                <span class="tag tagAi on" data-hashtagno="99001" data-hashtagnm="마음의위로">
+                                    <a href="javascript:void(0);"
+                                        onclick="getTagGoodsList(this, &#39;99001&#39;, &#39;마음의위로&#39;, &#39;147560984&#39;);">#마음의위로</a>
+                                </span>
+                                <span class="tag tagAi" data-hashtagno="99002" data-hashtagnm="김애란의시선">
+                                    <a href="javascript:void(0);"
+                                        onclick="getTagGoodsList(this, &#39;99002&#39;, &#39;김애란의시선&#39;, &#39;147560984&#39;);">#김애란의시선</a>
+                                </span>
+                                <span class="tag tagAi" data-hashtagno="99003" data-hashtagnm="관계와위로">
+                                    <a href="javascript:void(0);"
+                                        onclick="getTagGoodsList(this, &#39;99003&#39;, &#39;관계와위로&#39;, &#39;147560984&#39;);">#관계와위로</a>
+                                </span>
+                                <span class="tag tagAi" data-hashtagno="99004" data-hashtagnm="상실속온기">
+                                    <a href="javascript:void(0);"
+                                        onclick="getTagGoodsList(this, &#39;99004&#39;, &#39;상실속온기&#39;, &#39;147560984&#39;);">#상실속온기</a>
+                                </span>
+                                <!-- 담당자 직접 등록 태그 -->
+                                <span class="tag" data-hashtagno="5244" data-hashtagnm="새해나의첫책">
                                     <a href="javascript:void(0);"
                                         onclick="getTagGoodsList(this, &#39;5244&#39;, &#39;새해나의첫책&#39;, &#39;147560984&#39;);">#새해나의첫책</a>
                                 </span>
-                                <span class="tag " data-hashtagno="6968" data-hashtagnm="이동진의올해의책">
+                                <span class="tag" data-hashtagno="6968" data-hashtagnm="이동진의올해의책">
                                     <a href="javascript:void(0);"
                                         onclick="getTagGoodsList(this, &#39;6968&#39;, &#39;이동진의올해의책&#39;, &#39;147560984&#39;);">#이동진의올해의책</a>
                                 </span>
-                                <span class="tag " data-hashtagno="2716" data-hashtagnm="올해의책">
+                                <span class="tag" data-hashtagno="2716" data-hashtagnm="올해의책">
                                     <a href="javascript:void(0);"
                                         onclick="getTagGoodsList(this, &#39;2716&#39;, &#39;올해의책&#39;, &#39;147560984&#39;);">#올해의책</a>
                                 </span>
-                                <span class="tag " data-hashtagno="8868" data-hashtagnm="한국문학의미래가될젊은작가">
+                                <span class="tag" data-hashtagno="8868" data-hashtagnm="한국문학의미래가될젊은작가">
                                     <a href="javascript:void(0);"
                                         onclick="getTagGoodsList(this, &#39;8868&#39;, &#39;한국문학의미래가될젊은작가&#39;, &#39;147560984&#39;);">#한국문학의미래가될젊은작가</a>
                                 </span>
-                                <span class="tag " data-hashtagno="377" data-hashtagnm="섬세한시선">
+                                <span class="tag" data-hashtagno="377" data-hashtagnm="섬세한시선">
                                     <a href="javascript:void(0);"
                                         onclick="getTagGoodsList(this, &#39;377&#39;, &#39;섬세한시선&#39;, &#39;147560984&#39;);">#섬세한시선</a>
                                 </span>
@@ -4365,13 +4424,6 @@
                                     </ul>
                                 </div>
                             </div>
-                            <script>
-                                //상품이미지 판형클래스 변수
-                                var tpClass = "book";
-                                (function () {
-                                    setWelcomeLazyLoad($("#tagGoodsList img"));
-                                })();
-                            </script>
                         </div>
                     </div>
                     <!-- #####0000000000 태그 영역 끝 0000000000##### -->
