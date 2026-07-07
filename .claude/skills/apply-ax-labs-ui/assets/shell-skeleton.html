@@ -1,0 +1,138 @@
+<!--
+  ax-labs-platform 앱 셸 스켈레톤 (사이드바 + 상단 헤더 + 페이지 헤딩)
+  플레이스홀더를 실제 페이지 내용으로 교체해서 사용한다.
+  - {{PAGE_TITLE}}          : 사이드바 브랜드 옆이 아니라 <title>, breadcrumb, h1에 쓸 페이지명
+  - {{BREADCRUMB_GROUP}}    : 상위 메뉴 그룹명 (예: "MD 업무")
+  - {{MENU_ITEMS}}          : 사이드바 메뉴 <li> 목록 (아래 예시 참고, 현재 페이지에 class="active" 부여)
+  - {{USER_NAME}} / {{USER_DEPT}} : 사이드바 하단 사용자 정보
+  - {{PAGE_SUBTITLE}}       : 제목 아래 설명 한 줄
+  - {{PAGE_HEADER_ACTIONS}} : 필요 시 step-pills 등 (없으면 통째로 지운다)
+  - {{BODY}}                : 실제 페이지 콘텐츠 (card 들)
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{PAGE_TITLE}} — AX Labs</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <nav class="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="#">
+        <span class="sidebar-logo">AX</span>
+        <span class="sidebar-brand">Labs</span>
+      </a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">{{BREADCRUMB_GROUP}}</span>
+        <ul class="sidebar-menu">
+          <!--
+            {{MENU_ITEMS}} — POC 컨텍스트를 보여주려는 용도이지 실제 라우팅이 아니므로,
+            href="#"인 채로 둬도 된다. 현재 만드는 페이지가 속한 도메인의 "이웃 페이지"를
+            2~4개 나열하고, 현재 페이지에만 nav-item-btn 에 class="active" 를 준다.
+            같은 저장소에 이미 다른 POC 폴더가 있으면(예: md_briefing/, review-ai/,
+            bestseller_sample/) 그 페이지명을 그대로 이웃 항목으로 재사용해서 "같은
+            제품군의 다른 화면들" 느낌을 준다 — 매번 새로 지어내지 않는다.
+            아이콘은 svg 아무 stroke 아이콘이나 사용 가능 (feather-icons 스타일 유지).
+          -->
+          <li>
+            <a class="nav-item-btn active" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span class="nav-item-text">{{PAGE_TITLE}}</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span class="nav-item-text">{{NEIGHBOR_PAGE_1}}</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span class="nav-item-text">{{NEIGHBOR_PAGE_2}}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn">
+        <span class="user-avatar">{{USER_INITIAL}}</span>
+        <div>
+          <div class="user-name">{{USER_NAME}}</div>
+          <div class="user-dept">{{USER_DEPT}}</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main-wrapper">
+
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">{{BREADCRUMB_GROUP}}</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current">{{PAGE_TITLE}}</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <span class="model-pill">claude-opus-4-8</span>
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title">{{PAGE_TITLE}}</h1>
+            <p class="page-subtitle">{{PAGE_SUBTITLE}}</p>
+          </div>
+        </div>
+        <div class="page-header-actions">
+          {{PAGE_HEADER_ACTIONS}}
+          <!-- 예: 3단계 step-pills
+          <div class="step-pills">
+            <div class="step-pill active" id="sp1"><span class="sp-num">1</span><span class="sp-label">단계1</span></div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sp-arrow"><polyline points="9 6 15 12 9 18"/></svg>
+            <div class="step-pill" id="sp2"><span class="sp-num">2</span><span class="sp-label">단계2</span></div>
+          </div>
+          -->
+        </div>
+      </div>
+
+      {{BODY}}
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // 다크모드 토글 (스킬 공통 패턴 — 페이지별 JS에 그대로 포함해도 됨)
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    document.getElementById('iconMoon').classList.toggle('hidden', dark);
+    document.getElementById('iconSun').classList.toggle('hidden', !dark);
+  });
+</script>
+</body>
+</html>
