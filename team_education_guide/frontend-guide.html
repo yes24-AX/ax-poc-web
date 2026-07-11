@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>프론트엔드 학습 가이드 — AX Labs</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <nav class="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="index.html">
+        <span class="sidebar-logo">AX</span>
+        <span class="sidebar-brand">Labs</span>
+      </a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">팀 교육자료</span>
+        <ul class="sidebar-menu">
+          <li>
+            <a class="nav-item-btn" href="index.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <span class="nav-item-text">홈</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn active" href="frontend-guide.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span class="nav-item-text">프론트엔드 가이드</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="backend-guide.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span class="nav-item-text">백엔드 가이드</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="qna.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span class="nav-item-text">Q&amp;A 퀴즈</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn">
+        <span class="user-avatar">AX</span>
+        <div>
+          <div class="user-name">AX Labs</div>
+          <div class="user-dept">팀 교육 스터디</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main-wrapper">
+
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">팀 교육자료</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current">프론트엔드 가이드</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <span class="model-pill">claude-opus-4-8</span>
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title">🚀 프론트엔드 엔지니어를 위한 백엔드 핵심 개념 가이드북</h1>
+            <p class="page-subtitle">신입 및 주니어 프론트엔드 엔지니어, 타 직군 협업자를 위한 자료 · 백엔드의 기술적 진화와 구조를 이해하여 더 원활하게 소통하고 효율적인 프론트엔드 아키텍처를 설계하기 위함입니다.</p>
+          </div>
+        </div>
+        <div class="page-header-actions">
+          <span class="badge badge-primary">원본영상: youtu.be/Kl5EcYd3G2E</span>
+        </div>
+      </div>
+
+      <!-- Part 1 -->
+      <div class="part-divider">
+        <span class="part-no">1</span>
+        <h2>백엔드의 탄생과 화면 제어권의 변화</h2>
+      </div>
+      <p class="part-intro">웹의 초기에는 서버가 화면(HTML)을 직접 만들어 전달했습니다. 프론트엔드와 백엔드의 구분이 모호했던 시절부터 화면의 제어권이 어떻게 프론트엔드로 이동했는지 그 역사적 흐름을 이해합니다.</p>
+
+      <div class="card qa-card">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">서버 사이드 렌더링</span>
+          <div class="qa-question"><span class="q-no">Q1.</span>파일 보관소에서 파일 제조공장으로 — 초기의 정적 웹 방식에서 백엔드 기술이 왜 필요해졌는지, 영상에서 언급된 '방명록'이나 '검색창'의 예시를 들어 서버의 역할 변화 관점에서 설명해 주세요.</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="qa-answer">초기의 웹은 이미 만들어진 HTML 파일을 그대로 꺼내주는 방식이었습니다. 하지만 '방명록'처럼 누가 언제 어떤 글을 남길지 모르거나, '검색창'처럼 사용자가 무엇을 검색할지 모르는 상황에서는 파일을 미리 만들어 둘 수 없습니다. 따라서 사용자 요청에 따라 그 자리에서 데이터를 계산하고 화면을 제조해야 할 필요성이 생겼고, 이 문제를 해결하기 위해 서버가 직접 HTML을 조립해 주는 백엔드(서버 사이드 렌더링) 기술이 탄생했습니다.</div>
+          <div class="qa-tip"><b>🎨 프론트엔드 관점 팁</b> — 현재 프론트엔드 생태계의 Next.js, Nuxt 등에서 다루는 SSR/SSG 개념의 모태가 되는 역사입니다. 과거에는 서버가 다 하던 것을 이제는 프론트엔드 영역에서 필요에 따라 선택하여 구현하고 있습니다.</div>
+          <div class="qa-keywords">
+            <span class="badge">정적 파일</span><span class="badge">매 요청마다 계산</span><span class="badge">파일 보관 → 파일 제조</span><span class="badge">서버 사이드 렌더링(SSR)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card qa-card">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">MVC 패턴</span>
+          <div class="qa-question"><span class="q-no">Q2.</span>웹 아키텍처의 고전, 역할 분리의 시작 — MVC 패턴에서 M, V, C 각각의 역할은 무엇이며, 파일을 역할별로 나누었을 때의 이점은 무엇인가요?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="qa-answer">
+            <b>M (Model):</b> 데이터를 다루는 부분 (DB에서 데이터를 꺼내고 저장)<br/>
+            <b>V (View):</b> 화면을 그리는 부분 (사용자에게 보여줄 HTML 생성)<br/>
+            <b>C (Controller):</b> 교통정리 (요청이 오면 어떤 데이터를 꺼내 어떤 화면을 보여줄지 결정)<br/><br/>
+            <b>이점:</b> 코드와 DB 처리, 화면을 그리는 코드가 한 파일에 뒤섞여 있으면 기능 하나를 고칠 때 관련 없는 코드까지 전부 읽어야 합니다. 역할별로 파일을 나누면 특정 기능을 고칠 때 해당 코드만 수정하면 되므로 유지보수와 관리가 용이해집니다.
+          </div>
+          <div class="qa-keywords">
+            <span class="badge">Model(데이터)</span><span class="badge">View(화면)</span><span class="badge">Controller(교통정리)</span><span class="badge">역할 분리</span><span class="badge">유지보수 용이</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card qa-card">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">프론트/백 분리</span>
+          <div class="qa-question"><span class="q-no">Q3.</span>스마트폰이 불러온 모던 웹의 시대 — 2007년 아이폰 등장 이후 서버의 역할이 어떻게 바뀌었는지, 이로 인해 프론트엔드와 백엔드의 역할이 어떻게 분리되었는지 설명해 주세요.</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="qa-answer">모바일 앱은 웹브라우저와 달리 HTML 화면을 직접 쓸 수 없고 '순수한 데이터'가 필요합니다. 이 때문에 서버의 역할이 HTML 제조기에서 '데이터 공급자'로 변화했습니다. 이때 데이터 요청 창구 역할을 하는 API와 데이터 포맷인 JSON(Key-Value 쌍)이 쓰이기 시작했습니다. 결과적으로 백엔드는 데이터 공급자, 프론트엔드는 화면 제작자로 역할이 명확히 분리되었습니다.</div>
+          <div class="qa-tip"><b>🎨 프론트엔드 관점 팁</b> — 이 시점을 계기로 프론트엔드가 단순히 HTML/CSS를 꾸미는 것을 넘어, 서버로부터 JSON 데이터를 받아 동적으로 화면을 그리는 독립적인 웹 애플리케이션 개발 영역(SPA - React, Vue 등)으로 진화했습니다.</div>
+          <div class="qa-keywords">
+            <span class="badge">모바일 앱의 등장</span><span class="badge">HTML → 데이터 공급</span><span class="badge">API</span><span class="badge">JSON(텍스트 데이터)</span><span class="badge">역할 분리</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part 2 -->
+      <div class="part-divider">
+        <span class="part-no">2</span>
+        <h2>프론트엔드가 꼭 알아야 할 인증과 상태 관리</h2>
+      </div>
+      <p class="part-intro">우리가 매일 주고받는 HTTP 요청은 기억력이 없습니다. 프론트엔드와 백엔드가 어떻게 협력하여 사용자를 식별하고 안전하게 자원을 보호하는지 그 핵심 메커니즘을 배웁니다.</p>
+
+      <div class="card qa-card">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">상태 관리</span>
+          <div class="qa-question"><span class="q-no">Q4.</span>기억력 없는 HTTP를 다루는 두 가지 전략 — HTTP 통신의 특징인 'Stateless(상태 없음)'의 의미와, 이를 해결하기 위한 '세션-쿠키' 방식과 'JWT' 방식의 구조적 차이를 설명해 주세요.</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="qa-answer">
+            Stateless란 서버가 기억력이 없어서 방금 로그인한 사용자라도 다음 요청이 오면 누구인지 알아보지 못하는 특징을 말합니다.<br/><br/>
+            <b>세션-쿠키 방식:</b> 로그인 정보를 서버 메모리에 저장하고 사용자에게 번호표(세션 ID)를 발급하면, 브라우저가 쿠키에 이를 저장해 두고 매번 서버에 제출하는 방식입니다.<br/>
+            <b>JWT(JSON Web Token) 방식:</b> 서버 메모리에 정보를 저장하는 대신, 로그인 정보를 서버가 도장(서명)을 찍어 암호화(인코딩)한 토큰 형태로 사용자에게 건네주는 방식입니다. 서버는 메모리 조회 없이 토큰의 서명만 검증하면 됩니다.
+          </div>
+          <div class="qa-tip"><b>🎨 프론트엔드 관점 팁</b> — 쿠키 방식은 브라우저가 자동으로 실어 보내주지만, JWT 방식은 프론트엔드 개발자가 LocalStorage나 SessionStorage, 혹은 쿠키에 직접 토큰을 관리하고, 요청 헤더(<code>Authorization</code>)에 직접 실어 보내주어야 하므로 보안과 유실 대책을 함께 고민해야 합니다.</div>
+          <div class="qa-keywords">
+            <span class="badge">Stateless</span><span class="badge">세션(서버 메모리 저장)</span><span class="badge">쿠키(브라우저 저장)</span><span class="badge">JWT(서명 검증)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card qa-card">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">인증과 인가</span>
+          <div class="qa-question"><span class="q-no">Q5.</span>신원 확인과 권한 부여의 경계 — '인증(Authentication)'과 '인가(Authorization)'의 개념적 차이를 예를 들어 설명해 주세요.</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="qa-answer">
+            <b>인증:</b> 이 사람이 누구인지 '신원'을 확인하는 과정입니다. (예: 아이디/비밀번호로 로그인하기)<br/>
+            <b>인가:</b> 인증된 사용자가 특정 자원에 접근하거나 권한을 행할 수 있는지 '자격'을 확인하는 과정입니다. (예: 일반 사용자가 관리자 페이지에 접근하려고 할 때 권한이 없음을 확인하고 막는 것)
+          </div>
+          <div class="qa-tip"><b>🎨 프론트엔드 관점 팁</b> — UI를 구현할 때, 비로그인 유저에게는 로그인 페이지로 리다이렉트 시키는 것은 <b>인증 처리</b>이고, 로그인 유저 중 '팀장' 등급이 아닌 유저에게 '삭제 버튼'을 숨기거나 접근을 막는 것은 <b>인가 처리</b>입니다. 프론트엔드 단의 제어는 UX용일 뿐, 실제 보안을 위한 최종 검증은 백엔드 API에서 반드시 이루어져야 합니다.</div>
+          <div class="qa-keywords">
+            <span class="badge">인증 = 누구인가</span><span class="badge">인가 = 권한이 있는가</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-content" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <div style="font-size:13.5px; color:var(--muted-foreground);">복습을 마쳤다면 Q&amp;A 퀴즈로 스스로 점검해보세요.</div>
+          <a class="btn btn-primary" href="qna.html">Q&amp;A 퀴즈로 이동 →</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    document.getElementById('iconMoon').classList.toggle('hidden', dark);
+    document.getElementById('iconSun').classList.toggle('hidden', !dark);
+  });
+</script>
+</body>
+</html>
