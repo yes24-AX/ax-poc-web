@@ -38,7 +38,7 @@
       el.className = 'fandeck-card';
       el.innerHTML =
         '<img src="' + src + '" alt="카드 이미지 ' + (i + 1) + '" draggable="false">' +
-        '<div class="fandeck-caption"><span class="idx">' + String(i + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0') + '</span>카드뉴스 이미지 ' + (i + 1) + '</div>';
+        '<div class="fandeck-caption"><span class="idx">' + String(i + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0') + '</span>일 잘하는 개발자가 되자. ' + (i + 1) + '</div>';
       stage.appendChild(el);
       cards.push(el);
     });
