@@ -91,7 +91,7 @@
         <div class="page-heading-left">
           <div>
             <h1 class="page-title">🎓 프론트엔드 &amp; 백엔드 아키텍처 핵심 Q&amp;A 마스터 퀴즈</h1>
-            <p class="page-subtitle">팀원들의 기술 스터디 및 숙제 검토를 위한 자료입니다. 질문을 클릭하면 모범 답안과 핵심 키워드가 펼쳐집니다. 총 16문항 (프론트엔드 5 · 백엔드 11).</p>
+            <p class="page-subtitle">팀원들의 기술 스터디 및 숙제 검토를 위한 자료입니다. 서술형 16문항은 클릭하면 모범 답안이 펼쳐지고, 객관식 12문항은 선택 즉시 정답 여부와 해설을 확인할 수 있습니다.</p>
           </div>
         </div>
         <div class="page-header-actions">
@@ -352,6 +352,212 @@
         </div>
       </details>
 
+      <!-- PART 6: 객관식 -->
+      <div class="part-divider">
+        <span class="part-no">6</span>
+        <h2>🔢 객관식으로 개념 점검하기</h2>
+      </div>
+      <p class="part-intro">앞서 학습한 서술형 16문항의 핵심 개념을 짧게 다시 점검하는 객관식 12문항입니다. 보기를 클릭하면 바로 정답 여부와 해설이 표시됩니다.</p>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-content" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <span class="mc-score-pill">✅ 맞춘 문제 <b id="mcScore">0</b> / <span id="mcTotal">12</span></span>
+          <button class="btn btn-outline btn-sm" id="mcReset">객관식 초기화</button>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="B">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">인터넷 vs 웹</span>
+          <div class="qa-question"><span class="q-no">MC1.</span>'도로망' 비유에서 인터넷과 웹의 관계로 옳은 것은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>인터넷과 웹은 완전히 같은 개념이다</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>인터넷은 도로망(네트워크 인프라)이고, 웹은 그 위를 달리는 서비스다</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>웹이 인터넷보다 더 큰 상위 개념이다</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>인터넷은 웹 브라우저를 부르는 다른 이름이다</button>
+          </div>
+          <div class="mc-explain"><b>정답: B.</b> 인터넷은 전 세계 컴퓨터를 연결하는 물리적 네트워크 인프라(도로망)이고, 웹은 그 인프라 위에서 동작하는 하나의 서비스이자 콘텐츠입니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="B">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">자바스크립트 탄생</span>
+          <div class="qa-question"><span class="q-no">MC2.</span>자바스크립트가 처음 만들어진 목적은 무엇인가요?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>서버에서 대량 데이터를 처리하기 위해</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>웹페이지에 동적인 기능(움직임, 상호작용)을 넣기 위해</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>자바(Java)의 성능을 개선하기 위해</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>모바일 앱을 개발하기 위해</button>
+          </div>
+          <div class="mc-explain"><b>정답: B.</b> 1995년 네스케이프 브라우저 개발 팀이 웹페이지에 동적 기능을 넣기 위해 단 10일 만에 만든 웹 전용 언어입니다. 자바와는 이름만 비슷할 뿐 완전히 다른 언어입니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="B">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">HTML/CSS/JS 역할</span>
+          <div class="qa-question"><span class="q-no">MC3.</span>'가구 배치와 인테리어' 비유에서 '배치도' 역할을 하는 것은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>CSS</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>HTML</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>JavaScript</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>JSON</button>
+          </div>
+          <div class="mc-explain"><b>정답: B.</b> HTML은 구조와 뼈대를 잡는 '배치도', CSS는 색상·가구 배치 등 '인테리어', JavaScript는 움직임을 불어넣는 '동적 제어'를 담당합니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="D">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">리플로우</span>
+          <div class="qa-question"><span class="q-no">MC4.</span>다음 중 '리플로우(Reflow)'에 대한 설명으로 옳지 <b>않은</b> 것은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>요소의 크기나 위치가 바뀌면 발생한다</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>브라우저가 레이아웃을 다시 계산하는 과정이다</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>컴퓨터 자원을 많이 소모하므로 최소화하는 것이 좋다</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>사용하지 않는 코드를 번들에서 제거하는 과정이다</button>
+          </div>
+          <div class="mc-explain"><b>정답: D.</b> D는 '트리쉐이킹'에 대한 설명입니다. 리플로우는 요소의 크기/위치 등 구조적 배치가 바뀔 때 브라우저가 화면을 다시 계산·정렬하는 과정으로, 자원을 많이 소모해 최소화가 필요합니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="A">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">트리쉐이킹</span>
+          <div class="qa-question"><span class="q-no">MC5.</span>트리쉐이킹(Tree Shaking)의 목적으로 가장 알맞은 것은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>사용하지 않는 코드를 제거해 번들 용량을 줄이고 로딩 속도를 높인다</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>서버의 DB 조회 속도를 높인다</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>여러 서버에 트래픽을 분산한다</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>브라우저의 리플로우 발생을 막는다</button>
+          </div>
+          <div class="mc-explain"><b>정답: A.</b> 나무를 흔들어 불필요한 열매·낙엽을 털어내듯, 번들링 과정에서 한 번도 쓰이지 않은 코드를 자동으로 제거해 파일 용량을 줄이고 로딩 속도를 향상시키는 최적화 기술입니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="B">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">서버 사이드 렌더링</span>
+          <div class="qa-question"><span class="q-no">MC6.</span>초기 정적 웹 방식에서 서버 사이드 렌더링 기술이 필요해진 이유는?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>이미지 파일의 용량을 압축하기 위해</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>방명록·검색창처럼 매 요청마다 다른 데이터를 계산해 화면을 만들어야 했기 때문</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>자바스크립트 실행 속도를 높이기 위해</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>모바일 기기와의 호환성을 위해</button>
+          </div>
+          <div class="mc-explain"><b>정답: B.</b> 미리 만들어 둘 수 없는 데이터(방명록 글, 검색 결과 등)를 요청 시점에 계산해 HTML로 조립해 줄 필요가 생기면서, 서버가 화면을 직접 만드는 서버 사이드 렌더링 기술이 등장했습니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="C">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">MVC 패턴</span>
+          <div class="qa-question"><span class="q-no">MC7.</span>MVC 패턴에서 "요청이 오면 어떤 데이터를 꺼내 어떤 화면을 보여줄지 결정"하는 '교통정리' 역할은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>Model</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>View</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>Controller</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>Database</button>
+          </div>
+          <div class="mc-explain"><b>정답: C.</b> Model은 데이터, View는 화면을 담당하고, Controller가 요청에 따라 어떤 데이터를 꺼내 어떤 화면을 보여줄지 결정하는 교통정리 역할을 합니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="B">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">상태 관리 · JWT</span>
+          <div class="qa-question"><span class="q-no">MC8.</span>JWT(JSON Web Token) 방식에 대한 설명으로 옳은 것은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>로그인 정보를 서버 메모리에 저장하고 세션 ID를 발급한다</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>서버가 서명(도장)한 토큰을 클라이언트가 직접 저장·관리하며 요청 시 실어 보낸다</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>브라우저가 자동으로 서버에 실어 보내주므로 프론트엔드가 관리할 필요가 없다</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>서버가 여러 대일 때만 사용할 수 있는 방식이다</button>
+          </div>
+          <div class="mc-explain"><b>정답: B.</b> A와 C는 세션-쿠키 방식의 특징입니다. JWT는 서버가 로그인 정보에 서명해 토큰으로 발급하면, 프론트엔드가 LocalStorage 등에 직접 저장하고 요청 헤더(Authorization)에 실어 보내야 합니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="A">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">인증과 인가</span>
+          <div class="qa-question"><span class="q-no">MC9.</span>"이 사람이 누구인지 신원을 확인하는 과정"은 인증과 인가 중 무엇에 해당하나요?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>인증(Authentication)</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>인가(Authorization)</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>트랜잭션(Transaction)</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>캐싱(Caching)</button>
+          </div>
+          <div class="mc-explain"><b>정답: A.</b> 인증은 아이디/비밀번호 로그인처럼 '누구인지' 신원을 확인하는 과정이고, 인가는 인증된 사용자가 특정 자원에 접근할 '자격'이 있는지 확인하는 과정입니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="C">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">캐싱 시스템</span>
+          <div class="qa-question"><span class="q-no">MC10.</span>Redis 캐시와 TTL에 대한 설명 중 <b>틀린</b> 것은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>메모리 기반이라 디스크를 읽는 DB보다 빠르다</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>TTL은 캐시 데이터의 유효 시간을 뜻한다</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>TTL이 지나도 캐시 데이터는 절대 갱신되지 않는다</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>자주 조회되는 데이터를 저장해 DB 부하를 줄인다</button>
+          </div>
+          <div class="mc-explain"><b>정답: C.</b> TTL이 지나면 오히려 캐시가 삭제되고, 다음 요청 시 DB에서 새 데이터를 가져와 캐시를 갱신합니다. 데이터가 바뀔 수 있기 때문에 TTL로 유효 기간을 정해두는 것입니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="A">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">트랜잭션 · ACID</span>
+          <div class="qa-question"><span class="q-no">MC11.</span>ACID 원칙 중 "전부 실행되거나 전혀 실행되지 않는다(중간 상태 없음)"는 원칙은?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>원자성(Atomicity)</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>일관성(Consistency)</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>격리성(Isolation)</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>지속성(Durability)</button>
+          </div>
+          <div class="mc-explain"><b>정답: A.</b> 원자성은 여러 작업이 'All or Nothing'으로 처리되어야 한다는 원칙입니다. 계좌 이체 중 하나라도 실패하면 롤백으로 이전 상태로 되돌립니다.</div>
+        </div>
+      </div>
+
+      <div class="card mc-card" data-answer="B">
+        <div class="card-header-col qa-card-head">
+          <span class="qa-tag">Docker &amp; CI/CD</span>
+          <div class="qa-question"><span class="q-no">MC12.</span>Docker가 주로 해결하는 문제는 무엇인가요?</div>
+        </div>
+        <div class="qa-card-body">
+          <div class="mc-options">
+            <button class="mc-option" data-choice="A"><span class="mc-letter">A</span>코드 실행 속도를 높이는 문제</button>
+            <button class="mc-option" data-choice="B"><span class="mc-letter">B</span>"내 컴퓨터에선 되는데 서버에선 안 된다"는 환경 차이 문제</button>
+            <button class="mc-option" data-choice="C"><span class="mc-letter">C</span>데이터베이스 트랜잭션 무결성 문제</button>
+            <button class="mc-option" data-choice="D"><span class="mc-letter">D</span>여러 서버로의 트래픽 분산 문제</button>
+          </div>
+          <div class="mc-explain"><b>정답: B.</b> Docker는 코드와 실행 환경을 통째로 묶어 포장해, 어떤 환경에서든 동일하게 동작하도록 보장하는 기술입니다. 트래픽 분산은 로드 밸런서, 트랜잭션 무결성은 ACID 원칙이 담당합니다.</div>
+        </div>
+      </div>
+
     </main>
   </div>
 </div>
@@ -367,6 +573,51 @@
   });
   document.getElementById('collapseAll')?.addEventListener('click', () => {
     document.querySelectorAll('.quiz-card').forEach(d => d.open = false);
+  });
+
+  // ---- 객관식(MC) 채점 ----
+  const mcCards = document.querySelectorAll('.mc-card');
+  let mcScore = 0;
+  document.getElementById('mcTotal').textContent = mcCards.length;
+
+  function updateMcScore() {
+    document.getElementById('mcScore').textContent = mcScore;
+  }
+
+  mcCards.forEach(card => {
+    const answer = card.dataset.answer;
+    const options = card.querySelectorAll('.mc-option');
+    const explain = card.querySelector('.mc-explain');
+    let answered = false;
+
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        if (answered) return;
+        answered = true;
+        const picked = opt.dataset.choice;
+
+        options.forEach(o => {
+          o.disabled = true;
+          if (o.dataset.choice === answer) {
+            o.classList.add('correct');
+            o.insertAdjacentHTML('beforeend', '<span class="mc-result-icon">✓</span>');
+          } else if (o === opt) {
+            o.classList.add('wrong');
+            o.insertAdjacentHTML('beforeend', '<span class="mc-result-icon">✕</span>');
+          }
+        });
+
+        if (picked === answer) {
+          mcScore++;
+          updateMcScore();
+        }
+        explain.classList.add('show');
+      });
+    });
+  });
+
+  document.getElementById('mcReset')?.addEventListener('click', () => {
+    location.reload();
   });
 </script>
 </body>
