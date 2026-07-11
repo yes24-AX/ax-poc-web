@@ -439,6 +439,27 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .foot-note { text-align: center; font-size: 12px; color: var(--muted-foreground); margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--border); }
 
 /* ===================================================
+   FULLSCREEN LAYOUT — 사이드바/상단 헤더 없이 옵션을 전체 화면으로 노출
+   =================================================== */
+html, body.fs-body { height: 100%; }
+body.fs-body { position: relative; overflow: hidden; background: var(--background); }
+
+.fs-toolbar {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50;
+  display: flex; align-items: center; gap: 8px;
+  background: color-mix(in oklch, var(--background) 78%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border); border-radius: 999px; padding: 6px 8px 6px 14px;
+  box-shadow: var(--shadow-md);
+}
+
+.fs-panel {
+  position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; padding: 90px 16px 36px;
+}
+.fs-panel.hidden { display: none; }
+
+/* ===================================================
    CARD NEWS — option tabs (reuses .step-pills as clickable tabs)
    =================================================== */
 #optionTabs .step-pill { cursor: pointer; background: var(--background); }
@@ -450,19 +471,20 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .deck-dots .dot.active { background: var(--primary); transform: scale(1.3); }
 
 .fandeck-nav, .cascade-nav {
-  width: 42px; height: 42px; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--border);
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; border: 1px solid var(--border);
   background: var(--card); color: var(--foreground); display: flex; align-items: center; justify-content: center;
   cursor: pointer; box-shadow: var(--shadow-sm); transition: background var(--transition), border-color var(--transition), transform 0.15s;
 }
-.fandeck-nav svg, .cascade-nav svg { width: 18px; height: 18px; }
+.fandeck-nav svg, .cascade-nav svg { width: 19px; height: 19px; }
 .fandeck-nav:hover, .cascade-nav:hover { background: var(--accent); border-color: var(--foreground); }
 .fandeck-nav:active, .cascade-nav:active { transform: scale(0.92); }
 
-/* ---- Option 1: Fan Deck ---- */
-.fandeck-wrap { display: flex; align-items: center; justify-content: center; gap: 22px; padding: 28px 0 8px; }
+/* ---- Option 1: Fan Deck (전체 화면) ---- */
+.fandeck-wrap { display: flex; align-items: center; justify-content: center; gap: 26px; }
 .fandeck-stage {
-  position: relative; width: 240px; height: 400px; flex-shrink: 0;
-  touch-action: pan-y;
+  position: relative; flex-shrink: 0; touch-action: pan-y;
+  width: min(380px, 90vw, calc(80vh * 9 / 16));
+  aspect-ratio: 9 / 16;
 }
 .fandeck-card {
   position: absolute; inset: 0; border-radius: calc(var(--radius) + 6px); overflow: hidden;
@@ -484,8 +506,8 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .fandeck-caption .idx { font-family: var(--font-mono); font-weight: 700; font-size: 11.5px; opacity: 0.85; display: block; margin-bottom: 2px; }
 
 /* ---- Option 2: Diagonal Cascade Rail ---- */
-.cascade-wrap { display: flex; align-items: center; gap: 14px; }
-.cascade-viewport { flex: 1; min-width: 0; height: 340px; overflow: hidden; position: relative; }
+.cascade-wrap { display: flex; align-items: center; gap: 14px; width: 100%; max-width: 1100px; justify-content: center; }
+.cascade-viewport { flex: 1; min-width: 0; max-width: 900px; height: 340px; overflow: hidden; position: relative; }
 .cascade-track {
   position: absolute; top: 50%; left: 50%; display: flex; align-items: center; height: 300px;
   transform: translate(-50%, -50%); transition: transform 0.45s cubic-bezier(.22,.9,.32,1);
@@ -524,8 +546,8 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
   .aux-grid { grid-template-columns: repeat(2, 1fr); }
   .ai-cols { grid-template-columns: 1fr; }
   .sp-label { display: none; }
-  .fandeck-stage { width: 190px; height: 320px; }
-  .fandeck-wrap { gap: 12px; }
+  .fs-panel { padding: 76px 10px 24px; gap: 14px; }
+  .fandeck-wrap { gap: 10px; }
   .cascade-card { width: 132px; height: 224px; margin-left: -46px; }
   .cascade-viewport { height: 260px; }
 }
