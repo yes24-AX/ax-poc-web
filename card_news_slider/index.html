@@ -3,32 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>카드뉴스 슬라이더 — AX Labs</title>
+  <title>카드뉴스 팬덱 슬라이더 — AX Labs</title>
   <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body class="fs-body">
 
-<!-- ===================== FLOATING TOOLBAR (탭 + 다크모드) ===================== -->
-<div class="fs-toolbar">
-  <div class="step-pills" id="optionTabs">
-    <button type="button" class="step-pill active" data-option="1">
-      <span class="sp-num">1</span><span class="sp-label">팬덱 슬라이더</span>
-    </button>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sp-arrow"><polyline points="9 6 15 12 9 18"/></svg>
-    <button type="button" class="step-pill" data-option="2">
-      <span class="sp-num">2</span><span class="sp-label">대각선 캐스케이드 레일</span>
-    </button>
-  </div>
-  <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
-    <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-  </button>
-</div>
+<!-- ===================== 다크모드 토글 ===================== -->
+<button class="theme-toggle fs-theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+  <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
 
-<!-- ===================== OPTION 1 : FAN DECK (전체 화면) ===================== -->
-<section class="fs-panel option-panel" id="option1" data-option-panel="1">
+<!-- ===================== 팬덱 슬라이더 (전체 화면) ===================== -->
+<section class="fs-panel" id="option1">
   <div class="fandeck-wrap">
     <button class="fandeck-nav prev" id="fandeckPrev" aria-label="이전 카드">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -39,22 +28,6 @@
     </button>
   </div>
   <div class="deck-dots" id="fandeckDots"></div>
-</section>
-
-<!-- ===================== OPTION 2 : DIAGONAL CASCADE RAIL (전체 화면) ===================== -->
-<section class="fs-panel option-panel hidden" id="option2" data-option-panel="2">
-  <div class="cascade-wrap">
-    <button class="cascade-nav prev" id="cascadePrev" aria-label="이전 카드">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <div class="cascade-viewport">
-      <div class="cascade-track" id="cascadeTrack"></div>
-    </div>
-    <button class="cascade-nav next" id="cascadeNext" aria-label="다음 카드">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
-  </div>
-  <div class="deck-dots" id="cascadeDots"></div>
 </section>
 
 <script src="assets/js/script.js"></script>
