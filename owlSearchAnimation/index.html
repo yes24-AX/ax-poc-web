@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owl Search Animation 비교 POC</title>
+<style>
+  :root {
+    --border: #ddd;
+    --header-bg: #f5f5f5;
+    --cell-bg: #fff;
+    --text: #222;
+    --sub-text: #777;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: #fafafa;
+    color: var(--text);
+  }
+
+  h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+
+  .desc {
+    color: var(--sub-text);
+    font-size: 13px;
+    margin: 0 0 32px;
+  }
+
+  section {
+    margin-bottom: 56px;
+  }
+
+  section.dark {
+    background: #000;
+    padding: 40px 24px 56px;
+    border-radius: 8px;
+    margin-left: -24px;
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  section.dark h2 {
+    color: #fff;
+  }
+
+  h2 {
+    font-size: 16px;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  h2::before {
+    content: "";
+    width: 4px;
+    height: 16px;
+    background: #4a7dff;
+    display: inline-block;
+    border-radius: 2px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 900px;
+    background: var(--cell-bg);
+  }
+
+  section.dark table {
+    background: #111;
+    --border: #333;
+    --header-bg: #1a1a1a;
+    --text: #eee;
+    --sub-text: #999;
+  }
+
+  section.dark td, section.dark th {
+    color: #eee;
+  }
+
+  th, td {
+    border: 1px solid var(--border);
+    padding: 16px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  th {
+    background: var(--header-bg);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  td.row-head {
+    background: var(--header-bg);
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    width: 110px;
+  }
+
+  .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cell img {
+    max-width: 200px;
+    width: auto;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+  }
+
+  .cell .fname {
+    font-size: 11px;
+    color: var(--sub-text);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+
+  .cell .fsize {
+    font-size: 11px;
+    color: var(--sub-text);
+  }
+</style>
+</head>
+<body>
+
+  <h1>Owl Search Animation</h1>
+  
+  <section>
+    <h2>일반 배경</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>사이즈</th>
+          <th>기본 (owl-search-*)</th>
+          <th>동적 렌즈 (마지막 발견!)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">100&times;100</td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-100x100.webp" alt="owl-search-100x100">
+              <span class="fname">owl-search-100x100.webp</span>
+              <span class="fsize">1.7 MB</span>
+            </div>
+          </td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-100x100-dynamic-lens-1-discovery-1s.webp" alt="owl-search-100x100-dynamic-lens-1-discovery-1s">
+              <span class="fname">owl-search-100x100-dynamic-lens-1-discovery-1s.webp</span>
+              <span class="fsize">1.7 MB</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="row-head">200&times;200</td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-200x200.webp" alt="owl-search-200x200">
+              <span class="fname">owl-search-200x200.webp</span>
+              <span class="fsize">4.9 MB</span>
+            </div>
+          </td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-200x200-dynamic-lens-1-discovery-1s.webp" alt="owl-search-200x200-dynamic-lens-1-discovery-1s">
+              <span class="fname">owl-search-200x200-dynamic-lens-1-discovery-1s.webp</span>
+              <span class="fsize">4.9 MB</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="dark">
+    <h2>검은 배경</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>사이즈</th>
+          <th>기본 (owl-search-*)</th>
+          <th>동적 렌즈 (마지막 발견!)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">100&times;100</td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-100x100.webp" alt="owl-search-100x100">
+              <span class="fname">owl-search-100x100.webp</span>
+              <span class="fsize">1.7 MB</span>
+            </div>
+          </td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-100x100-dynamic-lens-1-discovery-1s.webp" alt="owl-search-100x100-dynamic-lens-1-discovery-1s">
+              <span class="fname">owl-search-100x100-dynamic-lens-1-discovery-1s.webp</span>
+              <span class="fsize">1.7 MB</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="row-head">200&times;200</td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-200x200.webp" alt="owl-search-200x200">
+              <span class="fname">owl-search-200x200.webp</span>
+              <span class="fsize">4.9 MB</span>
+            </div>
+          </td>
+          <td>
+            <div class="cell">
+              <img src="owl-search-200x200-dynamic-lens-1-discovery-1s.webp" alt="owl-search-200x200-dynamic-lens-1-discovery-1s">
+              <span class="fname">owl-search-200x200-dynamic-lens-1-discovery-1s.webp</span>
+              <span class="fsize">4.9 MB</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>
