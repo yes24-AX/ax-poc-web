@@ -121,6 +121,9 @@
     --cell-bg: #fff;
     --text: #222;
     --sub-text: #777;
+    --lockup-gap: 6px;
+    --logo-size: 30px;
+    --title-font-size: 27px;
   }
 
   * { box-sizing: border-box; }
@@ -212,18 +215,50 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: var(--lockup-gap);
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 24px;
+    font-size: 13px;
+    color: var(--sub-text);
+  }
+
+  .controls input[type="number"] {
+    width: 60px;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .controls button {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 4px;
+    background: #4a7dff;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .controls button:hover {
+    background: #3a6bef;
   }
 
   .lockup img {
-    height: 30px;
-    width: 30px;
+    height: var(--logo-size);
+    width: var(--logo-size);
     display: block;
     flex-shrink: 0;
   }
 
   .lockup .title {
-    font-size: 27px;
+    font-size: var(--title-font-size);
     font-weight: 700;
     white-space: nowrap;
   }
@@ -233,6 +268,16 @@
 
   <h1>AX Logo x Title x Font 비교</h1>
   <p class="desc">타이틀 표기(AX-Labs / AX-LABS / AX-DataHub / AX-DATAHUB) &times; 로고(fox1~4) &times; 폰트 6종 조합 비교 (로고 30&times;30px, 타이틀 27px, 간격 6px)</p>
+
+  <div class="controls">
+    <label for="logo-size-input">로고 크기(px)</label>
+    <input type="number" id="logo-size-input" value="30" min="10" max="100" step="1">
+    <label for="title-size-input">타이틀 크기(px)</label>
+    <input type="number" id="title-size-input" value="27" min="10" max="100" step="1">
+    <label for="gap-input">로고-타이틀 간격(px)</label>
+    <input type="number" id="gap-input" value="6" min="0" max="50" step="1">
+    <button type="button" id="apply-btn">반영하기</button>
+  </div>
 
   <!-- ===================== 1. AX-Labs ===================== -->
   <section class="title-section">
@@ -498,6 +543,17 @@
       </tbody>
     </table>
   </section>
+
+  <script>
+    document.getElementById('apply-btn').addEventListener('click', function () {
+      var logoSize = document.getElementById('logo-size-input').value;
+      var titleSize = document.getElementById('title-size-input').value;
+      var gap = document.getElementById('gap-input').value;
+      document.documentElement.style.setProperty('--logo-size', logoSize + 'px');
+      document.documentElement.style.setProperty('--title-font-size', titleSize + 'px');
+      document.documentElement.style.setProperty('--lockup-gap', gap + 'px');
+    });
+  </script>
 
 </body>
 </html>
