@@ -1,0 +1,187 @@
+/* ============================================================
+   AX Scroll World — 전역 스타일
+   캔버스는 화면에 고정하고, #scroll-space가 실제 스크롤 길이를 만든다.
+   ============================================================ */
+
+:root {
+  --c-bg: #030614;          /* 시작(우주) 배경색 — JS 포그 색과 동일 */
+  --c-text: #eaf1ff;
+  --c-accent: #46c8ff;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: auto; } /* 스크럽 애니메이션과 충돌하는 smooth 스크롤 금지 */
+
+body {
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ---------- 3D 캔버스 (뷰포트 고정) ---------- */
+#webgl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  opacity: 0;
+}
+/* 첫 렌더 준비 완료 시 JS가 클래스를 부여 → 부드러운 진입 페이드 */
+#webgl.is-ready {
+  animation: canvas-fade 0.9s ease forwards;
+}
+@keyframes canvas-fade {
+  to { opacity: 1; }
+}
+
+/* ---------- 스크롤 공간 : 이 높이만큼 여행한다 ---------- */
+#scroll-space {
+  height: 700vh; /* 씬 5개 × 여유 구간. 늘리면 여정이 느려진다 */
+  pointer-events: none;
+}
+
+/* ---------- 오버레이 공통 ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none; /* 스크롤을 가로막지 않는다 */
+}
+
+/* ---------- 씬 캡션 ---------- */
+.caption {
+  position: absolute;
+  left: clamp(24px, 7vw, 110px);
+  bottom: clamp(60px, 16vh, 160px);
+  max-width: 560px;
+  opacity: 0;           /* GSAP 타임라인이 페이드 제어 (autoAlpha) */
+  visibility: hidden;
+}
+.caption.is-first { opacity: 1; visibility: visible; } /* 첫 캡션만 처음부터 노출 */
+
+.caption-eyebrow {
+  display: inline-block;
+  font-size: clamp(11px, 1.2vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+  margin-bottom: 14px;
+}
+
+.caption h1 {
+  font-size: clamp(30px, 5vw, 58px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.55);
+}
+
+.caption p {
+  font-size: clamp(14px, 1.5vw, 17px);
+  line-height: 1.7;
+  color: rgba(234, 241, 255, 0.82);
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- 피날레 웰컴 텍스트 ---------- */
+.welcome {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  color: #1c2b45; /* 밝은 공간 위 어두운 텍스트 */
+}
+
+.welcome h1 {
+  font-size: clamp(34px, 6.5vw, 84px);
+  font-weight: 300;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+}
+.welcome h1 strong { font-weight: 800; }
+
+.welcome p {
+  margin-top: 18px;
+  font-size: clamp(14px, 1.6vw, 19px);
+  color: rgba(28, 43, 69, 0.72);
+}
+
+/* ---------- 스크롤 힌트 ---------- */
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.85;
+  transition: opacity 0.5s ease;
+}
+.scroll-hint span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  color: rgba(234, 241, 255, 0.75);
+}
+.scroll-hint i {
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(to bottom, rgba(234, 241, 255, 0.9), transparent);
+  animation: hint-drop 1.6s ease-in-out infinite;
+}
+@keyframes hint-drop {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  50%  { transform: scaleY(1); transform-origin: top; }
+  51%  { transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+.scroll-hint.is-hidden { opacity: 0; }
+
+/* ---------- 진행바 ---------- */
+.progress-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(to right, #46c8ff, #a06bff, #ff9a3c, #ffffff);
+  box-shadow: 0 0 12px rgba(120, 170, 255, 0.6);
+}
+
+/* ---------- WebGL 폴백 ---------- */
+.webgl-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-bg);
+  font-size: 15px;
+}
+
+/* ---------- 모바일 조정 ---------- */
+@media (max-width: 768px) {
+  #scroll-space { height: 600vh; } /* 모바일은 스크롤 부담을 줄인다 */
+  .caption { bottom: 96px; right: 24px; }
+}

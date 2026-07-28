@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문학동네 필름북마크 이벤트 데모</title>
+    <style>
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #faf9f7; color: #333; margin: 0; padding: 0; }
+        .event-header { text-align: center; padding: 60px 20px; background-color: #1a1a1a; color: #fff; }
+        .event-header h1 { font-size: 2.5rem; margin-bottom: 15px; font-weight: 700; }
+        .event-header p { font-size: 1.1rem; color: #d4d4d4; }
+        .container { max-width: 1000px; margin: 50px auto; padding: 0 20px; text-align: center; }
+        .grid { display: flex; gap: 20px; justify-content: space-between; flex-wrap: wrap; margin-top: 40px; }
+        .card { flex: 1; min-width: 200px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
+        .card:hover { transform: translateY(-10px); }
+        .film-mockup { width: 100%; height: 280px; background-color: #e0e0e0; border-radius: 8px; margin-bottom: 15px; overflow: hidden; position: relative; border: 2px solid #333; border-style: dashed; }
+        .film-mockup::after { content: 'FILM IMAGE'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #888; font-weight: bold; }
+        .book-title { font-size: 1.2rem; font-weight: bold; margin: 10px 0 5px; }
+        .author { font-size: 0.9rem; color: #666; margin-bottom: 15px; }
+        .btn-select { display: inline-block; padding: 10px 20px; background-color: #2c3e50; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background 0.3s; }
+        .btn-select:hover { background-color: #1a252f; }
+        .info-section { margin-top: 60px; padding: 30px; background-color: #fff; border: 1px solid #eaeaea; text-align: left; }
+    </style>
+</head>
+<body>
+    <object data="pc-header.html" type="text/html" style="display:block; width:100%; min-height:220px; border:0;" aria-label="YES24 header include"></object>
+
+    <div class="event-header">
+        <h1>우리의 장면들이 만나는 순간</h1>
+        <p>문학동네 소설/시 3만 원 이상 구매 시, 인생의 명장면을 담은 '필름 북마크' 증정</p>
+    </div>
+
+    <div class="container">
+        <h2>어떤 장면을 간직하고 싶으신가요?</h2>
+        <div class="grid">
+            <!-- Book 1 -->
+            <div class="card">
+                <div class="film-mockup"></div>
+                <div class="book-title">밝은 밤</div>
+                <div class="author">최은영 소설</div>
+                <a href="#" class="btn-select">자세히 보기</a>
+            </div>
+            <!-- Book 2 -->
+            <div class="card">
+                <div class="film-mockup"></div>
+                <div class="book-title">바깥은 여름</div>
+                <div class="author">김애란 소설</div>
+                <a href="#" class="btn-select">자세히 보기</a>
+            </div>
+            <!-- Book 3 -->
+            <div class="card">
+                <div class="film-mockup"></div>
+                <div class="book-title">작별하지 않는다</div>
+                <div class="author">한강 소설</div>
+                <a href="#" class="btn-select">자세히 보기</a>
+            </div>
+            <!-- Book 4 -->
+            <div class="card">
+                <div class="film-mockup"></div>
+                <div class="book-title">고래</div>
+                <div class="author">천명관 소설</div>
+                <a href="#" class="btn-select">자세히 보기</a>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>📌 이벤트 안내</h3>
+            <ul style="color: #555; line-height: 1.6;">
+                <li>이벤트 기간: 2026년 7월 24일 ~ 사은품 소진 시까지</li>
+                <li>증정 조건: 문학동네 소설/시 포함 국내도서 3만 원 이상 구매 시 (마일리지 차감)</li>
+                <li>필름 북마크는 투명 PET 소재로 제작되어 책갈피는 물론 감성적인 사진 촬영 소품으로도 활용 가능합니다.</li>
+            </ul>
+        </div>
+    </div>
+
+    <object data="pc-footer.html" type="text/html" style="display:block; width:100%; min-height:325px; border:0;" aria-label="YES24 footer include"></object>
+</body>
+</html>

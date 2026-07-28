@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AX Scroll World — 하나의 공간을 여행하는 스크롤 3D 경험</title>
+  <meta name="description" content="스크롤에 따라 카메라가 하나의 긴 3D 공간(우주 → DataHub → LLM Core → Automation Factory → Workspace)을 이동하는 몰입형 경험" />
+  <link rel="stylesheet" href="./styles/main.css" />
+
+  <!-- Three.js는 ES Module(import map), GSAP은 UMD 스크립트로 로드 (빌드 도구 불필요) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+</head>
+<body>
+  <!-- 3D 렌더링 캔버스 (화면 고정) -->
+  <canvas id="webgl"></canvas>
+
+  <!-- 스크롤 길이를 만들어 주는 빈 공간. 이 높이만큼 카메라가 이동한다 -->
+  <div id="scroll-space" aria-hidden="true"></div>
+
+  <!-- 화면 고정 오버레이 (씬 캡션 / 진행바 / 스크롤 힌트) -->
+  <div class="overlay" aria-hidden="true">
+
+    <!-- Scene 1 : 우주 -->
+    <section class="caption is-first" id="cap-space">
+      <span class="caption-eyebrow">Scene 01 · Universe</span>
+      <h1>데이터의 우주</h1>
+      <p>모든 여정은 광활한 데이터의 우주에서 시작됩니다.<br />스크롤을 내려 AX의 세계로 진입하세요.</p>
+    </section>
+
+    <!-- Scene 2 : AX DataHub -->
+    <section class="caption" id="cap-hub">
+      <span class="caption-eyebrow">Scene 02 · AX DataHub</span>
+      <h1>흐르는 데이터의 도시</h1>
+      <p>서버와 데이터 큐브 사이로<br />실시간 데이터가 빛의 흐름이 되어 이동합니다.</p>
+    </section>
+
+    <!-- Scene 3 : LLM Core -->
+    <section class="caption" id="cap-core">
+      <span class="caption-eyebrow">Scene 03 · LLM Core</span>
+      <h1>지능의 심장</h1>
+      <p>Prompt · Vector · SQL · API · Docs —<br />모든 지식이 거대한 AI 코어를 중심으로 공전합니다.</p>
+    </section>
+
+    <!-- Scene 4 : Automation Factory -->
+    <section class="caption" id="cap-factory">
+      <span class="caption-eyebrow">Scene 04 · Automation Factory</span>
+      <h1>일하는 방식의 자동화</h1>
+      <p>컨베이어와 로봇, 워크플로가 맞물려<br />반복 업무를 스스로 처리합니다.</p>
+    </section>
+
+    <!-- Scene 5 : Workspace (피날레) -->
+    <div class="welcome" id="welcome">
+      <h1>Welcome to<br /><strong>AX Workspace</strong></h1>
+      <p>가장 밝은 곳에서, 새로운 업무 경험이 시작됩니다.</p>
+    </div>
+
+    <!-- 스크롤 유도 힌트 -->
+    <div class="scroll-hint" id="scroll-hint">
+      <span>SCROLL</span>
+      <i></i>
+    </div>
+
+    <!-- 여정 진행바 -->
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- WebGL 미지원 안내 -->
+  <div class="webgl-fallback" id="webgl-fallback" hidden>
+    <p>이 브라우저는 WebGL을 지원하지 않아 3D 경험을 표시할 수 없습니다.</p>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
