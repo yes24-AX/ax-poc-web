@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AX DataHub — 데이터를 찾아 떠나는 여행</title>
+  <meta name="description" content="데이터센터 복도를 통과하며 흩어진 데이터를 찾아내는 AX DataHub 소개 3D 애니메이션" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="./styles/main.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+</head>
+<body>
+  <!-- 3D 뷰포트 : perspective가 걸린 카메라 렌즈 -->
+  <div id="viewport">
+    <!-- 월드 : 카메라 역변환이 적용되는 데이터센터 전체 -->
+    <div id="world"></div>
+  </div>
+
+  <!-- 공기(포그) 비네트 — 구역마다 색이 바뀐다 -->
+  <div id="air" aria-hidden="true"></div>
+
+  <!-- ===== 고정 UI ===== -->
+  <header class="nav">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-path"><b>AX LABS</b><i>/</i><em>DataHub</em></span>
+    </div>
+  </header>
+
+  <!-- 스캐너 HUD : 지금 무엇을 찾고 있는지 -->
+  <section class="hud" id="hud" aria-hidden="true">
+    <div class="hud-row">
+      <span class="hud-led" id="hud-led"></span>
+      <span class="hud-mode" id="hud-mode">STANDBY</span>
+    </div>
+    <div class="hud-target" id="hud-target">—</div>
+    <div class="hud-bar"><i id="hud-bar"></i></div>
+    <div class="hud-foot">
+      <span>RECORDS</span>
+      <b id="hud-count">0</b>
+    </div>
+  </section>
+
+  <!-- 조준 리티클 : 스캔 대상에 고정된다 -->
+  <div class="reticle" id="reticle" aria-hidden="true">
+    <svg viewBox="0 0 100 100">
+      <path d="M4 26V4h22M74 4h22v22M96 74v22H74M26 96H4V74" />
+    </svg>
+    <span class="reticle-tag" id="reticle-tag"></span>
+  </div>
+
+  <!-- 장면 캡션 -->
+  <div class="overlay" aria-hidden="true">
+    <section class="caption" id="caption">
+      <span class="eyebrow" id="act-eyebrow"></span>
+      <h1 id="act-title"></h1>
+      <p id="act-body"></p>
+    </section>
+
+    <!-- 도착 화면 -->
+    <div class="finale" id="finale">
+      <span class="eyebrow is-dark">AX DataHub</span>
+      <h1>찾아온 데이터가<br /><strong>하나의 답이 됩니다</strong></h1>
+      <p>흩어져 있던 매출 · 재고 · 발주 · 상품권 · GA4 · 클릭스트림이<br />하나의 화면에서 만납니다.</p>
+    </div>
+  </div>
+
+  <aside class="chapters" id="chapters"></aside>
+
+  <div class="player">
+    <button class="play-btn" id="play-toggle" data-mode="pause" aria-label="일시정지">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path class="i-play" d="M8 5.5v13l11-6.5z" />
+        <path class="i-pause" d="M8 5.5h3.2v13H8zM12.8 5.5H16v13h-3.2z" />
+        <path class="i-replay" d="M12 5V2.5L8 6l4 3.5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z" />
+      </svg>
+    </button>
+    <span class="player-time" id="time-label">00:00 / 00:00</span>
+    <div class="speed">
+      <button class="speed-btn" id="speed-toggle" aria-haspopup="true" aria-expanded="false">
+        <span id="speed-label">1×</span>
+      </button>
+      <div class="speed-menu" id="speed-menu" role="menu" aria-label="재생 시간"></div>
+    </div>
+    <span class="player-hint">Space 재생·정지 &nbsp;·&nbsp; ← → 구역 &nbsp;·&nbsp; [ ] 속도</span>
+  </div>
+
+  <div class="progress-track" id="progress-track" role="slider" aria-label="진행" tabindex="0">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

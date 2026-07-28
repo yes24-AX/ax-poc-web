@@ -33,7 +33,10 @@ const SCENES = [
 
 /** 선택 가능한 재생 배속. 총 재생 시간 = 기본 길이 ÷ 배속 */
 const RATES = [0.5, 0.75, 1, 1.5, 2];
-const RATE_STORE_KEY = 'ax-labs-journey-rate';
+const DEFAULT_RATE = 1.5;
+// 저장 키에 버전을 달아 둔다. 기본 배속을 바꿀 때 키를 올리면
+// 예전에 저장된 값 때문에 새 기본값이 묻히지 않는다.
+const RATE_STORE_KEY = 'ax-labs-journey-rate-v2';
 
 /** 챕터 인디케이터가 활성화되는 진행도 구간 */
 const CHAPTER_RANGES = [
@@ -110,7 +113,7 @@ export function initJourney() {
 
   let activeChapter = -1;
   let isLight = false;
-  let rate = 1;
+  let rate = DEFAULT_RATE;
 
   /* ---------- 진행도 → 화면 ---------- */
   function applyEnvironment(p) {
@@ -377,8 +380,8 @@ export function initJourney() {
   applyEnvironment(0);
   master.progress(0);
 
-  // 지난 방문에서 고른 배속을 복원
-  let savedRate = 1;
+  // 기본은 DEFAULT_RATE, 지난 방문에서 직접 고른 값이 있으면 그것을 복원
+  let savedRate = DEFAULT_RATE;
   try {
     const v = parseFloat(localStorage.getItem(RATE_STORE_KEY));
     if (RATES.includes(v)) savedRate = v;
