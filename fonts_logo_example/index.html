@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AX Logo x Title x Font 비교</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-kr@5.2.8/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans-kr@5.2.8/700.css">
+
+<style>
+  @font-face {
+    font-family: 'YES24Title';
+    src: url('fonts/yes24/YES24Title.woff') format('woff'),
+         url('fonts/yes24/YES24Title.otf') format('opentype'),
+         url('fonts/yes24/YES24Title.eot') format('embedded-opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "ONE-Mobile-Title";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff")
+      format("woff");
+  }
+
+  @font-face {
+    font-family: "Pakenham Wood Regular";
+    src: url("fonts/pakenham-wood-regular/Pakenham%20Wood%20Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Shrikhand_Regular";
+    src: url("fonts/Neuropol%20X%20Rg.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "yg-jalnan";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_four@1.2/JalnanOTF00.woff")
+      format("woff");
+  }
+
+  @font-face {
+    font-family: "Octin Sports W00 Black";
+    src: url("https://db.onlinewebfonts.com/t/c7e7cb8728640008c488e7381270227a.eot");
+    src: url("https://db.onlinewebfonts.com/t/c7e7cb8728640008c488e7381270227a.eot?#iefix") format("embedded-opentype"),
+      url("https://db.onlinewebfonts.com/t/c7e7cb8728640008c488e7381270227a.woff2") format("woff2"),
+      url("https://db.onlinewebfonts.com/t/c7e7cb8728640008c488e7381270227a.woff") format("woff"),
+      url("https://db.onlinewebfonts.com/t/c7e7cb8728640008c488e7381270227a.ttf") format("truetype"),
+      url("https://db.onlinewebfonts.com/t/c7e7cb8728640008c488e7381270227a.svg#Octin Sports W00 Black") format("svg");
+  }
+
+  @font-face {
+    font-family: "Madawaska W00 Book Italic";
+    src: url("https://db.onlinewebfonts.com/t/6401971a2b181a8a0d35151cbc1e556e.eot");
+    src: url("https://db.onlinewebfonts.com/t/6401971a2b181a8a0d35151cbc1e556e.eot?#iefix") format("embedded-opentype"),
+      url("https://db.onlinewebfonts.com/t/6401971a2b181a8a0d35151cbc1e556e.woff2") format("woff2"),
+      url("https://db.onlinewebfonts.com/t/6401971a2b181a8a0d35151cbc1e556e.woff") format("woff"),
+      url("https://db.onlinewebfonts.com/t/6401971a2b181a8a0d35151cbc1e556e.ttf") format("truetype"),
+      url("https://db.onlinewebfonts.com/t/6401971a2b181a8a0d35151cbc1e556e.svg#Madawaska W00 Book Italic") format("svg");
+  }
+
+  @font-face {
+    font-family: "Bladerounded";
+    src: url("fonts/Bladerounded-Regular.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+
+  @font-face {
+    font-family: 'Paperlogy';
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-7Bold.woff2') format('woff2'),
+         url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-7Bold.woff') format('woff');
+  }
+
+  @font-face {
+    font-family: "GyeonggiMillenniumTitle";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2410-3@1.0/Title_Bold.woff")
+      format("woff");
+    font-weight: 700;
+  }
+
+  @font-face {
+    font-family: "Chilopod";
+    src: url("fonts/Chilopod-Regular.TTF") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Pirulen W05 Bold";
+    src: url("https://db.onlinewebfonts.com/t/bd96cede518971badd56124f461108ee.eot");
+    src: url("https://db.onlinewebfonts.com/t/bd96cede518971badd56124f461108ee.eot?#iefix") format("embedded-opentype"),
+      url("https://db.onlinewebfonts.com/t/bd96cede518971badd56124f461108ee.woff2") format("woff2"),
+      url("https://db.onlinewebfonts.com/t/bd96cede518971badd56124f461108ee.woff") format("woff"),
+      url("https://db.onlinewebfonts.com/t/bd96cede518971badd56124f461108ee.ttf") format("truetype"),
+      url("https://db.onlinewebfonts.com/t/bd96cede518971badd56124f461108ee.svg#Pirulen W05 Bold") format("svg");
+  }
+
+  @font-face {
+    font-family: "KccSign";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/KCC-Ganpan.woff2")
+      format("woff2");
+    font-weight: 400;
+  }
+
+  @font-face {
+    font-family: "Jalnan";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_four@1.2/JalnanOTF00.woff")
+      format("woff");
+    font-weight: 400;
+  }
+
+  @font-face {
+    font-family: "Hahmlet";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2110@1.0/Hahmlet-SemiBold.woff2")
+      format("woff2");
+    font-weight: 600;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "AstaSans";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/AstaSans-Light.woff2") format("woff2");
+    font-weight: 300;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "AstaSans";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/AstaSans-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "AstaSans";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/AstaSans-Medium.woff2") format("woff2");
+    font-weight: 500;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "AstaSans";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/AstaSans-SemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "AstaSans";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/AstaSans-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "AstaSans";
+    src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2505-1@1.0/AstaSans-ExtraBold.woff2") format("woff2");
+    font-weight: 800;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Movatif W00 Heavy";
+    src: url("https://db.onlinewebfonts.com/t/b85e2dabd9e7f5e0682ab147854d835b.eot");
+    src: url("https://db.onlinewebfonts.com/t/b85e2dabd9e7f5e0682ab147854d835b.eot?#iefix") format("embedded-opentype"),
+      url("https://db.onlinewebfonts.com/t/b85e2dabd9e7f5e0682ab147854d835b.woff2") format("woff2"),
+      url("https://db.onlinewebfonts.com/t/b85e2dabd9e7f5e0682ab147854d835b.woff") format("woff"),
+      url("https://db.onlinewebfonts.com/t/b85e2dabd9e7f5e0682ab147854d835b.ttf") format("truetype"),
+      url("https://db.onlinewebfonts.com/t/b85e2dabd9e7f5e0682ab147854d835b.svg#Movatif W00 Heavy") format("svg");
+  }
+
+  @font-face {
+    font-family: "NeuropolNova";
+    src: url("fonts/Neuropol%20Nova%20Regular/Neuropol%20Nova%20Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Calfine";
+    src: url("fonts/final/Calfine-7BmeV.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "SericoRegular";
+    src: url("fonts/final/Serico-Regular.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "WowhausRegular";
+    src: url("fonts/final/Wowhaus_Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "MakhinaRegular";
+    src: url("fonts/final/Makhina%20Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "ProtestGuerrilla";
+    src: url("fonts/final/Protest%20Guerrilla_Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "IsaManru";
+    src: url("fonts/final/%EC%9D%B4%EC%82%AC%EB%A7%8C%EB%A3%A8%EC%B2%B4_Light.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  :root {
+    --border: #ddd;
+    --header-bg: #f5f5f5;
+    --cell-bg: #fff;
+    --text: #222;
+    --sub-text: #777;
+    --lockup-gap: 6px;
+    --logo-size: 30px;
+    --title-font-size: 27px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: #fafafa;
+    color: var(--text);
+  }
+
+  h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+
+  .desc {
+    color: var(--sub-text);
+    font-size: 13px;
+    margin: 0 0 32px;
+  }
+
+  section.title-section {
+    margin-bottom: 48px;
+  }
+
+  h2 {
+    font-size: 16px;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  h2::before {
+    content: "";
+    width: 4px;
+    height: 16px;
+    background: #4a7dff;
+    display: inline-block;
+    border-radius: 2px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: var(--cell-bg);
+  }
+
+  th, td {
+    border: 1px solid var(--border);
+    padding: 14px 12px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  th {
+    background: var(--header-bg);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  td.row-head {
+    background: var(--header-bg);
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+    width: 70px;
+  }
+
+  td.font-name {
+    background: var(--header-bg);
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    width: 170px;
+  }
+
+  #license-table td:nth-child(3) {
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .lockup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--lockup-gap);
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 24px;
+    font-size: 13px;
+    color: var(--sub-text);
+  }
+
+  .controls input[type="number"] {
+    width: 60px;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .controls button {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 4px;
+    background: #4a7dff;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .controls button:hover {
+    background: #3a6bef;
+  }
+
+  .lockup img {
+    height: var(--logo-size);
+    width: var(--logo-size);
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .lockup .title {
+    font-size: var(--title-font-size);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+  <h1>AX Logo x Title x Font 비교</h1>
+  <p class="desc">타이틀 표기(AX-Labs / AX-LABS / AX-DataHub / AX-DATAHUB) &times; 로고(fox1~4) &times; 폰트 6종 조합 비교 (로고 30&times;30px, 타이틀 27px, 간격 6px)</p>
+
+  <div class="controls">
+    <label for="logo-size-input">로고 크기(px)</label>
+    <input type="number" id="logo-size-input" value="30" min="10" max="100" step="1">
+    <label for="title-size-input">타이틀 크기(px)</label>
+    <input type="number" id="title-size-input" value="27" min="10" max="100" step="1">
+    <label for="gap-input">로고-타이틀 간격(px)</label>
+    <input type="number" id="gap-input" value="6" min="0" max="50" step="1">
+    <button type="button" id="apply-btn">반영하기</button>
+  </div>
+
+  <div class="controls">
+    <label for="preview-text-input">미리보기 문구</label>
+    <input type="text" id="preview-text-input" value="Datahub.ax" style="width:200px;">
+  </div>
+
+  <!-- ===================== -1. 신규 폰트 비교 ===================== -->
+  <section class="title-section">
+    <h2>신규 폰트 비교</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>로고</th>
+          <th>Calfine</th>
+          <th>Serico Regular</th>
+          <th>Wowhaus Regular</th>
+          <th>Makhina Regular</th>
+          <th>Protest Guerrilla Regular</th>
+          <th>이사만루체 Light</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">fox1</td>
+          <td><div class="lockup" style="font-family:'Calfine',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'SericoRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'WowhausRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'MakhinaRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'ProtestGuerrilla',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'IsaManru',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox2</td>
+          <td><div class="lockup" style="font-family:'Calfine',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'SericoRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'WowhausRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'MakhinaRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'ProtestGuerrilla',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'IsaManru',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox3</td>
+          <td><div class="lockup" style="font-family:'Calfine',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'SericoRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'WowhausRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'MakhinaRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'ProtestGuerrilla',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'IsaManru',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox4</td>
+          <td><div class="lockup" style="font-family:'Calfine',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'SericoRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'WowhausRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'MakhinaRegular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'ProtestGuerrilla',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'IsaManru',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table style="margin-top:16px;">
+      <thead>
+        <tr>
+          <th>폰트</th>
+          <th>라이선스</th>
+          <th>제작/배포</th>
+          <th>출처</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">Calfine</td>
+          <td>파일 내 라이선스 정보 미기재 (확인 필요)</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td class="row-head">Serico Regular</td>
+          <td>무료 (상업적 이용 및 개인 이용 모두 가능)</td>
+          <td>Brumale</td>
+          <td>behance.net/brumale, brumale.xyz/serico</td>
+        </tr>
+        <tr>
+          <td class="row-head">Wowhaus Regular</td>
+          <td>SIL Open Font License (파일 메타데이터에 "Open Font License" 명시, 상업/개인 이용 모두 가능)</td>
+          <td>Enzo Bicudo Pepi (FontStruct)</td>
+          <td>fontstruct.com/fontstructions/show/2334219/wowhaus</td>
+        </tr>
+        <tr>
+          <td class="row-head">Makhina Regular</td>
+          <td>Copyright (c) 2011 by Nuno Dias. All rights reserved. — fontsgeek.com에서 무료 배포 중이나, 구체적 상업적 이용 허용 범위는 별도 명시되어 있지 않아 확인 필요</td>
+          <td>Nuno Dias</td>
+          <td>behance.net/nunodias, fontsgeek.com/fonts/makhina-regular</td>
+        </tr>
+        <tr>
+          <td class="row-head">Protest Guerrilla Regular</td>
+          <td>SIL Open Font License (Google Fonts "Protest" 폰트 패밀리 소속으로 추정 — 파일 내 라이선스 메타데이터 없음, Google Fonts 등록 정보 기준 확인 필요)</td>
+          <td>Fábio Duarte Martins</td>
+          <td>fonts.google.com/specimen/Protest+Guerrilla</td>
+        </tr>
+        <tr>
+          <td class="row-head">이사만루체 Light</td>
+          <td>Copyright (c) 2020 GONGGAMES. All rights reserved.</td>
+          <td>GONGGAMES (제작: FONTRIX Inc. / Park Young-rak, Kim Min-ju, Cho So-Hee)</td>
+          <td>gonggames.com, fontrix.co.kr</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 0. 실시간 미리보기 ===================== -->
+  <section class="title-section">
+    <h2>실시간 미리보기</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>로고</th>
+          <th>YES24Title</th>
+          <th>NeuropolNova</th>
+          <th>Neuropol X Rg</th>
+          <th>Chilopod</th>
+          <th>Bladerounded</th>
+          <th>OctinSports</th>
+          <th>Madawaska Black Italic</th>
+          <th>Pirulen Bold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">fox1</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox2</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox3</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox4</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title preview-title">Datahub.ax</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table style="margin-top:16px;">
+      <thead>
+        <tr>
+          <th>폰트</th>
+          <th>라이선스</th>
+          <th>제작/배포</th>
+          <th>출처</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">YES24Title</td>
+          <td>Copyright (c) 2019 YoonDesign Inc. All rights reserved. "YES24"는 YES24 Corp.의 상표 — YES24 의뢰 제작 폰트로 사내/자사 용도 외 재배포 불가로 추정</td>
+          <td>YoonDesign Inc. (제작 의뢰: YES24)</td>
+          <td>yoondesign.com, yes24.com</td>
+        </tr>
+        <tr>
+          <td class="row-head">NeuropolNova</td>
+          <td>Copyright Typodermic Fonts Inc. (Ray Larabie). "Do not distribute" 명시 — 상업적 이용 시 typodermic.com에서 라이선스 구매 필요</td>
+          <td>Typodermic Fonts Inc. (Ray Larabie)</td>
+          <td>typodermic.com</td>
+        </tr>
+        <tr>
+          <td class="row-head">Neuropol X Rg</td>
+          <td>Copyright (c) 2002-2024 Typodermic Fonts Inc. "Neuropol X"는 Typodermic Fonts Inc.의 상표 — 상업적 이용 시 라이선스 구매 필요</td>
+          <td>Typodermic Fonts Inc. (Ray Larabie)</td>
+          <td>typodermic.com</td>
+        </tr>
+        <tr>
+          <td class="row-head">Chilopod</td>
+          <td>Copyright (c) Typodermic 2006. "Do not distribute" 명시 — 상업적 이용 시 라이선스 구매 필요</td>
+          <td>Typodermic (Ray Larabie)</td>
+          <td>typodermic.com, larabiefonts.com</td>
+        </tr>
+        <tr>
+          <td class="row-head">Bladerounded</td>
+          <td>Copyright (c) 2024 Silverblur_type — GitHub 배포 폰트로 별도 라이선스 파일 미포함, 정확한 이용 조건 확인 필요</td>
+          <td>Silverblur_type</td>
+          <td>github.com/silverblurtype</td>
+        </tr>
+        <tr>
+          <td class="row-head">OctinSports (Octin Sports W00 Black)</td>
+          <td>onlinewebfonts.com 웹폰트 변환 서비스로 임베드됨 — 원저작자 및 정확한 라이선스 조건 불명, 실제 사용 전 확인 필요</td>
+          <td>-</td>
+          <td>db.onlinewebfonts.com</td>
+        </tr>
+        <tr>
+          <td class="row-head">Madawaska Black Italic (Madawaska W00 Book Italic)</td>
+          <td>onlinewebfonts.com 웹폰트 변환 서비스로 임베드됨 — 원저작자 및 정확한 라이선스 조건 불명, 실제 사용 전 확인 필요</td>
+          <td>-</td>
+          <td>db.onlinewebfonts.com</td>
+        </tr>
+        <tr>
+          <td class="row-head">Pirulen Bold (Pirulen W05 Bold)</td>
+          <td>onlinewebfonts.com 웹폰트 변환 서비스로 임베드됨 — 원저작자 및 정확한 라이선스 조건 불명, 실제 사용 전 확인 필요</td>
+          <td>-</td>
+          <td>db.onlinewebfonts.com</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 1. AX-Labs ===================== -->
+  <section class="title-section">
+    <h2>AX-Labs</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>로고</th>
+          <th>YES24Title</th>
+          <th>NeuropolNova</th>
+          <th>Neuropol X Rg</th>
+          <th>Chilopod</th>
+          <th>Bladerounded</th>
+          <th>OctinSports</th>
+          <th>Madawaska Black Italic</th>
+          <th>Pirulen Bold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">fox1</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-Labs</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox2</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-Labs</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox3</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-Labs</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox4</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-Labs</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 2. AX-LABS ===================== -->
+  <section class="title-section">
+    <h2>AX-LABS</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>로고</th>
+          <th>YES24Title</th>
+          <th>NeuropolNova</th>
+          <th>Neuropol X Rg</th>
+          <th>Chilopod</th>
+          <th>Bladerounded</th>
+          <th>OctinSports</th>
+          <th>Madawaska Black Italic</th>
+          <th>Pirulen Bold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">fox1</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-LABS</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox2</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-LABS</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox3</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-LABS</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox4</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-LABS</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 3. AX-DataHub ===================== -->
+  <section class="title-section">
+    <h2>AX-DataHub</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>로고</th>
+          <th>YES24Title</th>
+          <th>NeuropolNova</th>
+          <th>Neuropol X Rg</th>
+          <th>Chilopod</th>
+          <th>Bladerounded</th>
+          <th>OctinSports</th>
+          <th>Madawaska Black Italic</th>
+          <th>Pirulen Bold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">fox1</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DataHub</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox2</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DataHub</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox3</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DataHub</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox4</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DataHub</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 4. AX-DATAHUB ===================== -->
+  <section class="title-section">
+    <h2>AX-DATAHUB</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>로고</th>
+          <th>YES24Title</th>
+          <th>NeuropolNova</th>
+          <th>Neuropol X Rg</th>
+          <th>Chilopod</th>
+          <th>Bladerounded</th>
+          <th>OctinSports</th>
+          <th>Madawaska Black Italic</th>
+          <th>Pirulen Bold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-head">fox1</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox1.png" alt="fox1"><span class="title">AX-DATAHUB</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox2</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox2.png" alt="fox2"><span class="title">AX-DATAHUB</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox3</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox3.png" alt="fox3"><span class="title">AX-DATAHUB</span></div></td>
+        </tr>
+        <tr>
+          <td class="row-head">fox4</td>
+          <td><div class="lockup" style="font-family:'YES24Title',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'NeuropolNova',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Shrikhand_Regular',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Chilopod',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Bladerounded',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Octin Sports W00 Black',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Madawaska W00 Book Italic',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+          <td><div class="lockup" style="font-family:'Pirulen W05 Bold',sans-serif;"><img src="https://image.yes24.com/sysimage/renew/gnb/fox4.png" alt="fox4"><span class="title">AX-DATAHUB</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="title-section">
+    <h2>폰트 라이선스 확인</h2>
+    <p class="desc">확인 결과, 아래 5개 폰트 모두 회사 웹사이트·상업 서비스에 무료로 사용할 수 있습니다.</p>
+    <table id="license-table">
+      <thead>
+        <tr>
+          <th>폰트</th>
+          <th>상업적 웹 사용</th>
+          <th>확인한 조건</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="font-name">Poppins</td>
+          <td>가능</td>
+          <td>SIL OFL 1.1. 상업 이용·웹 임베딩 가능. 단, 한글 글리프는 없음 — 영문 타이틀 전용으로 써야 합니다.</td>
+        </tr>
+        <tr>
+          <td class="font-name">ONE Mobile Title</td>
+          <td>가능</td>
+          <td>개인·기업 모두 무료, 웹사이트·BI/CI·임베딩 가능. 다만 폰트 파일 자체의 판매·수정·재배포는 금지.</td>
+        </tr>
+        <tr>
+          <td class="font-name">경기천년제목</td>
+          <td>가능</td>
+          <td>웹·인쇄·영상 등 자유 사용 가능. 폰트 파일을 유료 양도·판매하는 행위만 금지.</td>
+        </tr>
+        <tr>
+          <td class="font-name">IBM Plex Sans KR</td>
+          <td>가능</td>
+          <td>SIL OFL 1.1. 상업 이용·웹/앱 임베딩 가능. 수정본을 배포할 경우 폰트명 관련 OFL 조건을 따라야 함.</td>
+        </tr>
+        <tr>
+          <td class="font-name">여기어때 잘난체 (YG Jalnan)</td>
+          <td>가능</td>
+          <td>웹사이트·광고·BI/CI 등 상업 사용 가능. 폰트 파일 자체 판매·임의 수정 후 재배포는 금지. BI/CI에 사용해도 상표 등록은 불가.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <script>
+    document.getElementById('apply-btn').addEventListener('click', function () {
+      var logoSize = document.getElementById('logo-size-input').value;
+      var titleSize = document.getElementById('title-size-input').value;
+      var gap = document.getElementById('gap-input').value;
+      document.documentElement.style.setProperty('--logo-size', logoSize + 'px');
+      document.documentElement.style.setProperty('--title-font-size', titleSize + 'px');
+      document.documentElement.style.setProperty('--lockup-gap', gap + 'px');
+    });
+
+    document.getElementById('preview-text-input').addEventListener('input', function (e) {
+      var text = e.target.value;
+      document.querySelectorAll('.preview-title').forEach(function (el) {
+        el.textContent = text;
+      });
+    });
+  </script>
+
+</body>
+</html>
