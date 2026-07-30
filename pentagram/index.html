@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PENTAGRAM · Redesign Explorations</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;700;900&family=Cormorant+Garamond:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --sans:'Pretendard',sans-serif;
+    --serif:'Noto Serif KR',serif;
+    --latin:'Cormorant Garamond',serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#0a0a0d;font-family:var(--sans);color:#f4ecdb;overflow:hidden}
+  .switcher{position:fixed;top:0;left:0;right:0;z-index:9999;
+    background:rgba(10,10,13,.92);backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(200,164,74,.25);
+    display:flex;align-items:center;padding:10px 22px;gap:16px;height:52px;font-size:13px}
+  .switcher .brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:900;letter-spacing:.02em;color:#c8a44a}
+  .switcher .brand small{font-family:var(--latin);font-style:italic;font-weight:400;color:#8a92a8;font-size:12px;letter-spacing:.1em;margin-left:6px}
+  .switcher .tabs{display:flex;gap:4px;flex:1;justify-content:center}
+  .switcher .tabs button{background:transparent;border:1px solid rgba(200,164,74,.25);color:#a8a091;
+    padding:8px 18px;font-family:var(--sans);font-weight:500;font-size:12.5px;letter-spacing:.05em;
+    cursor:pointer;transition:.2s;border-radius:2px}
+  .switcher .tabs button:hover{color:#e6c874;border-color:#c8a44a}
+  .switcher .tabs button.on{background:#c8a44a;color:#0a0a0d;border-color:#c8a44a;font-weight:700}
+  .switcher .tabs button .n{font-family:var(--latin);font-style:italic;font-size:11px;margin-right:6px;opacity:.7}
+  .switcher .tabs button.on .n{opacity:1}
+  .switcher .hint{font-family:var(--latin);font-style:italic;color:#7a6f60;font-size:12px;letter-spacing:.1em}
+
+  .stage{position:fixed;top:52px;left:0;right:0;bottom:0;background:#0a0a0d}
+  .stage iframe{width:100%;height:100%;border:0;display:block}
+
+  .loader{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    color:#c8a44a;font-family:var(--latin);font-style:italic;letter-spacing:.4em;font-size:14px;pointer-events:none;
+    opacity:0;transition:.3s}
+  .loader.show{opacity:1}
+  @media (max-width:700px){
+    .switcher{flex-wrap:wrap;height:auto;padding:8px 14px;gap:8px}
+    .switcher .hint{display:none}
+    .switcher .tabs{flex:1 0 100%;order:2;overflow-x:auto;padding-bottom:4px}
+    .switcher .tabs button{white-space:nowrap;padding:7px 12px;font-size:12px}
+    .stage{top:96px}
+  }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <div class="brand">PENTAGRAM <small>· redesign explorations</small></div>
+  <div class="tabs" id="tabs">
+    <button class="on" data-src="variants/v1-moonlit.html"><span class="n">i</span>MOONLIT ARCHIVE</button>
+    <button data-src="variants/v2-fivestars.html"><span class="n">ii</span>FIVE STARS</button>
+    <button data-src="variants/v5-arcane.html"><span class="n">iii</span>ARCANE FANTASY</button>
+  </div>
+  <div class="hint">3 variants · 좌우 화살표로 전환</div>
+</div>
+
+<div class="stage">
+  <div class="loader" id="loader">— LOADING —</div>
+  <iframe id="frame" src="variants/v1-moonlit.html" allow="fullscreen"></iframe>
+</div>
+
+<script>
+const tabs = document.getElementById('tabs');
+const frame = document.getElementById('frame');
+const loader = document.getElementById('loader');
+const buttons = [...tabs.querySelectorAll('button')];
+
+// persist selection
+const saved = localStorage.getItem('pentagram_variant');
+const validSaved = saved && buttons.find(x=>x.dataset.src === saved);
+if (validSaved){
+  buttons.forEach(x=>x.classList.remove('on'));
+  validSaved.classList.add('on');
+  frame.src = saved;
+} else if (saved) {
+  // stale value (e.g. deleted variant) — clear it
+  localStorage.removeItem('pentagram_variant');
+}
+
+function selectIndex(i){
+  const b = buttons[(i + buttons.length) % buttons.length];
+  buttons.forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  loader.classList.add('show');
+  frame.src = b.dataset.src;
+  localStorage.setItem('pentagram_variant', b.dataset.src);
+}
+
+tabs.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if (!b) return;
+  selectIndex(buttons.indexOf(b));
+});
+
+frame.addEventListener('load', ()=> loader.classList.remove('show'));
+
+addEventListener('keydown', e=>{
+  const cur = buttons.findIndex(b=>b.classList.contains('on'));
+  if (e.key === 'ArrowRight') selectIndex(cur+1);
+  if (e.key === 'ArrowLeft') selectIndex(cur-1);
+});
+</script>
+</body>
+</html>
