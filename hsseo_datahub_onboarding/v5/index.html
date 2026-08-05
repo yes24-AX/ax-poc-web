@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub — 오늘 읽어야 할 단 한 권</title>
+<meta name="description" content="디자인 POC v5 — 라이브러리. 사방에서 날아온 데이터 책들이 서가를 채우고, AI 사서가 오늘 읽어야 할 단 한 권을 꺼낸다. 단일 장면 스크럽. CSS 3D, WebGL 미사용." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<style>
+/* ============================================================
+   v5 — LIBRARY : 데이터 서가 (단일 장면 스크럽 / WebGL 미사용)
+   종이 톤 보고서 감성. 스크롤 = 책들이 서가에 꽂히고 →
+   AI 사서의 램프가 서가를 훑고 → 단 한 권이 뽑혀 나오는 애니메이션.
+   ============================================================ */
+:root {
+  --paper: #f7f4ee;
+  --page: #fffdf8;
+  --ink: #1e2536;
+  --muted: #6a7080;
+  --faint: #9aa0ad;
+  --line: rgba(30, 37, 54, 0.12);
+  --blue: #2b4bd7;
+  --gold: #c9a227;
+  --mint: #0f9d6a;
+  --amber: #d97706;
+  --font: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+  --serif: "Noto Serif KR", "Pretendard Variable", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  background:
+    repeating-linear-gradient(0deg, rgba(30, 37, 54, 0.012) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse 120% 90% at 50% 0%, #fbf9f4 0%, var(--paper) 60%, #efeae0 100%);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
+::selection { background: rgba(201, 162, 39, 0.3); }
+
+#scroll-space { height: 500vh; pointer-events: none; }
+
+/* ---- 상단 헤더 ---- */
+.masthead {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px clamp(20px, 4vw, 44px);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.18em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  background: rgba(247, 244, 238, 0.88);
+}
+.masthead b { color: var(--ink); }
+.masthead .stock { font-variant-numeric: tabular-nums; }
+.masthead .stock em { font-style: normal; color: var(--blue); font-weight: 800; }
+
+.progress-track { position: fixed; top: 0; left: 0; z-index: 51; width: 100%; height: 3px; }
+.progress-fill { width: 0%; height: 100%; background: var(--ink); }
+
+/* ============================================================
+   무대
+   ============================================================ */
+#stage {
+  position: fixed; inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0; transition: opacity 0.9s ease;
+}
+body.is-ready #stage { opacity: 1; }
+
+.cap {
+  position: absolute;
+  left: 50%; top: clamp(84px, 12vh, 120px);
+  transform: translateX(-50%);
+  text-align: center;
+  width: min(760px, calc(100% - 40px));
+  opacity: 0; visibility: hidden;
+  z-index: 12;
+}
+.cap .lb {
+  display: inline-block;
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+.cap h2 { font-family: var(--serif); font-size: clamp(22px, 2.8vw, 34px); font-weight: 700; line-height: 1.4; }
+
+/* ---- 인트로 ---- */
+#intro {
+  position: absolute;
+  left: 50%; top: 40%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 6;
+  width: min(880px, calc(100% - 40px));
+}
+#intro .kicker {
+  display: inline-block;
+  padding: 7px 18px;
+  border: 1.5px solid var(--ink);
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.34em;
+  margin-bottom: 26px;
+  background: var(--page);
+}
+#intro h1 {
+  font-family: var(--serif);
+  font-size: clamp(38px, 6vw, 80px);
+  font-weight: 900;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+}
+#intro h1 em { font-style: normal; color: var(--blue); }
+#intro p { margin-top: 20px; font-size: clamp(14.5px, 1.6vw, 18px); line-height: 1.8; color: var(--muted); }
+
+/* ============================================================
+   서가 (CSS 3D)
+   ============================================================ */
+#shelf-scene {
+  position: absolute;
+  left: 50%; top: 56%;
+  transform: translate(-50%, -50%);
+  perspective: 1900px;
+  z-index: 4;
+}
+#shelf-scene::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: calc(50% + 262px);
+  width: 760px; height: 90px;
+  transform: translate(-50%, -50%) rotateX(70deg);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(30, 37, 54, 0.24), transparent 66%);
+  z-index: -1;
+}
+#shelf {
+  position: relative;
+  width: 720px; height: 470px;
+  transform-style: preserve-3d;
+  transform: rotateX(7deg) rotateY(-10deg);
+}
+/* 서가 프레임 */
+.frame {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #2c3a69 0%, #1b2340 100%);
+  border-radius: 10px;
+  box-shadow: 18px 26px 60px rgba(30, 37, 54, 0.24);
+  transform: translateZ(-64px);
+}
+.frame::after {
+  content: "AX DATAHUB LIBRARY";
+  position: absolute; left: 50%; top: -34px;
+  transform: translateX(-50%);
+  font-size: 11px; font-weight: 800; letter-spacing: 0.5em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+/* 선반 (칸막이 판) */
+.plank {
+  position: absolute; left: 10px; right: 10px;
+  height: 14px;
+  background: linear-gradient(180deg, #3a4a80, #223055);
+  border-radius: 3px;
+  transform: translateZ(-8px);
+  box-shadow: 0 10px 18px rgba(15, 20, 40, 0.35);
+}
+/* 칸 내부 배경 */
+.bay {
+  position: absolute; left: 10px; right: 10px;
+  background: linear-gradient(180deg, #171f3a, #10162b);
+  transform: translateZ(-56px);
+  border-radius: 4px;
+}
+
+/* ---- 책 (스파인) ---- */
+.bk {
+  position: absolute;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.bk .sp {
+  position: absolute; inset: 0;
+  border-radius: 2.5px 2.5px 2px 2px;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 9px;
+  writing-mode: vertical-rl;
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.14em;
+  color: rgba(255, 253, 248, 0.92);
+  box-shadow: inset -3px 0 6px rgba(0, 0, 0, 0.28), inset 2px 0 3px rgba(255, 255, 255, 0.22);
+}
+.bk .sp i { /* 스파인 금박 라인 */
+  position: absolute; left: 4px; right: 4px;
+  height: 1.5px;
+  background: rgba(255, 235, 190, 0.55);
+}
+.bk .sp i.t { top: 8px; } .bk .sp i.b { bottom: 26px; }
+/* 스캔에서 살아남는 핵심 책 표시 */
+.bk.is-dim .sp { filter: none; opacity: 0.35; transition: opacity 0.4s ease; }
+.bk.is-key .sp { box-shadow: inset -3px 0 6px rgba(0,0,0,0.28), 0 0 18px rgba(201, 162, 39, 0.65); transition: box-shadow 0.4s ease; }
+
+/* ---- 주인공 책 (뽑혀 나오는 한 권) ---- */
+#hero-book {
+  position: absolute;
+  transform-style: preserve-3d;
+  z-index: 10;
+}
+#hero-book .face { position: absolute; backface-visibility: hidden; border-radius: 3px 8px 8px 3px; }
+#hero-book .spine-f {
+  inset: 0;
+  border-radius: 2.5px;
+  background: linear-gradient(180deg, #d9b44a, #b08b22);
+  writing-mode: vertical-rl;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 900; letter-spacing: 0.2em;
+  color: #241c05;
+  box-shadow: inset -3px 0 6px rgba(0, 0, 0, 0.25);
+}
+#hero-book .cover-f {
+  left: 100%; top: 0;
+  width: 190px; height: 100%;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+  background: radial-gradient(ellipse 120% 90% at 30% 0%, #2f3d6e 0%, #1c2440 62%);
+  border: 1px solid #141a30;
+  color: #f2ead8;
+  padding: 20px 16px;
+  display: flex; flex-direction: column;
+}
+#hero-book .cover-f .press { font-size: 8px; font-weight: 700; letter-spacing: 0.34em; color: rgba(242, 234, 216, 0.6); }
+#hero-book .cover-f h3 { font-family: var(--serif); margin-top: auto; font-size: 19px; font-weight: 900; line-height: 1.4; }
+#hero-book .cover-f .gild { margin-top: 10px; height: 1.5px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+#hero-book .cover-f .date { margin-top: 10px; font-size: 8.5px; font-weight: 600; letter-spacing: 0.2em; color: rgba(242, 234, 216, 0.75); }
+
+/* ---- AI 사서 램프 (스캔 광) ---- */
+#lamp {
+  position: absolute;
+  top: -8px; bottom: -8px;
+  left: 0;
+  width: 130px;
+  z-index: 8;
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.22) 40%, rgba(255, 236, 180, 0.34) 50%, rgba(201, 162, 39, 0.22) 60%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- 결론 카드 ---- */
+#verdict {
+  position: absolute;
+  left: 50%; bottom: clamp(64px, 10vh, 110px);
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 12;
+  opacity: 0; visibility: hidden;
+  white-space: nowrap;
+}
+#verdict .n { font-family: var(--serif); font-size: clamp(22px, 3vw, 36px); font-weight: 700; }
+#verdict .n b { background: linear-gradient(#ffe97a, #ffe97a) no-repeat 0 62% / 100% 55%; }
+#verdict small { display: block; margin-top: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.24em; color: var(--faint); }
+
+/* ---- CTA ---- */
+#cta {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  z-index: 14;
+  opacity: 0; visibility: hidden;
+  background: radial-gradient(ellipse 90% 70% at 50% 46%, rgba(247, 244, 238, 0.96) 40%, rgba(247, 244, 238, 0.72) 100%);
+}
+#cta .kicker { font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em; color: var(--blue); margin-bottom: 18px; }
+#cta h1 { font-family: var(--serif); font-size: clamp(36px, 5.8vw, 74px); font-weight: 900; line-height: 1.18; letter-spacing: -0.02em; }
+#cta h1 em { font-style: normal; color: var(--blue); }
+#cta p { margin-top: 18px; font-size: clamp(14.5px, 1.6vw, 18px); color: var(--muted); line-height: 1.8; }
+#cta .actions { margin-top: 32px; display: flex; gap: 13px; flex-wrap: wrap; justify-content: center; pointer-events: auto; }
+.btn {
+  padding: 15px 32px;
+  border-radius: 4px;
+  font-family: inherit; font-size: 15px; font-weight: 800;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.btn:hover { transform: translate(2px, 2px); box-shadow: 3px 3px 0 var(--ink); }
+.btn.inkfill { background: var(--ink); color: var(--paper); }
+.btn.paperfill { background: var(--page); color: var(--ink); }
+
+.scroll-hint {
+  position: fixed; left: 50%; bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  transition: opacity 0.5s ease;
+}
+.scroll-hint span { font-size: 10px; font-weight: 800; letter-spacing: 0.44em; color: var(--faint); }
+.scroll-hint i { width: 1.5px; height: 38px; background: linear-gradient(to bottom, var(--ink), transparent); animation: drop 1.6s ease-in-out infinite; }
+@keyframes drop { 0% { transform: scaleY(0); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: top; } 56% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+.scroll-hint.is-hidden { opacity: 0; }
+
+@media (max-width: 900px) {
+  #shelf { transform: rotateX(7deg) rotateY(-10deg) scale(0.55); }
+  #shelf-scene::after { width: 420px; top: calc(50% + 160px); }
+  #intro h1 { font-size: 32px; }
+  .cap h2 { font-size: 19px; }
+  #verdict { white-space: normal; width: calc(100% - 40px); }
+  #scroll-space { height: 460vh; }
+}
+@media (prefers-reduced-motion: reduce) { .scroll-hint i { animation: none !important; } }
+</style>
+</head>
+<body>
+
+<div id="scroll-space" aria-hidden="true"></div>
+
+<header class="masthead">
+  <span><b>AX DATAHUB</b> · LIBRARY</span>
+  <span class="stock" id="stock">장서 <em>0</em>권</span>
+</header>
+<div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+
+<div id="stage" aria-hidden="true">
+
+  <!-- 캡션 -->
+  <div class="cap" id="cap-fill">
+    <span class="lb">STEP 01</span>
+    <h2>흩어진 데이터를 한곳에 — 모든 데이터를 하나의 공간으로</h2>
+  </div>
+  <div class="cap" id="cap-scan">
+    <span class="lb">STEP 02</span>
+    <h2>변화는 먼저 보여드립니다 — 중요한 변화만 빠르게 발견하세요</h2>
+  </div>
+  <div class="cap" id="cap-pick">
+    <span class="lb">STEP 03</span>
+    <h2>연결할수록 더 많은 인사이트 — 연결된 데이터로 더 깊이 분석하세요</h2>
+  </div>
+
+  <!-- 인트로 -->
+  <div id="intro">
+    <span class="kicker">AX DATAHUB</span>
+    <h1>흩어진 데이터를<br /><em>한곳에.</em></h1>
+    <p>운영, 고객, 마케팅 등 여러 곳에 흩어진 데이터를<br />AX Datahub에서 통합하여 한 번에 확인하세요.</p>
+  </div>
+
+  <!-- 서가 -->
+  <div id="shelf-scene">
+    <div id="shelf">
+      <div class="frame"></div>
+      <!-- 칸/선반/책은 JS가 채운다 -->
+      <div id="lamp"></div>
+    </div>
+  </div>
+
+  <!-- 결론 -->
+  <div id="verdict">
+    <div class="n">오늘의 서문 — “<b>재고를 먼저 확보하세요.</b>”</div>
+    <small>결과는 AI 리포트로 요약해 바로 공유하세요</small>
+  </div>
+
+  <!-- CTA -->
+  <div id="cta">
+    <span class="kicker">AX DATAHUB</span>
+    <h1>이제<br /><em>시작하세요.</em></h1>
+    <p>탐색부터 분석, 공유까지<br />AX Datahub와 함께 더 빠르고 효율적인 업무를 시작해보세요.</p>
+    <div class="actions">
+      <button class="btn inkfill" type="button">AX Datahub 구독하기</button>
+      <button class="btn paperfill" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">처음부터 다시 보기</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="scroll-hint" id="hint"><span>SHELVE</span><i></i></div>
+
+<script>
+/* ============================================================
+   서가 구축 + 단일 장면 타임라인
+   0.00–0.12  인트로 → 빈 서가 등장
+   0.12–0.46  COLLECT : 책들이 사방에서 날아와 칸칸이 꽂힘 (장서 카운터)
+   0.46–0.66  CURATE  : 램프 스캔 — 대부분 흐려지고 핵심 책만 금빛
+   0.66–0.86  PICK    : 금박 한 권이 빠져나와 표지를 보이며 전면으로
+   0.86–1.00  CTA
+   ============================================================ */
+(function () {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const mobile = coarse || innerWidth < 900;
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+
+  const shelf = document.getElementById('shelf');
+  const SHELF_W = 720, ROWS = 3;
+  const ROW_H = 148, PLANK = 14, PAD = 10;
+
+  /* 칸 + 선반 생성 */
+  for (let r = 0; r < ROWS; r++) {
+    const top = PAD + r * (ROW_H + PLANK);
+    const bay = document.createElement('div');
+    bay.className = 'bay';
+    bay.style.cssText = `top:${top}px; height:${ROW_H}px;`;
+    shelf.insertBefore(bay, shelf.firstChild.nextSibling); // frame 뒤
+    const plank = document.createElement('div');
+    plank.className = 'plank';
+    plank.style.top = (top + ROW_H) + 'px';
+    shelf.appendChild(plank);
+  }
+
+  /* 책 스파인 채우기 */
+  const spineColors = ['#3d5aa8', '#5a4a8f', '#8f4a5e', '#3f7d6a', '#a06a2c', '#54687d', '#7a3f6e', '#2f6f8f'];
+  const keyLabels = ['매출', '검색', '재고', '리뷰', '이벤트', '행동'];
+  const books = [];
+  let heroSlot = null;
+
+  for (let r = 0; r < ROWS; r++) {
+    const top = PAD + r * (ROW_H + PLANK);
+    let x = PAD + 8;
+    let k = 0;
+    while (x < SHELF_W - PAD - 40) {
+      const w = rand(20, 40);
+      const h = ROW_H - rand(8, 34);
+      if (x + w > SHELF_W - PAD - 8) break;
+
+      const isHeroSlot = r === 1 && x > SHELF_W * 0.46 && !heroSlot; // 가운데 칸 중앙부 — 주인공 자리
+      if (isHeroSlot) {
+        heroSlot = { x, top, w: 34, h: ROW_H - 10 };
+        x += 34 + 3;
+        continue;
+      }
+
+      const bk = document.createElement('div');
+      bk.className = 'bk';
+      bk.style.cssText = `left:${x}px; top:${top + (ROW_H - h)}px; width:${w}px; height:${h}px;`;
+      const isKey = Math.random() < 0.14 && k < keyLabels.length && w >= 26;
+      const label = isKey ? keyLabels[k++] : '';
+      bk.innerHTML = `<span class="sp" style="background: linear-gradient(180deg, ${pick(spineColors)}, rgba(10,14,30,0.9))"><i class="t"></i><i class="b"></i>${label}</span>`;
+      if (isKey) bk.dataset.key = '1';
+      shelf.appendChild(bk);
+      books.push(bk);
+      x += w + 3;
+    }
+  }
+
+  /* 주인공 책 배치 (금박 스파인 + 직각 커버) */
+  const hero = document.createElement('div');
+  hero.id = 'hero-book';
+  hero.style.cssText = `left:${heroSlot.x}px; top:${heroSlot.top + 5}px; width:${heroSlot.w}px; height:${heroSlot.h}px;`;
+  hero.innerHTML = `
+    <div class="face spine-f">오늘의 브리핑</div>
+    <div class="face cover-f">
+      <span class="press">AX DATAHUB PRESS</span>
+      <h3>오늘의 브리핑<br/>— 신호에서<br/>결정까지</h3>
+      <span class="gild"></span>
+      <span class="date">2026. 08. 03 · 제 214호</span>
+    </div>`;
+  shelf.appendChild(hero);
+
+  const noGsap = typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined';
+
+  if (noGsap || reduced) {
+    // 폴백: 완성 서가 + 스캔 결과 + CTA
+    document.getElementById('intro').style.display = 'none';
+    books.forEach((b) => b.classList.add(b.dataset.key ? 'is-key' : 'is-dim'));
+    hero.style.transform = 'translate(180px, 130px) rotateY(-90deg) scale(1.6)';
+    const cta = document.getElementById('cta');
+    cta.style.opacity = 1; cta.style.visibility = 'visible';
+    document.getElementById('stock').innerHTML = `장서 <em>${books.length.toLocaleString()}</em>권`;
+    document.body.classList.add('is-ready');
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* 시작 상태 — 서가는 아래에서 대기, 책은 사방 산개 */
+  gsap.set(shelf, { y: 240, scale: 0.86, opacity: 0.5 });
+  books.forEach((b) => {
+    gsap.set(b, {
+      x: rand(-1, 1) * innerWidth * 0.55,
+      y: rand(-0.8, 0.8) * innerHeight * 0.5,
+      rotation: rand(-40, 40),
+      opacity: 0,
+    });
+  });
+  gsap.set(hero, { x: -innerWidth * 0.4, y: -innerHeight * 0.35, rotation: -24, opacity: 0 });
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'power2.inOut' },
+    scrollTrigger: { trigger: '#scroll-space', start: 'top top', end: 'bottom bottom', scrub: 0.7 },
+  });
+
+  const CAP_IN = { autoAlpha: 1, y: 0, duration: 0.04, ease: 'power2.out' };
+  const CAP_OUT = { autoAlpha: 0, y: -16, duration: 0.04, ease: 'power2.in' };
+  const CAP_FROM = { autoAlpha: 0, y: 16 };
+
+  /* 0 → 0.12 : 인트로 → 서가 등장 */
+  tl.to('#intro', { autoAlpha: 0, y: -60, duration: 0.09 }, 0.03);
+  tl.to(shelf, { y: 0, scale: 1, opacity: 1, duration: 0.12 }, 0.02);
+
+  /* 0.12 → 0.46 : COLLECT — 책이 무작위 순서로 꽂힌다 */
+  tl.fromTo('#cap-fill', CAP_FROM, CAP_IN, 0.13);
+  const order = books.slice().sort(() => Math.random() - 0.5);
+  order.forEach((b, i) => {
+    const t0 = 0.14 + (i / order.length) * 0.28;
+    tl.to(b, { x: 0, y: 0, rotation: 0, opacity: 1, duration: 0.05, ease: 'power3.out' }, t0);
+  });
+  // 주인공 책도 이때 슬쩍 꽂힌다
+  tl.to(hero, { x: 0, y: 0, rotation: 0, opacity: 1, duration: 0.05, ease: 'power3.out' }, 0.34);
+  tl.to('#cap-fill', CAP_OUT, 0.44);
+
+  /* 0.46 → 0.66 : CURATE — 램프 스캔 */
+  tl.fromTo('#cap-scan', CAP_FROM, CAP_IN, 0.47);
+  tl.set('#lamp', { opacity: 1 }, 0.48);
+  tl.fromTo('#lamp', { x: -140 }, { x: 760, duration: 0.15, ease: 'none' }, 0.48);
+  // 램프가 지나가며 분류: 3구간으로 나눠 dim/key 부여
+  [0.5, 0.55, 0.6].forEach((t, seg) => {
+    tl.add(() => {
+      books.forEach((b, i) => {
+        if (i % 3 !== seg) return;
+        b.classList.add(b.dataset.key ? 'is-key' : 'is-dim');
+      });
+    }, t);
+  });
+  tl.set('#lamp', { opacity: 0 }, 0.64);
+  tl.to('#cap-scan', CAP_OUT, 0.64);
+
+  /* 0.66 → 0.86 : PICK — 금박 한 권이 뽑혀 나와 표지를 보인다 */
+  tl.fromTo('#cap-pick', CAP_FROM, CAP_IN, 0.68);
+  tl.to(shelf, { scale: 0.94, y: 26, duration: 0.08 }, 0.68);
+  tl.to(hero, { z: 150, duration: 0.06, ease: 'power2.out' }, 0.68);          // 앞으로 스윽
+  tl.to(hero, {
+    x: mobile ? 60 : 180, y: 130, z: 260,
+    rotationY: -90,                                                            // 스파인 → 표지
+    scale: mobile ? 1.9 : 1.6,
+    duration: 0.1, ease: 'power2.inOut',
+  }, 0.74);
+  tl.fromTo('#verdict', { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.05, ease: 'power2.out' }, 0.78);
+  tl.to('#cap-pick', CAP_OUT, 0.85);
+  tl.to('#verdict', { autoAlpha: 0, y: -18, duration: 0.04 }, 0.86);
+
+  /* 0.86 → 1.0 : CTA */
+  tl.to(shelf, { y: 150, scale: 0.85, opacity: 0.45, duration: 0.09 }, 0.87);
+  tl.to(hero, { y: 200, opacity: 0.55, duration: 0.09 }, 0.87);
+  tl.fromTo('#cta', { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' }, 0.9);
+
+  /* 장서 카운터 + 진행바 + 힌트 */
+  const stock = document.getElementById('stock');
+  const pf = document.getElementById('pf');
+  const hint = document.getElementById('hint');
+  ScrollTrigger.create({
+    trigger: '#scroll-space', start: 'top top', end: 'bottom bottom',
+    onUpdate: (self) => {
+      const p = self.progress;
+      pf.style.width = (p * 100).toFixed(2) + '%';
+      hint.classList.toggle('is-hidden', p > 0.02);
+      // 수집 구간 동안 0 → 24,132 로 차오르고, 선정 후엔 "선정 1권"
+      let html;
+      if (p < 0.46) {
+        const n = Math.round(Math.min(1, Math.max(0, (p - 0.12) / 0.32)) * 24132);
+        html = `장서 <em>${n.toLocaleString()}</em>권`;
+      } else if (p < 0.66) {
+        html = `장서 <em>24,132</em>권 · 분류 중`;
+      } else {
+        html = `선정 <em>1</em>권 / 24,132권`;
+      }
+      stock.innerHTML = html;
+    },
+  });
+
+  /* 마우스 패럴랙스 */
+  if (!coarse) {
+    addEventListener('pointermove', (e) => {
+      const px = e.clientX / innerWidth - 0.5;
+      const py = e.clientY / innerHeight - 0.5;
+      gsap.to('#shelf-scene', {
+        rotationY: px * 6, rotationX: -py * 4,
+        transformPerspective: 1900,
+        duration: 0.7, ease: 'power2.out', overwrite: 'auto',
+      });
+    });
+  }
+
+  document.body.classList.add('is-ready');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub — 오늘의 브리핑, 한 권으로</title>
+<meta name="description" content="디자인 POC v4 — 데일리 브리핑 북. 종이 톤의 모던 보고서 감성. 스크롤이 책을 열고, 페이지를 넘기고, 결론에 형광펜을 긋는 단일 장면 애니메이션. CSS 3D, WebGL 미사용." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<style>
+/* ============================================================
+   v4 — DAILY BRIEFING BOOK : 단일 장면 북 애니메이션
+   (CSS 3D / WebGL 미사용 · 페이지 스크롤 없음)
+   종이 아이보리 + 잉크 네이비 + 형광펜 옐로 + 금박 리본.
+   스크롤 = 책이 열리고 → 챕터가 넘어가고 → 결론에 밑줄이
+   그어지는 하나의 애니메이션.
+   ============================================================ */
+:root {
+  --paper: #f7f4ee;
+  --page: #fffdf8;
+  --ink: #1e2536;
+  --muted: #6a7080;
+  --faint: #9aa0ad;
+  --line: rgba(30, 37, 54, 0.12);
+  --blue: #2b4bd7;
+  --gold: #c9a227;
+  --marker: #ffe97a;
+  --mint: #0f9d6a;
+  --amber: #d97706;
+  --font: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+  --serif: "Noto Serif KR", "Pretendard Variable", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  background:
+    repeating-linear-gradient(0deg, rgba(30, 37, 54, 0.012) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse 120% 90% at 50% 0%, #fbf9f4 0%, var(--paper) 60%, #efeae0 100%);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
+::selection { background: rgba(255, 233, 122, 0.7); }
+
+#scroll-space { height: 500vh; pointer-events: none; }
+
+/* ---- 상단 보고서 헤더 ---- */
+.masthead {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px clamp(20px, 4vw, 44px);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.18em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  background: rgba(247, 244, 238, 0.88);
+}
+.masthead b { color: var(--ink); }
+.masthead .pageno { font-variant-numeric: tabular-nums; letter-spacing: 0.1em; }
+.masthead .pageno em { font-style: normal; color: var(--blue); font-weight: 800; }
+
+.progress-track { position: fixed; top: 0; left: 0; z-index: 51; width: 100%; height: 3px; background: transparent; }
+.progress-fill { width: 0%; height: 100%; background: var(--ink); }
+
+/* ============================================================
+   무대 (fixed 단일 장면)
+   ============================================================ */
+#stage {
+  position: fixed; inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0; transition: opacity 0.9s ease;
+}
+body.is-ready #stage { opacity: 1; }
+
+/* ---- 장면 캡션 (상단, 교차 페이드) ---- */
+.cap {
+  position: absolute;
+  left: 50%; top: clamp(84px, 12vh, 120px);
+  transform: translateX(-50%);
+  text-align: center;
+  width: min(760px, calc(100% - 40px));
+  opacity: 0; visibility: hidden;
+}
+.cap .lb {
+  display: inline-block;
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+.cap h2 { font-family: var(--serif); font-size: clamp(22px, 2.8vw, 34px); font-weight: 700; letter-spacing: -0.01em; line-height: 1.4; }
+
+/* ---- 인트로 ---- */
+#intro {
+  position: absolute;
+  left: 50%; top: 38%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 6;
+  width: min(860px, calc(100% - 40px));
+}
+#intro .kicker {
+  display: inline-block;
+  padding: 7px 18px;
+  border: 1.5px solid var(--ink);
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.34em;
+  margin-bottom: 26px;
+  background: var(--page);
+}
+#intro h1 {
+  font-family: var(--serif);
+  font-size: clamp(40px, 6.4vw, 84px);
+  font-weight: 900;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+}
+#intro h1 em { font-style: normal; color: var(--blue); }
+#intro p { margin-top: 20px; font-size: clamp(14.5px, 1.6vw, 18px); line-height: 1.8; color: var(--muted); }
+
+/* ============================================================
+   책 (CSS 3D)
+   ============================================================ */
+#book-scene {
+  position: absolute;
+  left: 50%; top: 57%;
+  transform: translate(-50%, -50%);
+  perspective: 2000px;
+  z-index: 4;
+}
+/* 바닥 그림자 (책 아래 타원) */
+#book-scene::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: calc(50% + 236px);
+  width: 460px; height: 90px;
+  transform: translate(-50%, -50%) rotateX(70deg);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(30, 37, 54, 0.28), transparent 66%);
+  z-index: -1;
+}
+#book {
+  --bw: 320px;   /* 페이지 폭 */
+  --bh: 420px;   /* 페이지 높이 */
+  --bt: 46px;    /* 책 두께 */
+  position: relative;
+  width: var(--bw); height: var(--bh);
+  transform-style: preserve-3d;
+  transform: rotateX(14deg) rotateY(-15deg); /* 15° 틀어 책배·하단이 보이는 기본 자세 */
+}
+
+/* ---- 진짜 입체 책 : 6면 블록 ---- */
+.bk-face { position: absolute; backface-visibility: visible; }
+/* 앞면 = 최종 우측 페이지 */
+#bk-front {
+  inset: 0;
+  background: var(--page);
+  border: 1px solid var(--line);
+  border-radius: 3px 10px 10px 3px;
+  box-shadow: inset 14px 0 26px rgba(30, 37, 54, 0.06);
+}
+/* 책배 (우측 단면 — 페이지 결) */
+.bk-right {
+  left: 100%; top: 2px;
+  width: var(--bt); height: calc(100% - 4px);
+  transform-origin: left center;
+  transform: rotateY(90deg);
+  background:
+    linear-gradient(90deg, rgba(30, 37, 54, 0.1), transparent 30%),
+    repeating-linear-gradient(0deg, #ece6d8 0 2px, #fbf8f1 2px 4.5px);
+  border-radius: 0 3px 3px 0;
+}
+/* 하단 단면 (페이지 결 세로) */
+.bk-bottom {
+  top: 100%; left: 2px;
+  width: calc(100% - 4px); height: var(--bt);
+  transform-origin: center top;
+  transform: rotateX(-90deg);
+  background:
+    linear-gradient(180deg, rgba(30, 37, 54, 0.12), transparent 34%),
+    repeating-linear-gradient(90deg, #e9e3d5 0 2px, #f8f4ea 2px 4.5px);
+}
+/* 상단 단면 */
+.bk-top {
+  top: 0; left: 2px;
+  width: calc(100% - 4px); height: var(--bt);
+  transform-origin: center top;
+  transform: rotateX(-90deg);
+  background: repeating-linear-gradient(90deg, #efe9dc 0 2px, #fbf8f1 2px 4.5px);
+}
+/* 책등 (좌측 — 네이비 + 금박 밴드) */
+.bk-spine {
+  left: 0; top: 0;
+  width: var(--bt); height: 100%;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+  background: linear-gradient(180deg, #2c3a69 0%, #1b2340 100%);
+  border-radius: 3px 0 0 3px;
+}
+.bk-spine::before, .bk-spine::after {
+  content: "";
+  position: absolute; left: 6px; right: 6px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.bk-spine::before { top: 34px; }
+.bk-spine::after { bottom: 34px; }
+/* 뒤표지 */
+.bk-back {
+  inset: 0;
+  transform: translateZ(calc(-1 * var(--bt)));
+  background: radial-gradient(ellipse 120% 90% at 30% 0%, #2f3d6e 0%, #1c2440 62%);
+  border: 1px solid #141a30;
+  border-radius: 3px 10px 10px 3px;
+  box-shadow: 22px 30px 60px rgba(30, 37, 54, 0.22);
+}
+
+/* 넘어가는 낱장(leaf)과 표지 — 왼쪽 척추 기준 회전 */
+.leaf, .cover {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+}
+.leaf .f, .leaf .b, .cover .f, .cover .b {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border-radius: 3px 10px 10px 3px;
+  overflow: hidden;
+}
+.leaf .b, .cover .b { transform: rotateY(180deg); border-radius: 10px 3px 3px 10px; }
+.leaf .f, .leaf .b {
+  background: var(--page);
+  border: 1px solid var(--line);
+  box-shadow: inset 12px 0 22px rgba(30, 37, 54, 0.045);
+}
+/* 표지 */
+.cover .f {
+  background:
+    radial-gradient(ellipse 120% 90% at 30% 0%, #2f3d6e 0%, #1c2440 62%);
+  border: 1px solid #141a30;
+  color: #f2ead8;
+  display: flex; flex-direction: column;
+  padding: 34px 28px;
+}
+.cover .f .press { font-size: 10px; font-weight: 700; letter-spacing: 0.4em; color: rgba(242, 234, 216, 0.6); }
+.cover .f h3 { font-family: var(--serif); margin-top: auto; font-size: 30px; font-weight: 900; line-height: 1.35; letter-spacing: 0.01em; }
+.cover .f .date { margin-top: 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; color: rgba(242, 234, 216, 0.75); }
+.cover .f .gild {
+  position: absolute; left: 24px; right: 24px; top: 96px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.cover .b { background: #f4efe4; border: 1px solid var(--line); display: flex; align-items: flex-end; padding: 24px; }
+.cover .b .colophon { font-size: 10.5px; letter-spacing: 0.26em; color: var(--faint); font-weight: 700; }
+
+/* ---- 페이지 콘텐츠 (보고서 레이아웃) ---- */
+.pg { padding: 30px 28px; height: 100%; display: flex; flex-direction: column; }
+.pg .ch { font-size: 10px; font-weight: 800; letter-spacing: 0.34em; color: var(--blue); }
+.pg h4 { font-family: var(--serif); margin-top: 10px; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.4; }
+.pg .rule { height: 1.5px; background: var(--ink); margin: 14px 0 16px; }
+/* 본문 회색 라인 (글 흐름 표현) */
+.tl { height: 7px; border-radius: 4px; background: #e7e2d6; margin-bottom: 9px; }
+.tl.w60 { width: 60%; } .tl.w80 { width: 80%; } .tl.w45 { width: 45%; } .tl.w70 { width: 70%; }
+/* 지표 로우 */
+.mrow {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 12.5px; font-weight: 600; color: var(--muted);
+}
+.mrow b { font-size: 17px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+.mrow b.up { color: var(--mint); }
+.mrow b.warn { color: var(--amber); }
+/* 미니 차트 */
+.chart { display: flex; align-items: flex-end; gap: 6px; height: 92px; margin-top: auto; padding-top: 16px; }
+.chart i { flex: 1; border-radius: 3px 3px 0 0; background: #d9d3c4; }
+.chart i.hot { background: var(--blue); }
+/* 결론 페이지 */
+.verdict-line {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.75;
+  letter-spacing: -0.01em;
+}
+.verdict-line .hl {
+  background: linear-gradient(var(--marker), var(--marker)) no-repeat 0 62%;
+  background-size: 0% 58%;
+}
+.sign { margin-top: auto; display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; color: var(--faint); }
+.sign .stamp {
+  width: 44px; height: 44px;
+  border: 2px solid rgba(214, 60, 60, 0.65);
+  border-radius: 50%;
+  color: rgba(214, 60, 60, 0.75);
+  display: grid; place-items: center;
+  font-size: 10px; letter-spacing: 0.08em;
+  transform: rotate(-12deg);
+}
+
+/* 금박 리본 책갈피 */
+#ribbon {
+  position: absolute;
+  right: 44px; top: -6px;
+  width: 26px; height: 0;               /* GSAP이 height를 늘린다 */
+  background: linear-gradient(180deg, #dcb64a, var(--gold) 60%, #a8871e);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%);
+  box-shadow: 3px 4px 10px rgba(30, 37, 54, 0.25);
+  z-index: 9;
+}
+
+/* 책갈피 탭 (지표 인덱스) — 책 우측면에 꽂힘 */
+.tab {
+  position: absolute;
+  right: -34px;
+  width: 46px;
+  padding: 5px 7px 5px 9px;
+  border-radius: 0 6px 6px 0;
+  font-size: 8.5px; font-weight: 800; letter-spacing: 0.06em;
+  color: #fff;
+  box-shadow: 3px 3px 8px rgba(30, 37, 54, 0.2);
+  transform: scale(0);
+  transform-origin: left center;
+  z-index: -1;
+}
+
+/* ---- 날아드는 지표 칩 ---- */
+.chip {
+  position: absolute;
+  left: 50%; top: 50%;
+  z-index: 8;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--page);
+  border: 1.5px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(30, 37, 54, 0.85);
+  font-size: 13px; font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+}
+.chip b { margin-left: 5px; }
+.chip .up { color: var(--mint); } .chip .warn { color: var(--amber); }
+
+/* ---- CTA ---- */
+#cta {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  z-index: 10;
+  opacity: 0; visibility: hidden;
+  background: radial-gradient(ellipse 90% 70% at 50% 46%, rgba(247, 244, 238, 0.96) 40%, rgba(247, 244, 238, 0.75) 100%);
+}
+#cta .kicker { font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em; color: var(--blue); margin-bottom: 18px; }
+#cta h1 {
+  font-family: var(--serif);
+  font-size: clamp(38px, 6vw, 78px);
+  font-weight: 900;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+}
+#cta h1 em { font-style: normal; color: var(--blue); }
+#cta p { margin-top: 18px; font-size: clamp(14.5px, 1.6vw, 18px); color: var(--muted); line-height: 1.8; }
+#cta .actions { margin-top: 34px; display: flex; gap: 13px; flex-wrap: wrap; justify-content: center; pointer-events: auto; }
+.btn {
+  padding: 15px 32px;
+  border-radius: 4px;
+  font-family: inherit; font-size: 15px; font-weight: 800; letter-spacing: 0.02em;
+  cursor: pointer;
+  border: 1.5px solid var(--ink);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.btn:hover { transform: translate(2px, 2px); box-shadow: 3px 3px 0 var(--ink); }
+.btn.inkfill { background: var(--ink); color: var(--paper); }
+.btn.paperfill { background: var(--page); color: var(--ink); }
+
+/* ---- 스크롤 힌트 ---- */
+.scroll-hint {
+  position: fixed; left: 50%; bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  transition: opacity 0.5s ease;
+}
+.scroll-hint span { font-size: 10px; font-weight: 800; letter-spacing: 0.44em; color: var(--faint); }
+.scroll-hint i { width: 1.5px; height: 38px; background: linear-gradient(to bottom, var(--ink), transparent); animation: drop 1.6s ease-in-out infinite; }
+@keyframes drop { 0% { transform: scaleY(0); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: top; } 56% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+.scroll-hint.is-hidden { opacity: 0; }
+
+@media (max-width: 900px) {
+  #book { --bw: 260px; --bh: 350px; --bt: 38px; width: var(--bw); height: var(--bh); }
+  #book-scene::after { width: 340px; top: calc(50% + 196px); }
+  #intro h1 { font-size: 34px; }
+  #scroll-space { height: 460vh; }
+  .masthead { font-size: 10px; }
+  .cap h2 { font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint i { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="scroll-space" aria-hidden="true"></div>
+
+<header class="masthead">
+  <span><b>AX DATAHUB</b> · DAILY BRIEFING</span>
+  <span class="pageno" id="pageno">2026. 08. 03 — <em>p. 00</em> / 24</span>
+</header>
+<div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+
+<!-- ===================== 단일 무대 ===================== -->
+<div id="stage" aria-hidden="true">
+
+  <!-- 장면 캡션 -->
+  <div class="cap" id="cap-collect">
+    <span class="lb">STEP 01</span>
+    <h2>흩어진 데이터를 한곳에 — 모든 데이터를 하나의 공간으로</h2>
+  </div>
+  <div class="cap" id="cap-open">
+    <span class="lb">STEP 02</span>
+    <h2>변화는 먼저 보여드립니다 — 중요한 변화만 빠르게 발견하세요</h2>
+  </div>
+  <div class="cap" id="cap-evidence">
+    <span class="lb">STEP 03</span>
+    <h2>연결할수록 더 많은 인사이트 — 연결된 데이터로 더 깊이 분석하세요</h2>
+  </div>
+  <div class="cap" id="cap-verdict">
+    <span class="lb">STEP 04</span>
+    <h2>결과는 바로 활용하세요 — AI가 요약한 리포트를 팀과 공유하세요</h2>
+  </div>
+
+  <!-- 인트로 -->
+  <div id="intro">
+    <span class="kicker">AX DATAHUB</span>
+    <h1>흩어진 데이터를<br /><em>한곳에.</em></h1>
+    <p>운영, 고객, 마케팅 등 여러 곳에 흩어진 데이터를<br />AX Datahub에서 통합하여 한 번에 확인하세요.</p>
+  </div>
+
+  <!-- 책 -->
+  <div id="book-scene">
+    <div id="book">
+      <!-- 입체 블록: 뒤표지 · 책등 · 단면들 -->
+      <div class="bk-face bk-back"></div>
+      <div class="bk-face bk-spine"></div>
+      <div class="bk-face bk-top"></div>
+      <div class="bk-face bk-bottom"></div>
+      <div class="bk-face bk-right"></div>
+
+      <!-- 앞면 = 최종 우측 페이지 (결론) -->
+      <div class="bk-face" id="bk-front">
+        <div class="pg">
+          <span class="ch">CHAPTER 03 · ACTION</span>
+          <h4>오늘의 결정</h4>
+          <div class="rule"></div>
+          <p class="verdict-line">수요는 빠르게 오르고 재고는 6일 치뿐입니다.<br /><span class="hl" id="hl">재고를 먼저 확보하세요.</span></p>
+          <div class="tl w80" style="margin-top:18px"></div>
+          <div class="tl w60"></div>
+          <div class="sign"><span>AX DATAHUB PRESS</span><span class="stamp">승인</span></div>
+        </div>
+        <div id="ribbon"></div>
+      </div>
+
+      <!-- 책갈피 탭 (수집 단계에 등장) -->
+      <span class="tab" id="tab-0" style="top:52px;  background:#2b4bd7">검색</span>
+      <span class="tab" id="tab-1" style="top:104px; background:#d97706">재고</span>
+      <span class="tab" id="tab-2" style="top:156px; background:#0f9d6a">클릭</span>
+      <span class="tab" id="tab-3" style="top:208px; background:#b23a67">리뷰</span>
+      <span class="tab" id="tab-4" style="top:260px; background:#6a7080">이벤트</span>
+
+      <!-- 낱장 2 : 앞 = 근거(우), 뒤 = 실행 도입(좌) -->
+      <div class="leaf" id="leaf-2">
+        <div class="f">
+          <div class="pg">
+            <span class="ch">CHAPTER 02 · EVIDENCE</span>
+            <h4>근거</h4>
+            <div class="rule"></div>
+            <div class="mrow">최근 7일 검색량 <b class="up">+34%</b></div>
+            <div class="mrow">상품 클릭률 <b class="up">+12%</b></div>
+            <div class="mrow">재고 소진 예상 <b class="warn">6일</b></div>
+            <div class="mrow">이벤트 전환율 <b>-8%</b></div>
+            <div class="chart">
+              <i style="height:26%"></i><i style="height:38%"></i><i style="height:33%"></i><i style="height:52%"></i>
+              <i style="height:47%"></i><i style="height:64%"></i><i class="hot" style="height:88%"></i><i class="hot" style="height:100%"></i>
+            </div>
+          </div>
+        </div>
+        <div class="b">
+          <div class="pg">
+            <span class="ch">CHAPTER 03 · ACTION</span>
+            <h4>실행 우선순위</h4>
+            <div class="rule"></div>
+            <div class="mrow">① 재고 확보 <b class="warn">상</b></div>
+            <div class="mrow">② 검색 노출 강화 <b>중</b></div>
+            <div class="mrow">③ 이벤트 재검토 <b>하</b></div>
+            <div class="tl w70" style="margin-top:16px"></div>
+            <div class="tl w80"></div>
+            <div class="tl w45"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 낱장 1 : 앞 = 신호(우), 뒤 = 근거 도입(좌) -->
+      <div class="leaf" id="leaf-1">
+        <div class="f">
+          <div class="pg">
+            <span class="ch">CHAPTER 01 · SIGNAL</span>
+            <h4>오늘 감지된 신호</h4>
+            <div class="rule"></div>
+            <div class="tl w80"></div>
+            <div class="tl w70"></div>
+            <div class="tl w60"></div>
+            <div class="mrow" style="margin-top:12px">가장 강한 신호 <b class="up">검색 급증</b></div>
+            <div class="mrow">주의 신호 <b class="warn">재고 D-6</b></div>
+            <div class="tl w45" style="margin-top:14px"></div>
+            <div class="tl w70"></div>
+          </div>
+        </div>
+        <div class="b">
+          <div class="pg">
+            <span class="ch">CHAPTER 02 · EVIDENCE</span>
+            <h4>왜 지금인가</h4>
+            <div class="rule"></div>
+            <div class="tl w80"></div>
+            <div class="tl w60"></div>
+            <div class="tl w70"></div>
+            <div class="tl w45"></div>
+            <div class="chart">
+              <i style="height:30%"></i><i style="height:44%"></i><i style="height:39%"></i><i style="height:58%"></i>
+              <i class="hot" style="height:76%"></i><i style="height:63%"></i><i class="hot" style="height:92%"></i><i style="height:70%"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 표지 -->
+      <div class="cover" id="cover">
+        <div class="f">
+          <span class="press">AX DATAHUB PRESS</span>
+          <span class="gild"></span>
+          <h3>오늘의 브리핑<br />— 신호에서<br />결정까지</h3>
+          <span class="date">2026. 08. 03 · 제 214호</span>
+        </div>
+        <div class="b"><span class="colophon">EDITED OVERNIGHT BY AX AI</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 날아드는 지표 칩 -->
+  <span class="chip" id="chip-0">검색량 <b class="up">+34%</b></span>
+  <span class="chip" id="chip-1">재고 소진 <b class="warn">D-6</b></span>
+  <span class="chip" id="chip-2">클릭률 <b class="up">+12%</b></span>
+  <span class="chip" id="chip-3">부정 리뷰 <b class="warn">감지</b></span>
+  <span class="chip" id="chip-4">이벤트 전환 <b>-8%</b></span>
+
+  <!-- CTA -->
+  <div id="cta">
+    <span class="kicker">AX DATAHUB</span>
+    <h1>이제 <em>시작</em>하세요.</h1>
+    <p>탐색부터 분석, 공유까지<br />AX Datahub와 함께 더 빠르고 효율적인 업무를 시작해보세요.</p>
+    <div class="actions">
+      <button class="btn inkfill" type="button">AX Datahub 구독하기</button>
+      <button class="btn paperfill" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">처음부터 다시 보기</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="scroll-hint" id="hint"><span>OPEN</span><i></i></div>
+
+<script>
+/* ============================================================
+   단일 장면 마스터 타임라인 — 스크롤이 곧 책을 읽는 손
+   0.00–0.12  인트로 → 닫힌 책이 무대 중앙으로
+   0.12–0.32  COLLECT : 지표 칩이 날아와 책갈피 탭으로 꽂힘
+   0.32–0.48  OPEN    : 표지가 열린다 (Chapter 01 신호)
+   0.48–0.72  READ    : 낱장이 두 번 넘어간다 (근거 → 실행)
+   0.72–0.88  VERDICT : 금박 리본 + 형광펜 밑줄
+   0.88–1.00  CTA     : 구독 제안
+   ============================================================ */
+(function () {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const mobile = coarse || innerWidth < 900;
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  const book = document.getElementById('book');
+  const chips = [0, 1, 2, 3, 4].map((i) => document.getElementById('chip-' + i));
+  const tabs = [0, 1, 2, 3, 4].map((i) => document.getElementById('tab-' + i));
+
+  const noGsap = typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined';
+
+  if (noGsap || reduced) {
+    // 폴백: 다 읽은 상태 — 펼쳐진 결론 스프레드 + 리본 + 밑줄 + CTA
+    document.getElementById('intro').style.display = 'none';
+    // 펼친 상태 기준: 반 페이지 오른쪽 이동으로 펼침면 중앙 정렬
+    book.style.transform = 'translateX(160px) rotateX(14deg) rotateY(-15deg)';
+    document.getElementById('cover').style.transform = 'translateZ(3px) rotateY(-178deg)';
+    document.getElementById('leaf-1').style.transform = 'translateZ(2px) rotateY(-172deg)';
+    document.getElementById('leaf-2').style.transform = 'translateZ(1px) rotateY(-166deg)';
+    tabs.forEach((t) => (t.style.transform = 'scale(1)'));
+    document.getElementById('ribbon').style.height = '150px';
+    document.getElementById('hl').style.backgroundSize = '100% 58%';
+    const cta = document.getElementById('cta');
+    cta.style.opacity = 1; cta.style.visibility = 'visible';
+    document.body.classList.add('is-ready');
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* 시작 상태 — 15° 야우로 책배·하단이 보이는 입체 자세 */
+  gsap.set(book, { y: 260, scale: 0.82, opacity: 0.55, rotateX: 26, rotateY: -19 });
+  // 표지·낱장을 앞면보다 살짝 띄워 면 겹침(z-fight) 방지
+  gsap.set('#cover', { z: 3 });
+  gsap.set('#leaf-1', { z: 2 });
+  gsap.set('#leaf-2', { z: 1 });
+  chips.forEach((c) => {
+    gsap.set(c, {
+      x: rand(-1, 1) * innerWidth * 0.55,
+      y: rand(-0.9, 0.9) * innerHeight * 0.5,
+      rotation: rand(-14, 14),
+    });
+  });
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'power2.inOut' },
+    scrollTrigger: { trigger: '#scroll-space', start: 'top top', end: 'bottom bottom', scrub: 0.7 },
+  });
+
+  const CAP_IN = { autoAlpha: 1, y: 0, duration: 0.04, ease: 'power2.out' };
+  const CAP_OUT = { autoAlpha: 0, y: -16, duration: 0.04, ease: 'power2.in' };
+  const CAP_FROM = { autoAlpha: 0, y: 16 };
+
+  /* 0 → 0.12 : 인트로가 걷히고 책이 무대에 오른다 */
+  tl.to('#intro', { autoAlpha: 0, y: -60, duration: 0.09 }, 0.03);
+  tl.to(book, { y: 0, scale: 1, opacity: 1, rotateX: 14, rotateY: -15, duration: 0.12 }, 0.02);
+
+  /* 0.12 → 0.32 : COLLECT — 칩이 날아와 탭으로 꽂힘 */
+  tl.fromTo('#cap-collect', CAP_FROM, CAP_IN, 0.13);
+  chips.forEach((c, i) => {
+    const t0 = 0.14 + i * 0.032;
+    tl.to(c, { opacity: 1, duration: 0.015, ease: 'none' }, t0);
+    // 책 우측면(탭 위치) 방향으로 수렴
+    tl.to(c, {
+      x: mobile ? 120 : 210,
+      y: -150 + i * 52,
+      scale: 0.35,
+      rotation: 0,
+      duration: 0.055,
+      ease: 'power3.in',
+    }, t0 + 0.012);
+    tl.to(c, { opacity: 0, duration: 0.012, ease: 'none' }, t0 + 0.06);
+    tl.to(tabs[i], { scale: 1, duration: 0.03, ease: 'back.out(2.2)' }, t0 + 0.065);
+  });
+  tl.to('#cap-collect', CAP_OUT, 0.3);
+
+  /* 0.32 → 0.48 : OPEN — 표지가 열린다 */
+  tl.fromTo('#cap-open', CAP_FROM, CAP_IN, 0.34);
+  // 펼치면 왼쪽으로 페이지가 열리므로, 반 페이지만큼 오른쪽으로 이동해 펼침면을 화면 중앙에
+  tl.to(book, { rotateY: -10, x: mobile ? 130 : 160, duration: 0.1 }, 0.33);
+  tl.to('#cover', { rotateY: -178, duration: 0.13, ease: 'power2.inOut' }, 0.34);
+  tl.to('#cap-open', CAP_OUT, 0.47);
+
+  /* 0.48 → 0.72 : READ — 낱장 두 번 */
+  tl.fromTo('#cap-evidence', CAP_FROM, CAP_IN, 0.5);
+  tl.to('#leaf-1', { rotateY: -172, duration: 0.11, ease: 'power2.inOut' }, 0.5);
+  tl.to('#cap-evidence', CAP_OUT, 0.63);
+  tl.to('#leaf-2', { rotateY: -166, duration: 0.11, ease: 'power2.inOut' }, 0.62);
+
+  /* 0.72 → 0.88 : VERDICT — 리본 + 형광펜 */
+  tl.fromTo('#cap-verdict', CAP_FROM, CAP_IN, 0.73);
+  tl.to('#ribbon', { height: 150, duration: 0.06, ease: 'power2.out' }, 0.74);
+  tl.to('#hl', { backgroundSize: '100% 58%', duration: 0.08, ease: 'power1.inOut' }, 0.78);
+  tl.to('#cap-verdict', CAP_OUT, 0.87);
+
+  /* 0.88 → 1.0 : CTA — 책이 물러나고 구독 제안 */
+  tl.to(book, { y: 120, scale: 0.86, opacity: 0.5, duration: 0.09 }, 0.88);
+  tl.fromTo('#cta', { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' }, 0.91);
+
+  /* 진행바 + 페이지 번호 + 힌트 */
+  const pf = document.getElementById('pf');
+  const pageno = document.getElementById('pageno');
+  const hint = document.getElementById('hint');
+  ScrollTrigger.create({
+    trigger: '#scroll-space', start: 'top top', end: 'bottom bottom',
+    onUpdate: (self) => {
+      pf.style.width = (self.progress * 100).toFixed(2) + '%';
+      const p = Math.min(24, Math.round(self.progress * 26));
+      pageno.innerHTML = `2026. 08. 03 — <em>p. ${String(p).padStart(2, '0')}</em> / 24`;
+      hint.classList.toggle('is-hidden', self.progress > 0.02);
+    },
+  });
+
+  /* 마우스 패럴랙스 — 책이 은은히 기운다 */
+  if (!coarse) {
+    addEventListener('pointermove', (e) => {
+      const px = e.clientX / innerWidth - 0.5;
+      const py = e.clientY / innerHeight - 0.5;
+      gsap.to('#book-scene', {
+        rotationY: px * 7, rotationX: -py * 5,
+        transformPerspective: 2000,
+        duration: 0.7, ease: 'power2.out', overwrite: 'auto',
+      });
+    });
+  }
+
+  document.body.classList.add('is-ready');
+})();
+</script>
+</body>
+</html>
