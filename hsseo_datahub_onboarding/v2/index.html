@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub v2 — Midnight Rotunda</title>
+<meta name="description" content="디자인 POC v2 — 미드나잇 로툰다. 차콜+골드 원형 갤러리를 스크롤로 회전하며 관람한다. CSS 3D, WebGL 미사용." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<style>
+/* ============================================================
+   v2 — MIDNIGHT ROTUNDA : 원형 갤러리 캐러셀 (CSS 3D / WebGL 미사용)
+   차콜 공간, 골드 액센트. 스크롤 = 전시장을 도는 회전.
+   정면에 온 작품(패널)만 조명을 받고, 하단 캡션이 교차된다.
+   ============================================================ */
+:root {
+  --bg: #131110;
+  --ink: #efe9df;
+  --dim: rgba(239, 233, 223, 0.5);
+  --gold: #d4a95c;
+  --gold-soft: rgba(212, 169, 92, 0.35);
+  --font: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+  --serif-feel: -0.02em;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  background:
+    radial-gradient(ellipse 70% 46% at 50% -6%, rgba(212, 169, 92, 0.13), transparent 60%),
+    radial-gradient(ellipse 120% 80% at 50% 116%, #201c18 0%, var(--bg) 55%);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
+
+/* ---- 3D 스테이지 ---- */
+#vp {
+  position: fixed; inset: 0; z-index: 1;
+  perspective: 1500px;
+  perspective-origin: 50% 44%;
+  overflow: hidden;
+  opacity: 0; transition: opacity 1.1s ease;
+}
+body.is-ready #vp { opacity: 1; }
+
+#rotunda {
+  position: absolute; left: 50%; top: 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* 원형 바닥 — 대리석 느낌의 동심원 */
+#floor {
+  position: absolute; left: 50%; top: 50%;
+  width: 1700px; height: 1700px;
+  margin: -850px 0 0 -850px;
+  border-radius: 50%;
+  transform: rotateX(90deg) translateZ(-310px);
+  background:
+    repeating-radial-gradient(circle, rgba(212, 169, 92, 0.13) 0 1.5px, transparent 1.5px 130px),
+    radial-gradient(circle, #262220 0%, #171412 58%, transparent 74%);
+}
+
+/* ---- 전시 패널 ---- */
+.panel {
+  position: absolute; left: 0; top: 0;
+  width: 300px; height: 430px;
+  margin: -215px 0 0 -150px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #211d1a 0%, #17140f 100%);
+  border: 1px solid rgba(212, 169, 92, 0.22);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.55);
+  padding: 30px 28px;
+  display: flex; flex-direction: column;
+  opacity: 0.42;
+  transition: opacity 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+}
+.panel.is-front {
+  opacity: 1;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold-soft), 0 46px 100px rgba(0, 0, 0, 0.65), 0 -30px 90px rgba(212, 169, 92, 0.13);
+}
+.panel .no { font-size: 12px; font-weight: 700; letter-spacing: 0.34em; color: var(--gold); }
+.panel h3 { margin-top: 14px; font-size: 27px; font-weight: 800; letter-spacing: var(--serif-feel); line-height: 1.3; }
+.panel .art {
+  margin-top: auto;
+  height: 190px;
+  display: flex; align-items: flex-end; justify-content: center;
+  border-top: 1px solid rgba(212, 169, 92, 0.16);
+  padding-top: 22px;
+}
+.panel .cap { margin-top: 16px; font-size: 12.5px; line-height: 1.65; color: var(--dim); }
+
+/* 작품 유형별 미니 비주얼 */
+.art-bars { display: flex; align-items: flex-end; gap: 8px; width: 82%; height: 100%; }
+.art-bars i { flex: 1; background: linear-gradient(180deg, var(--gold), #7a6134); border-radius: 3px 3px 0 0; }
+.art-ring { position: relative; width: 130px; height: 130px; align-self: center; }
+.art-ring::before, .art-ring::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 1.5px solid var(--gold-soft);
+}
+.art-ring::after { inset: 22px; border-color: var(--gold); }
+.art-dot { position: absolute; left: 50%; top: 0; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+.art-line { width: 88%; height: 100%; }
+.art-line polyline { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; }
+.art-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; width: 78%; align-self: center; }
+.art-grid i { aspect-ratio: 1; border: 1px solid var(--gold-soft); border-radius: 3px; }
+.art-grid i.on { background: var(--gold); box-shadow: 0 0 10px rgba(212, 169, 92, 0.6); }
+
+/* 중앙 페데스탈 */
+#pedestal {
+  position: absolute; left: 0; top: 0;
+  transform: translate(-50%, -50%) translateY(240px) rotateX(90deg);
+  width: 340px; height: 340px;
+  margin: -170px 0 0 -170px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 169, 92, 0.22) 0%, transparent 62%);
+}
+
+/* ---- 오버레이 UI ---- */
+.overlay { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+
+.masthead {
+  position: absolute; top: 34px; left: 0; width: 100%;
+  text-align: center;
+}
+.masthead .kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.5em; color: var(--gold); }
+.masthead h1 { margin-top: 10px; font-size: clamp(22px, 2.6vw, 32px); font-weight: 800; letter-spacing: 0.14em; }
+
+/* 하단 캡션 (전시 라벨) */
+.label {
+  position: absolute; left: 50%; bottom: clamp(56px, 11vh, 120px);
+  transform: translateX(-50%);
+  width: min(620px, calc(100% - 48px));
+  text-align: center;
+  opacity: 0; visibility: hidden;
+}
+.label .idx { font-size: 12px; font-weight: 700; letter-spacing: 0.4em; color: var(--gold); }
+.label h2 { margin-top: 12px; font-size: clamp(26px, 3.4vw, 44px); font-weight: 800; letter-spacing: var(--serif-feel); line-height: 1.25; }
+.label p { margin-top: 12px; font-size: clamp(13.5px, 1.4vw, 16px); line-height: 1.75; color: var(--dim); }
+.label.is-first { opacity: 1; visibility: visible; }
+
+/* CTA */
+#cta {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 8px;
+  opacity: 0; visibility: hidden;
+}
+#cta .kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.5em; color: var(--gold); margin-bottom: 18px; }
+#cta h1 { font-size: clamp(34px, 5.6vw, 72px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.16; }
+#cta p { margin-top: 16px; font-size: clamp(14px, 1.6vw, 19px); color: var(--dim); line-height: 1.75; }
+.cta-actions { margin-top: 34px; display: flex; gap: 14px; pointer-events: auto; flex-wrap: wrap; justify-content: center; }
+.btn { padding: 15px 34px; border-radius: 4px; font-family: inherit; font-size: 14.5px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; }
+.btn.gold { background: var(--gold); color: #17130c; border: 0; box-shadow: 0 14px 40px rgba(212, 169, 92, 0.3); }
+.btn.line { background: transparent; color: var(--ink); border: 1px solid rgba(239, 233, 223, 0.3); }
+
+/* 진행 표시 — 회전 각도계 */
+.dial {
+  position: absolute; right: 40px; bottom: 40px;
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(239, 233, 223, 0.2);
+}
+.dial i {
+  position: absolute; left: 50%; top: 50%;
+  width: 1.5px; height: 26px;
+  margin-left: -0.75px;
+  background: var(--gold);
+  transform-origin: 50% 0;
+}
+.dial span {
+  position: absolute; left: 50%; top: calc(100% + 10px);
+  transform: translateX(-50%);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
+  color: var(--dim); white-space: nowrap;
+}
+
+.scroll-hint {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 12px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.4em; color: var(--dim);
+  transition: opacity 0.5s ease;
+}
+.scroll-hint i { width: 44px; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); animation: sweep 1.8s ease-in-out infinite; }
+@keyframes sweep { 0% { transform: scaleX(0); transform-origin: left; } 60% { transform: scaleX(1); transform-origin: left; } 61% { transform-origin: right; } 100% { transform: scaleX(0); transform-origin: right; } }
+.scroll-hint.is-hidden { opacity: 0; }
+
+.progress-track { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.06); }
+.progress-fill { width: 0%; height: 100%; background: var(--gold); }
+
+#scroll-space { height: 700vh; pointer-events: none; }
+
+@media (max-width: 900px) {
+  .panel { width: 230px; height: 340px; margin: -170px 0 0 -115px; padding: 22px 20px; }
+  .panel h3 { font-size: 21px; }
+  .panel .art { height: 130px; }
+  .dial { right: 20px; bottom: 76px; width: 48px; height: 48px; }
+  #scroll-space { height: 600vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint i { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="vp" aria-hidden="true">
+  <div id="rotunda">
+    <div id="floor"></div>
+    <div id="pedestal"></div>
+  </div>
+</div>
+<div id="scroll-space" aria-hidden="true"></div>
+
+<div class="overlay" aria-hidden="true">
+  <header class="masthead">
+    <span class="kicker">AX LABS COLLECTION</span>
+    <h1>DATAHUB ROTUNDA</h1>
+  </header>
+
+  <!-- 전시 라벨 (JS가 교차 페이드) -->
+  <div class="label is-first" id="label-0">
+    <span class="idx">STEP 01</span>
+    <h2>흩어진 데이터를<br />한곳에.</h2>
+    <p>운영, 고객, 마케팅 등 여러 곳에 흩어진 데이터를 AX Datahub에서 통합하여 한 번에 확인하세요.</p>
+  </div>
+  <div class="label" id="label-1">
+    <span class="idx">STEP 02</span>
+    <h2>변화는 먼저 보여드립니다.</h2>
+    <p>핵심 지표를 비교하고 이상 징후와 추세를 한눈에 파악하여 지금 주목해야 할 변화를 빠르게 확인할 수 있습니다.</p>
+  </div>
+  <div class="label" id="label-2">
+    <span class="idx">STEP 03</span>
+    <h2>연결할수록 더 많은 인사이트.</h2>
+    <p>중앙화된 데이터를 다양한 관점으로 연결하여 더 깊은 인사이트와 새로운 발견을 만들어보세요.</p>
+  </div>
+  <div class="label" id="label-3">
+    <span class="idx">STEP 04</span>
+    <h2>결과는 바로 활용하세요.</h2>
+    <p>조회한 데이터를 AI 리포트로 요약해 공유하여 업무에 바로 활용할 수 있습니다.</p>
+  </div>
+
+  <div id="cta">
+    <span class="kicker">AX DATAHUB</span>
+    <h1>이제,<br />시작하세요.</h1>
+    <p>탐색부터 분석, 공유까지<br />AX Datahub와 함께 더 빠르고 효율적인 업무를 시작해보세요.</p>
+    <div class="cta-actions">
+      <button class="btn gold" type="button">AX Datahub 시작하기</button>
+      <button class="btn line" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">처음부터 다시 보기</button>
+    </div>
+  </div>
+
+  <div class="dial" id="dial"><i id="dial-needle"></i><span id="dial-deg">0°</span></div>
+  <div class="scroll-hint" id="hint"><i></i><span>ROTATE</span><i></i></div>
+  <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+</div>
+
+<script>
+/* ============================================================
+   로툰다 구축 + 회전 카메라
+   ============================================================ */
+(function () {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = matchMedia('(pointer: coarse)').matches || innerWidth < 900;
+  const rotunda = document.getElementById('rotunda');
+
+  const R = mobile ? 480 : 640; // 패널 반지름
+  const N = 8;
+
+  /* ---- 전시 패널 8점 ---- */
+  const works = [
+    { no: 'Nº 01', t: '흩어진 데이터를 한곳에', cap: '운영 · 여러 곳의 데이터를 통합', art: 'bars' },
+    { no: 'Nº 02', t: '하나의 공간에서', cap: '고객 · 마케팅까지 한 번에 확인', art: 'grid' },
+    { no: 'Nº 03', t: '변화는 먼저', cap: '감지 · 검색량 +34% 급증', art: 'ring' },
+    { no: 'Nº 04', t: '이상 징후 포착', cap: '감지 · 재고 소진 D-6', art: 'line' },
+    { no: 'Nº 05', t: '추세를 한눈에', cap: '감지 · 클릭률 +12% 추적', art: 'bars' },
+    { no: 'Nº 06', t: '연결의 관점', cap: '연결 · 다양한 관점으로 분석', art: 'ring' },
+    { no: 'Nº 07', t: '더 깊은 인사이트', cap: '연결 · 새로운 발견 산출', art: 'grid' },
+    { no: 'Nº 08', t: '결과는 바로 활용', cap: '활용 · AI 요약 리포트 공유', art: 'line' },
+  ];
+
+  const panels = works.map((wk, i) => {
+    const p = document.createElement('div');
+    p.className = 'panel';
+    p.style.transform = `rotateY(${(i / N) * 360}deg) translateZ(${R}px)`;
+
+    let art = '';
+    if (wk.art === 'bars') {
+      art = '<div class="art-bars">' +
+        Array.from({ length: 7 }, () => `<i style="height:${(24 + Math.random() * 76) | 0}%"></i>`).join('') +
+        '</div>';
+    } else if (wk.art === 'ring') {
+      art = '<div class="art-ring"><span class="art-dot"></span></div>';
+    } else if (wk.art === 'grid') {
+      art = '<div class="art-grid">' +
+        Array.from({ length: 12 }, (_, k) => `<i class="${Math.random() < 0.4 ? 'on' : ''}"></i>`).join('') +
+        '</div>';
+    } else {
+      const pts = Array.from({ length: 11 }, (_, k) =>
+        `${k * 24},${60 - Math.abs(Math.sin(k * 0.8 + i)) * 46}`).join(' ');
+      art = `<svg class="art-line" viewBox="0 0 240 70" preserveAspectRatio="none"><polyline points="${pts}"/></svg>`;
+    }
+
+    p.innerHTML = `<span class="no">${wk.no}</span><h3>${wk.t}</h3>
+      <div class="art">${art}</div><div class="cap">${wk.cap}</div>`;
+    rotunda.appendChild(p);
+    return p;
+  });
+
+  /* ---- 회전 상태 ---- */
+  const state = { p: 0 };
+  const TURNS = 315;        // 총 회전 각 (8패널 × 45° − 45°)
+  const pf = document.getElementById('pf');
+  const hint = document.getElementById('hint');
+  const needle = document.getElementById('dial-needle');
+  const degEl = document.getElementById('dial-deg');
+  const labels = [0, 1, 2, 3].map((i) => document.getElementById('label-' + i));
+  const pointer = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
+  let lastFront = -1;
+  let lastT = '';
+
+  function apply(time) {
+    const deg = state.p * TURNS;
+    const sway = reduced ? 0 : 1;
+    const tiltX = -9 + pointer.y * 2.2 * sway + Math.sin(time * 0.4) * 0.5 * sway;
+    const extraY = pointer.x * 3 * sway;
+
+    // 뒤로 물러날수록(CTA) 로툰다가 작아지며 전경이 된다
+    const back = Math.max(0, (state.p - 0.88) / 0.12);
+    const z = -170 - back * 900;
+    const y = 40 + back * 60;
+
+    const t = `translate3d(-50%, -50%, 0) translateY(${y.toFixed(1)}px) translateZ(${z.toFixed(1)}px) ` +
+      `rotateX(${tiltX.toFixed(2)}deg) rotateY(${(-deg + extraY).toFixed(2)}deg)`;
+    if (t !== lastT) { rotunda.style.transform = t; lastT = t; }
+
+    // 정면 패널 하이라이트
+    const front = Math.round(deg / 45) % N;
+    if (front !== lastFront) {
+      panels.forEach((el, i) => el.classList.toggle('is-front', i === front));
+      lastFront = front;
+    }
+
+    needle.style.transform = `rotate(${deg + 180}deg)`;
+    degEl.textContent = Math.round(deg) + '°';
+  }
+
+  const noGsap = typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined';
+  const cta = document.getElementById('cta');
+
+  if (noGsap) {
+    state.p = 1; apply(0);
+    cta.style.opacity = 1; cta.style.visibility = 'visible';
+  } else {
+    gsap.registerPlugin(ScrollTrigger);
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: { trigger: '#scroll-space', start: 'top top', end: 'bottom bottom', scrub: 0.9 },
+    });
+    tl.to(state, {
+      p: 1, duration: 1,
+      onUpdate: () => {
+        pf.style.width = (state.p * 100).toFixed(2) + '%';
+        hint.classList.toggle('is-hidden', state.p > 0.02);
+      },
+    }, 0);
+
+    // 전시 라벨 교차 페이드 (진행도 구간)
+    const IN = { autoAlpha: 1, y: 0, duration: 0.05, ease: 'power2.out' };
+    const OUT = { autoAlpha: 0, y: -22, duration: 0.05, ease: 'power2.in' };
+    const FROM = { autoAlpha: 0, y: 22 };
+    tl.to(labels[0], OUT, 0.16);
+    tl.fromTo(labels[1], FROM, IN, 0.22); tl.to(labels[1], OUT, 0.42);
+    tl.fromTo(labels[2], FROM, IN, 0.48); tl.to(labels[2], OUT, 0.66);
+    tl.fromTo(labels[3], FROM, IN, 0.72); tl.to(labels[3], OUT, 0.85);
+    tl.fromTo(cta, { autoAlpha: 0, scale: 0.96 }, { autoAlpha: 1, scale: 1, duration: 0.06, ease: 'power2.out' }, 0.92);
+
+    if (!mobile && !reduced) {
+      addEventListener('pointermove', (e) => {
+        target.x = (e.clientX / innerWidth - 0.5) * 2;
+        target.y = -(e.clientY / innerHeight - 0.5) * 2;
+      });
+    }
+    gsap.ticker.add((time, dms) => {
+      const dt = Math.min(dms / 1000, 0.05);
+      pointer.x += (target.x - pointer.x) * Math.min(1, dt * 3);
+      pointer.y += (target.y - pointer.y) * Math.min(1, dt * 3);
+      apply(time);
+    });
+  }
+
+  apply(0);
+  document.body.classList.add('is-ready');
+})();
+</script>
+</body>
+</html>

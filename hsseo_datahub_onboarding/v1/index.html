@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub v1 — Glass Tunnel</title>
+<meta name="description" content="디자인 POC v1 — 글래스 터널 딥줌. 유리 패널의 터널을 카메라가 관통한다. CSS 3D, WebGL 미사용." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<style>
+/* ============================================================
+   v1 — GLASS TUNNEL : 유리 패널 터널 딥줌 (CSS 3D / WebGL 미사용)
+   어두운 인디고 공간, 스크롤 = 카메라 돌리 전진.
+   스테이션(z 정거장)마다 글래스 카드 링 + 대형 카피가 스쳐 지나간다.
+   ============================================================ */
+:root {
+  --ink: #eef1fd;
+  --dim: rgba(238, 241, 253, 0.55);
+  --indigo: #8f9bff;
+  --cyan: #5fd4ff;
+  --font: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  background: radial-gradient(ellipse 120% 90% at 50% 30%, #10142e 0%, #090b1c 55%, #05060f 100%);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
+
+/* ---- 3D 스테이지 ---- */
+#vp {
+  position: fixed; inset: 0; z-index: 1;
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+  opacity: 0; transition: opacity 1s ease;
+}
+body.is-ready #vp { opacity: 1; }
+#tunnel {
+  position: absolute; left: 50%; top: 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.st { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.st > * { position: absolute; left: 0; top: 0; }
+
+#scroll-space { height: 720vh; pointer-events: none; }
+
+/* ---- 터널 링 ---- */
+.ring {
+  border-radius: 50%;
+  border: 1.5px solid rgba(143, 155, 255, 0.28);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 60px rgba(143, 155, 255, 0.12) inset;
+}
+.ring.is-accent { border-color: rgba(95, 212, 255, 0.5); }
+
+/* ---- 글래스 카드 ---- */
+.glass {
+  transform: translate(-50%, -50%);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(143, 155, 255, 0.14), rgba(95, 212, 255, 0.05));
+  border: 1px solid rgba(238, 241, 253, 0.22);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  padding: 18px 20px;
+  color: var(--ink);
+}
+.glass .k { font-size: 11px; font-weight: 700; letter-spacing: 0.22em; color: var(--cyan); text-transform: uppercase; }
+.glass .v { margin-top: 8px; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.glass .s { margin-top: 4px; font-size: 12px; color: var(--dim); }
+.glass.is-float { animation: gfloat 7s ease-in-out infinite; }
+@keyframes gfloat {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0) rotateZ(var(--rz, 0deg)); }
+  50% { transform: translate(-50%, -50%) translateY(-14px) rotateZ(var(--rz, 0deg)); }
+}
+
+/* ---- 스테이션 카피 (터널 안 대형 타이포) ---- */
+.copy {
+  transform: translate(-50%, -50%);
+  text-align: center;
+  white-space: nowrap;
+}
+.copy .eyebrow {
+  display: block;
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 22px;
+}
+.copy h2 {
+  font-size: 92px; font-weight: 800;
+  line-height: 1.14; letter-spacing: -0.035em;
+  background: linear-gradient(180deg, #ffffff 20%, #aab4ff 75%, #6f7dff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.copy p { margin-top: 22px; font-size: 21px; line-height: 1.7; color: var(--dim); }
+
+/* ---- 코어(종착점) ---- */
+.core-glow {
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(143, 155, 255, 0.5) 32%, transparent 68%);
+  animation: core-breathe 4s ease-in-out infinite;
+}
+@keyframes core-breathe { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.6; } }
+
+/* ---- 먼지 입자 ---- */
+.mote {
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(170, 185, 255, 0.8), transparent 70%);
+}
+
+/* ---- 도착 플래시 : 터널 끝의 빛이 화면을 채우며 밝은 도착지가 된다 ---- */
+#flash {
+  position: fixed; inset: 0; z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 44%,
+    #ffffff 0%, #f2f4ff 30%, #dfe4ff 55%, #b9c2f5 82%, #98a4ea 100%);
+}
+
+/* ---- 오버레이 UI ---- */
+.overlay { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.hud {
+  position: absolute;
+  top: 30px; left: 40px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.24em;
+  color: var(--dim);
+}
+.hud b { color: var(--ink); }
+.depth {
+  position: absolute;
+  top: 30px; right: 40px;
+  font-size: 13px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+}
+.progress-track { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.07); }
+.progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--indigo), var(--cyan)); box-shadow: 0 0 14px rgba(120,160,255,0.7); }
+
+.scroll-hint {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  transition: opacity 0.5s ease;
+}
+.scroll-hint span { font-size: 10px; font-weight: 700; letter-spacing: 0.4em; color: var(--dim); }
+.scroll-hint i { width: 1px; height: 44px; background: linear-gradient(to bottom, rgba(238,241,253,0.9), transparent); animation: drop 1.6s ease-in-out infinite; }
+@keyframes drop { 0% { transform: scaleY(0); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } 51% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+.scroll-hint.is-hidden { opacity: 0; }
+
+/* CTA (종착) — 밝은 도착지 위에 놓이므로 잉크 톤으로 */
+#cta {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 10px;
+  opacity: 0; visibility: hidden;
+}
+#cta .arrive-tag {
+  display: inline-block;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(74, 85, 200, 0.4);
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em;
+  color: #4a55c8;
+  margin-bottom: 22px;
+  background: rgba(255, 255, 255, 0.6);
+}
+#cta h1 { font-size: clamp(36px, 6vw, 78px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.12;
+  color: #171d4e; }
+#cta p { margin-top: 14px; font-size: clamp(15px, 1.6vw, 19px); color: rgba(23, 29, 78, 0.62); line-height: 1.7; }
+.cta-actions { margin-top: 30px; display: flex; gap: 12px; pointer-events: auto; flex-wrap: wrap; justify-content: center; }
+.btn { padding: 14px 30px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; border: 0; }
+.btn.primary { background: linear-gradient(135deg, #5b63e6, #4fb8e8); color: #fff; box-shadow: 0 12px 34px rgba(91, 99, 230, 0.35); }
+.btn.glassy { background: rgba(255, 255, 255, 0.75); color: #2a3170; border: 1.5px solid rgba(42, 49, 112, 0.28); }
+
+@media (max-width: 900px) {
+  .copy h2 { font-size: 52px; }
+  .copy p { font-size: 15px; }
+  #scroll-space { height: 620vh; }
+  .hud, .depth { font-size: 11px; left: 20px; }
+  .depth { left: auto; right: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-float, .core-glow, .scroll-hint i { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="vp" aria-hidden="true"><div id="tunnel"></div></div>
+<div id="flash" aria-hidden="true"></div>
+<div id="scroll-space" aria-hidden="true"></div>
+
+<div class="overlay" aria-hidden="true">
+  <div class="hud"><b>AX DATAHUB</b> · GLASS TUNNEL</div>
+  <div class="depth" id="depth">DEPTH 0000m</div>
+
+  <div id="cta">
+    <span class="arrive-tag">ARRIVAL</span>
+    <h1>이제,<br />시작하세요.</h1>
+    <p>탐색부터 분석, 공유까지<br />AX Datahub와 함께 더 빠르고 효율적인 업무를 시작해보세요.</p>
+    <div class="cta-actions">
+      <button class="btn primary" type="button">AX Datahub 시작하기</button>
+      <button class="btn glassy" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">처음부터 다시 보기</button>
+    </div>
+  </div>
+
+  <div class="scroll-hint" id="hint"><span>DIVE</span><i></i></div>
+  <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+</div>
+
+<script>
+/* ============================================================
+   터널 구축 + 돌리 카메라 (스크롤 = 전진)
+   ============================================================ */
+(function () {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = matchMedia('(pointer: coarse)').matches || innerWidth < 900;
+  const tunnel = document.getElementById('tunnel');
+
+  const SEG = 1400;              // 스테이션 간 z 간격
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  /** 요소 배치 헬퍼 */
+  function put(cls, x, y, z, w, h, html, rz) {
+    const wrap = document.createElement('div');
+    wrap.className = 'st';
+    wrap.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+    const el = document.createElement('div');
+    el.className = cls;
+    if (w) { el.style.width = w + 'px'; }
+    if (h) { el.style.height = h + 'px'; }
+    if (rz) { el.style.setProperty('--rz', rz + 'deg'); el.style.transform += ` rotateZ(${rz}deg)`; }
+    if (html) el.innerHTML = html;
+    wrap.appendChild(el);
+    tunnel.appendChild(wrap);
+    return { wrap, el, z };
+  }
+
+  const fogItems = []; // {wrap, z} — 깊이 페이드 대상
+
+  /* ---- 스테이션 정의 (카피는 자유 시안) ---- */
+  const stations = [
+    { eyebrow: 'STEP 01', title: '흩어진 데이터를<br/>한곳에.', sub: '모든 데이터를 하나의 공간으로 —<br/>통합하여 한 번에 확인하세요.' },
+    { eyebrow: 'STEP 02', title: '변화는 먼저<br/>보여드립니다.', sub: '중요한 변화만 빠르게 발견하세요 —<br/>이상 징후와 추세를 한눈에.' },
+    { eyebrow: 'STEP 03', title: '연결할수록<br/>더 많은 인사이트.', sub: '연결된 데이터로 더 깊이 분석하세요 —<br/>더 깊은 인사이트와 새로운 발견.' },
+    { eyebrow: 'STEP 04', title: '결과는 바로<br/>활용하세요.', sub: '조회한 데이터를 AI 리포트로 요약해<br/>팀과 공유하세요.' },
+  ];
+
+  const cardData = [
+    { k: 'SEARCH', v: '+34%', s: '최근 7일 검색량' },
+    { k: 'STOCK', v: 'D-6', s: '재고 소진 예상' },
+    { k: 'CLICK', v: '+12%', s: '상품 클릭률' },
+    { k: 'REVIEW', v: '▲', s: '부정 리뷰 감지' },
+    { k: 'EVENT', v: '-8%', s: '이벤트 전환율' },
+    { k: 'REVENUE', v: '+2.1%', s: '전일 대비 매출' },
+  ];
+
+  stations.forEach((s, i) => {
+    const Z = -(i + 1) * SEG;
+
+    // 진입 링 2겹
+    const r1 = put('ring' + (i % 2 ? ' is-accent' : ''), 0, 0, Z + 420, 900, 900);
+    const r2 = put('ring', 0, 0, Z + 300, 1240, 1240);
+    fogItems.push(r1, r2);
+
+    // 스테이션 카피 — 가시 창을 좁게 잡아 다음 정거장 타이틀과 겹치지 않게 한다
+    // (정거장 간격 1400px: 다음 카피는 depth 1400+ → farOut 1300이면 완전히 숨음)
+    const c = put('copy', 0, 0, Z, 0, 0,
+      `<span class="eyebrow">${s.eyebrow}</span><h2>${s.title}</h2><p>${s.sub}</p>`);
+    c.el.style.width = 'max-content';
+    // 첫 카피는 로드 직후(depth 1400)에도 보여야 하므로 창을 넓게, 이후는 좁게
+    c.o = i === 0
+      ? { nearOut: 60, nearIn: 320, farIn: 1500, farOut: 2100 }
+      : { nearOut: 60, nearIn: 320, farIn: 800, farOut: 1300 };
+    fogItems.push(c);
+
+    // 글래스 카드 링 (카피를 감싸는 궤도)
+    const n = mobile ? 3 : 5;
+    for (let j = 0; j < n; j++) {
+      const a = (j / n) * Math.PI * 2 + i * 0.8;
+      const R = 560 + (j % 2) * 130;
+      const d = cardData[(i * 2 + j) % cardData.length];
+      const card = put('glass is-float',
+        Math.cos(a) * R, Math.sin(a) * R * 0.62, Z + rand(-160, 160),
+        170, 0,
+        `<div class="k">${d.k}</div><div class="v">${d.v}</div><div class="s">${d.s}</div>`,
+        rand(-7, 7));
+      card.el.style.animationDelay = `${rand(-6, 0)}s`;
+      fogItems.push(card);
+    }
+  });
+
+  // 통로 먼지
+  const motes = mobile ? 26 : 48;
+  for (let i = 0; i < motes; i++) {
+    const s = rand(3, 9);
+    const m = put('mote', rand(-700, 700), rand(-420, 420), rand(-200, -(stations.length + 1) * SEG), s, s);
+    fogItems.push(m);
+  }
+
+  // 종착 코어
+  const CORE_Z = -(stations.length + 1) * SEG - 500;
+  const core = put('core-glow', 0, 0, CORE_Z, 900, 900);
+  fogItems.push(core);
+
+  /* ---- 카메라 + 깊이 페이드 ---- */
+  const FOG_DEFAULT = { nearOut: 60, nearIn: 420, farIn: 2400, farOut: 3600 };
+  const state = { p: 0 };
+  const TOTAL = -CORE_Z - 300; // 총 전진 거리
+  const pf = document.getElementById('pf');
+  const hint = document.getElementById('hint');
+  const depthEl = document.getElementById('depth');
+  const pointer = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
+  let lastT = '';
+
+  function apply(time) {
+    const camZ = -state.p * TOTAL; // 카메라 월드 z (0 → -TOTAL)
+    const sway = reduced ? 0 : 1;
+    const ox = pointer.x * 26 * sway + Math.sin(time * 0.5) * 6 * sway;
+    const oy = pointer.y * 18 * sway + Math.cos(time * 0.42) * 5 * sway;
+
+    const t = `translate3d(${(-ox).toFixed(1)}px, ${(-oy).toFixed(1)}px, ${(-camZ).toFixed(1)}px)`;
+    if (t !== lastT) { tunnel.style.transform = t; lastT = t; }
+
+    // 깊이 페이드 (가까우면/지나치면 사라짐 — v1 포그 패턴 축약판)
+    // it.o 로 요소별 가시 창을 덮어쓸 수 있다 (카피는 좁게 → 타이틀 겹침 방지)
+    for (const it of fogItems) {
+      const o = it.o || FOG_DEFAULT;
+      const d = camZ - it.z; // 양수 = 카메라 앞
+      let a;
+      if (d <= o.nearOut || d >= o.farOut) a = 0;
+      else if (d < o.nearIn) a = (d - o.nearOut) / (o.nearIn - o.nearOut);
+      else if (d > o.farIn) a = 1 - (d - o.farIn) / (o.farOut - o.farIn);
+      else a = 1;
+      if (Math.abs(a - (it.last || -1)) < 0.02) continue;
+      it.last = a;
+      it.wrap.style.visibility = a <= 0.01 ? 'hidden' : 'visible';
+      if (a > 0.01) it.wrap.style.opacity = a.toFixed(3);
+    }
+
+    depthEl.textContent = 'DEPTH ' + String(Math.round(state.p * 4200)).padStart(4, '0') + 'm';
+  }
+
+  const noGsap = typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined';
+  const cta = document.getElementById('cta');
+
+  if (noGsap) {
+    state.p = 1;
+    apply(0);
+    document.getElementById('flash').style.opacity = 1;
+    cta.style.opacity = 1; cta.style.visibility = 'visible';
+  } else {
+    gsap.registerPlugin(ScrollTrigger);
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: { trigger: '#scroll-space', start: 'top top', end: 'bottom bottom', scrub: 0.8 },
+    });
+    tl.to(state, {
+      p: 1, duration: 1,
+      onUpdate: () => {
+        pf.style.width = (state.p * 100).toFixed(2) + '%';
+        hint.classList.toggle('is-hidden', state.p > 0.02);
+      },
+    }, 0);
+    // ---- 도착 시퀀스 ----
+    // 1) 코어의 빛이 화면을 서서히 채운다 (광원이 먼저)
+    tl.to('#flash', { opacity: 1, duration: 0.11, ease: 'power2.in' }, 0.8);
+    // 2) 다크 HUD는 빛 속으로 사라진다
+    tl.to(['.hud', '.depth', '.scroll-hint'], { autoAlpha: 0, duration: 0.05 }, 0.84);
+    // 3) 빛이 가라앉으며 "도착지"가 되고, 문구가 내려앉는다
+    tl.fromTo('#cta',
+      { autoAlpha: 0, y: 36, scale: 1.04 },
+      { autoAlpha: 1, y: 0, scale: 1, duration: 0.06, ease: 'power2.out' },
+      0.93);
+
+    if (!mobile && !reduced) {
+      addEventListener('pointermove', (e) => {
+        target.x = (e.clientX / innerWidth - 0.5) * 2;
+        target.y = -(e.clientY / innerHeight - 0.5) * 2;
+      });
+    }
+    gsap.ticker.add((time, dms) => {
+      const dt = Math.min(dms / 1000, 0.05);
+      pointer.x += (target.x - pointer.x) * Math.min(1, dt * 3);
+      pointer.y += (target.y - pointer.y) * Math.min(1, dt * 3);
+      apply(time);
+    });
+  }
+
+  apply(0);
+  document.body.classList.add('is-ready');
+})();
+</script>
+</body>
+</html>

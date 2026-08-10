@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub — 책에서 허브까지</title>
+<meta name="description" content="디자인 POC v7 — 북 투 허브. 떠다니는 책이 펼쳐지며 글자가 빛 입자가 되고, 중앙으로 흡수되어 네트워크 구체(Data Hub)가 생성된 뒤 대시보드와 AI 도구로 전환된다. 단일 장면 스크럽, Canvas 2D + CSS 3D, WebGL 미사용." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700;900&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<style>
+/* ============================================================
+   v7 — BOOK TO HUB : 책 → 빛 → 데이터 → AX
+   (단일 장면 스크럽 / Canvas 2D + CSS 3D / WebGL 미사용)
+   ① 책들이 떠다닌다 → ② 펼쳐지며 글자가 빛 입자로 →
+   ③ 입자가 중앙으로 빨려든다 → ④ 네트워크 구체(Data Hub) 생성·회전
+   → ⑤ 대시보드 + AI 도구(검색·분석·추천)로 전환.
+   ============================================================ */
+:root {
+  --bg: #0a0e1e;
+  --ink: #f2f4fc;
+  --muted: #9aa3c0;
+  --faint: #5d6683;
+  --line: rgba(242, 244, 252, 0.1);
+  --paper: #f7f2e6;
+  --paper-edge: #d9cfb4;
+  --navy: #26335f;
+  --lightgold: #ffd977;
+  --warm: #ffb86b;
+  --indigo: #8f9bff;
+  --cyan: #5fd4ff;
+  --mint: #57e6b4;
+  --font: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+  --serif: "Noto Serif KR", "Pretendard Variable", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 110%, rgba(38, 51, 95, 0.5), transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% -6%, rgba(143, 155, 255, 0.12), transparent 55%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
+::selection { background: rgba(255, 217, 119, 0.3); }
+
+#scroll-space { height: 520vh; pointer-events: none; }
+
+/* ---- 상단 헤더 ---- */
+.masthead {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px clamp(20px, 4vw, 44px);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.18em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  background: rgba(10, 14, 30, 0.82);
+}
+.masthead b { color: var(--ink); }
+.masthead .status { font-variant-numeric: tabular-nums; }
+.masthead .status em { font-style: normal; color: var(--lightgold); font-weight: 800; }
+
+.progress-track { position: fixed; top: 0; left: 0; z-index: 51; width: 100%; height: 3px; }
+.progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--lightgold), var(--indigo), var(--cyan)); box-shadow: 0 0 12px rgba(255, 217, 119, 0.5); }
+
+/* ---- 입자 캔버스 (글자 → 빛) ---- */
+#glyphs { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+
+/* ============================================================
+   무대
+   ============================================================ */
+#stage {
+  position: fixed; inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  perspective: 1500px;
+  opacity: 0; transition: opacity 0.9s ease;
+}
+body.is-ready #stage { opacity: 1; }
+
+.cap {
+  position: absolute;
+  left: 50%; top: clamp(84px, 12vh, 120px);
+  transform: translateX(-50%);
+  text-align: center;
+  width: min(780px, calc(100% - 40px));
+  opacity: 0; visibility: hidden;
+  z-index: 12;
+}
+.cap .lb {
+  display: inline-block;
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--lightgold);
+  margin-bottom: 10px;
+}
+.cap h2 { font-family: var(--serif); font-size: clamp(22px, 2.8vw, 34px); font-weight: 700; line-height: 1.4; }
+.cap h2 b { color: var(--lightgold); font-weight: 700; }
+.cap.cool .lb { color: var(--cyan); }
+.cap.cool h2 b { color: var(--cyan); }
+
+/* ---- 인트로 ---- */
+#intro {
+  position: absolute;
+  left: 50%; top: 42%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 8;
+  width: min(900px, calc(100% - 40px));
+}
+#intro .kicker {
+  display: inline-block;
+  padding: 7px 18px;
+  border: 1.5px solid rgba(255, 217, 119, 0.45);
+  border-radius: 999px;
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.34em;
+  color: var(--lightgold);
+  margin-bottom: 26px;
+  background: rgba(255, 217, 119, 0.06);
+}
+#intro h1 {
+  font-family: var(--serif);
+  font-size: clamp(38px, 6vw, 82px);
+  font-weight: 900;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+}
+#intro h1 em { font-style: normal; color: var(--lightgold); }
+#intro p { margin-top: 20px; font-size: clamp(14.5px, 1.6vw, 18px); line-height: 1.8; color: var(--muted); }
+
+/* ============================================================
+   ① 떠다니는 책 (미니 3D 북)
+   ============================================================ */
+.mbook {
+  position: absolute;
+  z-index: 6;
+  transform-style: preserve-3d;
+  animation: bob 6s ease-in-out infinite;
+}
+@keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -16px; } }
+.mbook .body3d {
+  position: relative;
+  width: var(--bw); height: var(--bh);
+  transform-style: preserve-3d;
+  transform: rotateX(12deg) rotateY(var(--yaw, -16deg));
+}
+/* 페이지 블록 */
+.mbook .pages {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(30, 25, 10, 0.12), transparent 24%),
+    repeating-linear-gradient(0deg, var(--paper) 0 3px, var(--paper-edge) 3px 4px);
+  border-radius: 2px 4px 4px 2px;
+}
+/* 표지 (왼쪽 힌지) */
+.mbook .cover {
+  position: absolute; inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  border-radius: 2px 4px 4px 2px;
+  background: linear-gradient(135deg, var(--c1, #35447e) 0%, var(--c2, #1d2748) 100%);
+  box-shadow: inset 2px 0 4px rgba(255, 255, 255, 0.16), inset -3px 0 8px rgba(0, 0, 0, 0.3);
+  backface-visibility: hidden;
+}
+.mbook .cover::after { /* 표지 띠 */
+  content: "";
+  position: absolute; left: 12%; right: 12%; top: 20%;
+  height: 3px;
+  background: rgba(255, 217, 119, 0.55);
+}
+/* 펼쳤을 때 보이는 안쪽 페이지의 글줄 */
+.mbook .pages i {
+  position: absolute; left: 14%; right: 12%;
+  height: 2px;
+  background: rgba(60, 50, 20, 0.28);
+  border-radius: 2px;
+}
+/* 책이 다 읽히면 흐려진다 */
+.mbook.is-read { transition: opacity 0.5s ease; }
+
+/* ============================================================
+   ④ 네트워크 구체 (Data Hub)
+   ============================================================ */
+#hub {
+  position: absolute;
+  left: 50%; top: 56%;
+  z-index: 7;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  opacity: 0;
+}
+#hub-spin {
+  position: absolute; left: 0; top: 0;
+  transform-style: preserve-3d;
+  animation: hub-rot 22s linear infinite;
+}
+@keyframes hub-rot { from { transform: rotateX(-14deg) rotateY(0); } to { transform: rotateX(-14deg) rotateY(360deg); } }
+/* 경도 링 */
+.ring-l {
+  position: absolute; left: 0; top: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(143, 155, 255, 0.5);
+  transform: translate(-50%, -50%) rotateY(var(--ry));
+  box-shadow: 0 0 22px rgba(143, 155, 255, 0.12) inset;
+}
+/* 위도 링 */
+.ring-t {
+  position: absolute; left: 0; top: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(95, 212, 255, 0.45);
+  transform: translate(-50%, -50%) rotateX(90deg) translateZ(var(--tz));
+}
+/* 표면 노드 */
+.hnode {
+  position: absolute; left: 0; top: 0;
+  width: 9px; height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--c, var(--cyan));
+  box-shadow: 0 0 12px var(--c, var(--cyan));
+  transform: rotateY(var(--a)) rotateX(var(--b)) translateZ(var(--r));
+  animation: node-tw 3.2s ease-in-out infinite;
+}
+@keyframes node-tw { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+/* 코어 광 */
+#hub-core {
+  position: absolute; left: 0; top: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0%, rgba(255, 217, 119, 0.65) 26%, rgba(143, 155, 255, 0.4) 52%, transparent 72%);
+  animation: core-br 3.6s ease-in-out infinite;
+}
+@keyframes core-br { 0%, 100% { opacity: 1; } 50% { opacity: 0.62; } }
+/* 허브 라벨 */
+#hub-label {
+  position: absolute; left: 50%; top: calc(100% + 26px);
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(95, 212, 255, 0.5);
+  background: rgba(10, 14, 30, 0.8);
+  font-size: 12px; font-weight: 800; letter-spacing: 0.3em;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   ⑤ 대시보드 + AI 도구
+   ============================================================ */
+#dash {
+  position: absolute;
+  left: 50%; top: 58%;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+  width: min(680px, calc(100% - 36px));
+  border-radius: 20px;
+  border: 1px solid rgba(242, 244, 252, 0.14);
+  background: linear-gradient(180deg, rgba(24, 30, 56, 0.92), rgba(14, 18, 38, 0.94));
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5), 0 0 60px rgba(143, 155, 255, 0.1);
+  padding: 22px 24px 24px;
+  opacity: 0; visibility: hidden;
+}
+#dash .dh {
+  display: flex; align-items: center; gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+#dash .dh .logo {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #fff, rgba(255, 217, 119, 0.8) 34%, rgba(143, 155, 255, 0.7) 72%);
+  box-shadow: 0 0 16px rgba(255, 217, 119, 0.5);
+}
+#dash .dh b { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+#dash .dh .live {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em; color: var(--mint);
+}
+#dash .dh .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 10px var(--mint); animation: node-tw 2s ease-in-out infinite; }
+.tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.tool {
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(242, 244, 252, 0.04);
+  padding: 16px 15px;
+  opacity: 0;
+}
+.tool .ic {
+  display: inline-flex;
+  width: 36px; height: 36px;
+  align-items: center; justify-content: center;
+  border-radius: 11px;
+  font-size: 17px;
+  background: color-mix(in srgb, var(--c, var(--cyan)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c, var(--cyan)) 40%, transparent);
+  margin-bottom: 12px;
+}
+.tool h3 { font-size: 14.5px; font-weight: 800; letter-spacing: -0.01em; }
+.tool p { margin-top: 6px; font-size: 11.5px; line-height: 1.65; color: var(--muted); }
+.dstrip {
+  margin-top: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 217, 119, 0.07);
+  border: 1px solid rgba(255, 217, 119, 0.3);
+  font-size: 12.5px; font-weight: 700;
+  opacity: 0;
+}
+.dstrip b { color: var(--lightgold); }
+.dstrip .val { font-variant-numeric: tabular-nums; color: var(--ink); }
+
+/* ---- CTA ---- */
+#cta {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  z-index: 14;
+  opacity: 0; visibility: hidden;
+  background: radial-gradient(ellipse 90% 70% at 50% 46%, rgba(10, 14, 30, 0.94) 40%, rgba(10, 14, 30, 0.7) 100%);
+}
+#cta .kicker { font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em; color: var(--lightgold); margin-bottom: 18px; }
+#cta h1 { font-family: var(--serif); font-size: clamp(36px, 5.8vw, 76px); font-weight: 900; line-height: 1.18; letter-spacing: -0.02em; }
+#cta h1 em { font-style: normal; color: var(--lightgold); }
+#cta p { margin-top: 18px; font-size: clamp(14.5px, 1.6vw, 18px); color: var(--muted); line-height: 1.8; }
+#cta .actions { margin-top: 32px; display: flex; gap: 13px; flex-wrap: wrap; justify-content: center; pointer-events: auto; }
+.btn {
+  padding: 15px 32px;
+  border-radius: 10px;
+  font-family: inherit; font-size: 15px; font-weight: 800;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn.goldfill { background: linear-gradient(135deg, #ffe49a, var(--lightgold) 55%, #d9a93c); color: #241c05; box-shadow: 0 12px 34px rgba(255, 217, 119, 0.3); }
+.btn.goldfill:hover { transform: translateY(-2px); }
+.btn.ghost { background: rgba(242, 244, 252, 0.06); color: var(--ink); border-color: var(--line); }
+.btn.ghost:hover { transform: translateY(-2px); }
+
+.scroll-hint {
+  position: fixed; left: 50%; bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  transition: opacity 0.5s ease;
+}
+.scroll-hint span { font-size: 10px; font-weight: 800; letter-spacing: 0.44em; color: var(--faint); }
+.scroll-hint i { width: 1.5px; height: 38px; background: linear-gradient(to bottom, var(--lightgold), transparent); animation: drop 1.6s ease-in-out infinite; }
+@keyframes drop { 0% { transform: scaleY(0); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: top; } 56% { transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+.scroll-hint.is-hidden { opacity: 0; }
+
+@media (max-width: 900px) {
+  #intro h1 { font-size: 32px; }
+  .cap h2 { font-size: 19px; }
+  .tools { grid-template-columns: 1fr; }
+  #dash { top: 56%; }
+  #scroll-space { height: 480vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mbook, #hub-spin, .hnode, #hub-core, .dh .live i, .scroll-hint i { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="scroll-space" aria-hidden="true"></div>
+
+<header class="masthead">
+  <span><b>AX DATAHUB</b> · BOOK → LIGHT → DATA → AX</span>
+  <span class="status" id="status">서재 대기 중</span>
+</header>
+<div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+
+<canvas id="glyphs" aria-hidden="true"></canvas>
+
+<div id="stage" aria-hidden="true">
+
+  <!-- 캡션 -->
+  <div class="cap" id="cap-open">
+    <span class="lb">STEP 01</span>
+    <h2>흩어진 데이터를 한곳에 — 모든 데이터를 하나의 공간으로</h2>
+  </div>
+  <div class="cap" id="cap-absorb">
+    <span class="lb">STEP 02</span>
+    <h2>변화는 먼저 보여드립니다 — 중요한 변화만 빠르게 발견하세요</h2>
+  </div>
+  <div class="cap cool" id="cap-hub">
+    <span class="lb">STEP 03</span>
+    <h2>연결할수록 더 많은 인사이트 — 연결된 데이터로 더 깊이 분석하세요</h2>
+  </div>
+  <div class="cap cool" id="cap-tools">
+    <span class="lb">STEP 04</span>
+    <h2>결과는 바로 활용하세요 — AI가 요약한 리포트를 팀과 공유하세요</h2>
+  </div>
+
+  <!-- 인트로 -->
+  <div id="intro">
+    <span class="kicker">AX DATAHUB</span>
+    <h1>흩어진 데이터를<br /><em>한곳에.</em></h1>
+    <p>운영, 고객, 마케팅 등 여러 곳에 흩어진 데이터를<br />AX Datahub에서 통합하여 한 번에 확인하세요.</p>
+  </div>
+
+  <!-- ① 떠다니는 책 (JS 생성) -->
+
+  <!-- ④ 네트워크 구체 (JS가 링/노드 생성) -->
+  <div id="hub">
+    <div id="hub-spin"></div>
+    <div id="hub-core"></div>
+    <span id="hub-label">AX DATA HUB</span>
+  </div>
+
+  <!-- ⑤ 대시보드 + AI 도구 -->
+  <div id="dash">
+    <div class="dh">
+      <span class="logo"></span>
+      <b>AX Datahub</b>
+      <span class="live"><i></i>HUB ONLINE</span>
+    </div>
+    <div class="tools">
+      <div class="tool" style="--c:#5fd4ff">
+        <span class="ic">🔍</span>
+        <h3>지능형 검색</h3>
+        <p>수만 권의 신호에서 지금 필요한 답을 바로 찾습니다.</p>
+      </div>
+      <div class="tool" style="--c:#8f9bff">
+        <span class="ic">📊</span>
+        <h3>AI 분석</h3>
+        <p>변화의 이유와 우선순위를 근거와 함께 설명합니다.</p>
+      </div>
+      <div class="tool" style="--c:#57e6b4">
+        <span class="ic">📄</span>
+        <h3>리포트 활용</h3>
+        <p>조회한 결과를 AI 리포트로 요약해 팀과 바로 공유.</p>
+      </div>
+    </div>
+    <div class="dstrip">
+      <span><b>오늘의 추천</b> — 재고를 먼저 확보하세요</span>
+      <span class="val">근거 3건 · 신뢰도 92%</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div id="cta">
+    <span class="kicker">AX DATAHUB</span>
+    <h1>이제<br /><em>시작하세요.</em></h1>
+    <p>탐색부터 분석, 공유까지<br />AX Datahub와 함께 더 빠르고 효율적인 업무를 시작해보세요.</p>
+    <div class="actions">
+      <button class="btn goldfill" type="button">AX Datahub 시작하기</button>
+      <button class="btn ghost" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">처음부터 다시 보기</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="scroll-hint" id="hint"><span>OPEN THE BOOKS</span><i></i></div>
+
+<script>
+/* ============================================================
+   단일 장면 타임라인
+   0.00–0.12  인트로 → 책들이 떠오른다
+   0.12–0.30  OPEN   : 표지가 열리고 글자 입자가 새어나온다
+   0.30–0.52  GATHER : 입자가 소용돌이치며 중앙으로 흡수
+   0.52–0.74  HUB    : 네트워크 구체 생성·회전 (책은 잦아든다)
+   0.74–0.90  TOOLS  : 구체가 도킹하며 대시보드+AI 도구 전개
+   0.90–1.00  CTA
+   ============================================================ */
+(function () {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const mobile = coarse || innerWidth < 900;
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+
+  const stage = document.getElementById('stage');
+
+  /* ---- ① 떠다니는 책 ---- */
+  const coverPalette = [
+    ['#35447e', '#1d2748'], ['#7e3550', '#48202e'], ['#2e6b5a', '#173b30'],
+    ['#8a6d2b', '#4d3b12'], ['#5a3f8a', '#2e1f4d'], ['#3b6f8f', '#1d3b4d'],
+  ];
+  const bookSpots = mobile
+    ? [[16, 26], [80, 22], [12, 62], [86, 60], [30, 82], [68, 84]]
+    : [[12, 24], [30, 16], [70, 18], [88, 28], [8, 52], [92, 54], [16, 78], [38, 86], [66, 88], [86, 78]];
+  const books = bookSpots.map(([px, py], i) => {
+    const w = rand(46, 64), h = w * 1.36;
+    const el = document.createElement('div');
+    el.className = 'mbook';
+    el.style.cssText = `left:${px}%; top:${py}%;`;
+    el.style.animationDelay = `${rand(-5, 0)}s`;
+    const [c1, c2] = coverPalette[i % coverPalette.length];
+    const lines = Array.from({ length: 5 }, (_, k) =>
+      `<i style="top:${18 + k * 15}%; right:${(12 + rand(0, 22)) | 0}%"></i>`).join('');
+    el.innerHTML =
+      `<div class="body3d" style="--bw:${w}px; --bh:${h}px; --yaw:${rand(-26, -8).toFixed(0)}deg">` +
+      `<div class="pages">${lines}</div>` +
+      `<div class="cover" style="--c1:${c1}; --c2:${c2}"></div>` +
+      `</div>`;
+    stage.appendChild(el);
+    return { el, cover: el.querySelector('.cover'), px, py, open: false };
+  });
+
+  /* ---- ④ 네트워크 구체 구축 ---- */
+  const R = mobile ? 120 : 168;
+  const spin = document.getElementById('hub-spin');
+  // 경도 링 4개
+  [0, 45, 90, 135].forEach((a) => {
+    const r = document.createElement('span');
+    r.className = 'ring-l';
+    r.style.cssText = `width:${R * 2}px; height:${R * 2}px; --ry:${a}deg;`;
+    spin.appendChild(r);
+  });
+  // 위도 링 3개 (z 오프셋 + 축소 반지름)
+  [-0.5, 0, 0.5].forEach((k) => {
+    const rr = Math.sqrt(1 - k * k) * R;
+    const t = document.createElement('span');
+    t.className = 'ring-t';
+    t.style.cssText = `width:${rr * 2}px; height:${rr * 2}px; --tz:${(-k * R).toFixed(0)}px;`;
+    spin.appendChild(t);
+  });
+  // 표면 노드 18개
+  const nodeCols = ['#5fd4ff', '#8f9bff', '#ffd977', '#57e6b4'];
+  const hnodes = [];
+  for (let i = 0; i < 18; i++) {
+    const n = document.createElement('span');
+    n.className = 'hnode';
+    n.style.cssText = `--a:${rand(0, 360).toFixed(0)}deg; --b:${rand(-64, 64).toFixed(0)}deg; --r:${R}px; --c:${pick(nodeCols)};`;
+    n.style.animationDelay = `${rand(-3, 0)}s`;
+    spin.appendChild(n);
+    hnodes.push(n);
+  }
+  const core = document.getElementById('hub-core');
+  core.style.width = core.style.height = (R * 0.9) + 'px';
+
+  /* ---- ②③ 글자 → 빛 입자 (Canvas 2D) ---- */
+  const cv = document.getElementById('glyphs');
+  const ctx = cv.getContext('2d');
+  let W = 0, H = 0;
+  function resize() { W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  resize();
+  addEventListener('resize', resize);
+
+  const GLYPHS = '가나다라책빛글꿈판매검색재고리뷰데이터ABCDS0123456789'.split('');
+  const PCOLS = ['#ffd977', '#ffe9b0', '#ffb86b', '#fff3d0'];
+  const particles = [];
+  let emit = 0;       // 방출 강도 (0~1) — 스크럽이 조절
+  let attract = 0;    // 흡수 강도 (0~1)
+  let canvasGlow = 0; // 중앙 광 (허브 생성 전 축적)
+  let absorbed = 0;
+
+  const center = () => ({ x: W * 0.5, y: H * 0.56 });
+
+  function spawn() {
+    const b = pick(books.filter((bk) => bk.open));
+    if (!b) return;
+    const bx = (b.px / 100) * W, by = (b.py / 100) * H;
+    particles.push({
+      x: bx + rand(-16, 16), y: by + rand(-20, 4),
+      vx: rand(-0.5, 0.5), vy: rand(-1.6, -0.7),
+      ch: pick(GLYPHS),
+      col: pick(PCOLS),
+      life: 0,
+      size: rand(11, 16),
+      swirl: rand(0.5, 1.4) * (Math.random() < 0.5 ? 1 : -1),
+    });
+  }
+
+  function drawParticles(t) {
+    ctx.clearRect(0, 0, W, H);
+    const c = center();
+
+    // 방출
+    if (emit > 0.02 && !reduced) {
+      const n = Math.round(emit * (mobile ? 2.4 : 4.6));
+      for (let i = 0; i < n; i++) spawn();
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.life += 0.016;
+
+      // 초기: 위로 떠오름 / 흡수: 소용돌이 궤도로 중심에 끌림
+      const dx = c.x - p.x, dy = c.y - p.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const pull = attract * Math.min(3.4, 190 / dist + 0.5);
+      p.vx += (dx / dist) * pull * 0.09 + (-dy / dist) * p.swirl * attract * 0.11;
+      p.vy += (dy / dist) * pull * 0.09 + (dx / dist) * p.swirl * attract * 0.11;
+      p.vx *= 0.965; p.vy *= 0.965;
+      p.x += p.vx; p.y += p.vy;
+
+      // 도착 → 흡수
+      if (attract > 0.1 && dist < 26) {
+        particles.splice(i, 1);
+        absorbed++;
+        canvasGlow = Math.min(1, canvasGlow + 0.012);
+        continue;
+      }
+      if (p.life > 9 || p.y < -30) { particles.splice(i, 1); continue; }
+
+      // 글자(초기) → 점(빛)으로 전이
+      const glyphPhase = Math.max(0, 1 - p.life * (0.9 + attract * 1.6));
+      const alpha = Math.min(1, p.life * 3) * (0.55 + 0.45 * Math.sin(t * 0.004 + p.x));
+      ctx.globalAlpha = alpha;
+      if (glyphPhase > 0.08) {
+        ctx.fillStyle = p.col;
+        ctx.font = `700 ${(p.size * (0.7 + glyphPhase * 0.5)).toFixed(0)}px "Noto Serif KR", serif`;
+        ctx.fillText(p.ch, p.x, p.y);
+      } else {
+        const r = 1.6 + (1 - glyphPhase) * 1.3;
+        ctx.fillStyle = p.col;
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = alpha * 0.35;
+        ctx.beginPath(); ctx.arc(p.x, p.y, r * 2.6, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+
+    // 축적되는 중앙 광 (허브 등장 전 예열)
+    if (canvasGlow > 0.01) {
+      const g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 120 * canvasGlow + 30);
+      g.addColorStop(0, `rgba(255, 236, 170, ${0.7 * canvasGlow})`);
+      g.addColorStop(0.5, `rgba(255, 217, 119, ${0.25 * canvasGlow})`);
+      g.addColorStop(1, 'rgba(255, 217, 119, 0)');
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = g;
+      ctx.fillRect(c.x - 200, c.y - 200, 400, 400);
+    }
+    ctx.globalAlpha = 1;
+
+    if (!reduced) requestAnimationFrame(drawParticles);
+  }
+  if (!reduced) requestAnimationFrame(drawParticles);
+
+  /* ---- 타임라인 ---- */
+  const noGsap = typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined';
+  const hub = document.getElementById('hub');
+  const dash = document.getElementById('dash');
+
+  if (noGsap || reduced) {
+    // 폴백: 최종 상태 — 허브 + 대시보드 + CTA
+    document.getElementById('intro').style.display = 'none';
+    books.forEach((b) => { b.el.style.opacity = 0.18; b.cover.style.transform = 'rotateY(-150deg)'; });
+    hub.style.opacity = 1;
+    hub.style.transform = 'translate(-50%, -50%) translateY(-190px) scale(0.42)';
+    dash.style.opacity = 1; dash.style.visibility = 'visible';
+    dash.querySelectorAll('.tool, .dstrip').forEach((el) => (el.style.opacity = 1));
+    const cta = document.getElementById('cta');
+    cta.style.opacity = 1; cta.style.visibility = 'visible';
+    document.getElementById('status').innerHTML = '<em>TOOLS READY</em>';
+    document.body.classList.add('is-ready');
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const tl = gsap.timeline({
+    defaults: { ease: 'power2.inOut' },
+    scrollTrigger: { trigger: '#scroll-space', start: 'top top', end: 'bottom bottom', scrub: 0.7 },
+  });
+
+  const CAP_IN = { autoAlpha: 1, y: 0, duration: 0.04, ease: 'power2.out' };
+  const CAP_OUT = { autoAlpha: 0, y: -16, duration: 0.04, ease: 'power2.in' };
+  const CAP_FROM = { autoAlpha: 0, y: 16 };
+
+  /* 0 → 0.12 : 인트로 퇴장 */
+  tl.to('#intro', { autoAlpha: 0, y: -60, duration: 0.09 }, 0.04);
+
+  /* 0.12 → 0.30 : OPEN — 표지가 열린다 */
+  tl.fromTo('#cap-open', CAP_FROM, CAP_IN, 0.12);
+  books.forEach((b, i) => {
+    const t0 = 0.13 + (i / books.length) * 0.12;
+    tl.to(b.cover, { rotationY: -150, duration: 0.06, ease: 'power2.out' }, t0);
+    tl.add(() => { b.open = true; }, t0 + 0.03);
+  });
+  tl.to('#cap-open', CAP_OUT, 0.28);
+
+  /* 0.30 → 0.52 : GATHER — 입자 흡수, 책은 잦아든다 */
+  tl.fromTo('#cap-absorb', CAP_FROM, CAP_IN, 0.31);
+  books.forEach((b, i) => {
+    tl.to(b.el, { opacity: 0.16, scale: 0.86, duration: 0.1 }, 0.4 + (i % 4) * 0.02);
+  });
+  tl.to('#cap-absorb', CAP_OUT, 0.5);
+
+  /* 0.52 → 0.74 : HUB — 구체 생성 */
+  tl.fromTo('#cap-hub', CAP_FROM, CAP_IN, 0.53);
+  tl.fromTo(hub, { autoAlpha: 0, scale: 0.16 }, { autoAlpha: 1, scale: 1, duration: 0.1, ease: 'back.out(1.3)' }, 0.54);
+  tl.fromTo('#hub-label', { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.05 }, 0.62);
+  tl.to('#cap-hub', CAP_OUT, 0.72);
+
+  /* 0.74 → 0.90 : TOOLS — 구체가 위로 도킹, 대시보드 전개 */
+  tl.fromTo('#cap-tools', CAP_FROM, CAP_IN, 0.75);
+  tl.to('#hub-label', { autoAlpha: 0, duration: 0.03 }, 0.75);
+  tl.to(hub, { y: mobile ? -215 : -235, scale: 0.4, duration: 0.09 }, 0.76);
+  tl.fromTo(dash, { autoAlpha: 0, y: 60, scale: 0.96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.07, ease: 'power2.out' }, 0.78);
+  tl.to('#dash .tool', { opacity: 1, duration: 0.045, stagger: 0.02, ease: 'power2.out' }, 0.81);
+  tl.to('#dash .dstrip', { opacity: 1, duration: 0.04 }, 0.87);
+  tl.to('#cap-tools', CAP_OUT, 0.89);
+
+  /* 0.90 → 1.0 : CTA */
+  tl.to([dash, hub], { autoAlpha: 0.24, y: '+=40', duration: 0.07 }, 0.9);
+  tl.fromTo('#cta', { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.07, ease: 'power2.out' }, 0.92);
+
+  /* 상태 게이지 + 방출/흡수 강도 + 진행바 */
+  const status = document.getElementById('status');
+  const pf = document.getElementById('pf');
+  const hint = document.getElementById('hint');
+  ScrollTrigger.create({
+    trigger: '#scroll-space', start: 'top top', end: 'bottom bottom',
+    onUpdate: (self) => {
+      const p = self.progress;
+      pf.style.width = (p * 100).toFixed(2) + '%';
+      hint.classList.toggle('is-hidden', p > 0.02);
+
+      // 입자 방출: OPEN~GATHER에서 활발, HUB 이후 감쇠
+      emit = p < 0.13 ? 0 : p < 0.5 ? Math.min(1, (p - 0.13) / 0.08) : Math.max(0, 1 - (p - 0.5) / 0.1);
+      // 흡수: GATHER부터 강해짐
+      attract = p < 0.3 ? 0 : Math.min(1, (p - 0.3) / 0.12);
+      // 허브가 서면 캔버스 광은 잦아든다
+      if (p > 0.56) canvasGlow = Math.max(0, canvasGlow - 0.02);
+
+      let html;
+      if (p < 0.12) html = '서재 대기 중';
+      else if (p < 0.3) html = '독서 중 · <em>' + books.filter((b) => b.open).length + '/' + books.length + '권</em>';
+      else if (p < 0.52) html = '빛 흡수 <em>' + absorbed.toLocaleString() + '</em>';
+      else if (p < 0.74) html = '<em>HUB ONLINE</em> · 노드 18';
+      else html = '<em>TOOLS READY</em> · 검색·분석·추천';
+      status.innerHTML = html;
+    },
+  });
+
+  /* 마우스 패럴랙스 — 무대 전체 미세 틸트 */
+  if (!coarse) {
+    addEventListener('pointermove', (e) => {
+      const px = e.clientX / innerWidth - 0.5;
+      const py = e.clientY / innerHeight - 0.5;
+      gsap.to(stage, {
+        rotationY: px * 5, rotationX: -py * 3.5,
+        transformPerspective: 1500,
+        duration: 0.7, ease: 'power2.out', overwrite: 'auto',
+      });
+    });
+  }
+
+  document.body.classList.add('is-ready');
+})();
+</script>
+</body>
+</html>
