@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AX 시연 사이트맵</title>
+  <meta name="description" content="AX Labs · AX Datahub 시연 대상 화면 목록." />
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/sitemap.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <img class="brand-logo" src="assets/img/yes24-logo.png" alt="YES24" />
+    <div class="topbar-title">AX 시연 사이트맵</div>
+    <div class="topbar-count"><b id="totalCount">22</b>개 화면</div>
+  </div>
+</header>
+
+<section class="cover">
+  <div class="cover-inner">
+    <div class="cover-main">
+      <div class="cover-eyebrow">YES24 Intelligence Platform</div>
+      <h1>AX Labs<span class="blue">시연 사이트맵</span></h1>
+      <p class="cover-sub">AX Labs · AX Datahub 시연 대상 화면 <b id="coverCount">22</b>건</p>
+      <p class="cover-note">※ 항목을 클릭하면 새 탭에서 열리고, 클릭한 항목은 선택 표시됩니다.</p>
+    </div>
+    <img class="cover-symbol" src="assets/img/ax-symbol.png" alt="" />
+  </div>
+</section>
+
+<main class="wrap">
+
+  <nav class="jump" id="jump" aria-label="시스템 바로가기"></nav>
+
+  <div id="content"></div>
+
+  <div class="foot">
+    <button class="foot-reset" id="resetBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/></svg>
+      선택 표시 초기화 <b id="visitedCount">0</b>
+    </button>
+    <p>
+      시연 화면 · 순서는 <b>demo_sitemap/index.html</b> 상단의 <b>SYSTEMS</b> · <b>TOPICS</b> · <b>SCREENS</b> 만 수정하면 전체에 반영됩니다.<br />
+      호스트를 바꾸려면 <b>SYSTEMS</b> 의 <b>base</b> 값만 변경하면 해당 시스템 링크가 일괄 전환됩니다.
+    </p>
+  </div>
+</main>
+
+<script>
+/* =========================================================
+   시연 대상 화면
+   · SYSTEMS : 시스템(호스트)
+   · TOPICS  : 주제(시스템별)
+   · SCREENS : 화면. path 는 각 시스템 호스트 기준 경로
+               pending: 서비스 적용 준비중 표시
+   ========================================================= */
+const SYSTEMS = [
+  { id: 'labs', name: 'AX Labs',    base: 'https://ax-labs.yes24.com',
+    desc: '업무 판단 · 검수 · 조사 · 콘텐츠 생성을 지원하는 사내 AI 업무 플랫폼' },
+  { id: 'hub',  name: 'AX Datahub', base: 'https://ax-datahub-dev.yes24.com',
+    desc: '서비스별 매출 · 회원 · 행동 데이터를 통합해 리포트로 제공하는 데이터 허브' },
+];
+
+const TOPICS = [
+  // ---- AX Labs ----
+  { sys: 'labs', id: 'adv',   name: '업무 판단 지원',    en: 'Decision Support' },
+  { sys: 'labs', id: 'insp',  name: '검수 자동화',       en: 'Inspection Automation' },
+  { sys: 'labs', id: 'comp',  name: '경쟁사 조사 자동화', en: 'Competitor Research' },
+  { sys: 'labs', id: 'voc',   name: '고객문의 분석',     en: 'Customer Inquiry' },
+  { sys: 'labs', id: 'gen',   name: 'AI 콘텐츠 생성',    en: 'AI Content Generation' },
+  { sys: 'labs', id: 'ops',   name: '운영 협업 관리',    en: 'Platform Operations',
+    note: '지속 가능한 플랫폼 운영을 위한 사이트 기초 기능 고도화' },
+  // ---- AX Datahub ----
+  { sys: 'hub',  id: 'mkt',   name: '주요 마케팅 지표',  en: 'Marketing Metrics' },
+  { sys: 'hub',  id: 'crema', name: '크레마클럽',        en: 'Crema Club' },
+  { sys: 'hub',  id: 'sarak', name: 'SARAK',            en: 'Sarak' },
+  { sys: 'hub',  id: 'b2x',   name: 'B2X',              en: 'B2X' },
+  { sys: 'hub',  id: 'shop',  name: '동네책방',          en: 'Local Bookshop' },
+  { sys: 'hub',  id: 'click', name: '클릭스트림',        en: 'Clickstream' },
+];
+
+const SCREENS = [
+  // ================= AX Labs =================
+  { topic:'adv', title:'광고 키워드 발굴', en:'Ad Keyword Discovery', path:'/AdKeyword',
+    desc:'검색어 · 상품명을 입력하면 네이버 키워드 도구와 예스24 데이터에서 연관 키워드를 추출합니다.' },
+
+  { topic:'insp', title:'대량주문 견적서 검수', en:'Bulk Order Quotation Inspection', path:'/BulkSearch',
+    desc:'대량주문 견적서 검수를 자동화합니다.' },
+
+  { topic:'comp', title:'[제휴] 기획전 셀러 집계', en:'Exhibition Seller Aggregation', path:'/Exhibition',
+    desc:'제휴 기획전의 셀러 현황을 집계합니다.' },
+  { topic:'comp', title:'[이북] 경쟁사 베스트 보유현황', en:'Competitor Ebook Bestseller Coverage', path:'/CompetitorEbookBest',
+    desc:'경쟁사 전자책 베스트셀러의 보유 현황을 비교합니다.' },
+
+  { topic:'voc', title:'일대일 문의 통계', en:'1:1 Inquiry Statistics', path:'/InquiryStats',
+    desc:'일대일 문의를 통계로 분석합니다.' },
+
+  { topic:'gen', pending:true, title:'콘텐츠 패키지 생성 · AI 태그', en:'Content Package · AI Tag',
+    path:'/Contents/ContentPackage?tab=tag', desc:'서비스 적용 준비중입니다.' },
+  { topic:'gen', title:'콘텐츠 패키지 생성 · 상품', en:'Content Package · Goods',
+    path:'/Contents/ContentPackage?tab=goods', desc:'상품상세 이미지를 재료로 활용해 콘텐츠를 생성합니다.' },
+
+  { topic:'ops', title:'AX 업무관리 고도화', en:'Requirement Management Upgrade', path:'/Requirement/Detail/248',
+    desc:'요구사항 상세 화면에서 고도화 내용을 확인합니다.' },
+  { topic:'ops', title:'접속통계', en:'Access Statistics', path:'/AccessLog',
+    desc:'사용자 · 메뉴별 접속 현황을 확인합니다.' },
+  { topic:'ops', title:'접근 그룹 관리', en:'Access Group Management', path:'/AccessGroup',
+    desc:'사용자 접근 그룹을 관리합니다.' },
+
+  // ================= AX Datahub =================
+  { topic:'mkt', title:'주요 마케팅 지표', en:'Key Marketing Metrics', path:'/MarketingMetrics',
+    desc:'1일 1회 메일링으로 발송됩니다.' },
+
+  { topic:'crema', title:'크레마머니 리포트', en:'Crema Money Report', path:'/CremaClubMoney',
+    desc:'크레마머니 현황을 리포트로 확인합니다.' },
+  { topic:'crema', title:'크레마클럽 매출 리포트', en:'Crema Club Sales Report', path:'/CremaClubSalesReport',
+    desc:'크레마클럽 매출을 리포트로 확인합니다.' },
+
+  { topic:'sarak', title:'독서모임 통계', en:'Book Club Statistics', path:'/BookclubStats',
+    desc:'사락 독서모임 운영 통계를 확인합니다.' },
+  { topic:'sarak', title:'회원별 리뷰 패턴분석', en:'Member Review Pattern Analysis', path:'/MemberReview',
+    desc:'회원별 리뷰 작성 패턴을 분석합니다.' },
+
+  { topic:'b2x', title:'상품권 현황', en:'B2E Giftcard Status', path:'/B2X/B2eGiftcard',
+    desc:'B2E 상품권 발행 · 사용 현황을 확인합니다.' },
+  { topic:'b2x', title:'법인 주문도서 판매데이터', en:'B2B Order Sales Data', path:'/B2X/B2BOrderList',
+    desc:'법인 주문도서의 판매 데이터를 확인합니다.' },
+
+  { topic:'shop', title:'종합 대시보드', en:'Bookshop Overview Dashboard', path:'/BookShop/Dashboard',
+    desc:'동네책방 현황을 한 화면에서 확인합니다.' },
+  { topic:'shop', title:'매출 / 책방 분석', en:'Sales & Store Analysis', path:'/BookShop/Sales',
+    desc:'동네책방 매출과 책방별 지표를 분석합니다.' },
+  { topic:'shop', title:'출고 / 배송 분석', en:'Fulfillment & Delivery Analysis', path:'/BookShop/Fulfillment',
+    desc:'동네책방 출고 · 배송 지표를 분석합니다.' },
+
+  { topic:'click', title:'인기이벤트', en:'Popular Events', path:'/Clickstream/Events',
+    desc:'클릭스트림 기반 인기 이벤트를 확인합니다.' },
+  { topic:'click', title:'인기검색어', en:'Popular Keywords', path:'/Clickstream/Keywords',
+    desc:'클릭스트림 기반 인기 검색어를 확인합니다.' },
+];
+
+/* ========================= 렌더 ========================= */
+const TOPIC_OF = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
+const SYS_OF   = Object.fromEntries(SYSTEMS.map((s) => [s.id, s]));
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+const ICON_EXT = '<svg class="link-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+
+SCREENS.forEach((d) => {
+  d.sys = TOPIC_OF[d.topic].sys;
+  d.url = SYS_OF[d.sys].base + d.path;
+});
+
+const ICON_CHECK = '<span class="link-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>';
+
+function linkHtml(d) {
+  return `
+    <li>
+      <a class="link" href="${esc(d.url)}" target="_blank" rel="noopener" data-url="${esc(d.url)}">
+        <span class="link-top">
+          <span class="link-title">${esc(d.title)}</span>
+          ${d.pending ? '<span class="tag">준비중</span>' : ''}
+          ${ICON_CHECK}
+          ${ICON_EXT}
+        </span>
+        <span class="link-en">${esc(d.en)}</span>
+        <span class="link-desc">${esc(d.desc)}</span>
+        <span class="link-path" title="${esc(d.url)}">${esc(d.path)}</span>
+      </a>
+    </li>`;
+}
+
+document.getElementById('content').innerHTML = SYSTEMS.map((sys) => {
+  const items = SCREENS.filter((d) => d.sys === sys.id);
+  const groups = TOPICS.filter((t) => t.sys === sys.id).map((t) => {
+    const rows = items.filter((d) => d.topic === t.id);
+    if (!rows.length) return '';
+    return `
+      <div class="group">
+        <h3 class="group-title">
+          ${esc(t.name)}
+          <span class="group-en">${esc(t.en)}</span>
+          <span class="group-n">${rows.length}</span>
+        </h3>
+        ${t.note ? `<p class="group-note">${esc(t.note)}</p>` : ''}
+        <ul>${rows.map(linkHtml).join('')}</ul>
+      </div>`;
+  }).join('');
+
+  return `
+    <section class="sys" id="sys-${sys.id}">
+      <div class="sys-head">
+        <h2>${esc(sys.name)}</h2>
+        <span class="sys-host">${esc(sys.base.replace(/^https?:\/\//, ''))}</span>
+        <span class="sys-desc">${esc(sys.desc)}</span>
+        <span class="sys-count"><b>${items.length}</b>개 화면</span>
+      </div>
+      <div class="groups">${groups}</div>
+    </section>`;
+}).join('');
+
+document.getElementById('jump').innerHTML =
+  '<span class="jump-label">바로가기</span>' +
+  SYSTEMS.map((s) => {
+    const n = SCREENS.filter((d) => d.sys === s.id).length;
+    return `<a href="#sys-${s.id}">${esc(s.name)} <b>${n}</b></a>`;
+  }).join('');
+
+document.getElementById('totalCount').textContent = SCREENS.length;
+document.getElementById('coverCount').textContent = SCREENS.length;
+
+/* ============ 클릭한 항목 선택 표시 (브라우저에 저장) ============ */
+const VISITED_KEY = 'ax-sitemap-visited';
+
+function loadVisited() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(VISITED_KEY) || '[]');
+    return new Set(Array.isArray(saved) ? saved : []);
+  } catch (e) { return new Set(); }   // 저장 불가 환경 — 메모리로만 동작
+}
+let visited = loadVisited();
+const saveVisited = () => {
+  try { localStorage.setItem(VISITED_KEY, JSON.stringify([...visited])); } catch (e) {}
+};
+
+function paintVisited() {
+  document.querySelectorAll('.link').forEach((a) => {
+    const on = visited.has(a.dataset.url);
+    a.classList.toggle('visited', on);
+    a.setAttribute('aria-current', on ? 'true' : 'false');
+  });
+  document.getElementById('visitedCount').textContent = visited.size;
+}
+
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('.link');
+  if (a) { visited.add(a.dataset.url); saveVisited(); paintVisited(); return; }
+
+  if (e.target.closest('#resetBtn')) {
+    visited.clear(); saveVisited(); paintVisited();
+  }
+});
+
+paintVisited();
+</script>
+</body>
+</html>
