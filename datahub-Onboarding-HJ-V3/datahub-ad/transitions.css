@@ -1,0 +1,33 @@
+/* Keep each cinematic world legible before the next one takes focus. */
+.chapter-two {
+  opacity: clamp(0, min(calc(var(--service) * 2), calc(1 - var(--work) * 3)), 1);
+}
+
+.chapter-three {
+  opacity: clamp(0, min(calc(var(--work) * 3), calc(1 - var(--wide) * 3)), 1);
+}
+
+.chapter-four {
+  opacity: clamp(0, min(calc(var(--wide) * 3), calc(1 - var(--hub) * 5)), 1);
+}
+
+/* Let the business landscape settle before the actual DataHub capture develops. */
+.chapter-five {
+  opacity: clamp(0, calc(var(--hub) * 2.5 - .35), 1);
+}
+
+/* Keep the primary work surface clear of the Scene 03 headline. */
+.chapter-three h2 {
+  z-index: 2;
+}
+
+.chapter-three .work-product {
+  top: 46vh;
+}
+
+/* The reader response follows the kinetic headline instead of covering it. */
+.chapter-two .stream-voice {
+  top: 45vh;
+  right: 4vw;
+  width: 25vw;
+}

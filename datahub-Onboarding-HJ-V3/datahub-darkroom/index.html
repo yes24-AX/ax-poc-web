@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#060707">
+  <meta name="description" content="질문에 필요한 데이터 관점을 선명하게 만드는 DataHub 온보딩">
+  <title>DataHub — Data Darkroom V16</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Inter:wght@200;300;400&family=Noto+Sans+KR:wght@300;400;500&family=Noto+Serif+KR:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/darkroom.css?v=2">
+  <link rel="stylesheet" href="css/v16.css?v=37">
+</head>
+<body>
+<main class="experience" id="experience" data-step="0" data-phase="question">
+  <canvas id="liquid" aria-hidden="true"></canvas>
+  <div class="plates" aria-hidden="true"><div class="plate plate-hook"></div><div class="plate plate-develop"></div><div class="plate plate-reveal"></div></div>
+
+  <div class="enlarger-light" id="light" role="slider" tabindex="0" aria-label="빛을 중앙 초점점으로 이동하기"><span class="light-beam"><i></i></span></div>
+  <div class="camera" id="camera">
+    <div class="negative-field" id="field">
+      <article class="negative product active" data-negative="0"><span class="edge"></span><small>EXPOSURE / PRODUCT</small><b>상품의 상태</b><div class="negative-data"><span>판매 중</span><span>재고 24권</span><span>최근 7일 183권</span></div><div class="trace product-trace"><i></i><i></i><i></i><i></i></div><em>판매 상태 · 재고 · 판매 현황</em></article>
+      <article class="negative content" data-negative="1"><span class="edge"></span><small>FOCUS / CONTENT</small><b>콘텐츠의 노출</b><div class="negative-data"><span>메인 노출</span><span>예약 → 노출 중</span><span>대상 도서 4권</span></div><div class="trace member-trace"><i></i><i></i><i></i><i></i><i></i></div><em>노출 위치 · 상태 · 대상 도서</em></article>
+      <article class="negative sales" data-negative="2"><span class="edge"></span><small>FOCUS / SALES</small><b>판매의 흐름</b><div class="negative-data"><span>최근 7일</span><span>판매 183권</span><span>변화 확인</span></div><div class="trace revenue-trace"><i></i><i></i><i></i><i></i></div><em>기간 · 판매량 · 변화</em></article>
+      <article class="negative order" data-negative="3"><span class="edge"></span><small>FOCUS / ORDER</small><b>주문의 상태</b><div class="negative-data"><span>주문 3건</span><span>결제 확인</span><span>출고 요청</span></div><div class="trace order-trace"><svg viewBox="0 0 120 72" aria-hidden="true"><path class="order-grid" d="M4 12H116M4 36H116M4 60H116M16 4V68M48 4V68M80 4V68M112 4V68"/><path class="order-flow-back" d="M7 57L29 49L49 53L70 34L91 39L113 16"/><path class="order-flow" d="M7 55L29 47L49 51L70 32L91 37L113 14"/><path class="order-flow-alt" d="M7 63L29 57L49 59L70 48L91 50L113 35"/><circle cx="7" cy="55" r="3"/><circle cx="49" cy="51" r="3"/><circle cx="70" cy="32" r="3"/><circle class="order-last" cx="113" cy="14" r="4"/></svg></div><em>수량 · 처리 상태 · 출고</em></article>
+    </div>
+  </div>
+
+  <div class="focus-dial" id="focusDial" aria-hidden="true"><span></span><i></i><small>FOCUS DEPTH</small></div>
+
+  <div class="paper-stage" aria-hidden="true">
+    <div class="paper" id="paper">
+      <div class="contact-sheet">
+        <section><small>PRODUCT</small><b>판매 중</b><span>재고 24권<br>출판사 모은책</span></section>
+        <section><small>CONTENT</small><b>메인 노출 중</b><span>대상 도서 4권<br>상태 노출 중</span></section>
+        <section><small>SALES</small><b>최근 7일 183권</b><span>기간 최근 7일<br>변화 확인</span></section>
+      </div>
+      <div class="developed"><div class="network"></div><div class="void-mark"></div><div class="gold-fix"></div><div class="developed-data"><small>FOCUSED VIEW</small><b>최근 7일 · 판매 183권</b><span>메인 노출 중 · 재고 24권</span></div></div>
+      <div class="paper-dot"></div>
+    </div>
+    <div class="tray-line"></div>
+  </div>
+
+  <header><span><i></i> DATAHUB</span><b>THE DATA DARKROOM</b><em id="count">01 / 05</em></header>
+  <section class="copy" id="copy"><small id="chapter">00 / QUESTION</small><h1 id="word">Illuminate</h1><p id="sentence">최근 주목받는 책은 무엇일까?</p><div class="question-note"><span>PERIOD / 최근 7일</span><span>SCOPE / 국내도서</span><span>VIEW / 관심 변화</span></div></section>
+
+  <aside class="guide" id="guide">
+    <small id="guideCode">A QUESTION IN THE DARK</small>
+    <b id="guideTitle">빛을 움직여 질문의 초점을 찾아보세요.</b>
+    <button id="action">FIND THE LIGHT <span>→</span></button>
+    <button id="skip">PLAY THE JOURNEY <span>↓</span></button>
+  </aside>
+
+  <div class="walk" id="walk"><i></i><b id="walkTitle">MOVE THE LIGHT</b><small id="walkHelp">스크롤을 천천히 움직여 장면을 완성하세요.</small></div>
+
+  <section class="finale" id="finale">
+    <div class="datahub-shell" aria-label="DataHub 운영 대시보드 화면">
+      <header><b>DATAHUB</b><i></i><i></i></header>
+      <aside><span></span><span></span><span></span><span></span></aside>
+      <main><section></section><section></section><section></section></main>
+      <img class="datahub-actual" src="concept/datahub_main.png" alt="DataHub 운영 대시보드 화면">
+    </div>
+    <div class="final-message"><small>DATAHUB / DEVELOPED VIEW</small><strong>필요한 데이터가,<br><em>필요한 관점에서 선명해집니다.</em></strong></div>
+    <a class="enter-datahub" href="https://ax-datahub.yes24.com">DataHub 시작하기 <span>↗</span></a>
+    <button id="replay">DEVELOP AGAIN</button>
+  </section>
+
+  <div class="grain"></div><div class="vignette"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script type="module" src="js/app.js?v=14"></script>
+</body>
+</html>

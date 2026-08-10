@@ -1,0 +1,87 @@
+/* Readability pass: keep the spatial composition, but make every decision-relevant label readable on a desktop monitor. */
+header { font-size: 12px !important; }
+.telemetry span { font-size: 10px !important; }
+.telemetry strong, .scene-label strong { font-size: 14px !important; }
+.scene-label small { font-size: 10px !important; }
+
+.copy small { font-size: 10px !important; }
+.copy p { font-size: clamp(23px, 2.35vw, 36px) !important; line-height: 1.35; }
+.hint, .scroll, .gate { font-size: 10px !important; }
+.signal span, .core, .pulse b, .charger span { font-size: 12px !important; }
+.pulse em { font-size: 10px !important; }
+
+.token { font-size: 14px !important; padding: 14px 18px !important; }
+.values span { font-size: 16px !important; }
+.schema-grid span { font-size: 13px !important; }
+.node small, .exit small { font-size: 10px !important; }
+.node strong { font-size: 15px !important; }
+.exit strong { font-size: 20px !important; }
+.exit span { font-size: 12px !important; }
+
+.guide__step, .guide__skip, .action-flash { font-size: 10px !important; }
+.guide strong { font-size: 16px !important; }
+.guide p { font-size: 13px !important; line-height: 1.55; }
+
+.dataset small { font-size: 10px !important; }
+.dataset strong { font-size: 16px !important; }
+.business-card span { font-size: 13px !important; line-height: 1.55 !important; }
+.business-card em, .port, .binding-status, .journey-result { font-size: 11px !important; }
+
+.pattern-signals span { font-size: 13px !important; padding: 19px !important; }
+.data-domains { font-size: 12px !important; }
+.data-domains b { font-size: 14px !important; }
+.data-domains small { font-size: 10px !important; line-height: 1.55 !important; }
+
+.ui-shell nav, .ui-shell article small, .asset, .final-slot { font-size: 10px !important; }
+.ui-shell article p, .final-message p { font-size: 15px !important; line-height: 1.65; }
+.asset span { font-size: 10px !important; }
+.final-message small, .final-message button { font-size: 10px !important; }
+
+/* Keep every scene's narrative copy clear of the central interaction area. */
+.scene .copy { left: 7% !important; bottom: 8% !important; }
+
+.action-flash--error { border-color:#ff5d5d !important; background:rgba(45,7,9,.96) !important; color:#ff7373 !important; box-shadow:0 0 28px rgba(255,82,82,.18); }
+.guide__skip:disabled { opacity:.28; cursor:default; pointer-events:none; }
+.action-flash { top:8% !important; }
+.binding-status { left:15% !important; right:auto !important; }
+.hint { bottom:1.2% !important; }
+
+/* Final action: make the source, direction, and destination legible before dragging. */
+.final-particle { z-index:7; }
+.final-particle i { animation:insightPulse 1.35s ease-in-out infinite; }
+.final-particle span { position:absolute; top:66px; left:50%; transform:translateX(-50%); color:var(--acid); font:10px "DM Mono",monospace; letter-spacing:.18em; white-space:nowrap; }
+.final-slot { display:flex!important; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; border-color:rgba(184,255,91,.8)!important; color:var(--acid)!important; box-shadow:0 0 0 0 rgba(184,255,91,.15); animation:slotPulse 1.6s ease-in-out infinite; }
+.final-slot span { font:10px "DM Mono",monospace; letter-spacing:.16em; }
+.final-slot small { color:#aabcb3; font:8px "DM Mono",monospace; letter-spacing:.14em; }
+.final-next { display:block; margin-top:4px; color:#b9cbc1; font-size:14px; }
+.answer-summary { margin:18px 0 12px!important; }
+.answer-summary small { display:block; margin-bottom:11px; color:var(--acid)!important; font:13px "DM Mono",monospace!important; letter-spacing:.2em; }
+.final-message .answer-summary strong { display:block; margin:0; color:#f1f8ed; font:500 clamp(24px,2.7vw,42px)/1.3 Inter,sans-serif!important; letter-spacing:-.035em!important; }
+.answer-flash { position:absolute; inset:-12%; z-index:11; opacity:0; pointer-events:none; background:radial-gradient(circle at 50% 48%,rgba(255,255,242,.62) 0%,rgba(220,255,45,.35) 10%,rgba(103,255,208,.13) 25%,rgba(2,5,4,0) 52%); mix-blend-mode:screen; }
+@keyframes insightPulse { 50% { box-shadow:0 0 11px #fff,0 0 38px var(--mint),0 0 88px var(--acid); transform:scale(1.7); } }
+@keyframes slotPulse { 50% { box-shadow:0 0 30px 8px rgba(184,255,91,.16); background:rgba(184,255,91,.06); } }
+
+/* Discovery 04: one bottleneck is the subject; the other measures are supporting evidence. */
+.pattern-signals { inset:0!important; display:block!important; }
+.pattern-signals span { position:absolute; display:block; width:min(230px,24vw); padding:16px 18px!important; font-size:clamp(15px,1.15vw,20px)!important; background:rgba(9,10,9,.76)!important; border-color:rgba(239,237,225,.24)!important; }
+.pattern-signals span:nth-child(1) { top:27%; left:13%; }
+.pattern-signals span:nth-child(2) { top:56%; left:29%; }
+.pattern-signals span:nth-child(3) { top:37%; right:17%; width:min(370px,34vw); padding:27px 30px!important; color:var(--acid)!important; border-color:rgba(220,255,45,.72)!important; box-shadow:0 0 48px rgba(220,255,45,.10); font-size:clamp(21px,1.8vw,32px)!important; }
+.pattern-signals span:nth-child(4) { left:53%; bottom:22%; opacity:.78; }
+.pattern-signals span:nth-child(5) { top:16%; left:46%; width:min(200px,21vw); opacity:.72; }
+.pattern-signals span:nth-child(6) { top:64%; right:14%; width:min(205px,21vw); opacity:.72; }
+.pattern-signals span:nth-child(7) { bottom:18%; left:15%; width:min(185px,19vw); opacity:.68; }
+.pattern-signals span:nth-child(1)::after,.pattern-signals span:nth-child(2)::after { content:""; position:absolute; height:1px; width:clamp(55px,8vw,140px); top:50%; left:100%; background:linear-gradient(90deg,rgba(220,255,45,.5),transparent); transform-origin:left center; }
+.pattern-signals span:nth-child(1)::after { transform:rotate(24deg); }
+.pattern-signals span:nth-child(2)::after { transform:rotate(-18deg); }
+
+@media (max-width:720px) { .pattern-signals span { width:38vw; padding:11px!important; font-size:11px!important; } .pattern-signals span:nth-child(1) { top:25%; left:7%; } .pattern-signals span:nth-child(2) { top:55%; left:15%; } .pattern-signals span:nth-child(3) { top:38%; right:5%; width:50vw; padding:16px!important; font-size:16px!important; } .pattern-signals span:nth-child(4) { left:48%; bottom:22%; } .pattern-signals span:nth-child(5),.pattern-signals span:nth-child(6),.pattern-signals span:nth-child(7) { display:none; } }
+.scene--wake .copy p { font-size: clamp(25px, 2.6vw, 39px) !important; }
+
+@media (max-width: 720px) {
+  header { font-size: 10px !important; }
+  .copy p { font-size: clamp(20px, 6vw, 28px) !important; }
+  .token { font-size: 10px !important; }
+  .data-domains b { font-size: 10px !important; }
+  .data-domains small { font-size: 8px !important; }
+}
