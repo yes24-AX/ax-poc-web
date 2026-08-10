@@ -185,7 +185,7 @@ document.getElementById('content').innerHTML = SYSTEMS.map((sys) => {
   }).join('');
 
   return `
-    <section class="sys" id="sys-${sys.id}">
+    <section class="sys" id="sys-${sys.id}" data-sys="${sys.id}">
       <div class="sys-head">
         <h2>${esc(sys.name)}</h2>
         <span class="sys-host">${esc(sys.base.replace(/^https?:\/\//, ''))}</span>
@@ -200,7 +200,7 @@ document.getElementById('jump').innerHTML =
   '<span class="jump-label">바로가기</span>' +
   SYSTEMS.map((s) => {
     const n = SCREENS.filter((d) => d.sys === s.id).length;
-    return `<a href="#sys-${s.id}">${esc(s.name)} <b>${n}</b></a>`;
+    return `<a href="#sys-${s.id}"><span class="dot"></span>${esc(s.name)} <b>${n}</b></a>`;
   }).join('');
 
 document.getElementById('totalCount').textContent = SCREENS.length;
