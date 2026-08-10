@@ -83,15 +83,15 @@ const SCREENS = [
     desc:'검색어 · 상품명을 입력하면 네이버 키워드 도구와 예스24 데이터에서 연관 키워드를 추출합니다.' },
 
   { topic:'insp', title:'대량주문 견적서 검수', en:'Bulk Order Quotation Inspection', path:'/BulkSearch',
-    desc:'대량주문 견적서 검수를 자동화합니다.' },
+    desc:'거래처 견적서를 업로드하면 내부 검색과 AI 판정으로 행별 정확한 ISBN을 확정합니다.' },
 
   { topic:'comp', title:'[제휴] 기획전 셀러 집계', en:'Exhibition Seller Aggregation', path:'/Exhibition',
-    desc:'제휴 기획전의 셀러 현황을 집계합니다.' },
+    desc:'기획전 URL을 입력하면 셀러별 노출 상품 수와 자사 점유율을 자동 집계합니다.' },
   { topic:'comp', title:'[이북] 경쟁사 베스트 보유현황', en:'Competitor Ebook Bestseller Coverage', path:'/CompetitorEbookBest',
-    desc:'경쟁사 전자책 베스트셀러의 보유 현황을 비교합니다.' },
+    desc:'경쟁사(교보 일간/알라딘 주간) 전자책 베스트 1~100위를 매일 수집해 자사(YES24) 전자책 등록 여부를 대조합니다. 미등록 도서는 발견 시 eBook팀에 최초 1회 메일로 알립니다.' },
 
   { topic:'voc', title:'일대일 문의 통계', en:'1:1 Inquiry Statistics', path:'/InquiryStats',
-    desc:'일대일 문의를 통계로 분석합니다.' },
+    desc:'적재된 일대일 문의를 기간·구분·시간대·카테고리로 집계해 현황과 이상 신호를 확인합니다.' },
 
   { topic:'gen', pending:true, title:'콘텐츠 패키지 생성 · AI 태그', en:'Content Package · AI Tag',
     path:'/Contents/ContentPackage?tab=tag', desc:'서비스 적용 준비중입니다.' },
@@ -99,11 +99,11 @@ const SCREENS = [
     path:'/Contents/ContentPackage?tab=goods', desc:'상품상세 이미지를 재료로 활용해 콘텐츠를 생성합니다.' },
 
   { topic:'ops', title:'AX 업무관리 고도화', en:'Requirement Management Upgrade', path:'/Requirement/Detail/248',
-    desc:'요구사항 상세 화면에서 고도화 내용을 확인합니다.' },
+    desc:'알파멘션, 담당자/참조자 분리, 요구사항 AI 분석등의 신규 기능을 제공합니다.' },
   { topic:'ops', title:'접속통계', en:'Access Statistics', path:'/AccessLog',
-    desc:'사용자 · 메뉴별 접속 현황을 확인합니다.' },
+    desc:'사용자별/부서별/메뉴별 접속 현황을 확인하고, 가비지 사용자를 필터하는 기능을 제공 합니다.' },
   { topic:'ops', title:'접근 그룹 관리', en:'Access Group Management', path:'/AccessGroup',
-    desc:'사용자 접근 그룹을 관리합니다.' },
+    desc:'메뉴 접근 정책을 그룹으로 정의하고, 개인 단위 허용·차단을 관리합니다.' },
 
   // ================= AX Datahub =================
   { topic:'mkt', title:'주요 마케팅 지표', en:'Key Marketing Metrics', path:'/MarketingMetrics',
