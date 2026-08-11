@@ -258,7 +258,7 @@
 
 /* Scene 1 — independent traces accumulate across the whole service. */
 .scroll-space {
-  height: 2020vh;
+  height: 1150vh;
 }
 
 .scene-one-active > .browser,

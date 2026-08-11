@@ -5,14 +5,14 @@
 .layer-views { z-index: 1; }
 
 /* Give every completed composition more scroll time to settle. */
-.scroll-space { height: 1720vh; }
+.scroll-space { height: 1100vh; }
 
 @media (max-width: 760px) {
-  .scroll-space { height: 1400vh; }
+  .scroll-space { height: 900vh; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-space { height: 1000vh; }
+  .scroll-space { height: 650vh; }
 }
 
 /* Longer narrative: perspectives → many work questions → focused views. */
@@ -71,7 +71,7 @@
 }
 
 .field-question > span {
-  font: 10px ui-monospace, monospace;
+  font: 12px ui-monospace, monospace;
   color: var(--accent);
 }
 
@@ -85,7 +85,7 @@
 }
 
 .field-question small {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: .12em;
   color: #85827b;
 }
@@ -103,9 +103,9 @@
 .lens-stack {
   position: absolute;
   right: 6vw;
-  top: 18vh;
+  top: 14vh;
   width: 42vw;
-  height: 64vh;
+  height: 78vh;
   perspective: 900px;
 }
 
@@ -122,7 +122,7 @@
 }
 
 .lens small {
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: .16em;
   color: var(--accent);
 }
@@ -144,14 +144,15 @@
 .lens span b {
   padding: 9px 11px;
   background: #eeece6;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: #5f5c56;
 }
 
 .lens-content { top: 0; transform: translateX(calc((1 - var(--workset)) * 15vw)) rotate(-1deg); }
-.lens-product { top: 165px; z-index: 2; transform: translateX(calc((1 - var(--workset)) * 23vw)) rotate(1deg); }
-.lens-order { top: 330px; z-index: 3; transform: translateX(calc((1 - var(--workset)) * 31vw)) rotate(-.5deg); }
+.lens-product { top: 150px; z-index: 2; transform: translateX(calc((1 - var(--workset)) * 21vw)) rotate(1deg); }
+.lens-order { top: 300px; z-index: 3; transform: translateX(calc((1 - var(--workset)) * 27vw)) rotate(-.5deg); }
+.lens-reaction { top: 450px; z-index: 4; transform: translateX(calc((1 - var(--workset)) * 33vw)) rotate(.5deg); }
 
 .work-note {
   position: absolute;
@@ -159,7 +160,7 @@
   bottom: 13vh;
   margin: 0;
   color: #77746d;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.8;
 }
 
@@ -171,16 +172,31 @@
   .fq-two { left: 53vw; bottom: 31vh; }
   .fq-three { left: 5vw; bottom: 8vh; }
   .fq-four { right: 5vw; bottom: 10vh; }
-  .lens-stack { left: 7vw; right: auto; top: 40vh; width: 86vw; }
+  .lens-stack { left: 7vw; right: auto; top: 33vh; width: 86vw; height: 62vh; }
   .lens { min-height: 125px; }
-  .lens-product { top: 138px; }
-  .lens-order { top: 276px; }
+  .lens-product { top: 120px; }
+  .lens-order { top: 240px; }
+  .lens-reaction { top: 360px; }
   .work-note { display: none; }
+}
+
+@font-face {
+  font-family: "GmarketSans";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "GmarketSans";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
 }
 
 /* V15 type and material system */
 :root {
-  --serif: "Noto Serif KR", serif;
+  --serif: "GmarketSans", "Noto Sans KR", sans-serif;
   --sans: "Noto Sans KR", sans-serif;
   --mono: "IBM Plex Mono", monospace;
   --paper-deep: #f1efe9;
@@ -231,6 +247,11 @@ body {
   font-size: 19px;
   font-weight: 600;
   letter-spacing: -.035em;
+}
+
+.intro h1,
+.final-copy strong {
+  font-weight: 700;
 }
 
 .site-head > span,
@@ -344,7 +365,7 @@ body {
 
 .field-question > span {
   color: var(--rust);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .assembled {
@@ -472,6 +493,7 @@ body {
 .layer-context b,
 .view-product > span,
 .view-content > span,
+.view-sales > span,
 .lens span b:nth-child(2) {
   color: var(--teal);
 }
@@ -623,8 +645,9 @@ body {
   transform: translateY(calc((1 - var(--views)) * 28px));
 }
 
-.view-content { transform: translateY(calc((1 - var(--views)) * 42px)); }
-.view-reader { transform: translateY(calc((1 - var(--views)) * 56px)); }
+.view-content { transform: translateY(calc((1 - var(--views)) * 38px)); }
+.view-sales { transform: translateY(calc((1 - var(--views)) * 48px)); }
+.view-reader { transform: translateY(calc((1 - var(--views)) * 58px)); }
 
 /* The same data face changes emphasis as the reading lens moves. */
 .focus-readout {
