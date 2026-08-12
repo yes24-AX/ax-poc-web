@@ -70,7 +70,7 @@ export class InteractionController {
         if (this.fragments === 5) {
           document.querySelector('#entity').textContent = '근거 흐름';
           gsap.to('.core', { opacity: .16, scale: .78, duration: .45 });
-          this.m.flash('SOURCES CONNECTED · 관심 → 반응 → 구매 → 결과');
+          this.m.flash('SOURCES CONNECTED · 관심 → 반응 → 상품 → 구매 → 결과');
           setTimeout(() => this.m.complete(1, 26), 850);
         }
       };
@@ -123,7 +123,9 @@ export class InteractionController {
     const reveal = () => {
       if (button.classList.contains('done')) return;
       cancelAnimationFrame(frame); button.classList.add('done'); button.style.setProperty('--charge', '100%');
-      gsap.to('.network', { rotation: 18, scale: 1.35, duration: 1.1, ease: 'power3.inOut' }); this.m.complete(4, 91);
+      gsap.to('.network', { rotation: 18, scale: 1.35, duration: 1.1, ease: 'power3.inOut' });
+      document.querySelector('.scene--intelligence').classList.add('revealed');
+      this.m.complete(4, 91);
     };
     const tick = () => {
       const progress = Math.min(100, (performance.now() - start) / 10); button.style.setProperty('--charge', `${progress}%`);
@@ -158,7 +160,7 @@ export class InteractionController {
       this.m.flash(`EVIDENCE CONNECTED · ${evidence[node.dataset.domain]} 근거 연결`);
       const chip = document.createElement('span'); chip.textContent = evidence[node.dataset.domain]; chips.append(chip); gsap.from(chip, { opacity: 0, scale: .7, duration: .3 });
       if (mapped === nodes.length) {
-        question.innerHTML = '매출 변화의 원인과 다음 실행의<br>근거가 모였습니다.';
+        question.innerHTML = '매출 변화의 원인을 설명하고<br>다음 실행을 뒷받침할 근거가 모였습니다.';
         gsap.to('.silos', { scale: 1.85, rotationX: 55, duration: 1.1, ease: 'power3.inOut' });
         setTimeout(() => this.m.complete(5, 97), 1450);
       }

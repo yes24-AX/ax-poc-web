@@ -51,7 +51,10 @@ export class SceneManager {
     gsap.to('.walls i', { boxShadow: '0 0 18px rgba(184,255,91,.55)', duration: .18, yoyo: true, repeat: 1 });
     const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
     const nextTop = ((scene + 1) + .08) * scrollRange / 7;
-    setTimeout(() => window.scrollTo({ top: nextTop, behavior: 'smooth' }), 1100);
+    // PATTERN (scene 4) just revealed its signals + conclusion on a fade-in — give the reader time to
+    // actually take it in before auto-scrolling away, instead of the standard hand-off delay.
+    const delay = scene === 4 ? 3200 : 1100;
+    setTimeout(() => window.scrollTo({ top: nextTop, behavior: 'smooth' }), delay);
   }
 
   setContext(value) {
