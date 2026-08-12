@@ -1032,7 +1032,6 @@ body.has-fallback-note{padding-bottom:84px}
 
   <!-- ACT 5 뒷머리 · 결합 — 주장하지 않고 실물을 보여주는 장 -->
   <section class="stage l" id="sj" aria-hidden="true">
-    <span class="eyebrow" data-fade>공통 기준 · 날짜 + 상품번호</span>
     <h2 class="giant sm"><span data-split>하나의 표로 봅니다</span></h2>
     <div class="tablewrap">
       <!-- 원천 열은 다섯이다 — 흩어짐 장의 카드 다섯 장과 하나씩 짝을 이룬다.
@@ -1642,7 +1641,6 @@ const jSrcHeads = jHeads.slice(2);            /* 원천 5열 — 카드 다섯�
 const jRows     = $$('#jtab tbody tr');
 const jTable    = $('#sj .tablewrap');
 const jCols     = $$('#jtab col.axis');
-const jEyebrow  = $('.eyebrow', stJoin);
 const jCap      = $('.jcap', stJoin);
 const jWords    = $$('.i', stJoin);
 
@@ -2330,7 +2328,6 @@ function buildStep(n){
     tl.set(stJoin, {autoAlpha:1}, AXIS);
     tl.to(jTable,   {opacity:1, y:0, duration:.6, ease:'expo.out'}, AXIS);
     tl.to(jCols,    {backgroundColor:'rgba(11,11,14,.045)', duration:.5, ease:'power2.out'}, AXIS);
-    tl.to(jEyebrow, {opacity:1, y:0, duration:.6, ease:'power3.out'}, AXIS + .05);
     tl.to(jKeyHeads,{opacity:1, duration:.45, ease:'power2.out', stagger:.09}, AXIS + .14);
     tl.to(jWords,   {yPercent:0, rotate:0, duration:1.05, ease:'expo.out', stagger:.055}, JH2);
 
