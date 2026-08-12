@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub 온보딩 티저 — 하이브리드 2안 · 원안 5안</title>
+<meta name="description" content="책 은유를 버리고 새로 만든 온보딩 티저. 5-페르소나 평가 상위 2안을 결합한 하이브리드 h1·h2와 원안 t1~t5를 한 화면에서 탭으로 비교하는 갤러리." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<style>
+/* ============================================================================
+   티저 5안 갤러리 — 어느 안과도 충돌하지 않는 중립 다크 크롬
+   ========================================================================= */
+:root{
+  --bg:#141518; --bar:#1c1d22; --ink:#eef0f4; --dim:#8b90a0;
+  --line:rgba(255,255,255,.10);
+  --font:"Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);display:flex;flex-direction:column;overflow:hidden}
+
+.bar{flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;height:56px;background:var(--bar);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;white-space:nowrap}
+.brand i{width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,#7c86ff,#4fd0e0)}
+.brand b{font-size:13.5px;font-weight:800;letter-spacing:-.01em}
+.brand span{font-size:11.5px;color:var(--dim);font-weight:600}
+
+.tabs{display:flex;gap:5px;margin-left:6px;overflow-x:auto}
+.tab{flex:none;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:9px;border:1px solid transparent;
+     background:transparent;color:var(--dim);font-family:inherit;font-size:13px;font-weight:700;letter-spacing:-.01em;
+     cursor:pointer;white-space:nowrap;transition:color .15s,background .15s,border-color .15s}
+.tab:hover{color:var(--ink);background:rgba(255,255,255,.05)}
+.tab.is-on{color:var(--ink);background:rgba(255,255,255,.08);border-color:var(--line)}
+.tab i{width:7px;height:7px;border-radius:50%;background:var(--c,#7c86ff);box-shadow:0 0 8px var(--c,#7c86ff);opacity:.55}
+.tab.is-on i{opacity:1}
+.tab small{font-weight:600;font-size:10.5px;color:var(--dim)}
+/* 배지 — 하이브리드 표시 / 원안은 5-페르소나 합산 점수(200점 만점) */
+.tab em.badge{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.02em;
+  padding:2px 6px;border-radius:20px;border:1px solid var(--line);color:var(--dim);
+  background:rgba(255,255,255,.04);white-space:nowrap}
+.tab em.badge.hyb{color:#ffd08a;border-color:rgba(255,208,138,.38);background:rgba(255,208,138,.10)}
+
+/* 하이브리드와 원안 사이 구분선 */
+.tabs .sep{flex:none;width:1px;align-self:stretch;margin:10px 6px;background:var(--line)}
+
+.spacer{flex:1}
+.meta{flex:none;font-size:11px;color:var(--dim);letter-spacing:.03em;white-space:nowrap}
+.meta b{display:inline-block;padding:2px 6px;border:1px solid var(--line);border-radius:5px;font-weight:700;margin:0 1px}
+.open-new{flex:none;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;border:1px solid var(--line);
+          color:var(--dim);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:color .15s,border-color .15s}
+.open-new:hover{color:var(--ink);border-color:rgba(255,255,255,.28)}
+
+.viewer{flex:1;position:relative;background:#000}
+.viewer iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:11px;background:var(--bg);
+         color:var(--dim);font-size:12.5px;font-weight:700;letter-spacing:.1em;opacity:0;pointer-events:none;transition:opacity .2s}
+.loading.is-on{opacity:1}
+.loading i{width:15px;height:15px;border-radius:50%;border:2px solid var(--line);border-top-color:#7c86ff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 안 설명 스트립 */
+.note{flex:none;display:flex;align-items:center;gap:14px;padding:9px 16px;background:var(--bar);border-top:1px solid var(--line);
+      font-size:12px;color:var(--dim);line-height:1.5}
+.note b{color:var(--ink);font-weight:700}
+.note em{font-style:normal;color:#9aa3ff;font-weight:600}
+
+@media (max-width:900px){ .meta,.brand span{display:none} .tab small{display:none} .bar{gap:8px;height:52px} }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand"><i></i><b>온보딩 티저</b><span>하이브리드 2 · 원안 5</span></div>
+  <nav class="tabs" id="tabs" aria-label="티저 안"></nav>
+  <div class="spacer"></div>
+  <span class="meta"><b>←</b><b>→</b> 전환</span>
+  <a class="open-new" id="openNew" href="#" target="_blank" rel="noopener">새 창 ↗</a>
+</header>
+
+<main class="viewer" id="viewer">
+  <div class="loading" id="loading"><i></i>LOADING</div>
+</main>
+
+<div class="note" id="note"></div>
+
+<script>
+(function(){
+  /* 하이브리드 2안(상위 2안 결합) + 원안 5안.
+     하이브리드를 앞에 두는 이유 — 이게 현재의 결선 후보다 */
+  const V = [
+    { id:'h1', name:'질문 · 명세', ref:'t3 베이스 + t4 명세표', color:'#ff5a2b', badge:'HYBRID',
+      desc:'<em>t3의 리듬 위에 t4의 214분 원가 명세표</em>를 얹었다(기획자·임원 제안). 거대 질문으로 열고, 명세표로 비용을 계산하고, 0.8초 답변으로 닫는다. 어두운 무대 + 큰 활자의 티저.' },
+    { id:'h2', name:'질문 · 브리핑', ref:'t4 베이스 + t3 오프닝', color:'#d4e02a', badge:'HYBRID',
+      desc:'<em>t4의 조판 위에 t3의 거대 질문 + 취소선 반전</em> 오프닝을 얹었다(종합평가 권고). 슬레이트 장식을 걷어내고 가장자리까지 정보로 채운 문서형 브리핑. 외부 JS 의존 0.' },
+    { id:'t4', name:'계기판 조판', ref:'Obys Agency · ERA', color:'#d4e02a', score:174,
+      desc:'모노스페이스 HUD·굵은 괘선·시퀀스 번호. <em>정밀함 자체를 미감으로</em> 쓰는 에디토리얼 브루탈리즘. "214분 → 8초"의 냉정한 대비. <b>5-페르소나 1위(174)</b> — 실무자·개발팀장 양쪽 1위.' },
+    { id:'t3', name:'키네틱 타이포', ref:'Cuberto · Dogstudio', color:'#f0e6d2', score:170,
+      desc:'"어제 왜 그랬을까?" — <em>거대한 글자가 흐르고 교체되며</em> 리듬을 만든다. WebGL 없이 CSS/DOM 만으로, 그래서 가볍고 어디서나 돈다. <b>2위(170)</b> — 기획자·임원 1위.' },
+    { id:'t1', name:'유체 수렴', ref:'Lusion · Immersive Garden', color:'#7cc7ff', score:156,
+      desc:'어둠 속 여섯 개의 발광체가 <em>메타볼처럼 서로 녹아들어</em> 하나의 중심으로 합쳐진다. 마지막엔 그 여섯 덩어리가 그대로 입구가 된다. <b>3위(156)</b> — 디자이너 1위(35)이나 실무자 최하위권(25).' },
+    { id:'t2', name:'데이터 월드', ref:'Bruno Simon · Active Theory', color:'#8ecbff', score:129.5,
+      desc:'여섯 개의 섬을 <em>직접 돌아다니며 데이터를 줍는다</em>. 자동 시연이 흐르다가 마우스를 대면 주도권이 넘어온다. <b>4위(129.5)</b> — 키보드로 CTA 진입 불가(미수정).' },
+    { id:'t5', name:'질문의 연속', ref:'ERA Residence · Active Theory', color:'#c9b9a0', score:105,
+      desc:'전면 사진 위에 <em>질문형 카피가 하나씩</em>. 느린 이징과 긴 홀드로 밀도를 만든다. <b>5위(105)</b> — 사진이 제품과 무관, CDN 장애 시 6개 입구 소실(미수정).' },
+  ];
+
+  const tabsEl=document.getElementById('tabs'), viewer=document.getElementById('viewer'),
+        loading=document.getElementById('loading'), openNew=document.getElementById('openNew'),
+        note=document.getElementById('note');
+  let current=-1, frame=null;
+
+  const tabs = V.map((v,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'; b.type='button'; b.style.setProperty('--c', v.color);
+    const tag = v.badge
+      ? `<em class="badge hyb">${v.badge}</em>`
+      : (v.score ? `<em class="badge">${v.score}</em>` : '');
+    b.innerHTML = `<i></i>${v.id.toUpperCase()} · ${v.name} <small>${v.ref.split(' · ')[0]}</small>${tag}`;
+    b.addEventListener('click', ()=>select(i));
+    tabsEl.appendChild(b);
+    /* 하이브리드 묶음이 끝나는 자리에 구분선 */
+    if(v.badge && !V[i+1]?.badge){
+      const s=document.createElement('span'); s.className='sep'; tabsEl.appendChild(s);
+    }
+    return b;
+  });
+
+  /* iframe 을 매번 새로 만들어 각 안의 자동재생을 처음부터 재생시킨다 */
+  function select(i, pushHash=true){
+    if(i===current) return;
+    current=i; const v=V[i];
+    tabs.forEach((t,k)=>t.classList.toggle('is-on', k===i));
+    openNew.href = './'+v.id+'/';
+    document.title = `온보딩 티저 — ${v.id.toUpperCase()} ${v.name}`;
+    note.innerHTML = `<b>${v.id.toUpperCase()} · ${v.name}</b> <span style="opacity:.6">— 참고: ${v.ref}</span> <span>${v.desc}</span>`;
+    if(pushHash) history.replaceState(null,'','#'+v.id);
+    loading.classList.add('is-on');
+    if(frame) frame.remove();
+    frame=document.createElement('iframe');
+    frame.title = v.id+' '+v.name;
+    frame.addEventListener('load', ()=>loading.classList.remove('is-on'));
+    frame.src = './'+v.id+'/index.html';
+    viewer.appendChild(frame);
+  }
+
+  addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight') select(Math.min(V.length-1, current+1));
+    else if(e.key==='ArrowLeft') select(Math.max(0, current-1));
+  });
+
+  function fromHash(){
+    const id=location.hash.replace('#','');
+    const i=V.findIndex(v=>v.id===id);
+    select(i>=0?i:0, false);
+  }
+  addEventListener('hashchange', fromHash);
+  fromHash();
+})();
+</script>
+</body>
+</html>
