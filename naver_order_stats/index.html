@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>네이버 스마트스토어 판매·배송 지표 — 디자인 시안</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --ring:rgba(11,11,11,.10);
+    --s1:#2a78d6; /* N배송 */
+    --s2:#eb6834; /* N판매자배송 */
+    --s3:#1baf7a; /* 오늘출발 */
+    --s4:#eda100; /* 일반배송 */
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --delta-up:#d03b3b; --delta-down:#2a78d6; /* 사내 관례: 상승=빨강, 하락=파랑 */
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--page); color:var(--ink);
+       font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+       font-size:14px; line-height:1.5;}
+  .wrap{max-width:1180px; margin:0 auto; padding:24px 20px 60px;}
+
+  /* ── 헤더 ── */
+  .page-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px;}
+  .page-head h1{font-size:20px; font-weight:700;}
+  .draft-badge{font-size:11px; font-weight:700; color:#fff; background:var(--ink-2);
+               border-radius:4px; padding:2px 8px; letter-spacing:.02em;}
+  .page-sub{color:var(--ink-2); font-size:13px; margin-bottom:16px;}
+
+  .banner{display:flex; gap:10px; align-items:flex-start; background:var(--surface);
+          border:1px solid var(--ring); border-left:3px solid var(--warn);
+          border-radius:8px; padding:10px 14px; margin-bottom:20px; color:var(--ink-2); font-size:13px;}
+  .banner b{color:var(--ink);}
+
+  /* ── KPI 카드 ── */
+  .kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:20px;}
+  .kpi{background:var(--surface); border:1px solid var(--ring); border-radius:10px; padding:14px 16px;}
+  .kpi .k-label{font-size:12px; color:var(--muted); margin-bottom:4px;}
+  .kpi .k-value{font-size:22px; font-weight:700; letter-spacing:-.01em;}
+  .kpi .k-value small{font-size:13px; font-weight:500; color:var(--ink-2);}
+  .kpi .k-delta{font-size:12px; margin-top:2px; font-weight:600;}
+  .k-delta.up{color:var(--delta-up);} .k-delta.down{color:var(--delta-down);}
+  .k-delta .vs{color:var(--muted); font-weight:400;}
+
+  /* ── 탭 ── */
+  .tabs{display:flex; gap:4px; border-bottom:1px solid var(--grid); margin-bottom:18px; flex-wrap:wrap;}
+  .tab-btn{appearance:none; border:0; background:none; padding:9px 14px; font-size:14px;
+           color:var(--ink-2); cursor:pointer; border-bottom:2px solid transparent; font-family:inherit;}
+  .tab-btn:hover{color:var(--ink);}
+  .tab-btn.active{color:var(--ink); font-weight:700; border-bottom-color:var(--ink);}
+  .tab-panel{display:none;} .tab-panel.active{display:block;}
+
+  /* ── 필터 행 ── */
+  .filter-row{display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap;}
+  .filter-row .lbl{font-size:12px; color:var(--muted);}
+  .seg{display:inline-flex; border:1px solid var(--ring); border-radius:8px; overflow:hidden; background:var(--surface);}
+  .seg button{appearance:none; border:0; background:none; padding:6px 12px; font-size:13px;
+              color:var(--ink-2); cursor:pointer; font-family:inherit;}
+  .seg button+button{border-left:1px solid var(--ring);}
+  .seg button.on{background:var(--ink); color:#fff; font-weight:600;}
+
+  /* ── 카드/차트 ── */
+  .card{background:var(--surface); border:1px solid var(--ring); border-radius:10px;
+        padding:16px 18px 14px; margin-bottom:16px;}
+  .card h2{font-size:15px; font-weight:700; margin-bottom:2px;}
+  .card .desc{font-size:12px; color:var(--muted); margin-bottom:12px;}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:900px){.grid-2{grid-template-columns:1fr;}}
+
+  .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-2); margin:2px 0 10px;}
+  .legend .li{display:inline-flex; align-items:center; gap:6px;}
+  .legend .sw{width:10px; height:10px; border-radius:3px; display:inline-block;}
+
+  .chart-box{position:relative;}
+  .chart-box svg{display:block; width:100%; height:auto;}
+  .tooltip{position:absolute; pointer-events:none; background:var(--ink); color:#fff;
+           font-size:12px; border-radius:6px; padding:7px 10px; opacity:0; transition:opacity .08s;
+           white-space:nowrap; z-index:5; line-height:1.45;}
+  .tooltip .tt-title{font-weight:700; margin-bottom:2px;}
+  .tooltip .row{display:flex; align-items:center; gap:6px;}
+  .tooltip .sw{width:8px; height:8px; border-radius:2px; display:inline-block;}
+
+  /* ── 테이블 ── */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{color:var(--muted); font-weight:600; text-align:left; padding:8px 10px;
+     border-bottom:1px solid var(--grid); white-space:nowrap;}
+  td{padding:8px 10px; border-bottom:1px solid var(--grid); white-space:nowrap;}
+  tr:last-child td{border-bottom:0;}
+  th.num, td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  th.ctr, td.ctr{text-align:center;}
+
+  .badge{display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700;
+         border-radius:4px; padding:2px 7px;}
+  .badge-crit{background:color-mix(in srgb,var(--critical) 12%,transparent); color:var(--critical);}
+  .badge-warn{background:color-mix(in srgb,var(--serious) 14%,transparent); color:#b35322;}
+  .badge-ok{background:color-mix(in srgb,var(--good) 12%,transparent); color:#006300;}
+  .badge-prov{background:color-mix(in srgb,var(--muted) 14%,transparent); color:var(--ink-2);}
+
+  .type-chip{display:inline-flex; align-items:center; gap:6px; font-size:12px;}
+  .type-chip .sw{width:9px;height:9px;border-radius:3px;}
+
+  .footnote{font-size:12px; color:var(--muted); margin-top:6px;}
+  .src-note{margin-top:28px; padding-top:14px; border-top:1px solid var(--grid);
+            font-size:12px; color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-head">
+    <h1>네이버 스마트스토어 판매·배송 지표</h1>
+    <span class="draft-badge">디자인 시안 · 모의 데이터</span>
+  </div>
+  <div class="page-sub">커머스API 주문 데이터 재가공 — 배송유형별 점유율·준수율 상시 모니터링 (계획서: docs/naver-order-stats-plan.md)</div>
+
+  <div class="banner">⚠️
+    <div><b>본 화면은 구현 전 디자인 시안입니다.</b> 모든 수치는 모의 데이터이며, 실제 화면은 AX-Labs 플랫폼
+    공통 컴포넌트(테마·다크모드 포함)로 구현됩니다. API 키 발급(커머스API센터 앱 등록) 후 P0 실측을 거쳐 지표 정의가 확정됩니다.</div>
+  </div>
+
+  <!-- KPI: 어제 지표 (구 통계 화면의 '어제' 카드 대체) -->
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="share" role="tab">배송유형 점유율</button>
+    <button class="tab-btn" data-tab="quality" role="tab">배송 품질</button>
+    <button class="tab-btn" data-tab="sales" role="tab">판매·환불 현황</button>
+    <button class="tab-btn" data-tab="category" role="tab">카테고리</button>
+  </div>
+
+  <div class="filter-row">
+    <span class="lbl">기간</span>
+    <div class="seg" id="rangeSeg">
+      <button>7일</button><button class="on">14일</button><button>30일</button><button>90일</button>
+    </div>
+    <span class="lbl" style="margin-left:auto;">마지막 수집 2026-08-16 09:30 (30분 주기)</span>
+  </div>
+
+  <!-- ═══ 탭 1: 배송유형 점유율 ═══ -->
+  <div class="tab-panel active" id="panel-share">
+    <div class="card">
+      <h2>일자별 결제금액 — 배송유형 구성</h2>
+      <div class="desc">결제일(KST) 기준 · deliveryAttributeType 구분 · 최근 2일은 클레임 반영 전 잠정치</div>
+      <div class="legend" id="legend-stack"></div>
+      <div class="chart-box" id="stackChart"></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>기간 점유율 요약</h2>
+        <div class="desc">기간 합산 결제금액 기준 · 분모 = 배송가능 상품 결제액</div>
+        <div class="table-wrap" id="shareTable"></div>
+      </div>
+      <div class="card">
+        <h2>시간대별 결제 트렌드</h2>
+        <div class="desc">기간 평균 · 시간대(KST) × 배송유형 결제금액</div>
+        <div class="legend" id="legend-hourly"></div>
+        <div class="chart-box" id="hourlyChart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 탭 2: 배송 품질 ═══ -->
+  <div class="tab-panel" id="panel-quality">
+    <div class="card">
+      <h2>준수율 추이</h2>
+      <div class="desc">도착 준수율 = 배송완료일 ≤ 도착보장일 · 발송 준수율 = 발송일 ≤ 의무발송일 · 기한 경과 미처리 건은 위반 포함</div>
+      <div class="legend" id="legend-compliance"></div>
+      <div class="chart-box" id="complianceChart"></div>
+      <div class="footnote">최근 2일은 배송완료 미확정 건이 있어 <span class="badge badge-prov">잠정치</span>로 표시됩니다 (점선 구간).</div>
+    </div>
+    <div class="card">
+      <h2>기한 위반 건 목록 (최근 7일)</h2>
+      <div class="desc">발송기한·도착보장일을 넘긴 상품주문 — 이슈 영향 범위 즉시 확인용</div>
+      <div class="table-wrap" id="violationTable"></div>
+    </div>
+  </div>
+
+  <!-- ═══ 탭 3: 판매·환불 현황 ═══ -->
+  <div class="tab-panel" id="panel-sales">
+    <div class="grid-2">
+      <div class="card">
+        <h2>일별 결제금액</h2>
+        <div class="desc">결제일(KST) 기준 · initialPaymentAmount 합계</div>
+        <div class="chart-box" id="paymentChart"></div>
+      </div>
+      <div class="card">
+        <h2>일별 환불율</h2>
+        <div class="desc">환불 이벤트(remainPaymentAmount 감소분) ÷ 결제금액 · 수집 개시 이후 확정치</div>
+        <div class="chart-box" id="refundChart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>일별 상세</h2>
+      <div class="table-wrap" id="dailyTable"></div>
+    </div>
+  </div>
+
+  <!-- ═══ 탭 4: 카테고리 ═══ -->
+  <div class="tab-panel" id="panel-category">
+    <div class="grid-2">
+      <div class="card">
+        <h2>카테고리별 결제금액 TOP 8</h2>
+        <div class="desc">상품번호 → 상품 API leafCategoryId 매핑 기준 · 기간 합산</div>
+        <div class="chart-box" id="categoryChart"></div>
+      </div>
+      <div class="card">
+        <h2>카테고리별 결제·환불 상세</h2>
+        <div class="desc">환불율 5% 초과 시 경고 표시</div>
+        <div class="table-wrap" id="categoryTable"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="src-note">
+    데이터 원천(구현 시): 네이버 커머스API 변경상품주문 조회 → 상품주문 상세 조회(30분 주기 수집) + 상품 API 카테고리 매핑 ·
+    적재: PostgreSQL <code>smartstore</code> 스키마 · 화면: /NaverOrder (AX-Labs 공통 컴포넌트) ·
+    지표 정의는 요구 부서 엑셀(네이버 API_배송요약) 18종 기준
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ─────────── 모의 데이터 ─────────── */
+var TYPES = [
+  {key:'ARRIVAL_GUARANTEE', name:'N배송',       color:'#2a78d6'},
+  {key:'SELLER_GUARANTEE',  name:'N판매자배송', color:'#eb6834'},
+  {key:'TODAY',             name:'오늘출발',    color:'#1baf7a'},
+  {key:'NORMAL',            name:'일반배송',    color:'#eda100'}
+];
+var DAYS = 14;
+function seedRand(i,j){ var x = Math.sin(i*127.1 + j*311.7)*43758.5453; return x - Math.floor(x); }
+var labels = [];
+var today = new Date(2026,7,16);
+for(var d=DAYS-1; d>=0; d--){
+  var dt = new Date(today); dt.setDate(dt.getDate()-d);
+  labels.push((dt.getMonth()+1)+'/'+dt.getDate());
+}
+/* 일자×유형 결제금액(만원) */
+var amounts = TYPES.map(function(t,ti){
+  return labels.map(function(_,di){
+    var base = [420,180,260,520][ti];
+    var wk = (di%7===5||di%7===6) ? 1.25 : 1.0;           /* 주말 상승 */
+    return Math.round(base * wk * (0.82 + seedRand(ti,di)*0.4));
+  });
+});
+/* 준수율(%) — 8/12에 N배송 하락 이벤트 연출 */
+var comp = [
+  labels.map(function(_,i){ var v = 97.5 + seedRand(10,i)*1.8; if(i===9) v = 93.4; if(i===10) v = 95.1; return +v.toFixed(1); }),
+  labels.map(function(_,i){ return +(96.2 + seedRand(20,i)*2.4).toFixed(1); }),
+  labels.map(function(_,i){ return +(98.1 + seedRand(30,i)*1.6).toFixed(1); })
+];
+var compNames = ['N배송 도착 준수율','N판매자배송 도착 준수율','오늘출발 발송 준수율'];
+var compColors = ['#2a78d6','#eb6834','#1baf7a'];
+/* 환불율(%) */
+var refund = labels.map(function(_,i){ return +(2.1 + seedRand(40,i)*1.9).toFixed(1); });
+/* 시간대(24h)×유형 평균 결제금액(만원) */
+var hourly = TYPES.map(function(t,ti){
+  return Array.apply(null,{length:24}).map(function(_,h){
+    var peak = Math.exp(-Math.pow(h-14,2)/28) + 0.55*Math.exp(-Math.pow(h-21,2)/8) + 0.12;
+    return Math.round([26,11,16,32][ti] * peak * (0.85 + seedRand(50+ti,h)*0.3));
+  });
+});
+/* 카테고리 */
+var cats = [
+  {name:'국내도서 > 소설',        pay:8420, refund:1.8},
+  {name:'국내도서 > 자기계발',    pay:6130, refund:2.2},
+  {name:'국내도서 > 어린이',      pay:5470, refund:1.4},
+  {name:'외국도서',               pay:3980, refund:3.1},
+  {name:'eBook/디지털',           pay:3210, refund:0.6},
+  {name:'문구/팬시',              pay:2890, refund:6.2},
+  {name:'음반/DVD',               pay:2140, refund:2.9},
+  {name:'기프트/굿즈',            pay:1730, refund:5.4}
+];
+/* 위반 건 목록 */
+var violations = [
+  {id:'2026081412345671', name:'트렌드 코리아 2027',          type:0, kind:'도착 지연', due:'08/13', act:'08/15', d:2},
+  {id:'2026081298765432', name:'어린이 첫 백과사전 세트',     type:0, kind:'도착 지연', due:'08/12', act:'08/14', d:2},
+  {id:'2026081155512345', name:'모던 자바스크립트 딥다이브',  type:1, kind:'도착 지연', due:'08/12', act:'08/13', d:1},
+  {id:'2026081099887766', name:'몰입의 즐거움 (리커버)',      type:2, kind:'발송 지연', due:'08/11', act:'08/12', d:1},
+  {id:'2026081344556677', name:'해리 포터 일러스트 에디션',   type:0, kind:'도착 지연', due:'08/14', act:'미완료', d:2}
+];
+
+/* ─────────── 유틸 ─────────── */
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function fmt(n){ return n.toLocaleString('ko-KR'); }
+function fmtMan(n){ return n>=10000 ? (n/10000).toFixed(1)+'억' : fmt(n)+'만'; }
+var tooltip = document.getElementById('tooltip');
+function showTip(html, evt){
+  tooltip.innerHTML = html; tooltip.style.opacity = 1;
+  var x = evt.clientX + window.scrollX + 14, y = evt.clientY + window.scrollY - 10;
+  if(x + tooltip.offsetWidth > window.scrollX + document.documentElement.clientWidth - 8)
+    x = evt.clientX + window.scrollX - tooltip.offsetWidth - 14;
+  tooltip.style.left = x+'px'; tooltip.style.top = y+'px';
+}
+function hideTip(){ tooltip.style.opacity = 0; }
+function roundedTop(x,y,w,h,r){
+  r = Math.min(r, w/2, h);
+  return 'M'+x+' '+(y+h)+' L'+x+' '+(y+r)+' Q'+x+' '+y+' '+(x+r)+' '+y+
+         ' L'+(x+w-r)+' '+y+' Q'+(x+w)+' '+y+' '+(x+w)+' '+(y+r)+' L'+(x+w)+' '+(y+h)+' Z';
+}
+function legend(el, items){
+  el.innerHTML = items.map(function(it){
+    return '<span class="li"><span class="sw" style="background:'+it.color+'"></span>'+esc(it.name)+'</span>';
+  }).join('');
+}
+
+/* ─────────── KPI ─────────── */
+(function(){
+  var kpis = [
+    {label:'어제 결제금액',  value:'1억 3,820만', unit:'원',  delta:+4.2},
+    {label:'어제 결제건수',  value:'1,847',       unit:'건',  delta:+2.8},
+    {label:'어제 결제 상품수량', value:'2,391',   unit:'개',  delta:-1.5},
+    {label:'어제 환불금액',  value:'312만',       unit:'원',  delta:-8.1},
+    {label:'N배송 점유율(어제)', value:'31.2',    unit:'%',   delta:+0.9}
+  ];
+  document.getElementById('kpiRow').innerHTML = kpis.map(function(k){
+    var up = k.delta >= 0;
+    return '<div class="kpi"><div class="k-label">'+esc(k.label)+'</div>'+
+      '<div class="k-value">'+esc(k.value)+'<small> '+k.unit+'</small></div>'+
+      '<div class="k-delta '+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+Math.abs(k.delta).toFixed(1)+'%p'+
+      '<span class="vs"> vs 전일</span></div></div>';
+  }).join('');
+})();
+
+/* ─────────── 탭 전환 ─────────── */
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+document.getElementById('rangeSeg').addEventListener('click', function(e){
+  if(e.target.tagName!=='BUTTON') return;
+  this.querySelectorAll('button').forEach(function(b){ b.classList.remove('on'); });
+  e.target.classList.add('on');
+});
+
+/* ─────────── 차트 1: 스택 바 (일자×유형 결제금액) ─────────── */
+(function(){
+  var W=1080, H=300, padL=52, padR=12, padT=14, padB=30;
+  var cw = W-padL-padR, chH = H-padT-padB;
+  var totals = labels.map(function(_,i){ return TYPES.reduce(function(s,_,t){ return s+amounts[t][i]; },0); });
+  var maxV = Math.max.apply(null,totals)*1.08;
+  var bw = Math.min(46, cw/DAYS*0.62), step = cw/DAYS;
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="일자별 배송유형 결제금액 스택 차트">';
+  for(var g=0; g<=4; g++){
+    var gy = padT + chH - chH*g/4, gv = Math.round(maxV*g/4);
+    svg += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="var(--grid)" stroke-width="1"/>';
+    svg += '<text x="'+(padL-8)+'" y="'+(gy+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+fmtMan(gv)+'</text>';
+  }
+  for(var i=0;i<DAYS;i++){
+    var x = padL + step*i + (step-bw)/2, y = padT + chH;
+    var isProv = i >= DAYS-2;
+    svg += '<g class="bar-g" data-i="'+i+'" opacity="'+(isProv?0.62:1)+'">';
+    for(var t=0;t<TYPES.length;t++){
+      var h = amounts[t][i]/maxV*chH;
+      y -= h;
+      if(t === TYPES.length-1) svg += '<path d="'+roundedTop(x, y, bw, Math.max(h-2,2), 4)+'" fill="'+TYPES[t].color+'"/>';
+      else svg += '<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+Math.max(h-2,1)+'" fill="'+TYPES[t].color+'"/>';
+    }
+    svg += '<rect x="'+(padL+step*i)+'" y="'+padT+'" width="'+step+'" height="'+chH+'" fill="transparent"/>';
+    svg += '</g>';
+    svg += '<text x="'+(padL+step*i+step/2)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+labels[i]+'</text>';
+  }
+  svg += '<line x1="'+padL+'" y1="'+(padT+chH)+'" x2="'+(W-padR)+'" y2="'+(padT+chH)+'" stroke="var(--baseline)" stroke-width="1"/>';
+  svg += '</svg>';
+  var box = document.getElementById('stackChart');
+  box.innerHTML = svg;
+  legend(document.getElementById('legend-stack'), TYPES);
+  box.querySelectorAll('.bar-g').forEach(function(g){
+    g.addEventListener('mousemove', function(e){
+      var i = +g.dataset.i, tot = totals[i];
+      var rows = TYPES.map(function(t,ti){
+        var v = amounts[ti][i];
+        return '<div class="row"><span class="sw" style="background:'+t.color+'"></span>'+t.name+' '+fmt(v)+'만원 ('+(v/tot*100).toFixed(1)+'%)</div>';
+      }).join('');
+      showTip('<div class="tt-title">'+labels[i]+(i>=DAYS-2?' <span style="opacity:.7">(잠정)</span>':'')+'</div>'+rows+
+              '<div class="row" style="margin-top:2px">합계 '+fmt(tot)+'만원</div>', e);
+    });
+    g.addEventListener('mouseleave', hideTip);
+  });
+})();
+
+/* ─────────── 점유율 요약 테이블 ─────────── */
+(function(){
+  var sums = TYPES.map(function(_,t){ return amounts[t].reduce(function(a,b){return a+b;},0); });
+  var total = sums.reduce(function(a,b){return a+b;},0);
+  var prev = [30.3, 13.1, 18.9, 37.7]; /* 직전 기간 점유율(모의) */
+  var html = '<table><thead><tr><th>배송유형</th><th class="num">결제금액</th><th class="num">점유율</th><th class="num">직전 기간 대비</th></tr></thead><tbody>';
+  TYPES.forEach(function(t,ti){
+    var share = sums[ti]/total*100, diff = share - prev[ti];
+    var up = diff >= 0;
+    html += '<tr><td><span class="type-chip"><span class="sw" style="background:'+t.color+'"></span>'+t.name+'</span></td>'+
+      '<td class="num">'+fmtMan(sums[ti])+'원</td>'+
+      '<td class="num"><b>'+share.toFixed(1)+'%</b></td>'+
+      '<td class="num" style="color:var(--delta-'+(up?'up':'down')+');font-weight:600">'+(up?'▲':'▼')+' '+Math.abs(diff).toFixed(1)+'%p</td></tr>';
+  });
+  html += '<tr><td style="color:var(--muted)">합계</td><td class="num">'+fmtMan(total)+'원</td><td class="num">100%</td><td></td></tr>';
+  html += '</tbody></table>';
+  document.getElementById('shareTable').innerHTML = html;
+})();
+
+/* ─────────── 공용 라인 차트 빌더 ─────────── */
+function lineChart(el, opt){
+  var W=opt.w||540, H=opt.h||260, padL=44, padR=14, padT=14, padB=26;
+  var cw=W-padL-padR, chH=H-padT-padB;
+  var xs = opt.xlabels, n = xs.length;
+  var yMin = opt.yMin, yMax = opt.yMax;
+  function X(i){ return padL + cw*i/(n-1); }
+  function Y(v){ return padT + chH - (v-yMin)/(yMax-yMin)*chH; }
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(opt.aria||'라인 차트')+'">';
+  for(var g=0; g<=4; g++){
+    var gv = yMin + (yMax-yMin)*g/4, gy = Y(gv);
+    svg += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="var(--grid)" stroke-width="1"/>';
+    svg += '<text x="'+(padL-7)+'" y="'+(gy+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+opt.yfmt(gv)+'</text>';
+  }
+  var tickEvery = Math.ceil(n/12);
+  for(var i=0;i<n;i+=tickEvery){
+    svg += '<text x="'+X(i)+'" y="'+(H-8)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+esc(xs[i])+'</text>';
+  }
+  var provFrom = (opt.provisionalLast ? n-opt.provisionalLast-1 : -1);
+  opt.series.forEach(function(s){
+    var solid='', dash='';
+    s.data.forEach(function(v,i){
+      var pt = (i===0?'M':'L') + X(i).toFixed(1)+' '+Y(v).toFixed(1)+' ';
+      if(provFrom>=0 && i>provFrom) dash += (dash===''? 'M'+X(i-1).toFixed(1)+' '+Y(s.data[i-1]).toFixed(1)+' ':'') + 'L'+X(i).toFixed(1)+' '+Y(v).toFixed(1)+' ';
+      else solid += pt;
+    });
+    svg += '<path d="'+solid+'" fill="none" stroke="'+s.color+'" stroke-width="2" stroke-linejoin="round"/>';
+    if(dash) svg += '<path d="'+dash+'" fill="none" stroke="'+s.color+'" stroke-width="2" stroke-dasharray="4 4"/>';
+  });
+  svg += '<line id="xh" x1="0" y1="'+padT+'" x2="0" y2="'+(padT+chH)+'" stroke="var(--baseline)" stroke-width="1" opacity="0"/>';
+  opt.series.forEach(function(s,si){
+    svg += '<circle id="mk'+si+'" r="4" fill="'+s.color+'" stroke="var(--surface)" stroke-width="2" opacity="0"/>';
+  });
+  svg += '<rect id="ov" x="'+padL+'" y="'+padT+'" width="'+cw+'" height="'+chH+'" fill="transparent"/>';
+  svg += '<line x1="'+padL+'" y1="'+(padT+chH)+'" x2="'+(W-padR)+'" y2="'+(padT+chH)+'" stroke="var(--baseline)" stroke-width="1"/>';
+  svg += '</svg>';
+  el.innerHTML = svg;
+  var svgEl = el.querySelector('svg'), ov = el.querySelector('#ov'), xh = el.querySelector('#xh');
+  ov.addEventListener('mousemove', function(e){
+    var r = svgEl.getBoundingClientRect();
+    var mx = (e.clientX - r.left) * (W/r.width);
+    var i = Math.max(0, Math.min(n-1, Math.round((mx-padL)/(cw/(n-1)))));
+    xh.setAttribute('x1', X(i)); xh.setAttribute('x2', X(i)); xh.setAttribute('opacity', 1);
+    var rows = opt.series.map(function(s,si){
+      var mk = el.querySelector('#mk'+si);
+      mk.setAttribute('cx', X(i)); mk.setAttribute('cy', Y(s.data[i])); mk.setAttribute('opacity',1);
+      return '<div class="row"><span class="sw" style="background:'+s.color+'"></span>'+esc(s.name)+' '+opt.yfmt(s.data[i])+'</div>';
+    }).join('');
+    var prov = (provFrom>=0 && i>provFrom) ? ' <span style="opacity:.7">(잠정)</span>' : '';
+    showTip('<div class="tt-title">'+esc(xs[i])+prov+'</div>'+rows, e);
+  });
+  ov.addEventListener('mouseleave', function(){
+    hideTip(); xh.setAttribute('opacity',0);
+    opt.series.forEach(function(_,si){ el.querySelector('#mk'+si).setAttribute('opacity',0); });
+  });
+}
+
+/* ─────────── 차트 2: 준수율 라인 ─────────── */
+lineChart(document.getElementById('complianceChart'), {
+  w:1080, h:280, xlabels:labels, yMin:90, yMax:100,
+  yfmt:function(v){ return v.toFixed(1)+'%'; },
+  provisionalLast:2, aria:'배송유형별 준수율 추이',
+  series: compNames.map(function(nm,i){ return {name:nm, color:compColors[i], data:comp[i]}; })
+});
+legend(document.getElementById('legend-compliance'),
+  compNames.map(function(nm,i){ return {name:nm, color:compColors[i]}; }));
+
+/* ─────────── 위반 건 테이블 ─────────── */
+(function(){
+  var html = '<table><thead><tr><th>상품주문번호</th><th>상품명</th><th>배송유형</th><th>위반 유형</th>'+
+             '<th class="ctr">기한</th><th class="ctr">실제</th><th class="ctr">지연</th></tr></thead><tbody>';
+  violations.forEach(function(v){
+    var t = TYPES[v.type];
+    var sev = v.act==='미완료' ? '<span class="badge badge-crit">'+esc(v.kind)+' · 미완료</span>'
+            : v.d>=2 ? '<span class="badge badge-crit">'+esc(v.kind)+'</span>'
+            : '<span class="badge badge-warn">'+esc(v.kind)+'</span>';
+    html += '<tr><td style="font-variant-numeric:tabular-nums">'+esc(v.id)+'</td><td>'+esc(v.name)+'</td>'+
+      '<td><span class="type-chip"><span class="sw" style="background:'+t.color+'"></span>'+t.name+'</span></td>'+
+      '<td>'+sev+'</td><td class="ctr">'+v.due+'</td><td class="ctr">'+esc(v.act)+'</td>'+
+      '<td class="ctr">'+(v.act==='미완료' ? 'D+'+v.d+'~' : '+'+v.d+'일')+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('violationTable').innerHTML = html;
+})();
+
+/* ─────────── 차트 3: 일별 결제금액 바 ─────────── */
+(function(){
+  var W=540, H=260, padL=48, padR=12, padT=14, padB=26;
+  var cw=W-padL-padR, chH=H-padT-padB;
+  var totals = labels.map(function(_,i){ return TYPES.reduce(function(s,_,t){ return s+amounts[t][i]; },0); });
+  var maxV = Math.max.apply(null,totals)*1.08;
+  var step=cw/DAYS, bw=Math.min(26, step*0.6);
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="일별 결제금액">';
+  for(var g=0; g<=4; g++){
+    var gy = padT+chH-chH*g/4;
+    svg += '<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="var(--grid)"/>';
+    svg += '<text x="'+(padL-7)+'" y="'+(gy+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+fmtMan(Math.round(maxV*g/4))+'</text>';
+  }
+  for(var i=0;i<DAYS;i++){
+    var h = totals[i]/maxV*chH, x = padL+step*i+(step-bw)/2, y = padT+chH-h;
+    svg += '<g class="pb" data-i="'+i+'"><path d="'+roundedTop(x,y,bw,h,4)+'" fill="var(--s1)"/>'+
+           '<rect x="'+(padL+step*i)+'" y="'+padT+'" width="'+step+'" height="'+chH+'" fill="transparent"/></g>';
+    if(i%2===0) svg += '<text x="'+(padL+step*i+step/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="var(--muted)">'+labels[i]+'</text>';
+  }
+  svg += '<line x1="'+padL+'" y1="'+(padT+chH)+'" x2="'+(W-padR)+'" y2="'+(padT+chH)+'" stroke="var(--baseline)"/>';
+  svg += '</svg>';
+  var box = document.getElementById('paymentChart');
+  box.innerHTML = svg;
+  box.querySelectorAll('.pb').forEach(function(g){
+    g.addEventListener('mousemove', function(e){
+      var i=+g.dataset.i;
+      showTip('<div class="tt-title">'+labels[i]+'</div><div class="row">결제금액 '+fmt(totals[i])+'만원</div>', e);
+    });
+    g.addEventListener('mouseleave', hideTip);
+  });
+})();
+
+/* ─────────── 차트 4: 환불율 라인 ─────────── */
+lineChart(document.getElementById('refundChart'), {
+  w:540, h:260, xlabels:labels, yMin:0, yMax:6,
+  yfmt:function(v){ return v.toFixed(1)+'%'; }, aria:'일별 환불율',
+  series:[{name:'환불율', color:'#2a78d6', data:refund}]
+});
+
+/* ─────────── 일별 상세 테이블 ─────────── */
+(function(){
+  var html = '<table><thead><tr><th>일자</th><th class="num">결제금액</th><th class="num">결제건수</th>'+
+    '<th class="num">상품수량</th><th class="num">환불금액</th><th class="num">환불율</th><th class="num">N배송 점유율</th></tr></thead><tbody>';
+  for(var i=DAYS-1;i>=0;i--){
+    var tot = TYPES.reduce(function(s,_,t){ return s+amounts[t][i]; },0);
+    var cnt = Math.round(tot/7.4), qty = Math.round(cnt*1.3);
+    var rf = Math.round(tot*refund[i]/100);
+    var nShare = (amounts[0][i]/tot*100).toFixed(1);
+    html += '<tr><td>'+labels[i]+(i>=DAYS-2?' <span class="badge badge-prov">잠정</span>':'')+'</td>'+
+      '<td class="num">'+fmt(tot)+'만원</td><td class="num">'+fmt(cnt)+'</td><td class="num">'+fmt(qty)+'</td>'+
+      '<td class="num">'+fmt(rf)+'만원</td><td class="num">'+refund[i].toFixed(1)+'%</td>'+
+      '<td class="num">'+nShare+'%</td></tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('dailyTable').innerHTML = html;
+})();
+
+/* ─────────── 차트 5: 카테고리 가로 바 ─────────── */
+(function(){
+  var W=540, H=300, padL=150, padR=64, padT=8, padB=8;
+  var cw=W-padL-padR, rh=(H-padT-padB)/cats.length;
+  var maxV = Math.max.apply(null, cats.map(function(c){return c.pay;}));
+  var svg = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="카테고리별 결제금액">';
+  cats.forEach(function(c,i){
+    var y = padT + rh*i + rh*0.22, h = rh*0.56, w = c.pay/maxV*cw;
+    svg += '<text x="'+(padL-10)+'" y="'+(y+h/2+4)+'" text-anchor="end" font-size="12" fill="var(--ink-2)">'+esc(c.name)+'</text>';
+    svg += '<g class="cb" data-i="'+i+'"><rect x="'+padL+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="4" fill="var(--s1)"/>'+
+           '<rect x="0" y="'+(padT+rh*i)+'" width="'+W+'" height="'+rh+'" fill="transparent"/></g>';
+    svg += '<text x="'+(padL+w+8)+'" y="'+(y+h/2+4)+'" font-size="12" fill="var(--ink)" font-weight="600">'+fmtMan(c.pay)+'</text>';
+  });
+  svg += '</svg>';
+  var box = document.getElementById('categoryChart');
+  box.innerHTML = svg;
+  box.querySelectorAll('.cb').forEach(function(g){
+    g.addEventListener('mousemove', function(e){
+      var c = cats[+g.dataset.i];
+      showTip('<div class="tt-title">'+esc(c.name)+'</div><div class="row">결제금액 '+fmtMan(c.pay)+'원</div>'+
+              '<div class="row">환불율 '+c.refund.toFixed(1)+'%</div>', e);
+    });
+    g.addEventListener('mouseleave', hideTip);
+  });
+})();
+
+/* ─────────── 카테고리 테이블 ─────────── */
+(function(){
+  var totalPay = cats.reduce(function(s,c){return s+c.pay;},0);
+  var html = '<table><thead><tr><th>카테고리</th><th class="num">결제금액</th><th class="num">비중</th><th class="num">환불율</th><th class="ctr">상태</th></tr></thead><tbody>';
+  cats.forEach(function(c){
+    var st = c.refund>5 ? '<span class="badge badge-warn">⚠ 환불율 높음</span>' : '<span class="badge badge-ok">✓ 정상</span>';
+    html += '<tr><td>'+esc(c.name)+'</td><td class="num">'+fmtMan(c.pay)+'원</td>'+
+      '<td class="num">'+(c.pay/totalPay*100).toFixed(1)+'%</td>'+
+      '<td class="num"'+(c.refund>5?' style="color:#b35322;font-weight:700"':'')+'>'+c.refund.toFixed(1)+'%</td>'+
+      '<td class="ctr">'+st+'</td></tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('categoryTable').innerHTML = html;
+})();
+
+/* ─────────── 시간대 트렌드 ─────────── */
+lineChart(document.getElementById('hourlyChart'), {
+  w:540, h:260, xlabels:Array.apply(null,{length:24}).map(function(_,h){return h+'시';}),
+  yMin:0, yMax:Math.max.apply(null, hourly[3])*1.15,
+  yfmt:function(v){ return Math.round(v)+'만'; }, aria:'시간대별 배송유형 결제 트렌드',
+  series: TYPES.map(function(t,ti){ return {name:t.name, color:t.color, data:hourly[ti]}; })
+});
+legend(document.getElementById('legend-hourly'), TYPES);
+
+})();
+</script>
+</body>
+</html>
