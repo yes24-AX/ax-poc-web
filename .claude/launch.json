@@ -3,9 +3,9 @@
   "configurations": [
     {
       "name": "static",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["-y", "http-server", "-p", "5599", "-c-1", "."],
-      "port": 5599
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8940", "--directory", "."],
+      "port": 8940
     }
   ]
 }
