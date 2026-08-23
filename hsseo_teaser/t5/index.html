@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>여섯 개의 질문 — AX Datahub</title>
+<meta name="description" content="흩어져 있던 여섯 개의 데이터가 한 곳에 모여, 판단이 빨라진다." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<style>
+/* ─────────────────────────────────────────────────────────────
+   SIX QUESTIONS — AX Datahub 온보딩 티저
+   문법: 시네마틱 풀블리드 시퀀스 / 마스크 리빌 / 하드컷 색면 플래시
+   색 규칙: 사진은 전부 무채색. 색은 오직 '데이터 영역'의 신호로만 등장한다.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --ink:#F2EFEA; --dim:rgba(242,239,234,.52); --dimmer:rgba(242,239,234,.3);
+  --bg:#0B0B0C; --line:rgba(242,239,234,.14);
+  --c-sales:#E8563C; --c-search:#3E9BE8; --c-stock:#E0A32E;
+  --c-review:#C05CD8; --c-event:#2BB89C; --c-user:#6E7BF2;
+  --ease:cubic-bezier(.7,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--ink); overflow:hidden;
+  font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+img{display:block; -webkit-user-drag:none}
+a{color:inherit; text-decoration:none}
+
+/* ── 무대 ── */
+#stage{position:fixed; inset:0; overflow:hidden; background:var(--bg)}
+.scene{position:absolute; inset:0; opacity:0; visibility:hidden}
+.frame{position:absolute; inset:0; overflow:hidden; clip-path:inset(0 0 0 0)}
+
+/* 사진: 뷰포트보다 4% 크게 깔고 그 여유 안에서만 천천히 흐른다(확대 없음) */
+.ph{position:absolute; inset:-4%; overflow:hidden}
+/* 노출은 사진마다 다르므로 개별 보정치를 곱해 같은 톤대에 놓는다 */
+.ph img{width:100%; height:100%; object-fit:cover; filter:grayscale(1) contrast(1.14) brightness(var(--b,.7))}
+.veil{position:absolute; inset:0}
+.veil.grade{background:
+  linear-gradient(100deg, rgba(11,11,12,.62) 0%, rgba(11,11,12,.14) 44%, rgba(11,11,12,0) 70%),
+  linear-gradient(180deg, rgba(11,11,12,.5) 0%, rgba(11,11,12,0) 26%, rgba(11,11,12,.16) 46%, rgba(11,11,12,.94) 100%);}
+/* 색은 신호로만 — 화면을 물들이지 않는다 */
+.veil.tint{mix-blend-mode:color; opacity:.09}
+.veil.glow{opacity:.2; mix-blend-mode:screen}
+.veil.vig{background:radial-gradient(ellipse 84% 72% at 50% 44%, transparent 44%, rgba(11,11,12,.58) 100%)}
+.frame .bar{position:absolute; left:0; right:0; bottom:0; height:3px; transform:scaleX(0); transform-origin:left}
+
+/* ── 타이포 공통 ── */
+.mask{overflow:hidden; display:block}
+.kicker{font-size:11px; font-weight:700; letter-spacing:.42em; color:var(--dim)}
+.rule{height:1px; background:var(--line)}
+
+/* ── S0 오프닝 ── */
+#s0 .center{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; padding:24px;
+}
+#s0 .brand{display:flex; align-items:center; gap:16px; margin-bottom:44px}
+#s0 .brand .rule{width:52px}
+#s0 h1{font-size:clamp(26px,4.6vw,60px); font-weight:200; line-height:1.42; letter-spacing:-.02em}
+#s0 h1 b{font-weight:600}
+#s0 .sub{margin-top:34px; font-size:13px; font-weight:400; letter-spacing:.1em; color:rgba(242,239,234,.62)}
+
+/* ── S1‑S6 도메인 장면 ── */
+.qs .type{
+  position:absolute; left:clamp(24px,6.2vw,110px); bottom:clamp(84px,13vh,130px);
+  right:clamp(24px,6.2vw,110px);
+}
+.qs .idx{font-size:11px; font-weight:700; letter-spacing:.34em; color:var(--dim); margin-bottom:26px}
+.qs .idx em{font-style:normal; color:var(--ink)}
+.qs h2{font-size:clamp(30px,6.4vw,86px); font-weight:200; line-height:1.16; letter-spacing:-.035em}
+.qs .meta{
+  display:flex; align-items:baseline; gap:18px; flex-wrap:wrap;
+  margin-top:30px; padding-top:20px; border-top:1px solid var(--line);
+}
+.qs .dom{display:flex; align-items:center; gap:11px; font-size:15px; font-weight:600; letter-spacing:-.01em}
+.qs .dom i{width:7px; height:7px; border-radius:50%; flex:none}
+.qs .lat{font-size:10.5px; font-weight:700; letter-spacing:.36em; color:var(--dimmer)}
+.qs .num{margin-left:auto; font-size:12.5px; font-weight:500; letter-spacing:.02em; color:rgba(242,239,234,.78); font-variant-numeric:tabular-nums}
+
+/* '이건 따로 열어야 했던 화면' — 좌상단 태그 */
+.qs .alone{
+  position:absolute; top:clamp(70px,9.4vh,100px); left:clamp(24px,6.2vw,110px);
+  display:flex; align-items:center; gap:10px;
+  font-size:10px; font-weight:700; letter-spacing:.28em; color:rgba(242,239,234,.6);
+}
+.qs .alone b{display:block; width:1px; height:12px; flex:none}
+
+/* ── S7/S8 수렴 & 홈 (한 컨테이너) ── */
+#final{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:clamp(20px,4vh,40px) 20px}
+#final .bg{position:absolute; inset:-4%; overflow:hidden}
+#final .bg img{width:100%; height:100%; object-fit:cover; filter:grayscale(1) brightness(.34) contrast(1.1)}
+#final .bgv{position:absolute; inset:0; background:radial-gradient(ellipse 76% 64% at 50% 44%, rgba(11,11,12,.5) 0%, rgba(11,11,12,.94) 100%)}
+#final .inner{position:relative; width:min(920px,94vw); display:flex; flex-direction:column; align-items:center}
+
+.head{text-align:center; margin-bottom:clamp(24px,4.4vh,44px); position:relative; width:100%}
+.head .hl{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end}
+.head .hl.h7{position:relative}
+.head h2{font-size:clamp(24px,4.2vw,52px); font-weight:200; letter-spacing:-.03em; line-height:1.28}
+.head h2 b{font-weight:600}
+.head .sub{margin-top:16px; font-size:clamp(12px,1.5vw,14.5px); font-weight:400; line-height:1.85; color:var(--dim)}
+
+/* 6칸 판(plate) — 수렴의 도착점이자 홈의 입구 격자 */
+.plate{
+  position:relative; width:100%;
+  display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:clamp(112px,17vh,150px); gap:10px;
+}
+.cell{position:relative; overflow:hidden; background:#131315; border:1px solid var(--line)}
+.cell .cphoto{position:absolute; inset:0; opacity:1}
+.cell .cphoto img{width:100%; height:100%; object-fit:cover; filter:grayscale(1) brightness(var(--b,.5)) contrast(1.08)}
+.cell .cphoto .ct{position:absolute; inset:0; mix-blend-mode:color; opacity:.1}
+/* 영역의 색 — 사진이 물러난 뒤에도 남아 여섯 색이 한 판에 나란히 선다 */
+.cell .cbar{position:absolute; left:0; right:0; bottom:0; height:3px; z-index:3; transform:scaleX(0); transform-origin:left}
+
+/* 입구 카드 */
+.cell .ccard{
+  position:absolute; inset:0; opacity:0; padding:clamp(14px,2vw,20px);
+  display:flex; flex-direction:column; justify-content:space-between;
+  background:rgba(17,17,19,.9);
+}
+.cell .ccard:hover{background:rgba(24,24,27,.95)}
+.cell .ccard .top{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.cell .ccard .nm{display:flex; align-items:center; gap:9px; font-size:clamp(14px,1.7vw,17px); font-weight:600; letter-spacing:-.01em}
+.cell .ccard .nm i{width:6px; height:6px; border-radius:50%; flex:none}
+.cell .ccard .ar{font-size:14px; color:var(--dimmer); transition:transform .5s var(--ease), color .5s var(--ease)}
+.cell .ccard:hover .ar{transform:translateX(4px); color:var(--ink)}
+.cell .ccard .mid{font-size:clamp(10px,1.2vw,11.5px); font-weight:500; line-height:1.5; color:rgba(242,239,234,.42); font-variant-numeric:tabular-nums}
+.cell .ccard .q{font-size:clamp(11px,1.35vw,12.5px); font-weight:400; line-height:1.6; color:var(--dim)}
+.cell .ccard .lt{font-size:9.5px; font-weight:700; letter-spacing:.28em; color:var(--dimmer); margin-top:8px}
+.cell .edge{position:absolute; left:0; top:0; bottom:0; width:2px; transform:scaleY(0); transform-origin:bottom; transition:transform .55s var(--ease)}
+.cell .ccard:hover ~ .edge, .cell:hover .edge{transform:scaleY(1)}
+
+.foot{margin-top:clamp(16px,2.6vh,26px); display:flex; align-items:center; justify-content:space-between; gap:16px; width:100%; flex-wrap:wrap}
+.foot .note{font-size:10.5px; font-weight:500; letter-spacing:.06em; color:rgba(242,239,234,.46)}
+.foot .replay{
+  font-size:10.5px; font-weight:700; letter-spacing:.26em; color:var(--dim);
+  border:1px solid var(--line); padding:9px 18px; background:none; cursor:pointer;
+  font-family:inherit; transition:color .4s var(--ease), border-color .4s var(--ease);
+}
+.foot .replay:hover{color:var(--ink); border-color:rgba(242,239,234,.4)}
+
+/* ── 색면 플래시 (하드컷) ── */
+#flash{position:absolute; inset:0; opacity:0; pointer-events:none; mix-blend-mode:screen}
+
+/* ── HUD ── */
+#hud{position:fixed; inset:0; pointer-events:none; z-index:50}
+.hudTop{
+  position:absolute; top:0; left:0; right:0; padding:clamp(20px,3.4vh,32px) clamp(20px,6.2vw,110px);
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+}
+.wordmark{display:flex; align-items:center; gap:12px; font-size:10.5px; font-weight:700; letter-spacing:.4em; color:var(--dim)}
+.wordmark i{width:6px; height:6px; background:var(--ink); border-radius:50%; flex:none; opacity:.8}
+.ctrls{display:flex; align-items:center; gap:10px; pointer-events:auto}
+.btn{
+  font-family:inherit; font-size:10px; font-weight:700; letter-spacing:.24em; color:var(--dim);
+  background:rgba(11,11,12,.42); border:1px solid var(--line); padding:9px 16px; cursor:pointer;
+  backdrop-filter:blur(6px); transition:color .35s var(--ease), border-color .35s var(--ease);
+}
+.btn:hover{color:var(--ink); border-color:rgba(242,239,234,.42)}
+
+.hudBot{position:absolute; left:0; right:0; bottom:0; padding:0 clamp(20px,6.2vw,110px) clamp(20px,3.4vh,30px)}
+.ticks{display:flex; gap:6px; align-items:flex-end; height:16px}
+.tick{flex:1; height:2px; background:rgba(242,239,234,.16); position:relative; overflow:hidden}
+.tick span{position:absolute; inset:0; transform:scaleX(0); transform-origin:left; background:var(--ink)}
+.hint{margin-top:12px; font-size:9.5px; font-weight:600; letter-spacing:.22em; color:rgba(242,239,234,.26)}
+
+/* ── 로더 ── */
+#loader{position:fixed; inset:0; z-index:80; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; transition:opacity .5s linear}
+#loader.gone{opacity:0; pointer-events:none}
+#loader .lw{font-size:10.5px; font-weight:700; letter-spacing:.44em; color:var(--dim)}
+#loader .lb{width:180px; height:1px; background:rgba(242,239,234,.16); overflow:hidden}
+#loader .lb i{display:block; height:100%; width:0; background:var(--ink); transition:width .3s linear}
+
+/* ── 정적 폴백 요약 ── */
+#rmSummary{display:none}
+body.static #stage .scene:not(#final){display:none}
+body.static #flash, body.static .hudBot, body.static #loader{display:none}
+body.static #rmSummary{display:block; margin-top:22px; width:100%; border-top:1px solid var(--line); padding-top:18px}
+body.static #rmSummary p{font-size:12px; line-height:1.9; color:var(--dim)}
+body.static #stage{overflow-y:auto}
+body.static{overflow:auto}
+
+/* ── 모바일 ── */
+@media (max-width:700px){
+  .plate{grid-template-columns:repeat(2,1fr); grid-auto-rows:clamp(96px,13vh,120px); gap:8px}
+}
+@media (max-width:500px){
+  .qs .type{left:20px; right:20px; bottom:76px}
+  .qs .idx{margin-bottom:16px}
+  .qs h2{font-size:29px}
+  .qs .meta{margin-top:20px; padding-top:14px; gap:10px}
+  .qs .num{margin-left:0; width:100%}
+  .qs .alone{top:64px; right:20px; font-size:9px; letter-spacing:.22em}
+  #s0 .brand{margin-bottom:30px}
+  .hudTop{padding:18px 20px}
+  .hudBot{padding:0 20px 18px}
+  .btn{padding:8px 12px; letter-spacing:.18em}
+  .head{margin-bottom:20px}
+  .cell .ccard{padding:12px}
+  .foot{gap:10px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important}
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- ── S0 오프닝 ── -->
+  <section class="scene" id="s0" aria-hidden="true">
+    <div class="frame">
+      <div class="ph"><img id="img-open" style="--b:.98" alt="" /></div>
+      <div class="veil grade"></div>
+      <div class="veil vig"></div>
+    </div>
+    <div class="center">
+      <div class="brand"><span class="rule"></span><span class="kicker">AX DATAHUB</span><span class="rule"></span></div>
+      <h1>
+        <span class="mask"><span class="l">여섯 개의 질문이</span></span>
+        <span class="mask"><span class="l">여섯 곳에 <b>흩어져</b> 있었다</span></span>
+      </h1>
+      <div class="sub"><span class="mask"><span class="l">열어야 할 화면이 여섯 개였다는 뜻이다</span></span></div>
+    </div>
+  </section>
+
+  <!-- ── S1‑S6 도메인 장면 (JS가 채운다) ── -->
+
+  <!-- ── S7 수렴 + S8 홈 ── -->
+  <section class="scene" id="final" aria-hidden="true">
+    <div class="bg"><img id="img-converge" alt="" /></div>
+    <div class="bgv"></div>
+
+    <div class="inner">
+      <div class="head">
+        <div class="hl h7" id="head7">
+          <h2><span class="mask"><span class="l">여섯이 <b>한 곳으로</b></span></span></h2>
+        </div>
+        <div class="hl h8" id="head8" style="opacity:0">
+          <h2>흩어져 있던 여섯이, <b>한 화면에</b></h2>
+          <div class="sub">여섯 번 열던 것을 한 번에 묻습니다. 질문에서 판단까지, 화면을 옮기지 않고.</div>
+        </div>
+      </div>
+
+      <div class="plate" id="plate"></div>
+
+      <div class="foot" id="foot" style="opacity:0">
+        <div class="note">화면의 수치는 모두 샘플입니다 · 실제 지표와 무관</div>
+        <button class="replay" id="replay" type="button">처음부터</button>
+      </div>
+
+      <div id="rmSummary">
+        <p>
+          매출·검색·재고·리뷰·이벤트·고객 행동. 여섯 개의 데이터가 각각 다른 화면에 흩어져 있어,
+          하나의 판단을 내리기 위해 여섯 번을 열어야 했습니다. AX Datahub 는 이 여섯을 한 곳에 모읍니다.
+          위의 여섯 입구에서 각 영역으로 바로 들어갈 수 있습니다. (표시된 수치는 모두 샘플입니다.)
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div id="flash"></div>
+</div>
+
+<div id="hud">
+  <div class="hudTop">
+    <div class="wordmark"><i></i>AX DATAHUB</div>
+    <div class="ctrls">
+      <button class="btn" id="btnPause" type="button">일시정지</button>
+      <button class="btn" id="btnSkip" type="button">건너뛰기</button>
+    </div>
+  </div>
+  <div class="hudBot">
+    <div class="ticks" id="ticks"></div>
+    <div class="hint">← → 이동 · SPACE 일시정지 · ESC 건너뛰기</div>
+  </div>
+</div>
+
+<div id="loader"><div class="lw">AX DATAHUB</div><div class="lb"><i id="lbar"></i></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ─── 데이터 ─────────────────────────────────────────── */
+/* b = 사진별 노출 보정 (원본 밝기가 제각각이라 톤대를 맞춘다) */
+var D = [
+  {id:'sales',  ko:'매출',      lat:'SALES',    c:'#E8563C', b:.46, q:'무엇이 팔리고 있나',   n:'일 거래 1,284건 · 전일 대비 +6.2%'},
+  {id:'search', ko:'검색',      lat:'SEARCH',   c:'#3E9BE8', b:.52, q:'무엇을 찾고 있나',     n:'검색어 38,402건 · 무결과율 4.1%'},
+  {id:'stock',  ko:'재고',      lat:'STOCK',    c:'#E0A32E', b:.58, q:'무엇이 모자라나',      n:'SKU 91,500 · 결품 위험 214'},
+  {id:'review', ko:'리뷰',      lat:'REVIEW',   c:'#C05CD8', b:.72, q:'무엇이 불만인가',      n:'신규 리뷰 2,730건 · 평균 4.3'},
+  {id:'event',  ko:'이벤트',    lat:'EVENT',    c:'#2BB89C', b:1.15,q:'무엇이 반응했나',      n:'진행 12건 · 참여 58,900'},
+  {id:'user',   ko:'고객 행동', lat:'USER',     c:'#6E7BF2', b:.62, q:'어디서 멈추나',        n:'세션 146,200 · 이탈 32.7%'}
+];
+var IMGS = ['open','converge'].concat(D.map(function(d){return d.id;}));
+var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ─── 장면 DOM 생성 ──────────────────────────────────── */
+var stage = document.getElementById('stage'), flashEl = document.getElementById('flash');
+D.forEach(function(d,i){
+  var s = document.createElement('section');
+  s.className = 'scene qs'; s.id = 's'+(i+1); s.setAttribute('aria-hidden','true');
+  s.innerHTML =
+    '<div class="frame">'+
+      '<div class="ph"><img id="img-'+d.id+'" style="--b:'+d.b+'" alt="" /></div>'+
+      '<div class="veil tint" style="background:'+d.c+'"></div>'+
+      '<div class="veil grade"></div>'+
+      '<div class="veil glow" style="background:radial-gradient(ellipse 38% 34% at 94% 96%, '+d.c+' 0%, transparent 68%)"></div>'+
+      '<div class="veil vig"></div>'+
+      '<div class="bar" style="background:'+d.c+'"></div>'+
+    '</div>'+
+    '<div class="alone"><b style="background:'+d.c+'"></b><span class="mask"><span class="l">따로 열어야 했던 화면 0'+(i+1)+'</span></span></div>'+
+    '<div class="type">'+
+      '<div class="idx"><span class="mask"><span class="l"><em>0'+(i+1)+'</em> / 06</span></span></div>'+
+      '<h2><span class="mask"><span class="l">'+d.q+'</span></span></h2>'+
+      '<div class="meta">'+
+        '<div class="dom"><i style="background:'+d.c+'"></i>'+d.ko+'</div>'+
+        '<div class="lat">'+d.lat+'</div>'+
+        '<div class="num">'+d.n+' <span style="color:rgba(242,239,234,.24)">(샘플)</span></div>'+
+      '</div>'+
+    '</div>';
+  stage.insertBefore(s, document.getElementById('final'));
+});
+
+/* 6칸 판 = 수렴 도착점 + 홈 입구 */
+var plate = document.getElementById('plate');
+plate.innerHTML = D.map(function(d){
+  return '<div class="cell" data-id="'+d.id+'">'+
+    '<div class="cphoto"><img id="img-cell-'+d.id+'" style="--b:'+(d.b*.6).toFixed(2)+'" alt="" />'+
+      '<div class="ct" style="background:'+d.c+'"></div></div>'+
+    '<a class="ccard" href="../sites/'+d.id+'.html">'+
+      '<div class="top"><div class="nm"><i style="background:'+d.c+'"></i>'+d.ko+'</div><div class="ar">→</div></div>'+
+      '<div class="mid">'+d.n+'</div>'+
+      '<div><div class="q">'+d.q+'</div><div class="lt">'+d.lat+'</div></div>'+
+    '</a>'+
+    '<div class="edge" style="background:'+d.c+'"></div>'+
+    '<div class="cbar" style="background:'+d.c+'"></div>'+
+  '</div>';
+}).join('');
+
+/* 진행 눈금 6+2 */
+var ticksEl = document.getElementById('ticks');
+for (var t=0;t<8;t++){ var e=document.createElement('div'); e.className='tick'; e.innerHTML='<span></span>'; ticksEl.appendChild(e); }
+var tickBars = ticksEl.querySelectorAll('.tick span');
+
+/* ─── 이미지 프리로드 ────────────────────────────────── */
+var loaded = 0, lbar = document.getElementById('lbar'), loader = document.getElementById('loader');
+function assign(name, src){
+  var main = document.getElementById('img-'+name);
+  if (main) main.src = src;
+  var cell = document.getElementById('img-cell-'+name);
+  if (cell) cell.src = src;
+}
+function bump(){
+  loaded++; lbar.style.width = Math.round(loaded/IMGS.length*100)+'%';
+  if (loaded >= IMGS.length) start();
+}
+IMGS.forEach(function(name){
+  var src = 'assets/'+name+'.webp', im = new Image();
+  im.onload = function(){ assign(name, src); bump(); };
+  im.onerror = function(){ assign(name, src); bump(); };
+  im.src = src;
+});
+setTimeout(function(){ if (loaded < IMGS.length){ loaded = IMGS.length; start(); } }, 6000); // 네트워크 지연 안전장치
+
+/* ─── 타임라인 ───────────────────────────────────────── */
+var tl, STEPS = 9, started = false;
+var SC = 2.25;            // 도메인 장면 1개 길이
+var T = [0, 3.6];          // 각 스텝 시작 시각
+for (var i=0;i<6;i++) T.push(3.6 + SC*(i+1));
+T.push(3.6 + SC*6 + 3.9);  // step8(홈) 시작
+var END = T[8] + 2.2;
+
+function q(sel, root){ return (root||document).querySelector(sel); }
+function qa(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+
+function build(){
+  tl = gsap.timeline({paused:true, onUpdate:sync, defaults:{ease:'power3.inOut'}});
+
+  /* 모든 장면 초기화 */
+  qa('.scene').forEach(function(s){ gsap.set(s, {autoAlpha:0}); });
+  gsap.set(qa('.mask .l'), {yPercent:110});
+  gsap.set('#s0 .brand .rule', {scaleX:0, transformOrigin:'center'});
+
+  /* ── S0 오프닝 ── */
+  var t0 = T[0];
+  tl.set('#s0', {autoAlpha:1}, t0)
+    .fromTo('#s0 .ph img', {opacity:0, xPercent:1.6, yPercent:-1.2}, {opacity:.5, duration:2.4, ease:'power2.out'}, t0)
+    .to('#s0 .ph img', {xPercent:-1.6, yPercent:1.2, duration:6.4, ease:'none'}, t0)
+    .fromTo('#s0 .frame', {clipPath:'inset(0% 34% 0% 34%)'}, {clipPath:'inset(0% 0% 0% 0%)', duration:2.0}, t0+.15)
+    .to('#s0 .brand .rule', {scaleX:1, duration:1.1, ease:'power2.out'}, t0+.55)
+    .to('#s0 .brand .kicker', {opacity:1, duration:.8}, t0+.55)
+    .to(qa('#s0 h1 .l'), {yPercent:0, duration:1.15, stagger:.13}, t0+.85)
+    .to('#s0 .sub .l', {yPercent:0, duration:1.0}, t0+1.55)
+    .to('#s0 .center', {opacity:0, duration:.55, ease:'power2.in'}, T[1]-.6)
+    .set('#s0', {autoAlpha:0}, T[1]+1.24);
+
+  /* ── S1‑S6 도메인 ── */
+  D.forEach(function(d, i){
+    var at = T[i+1], el = '#s'+(i+1), last = (i===5);
+
+    /* 하드컷 색면 플래시 */
+    tl.set(flashEl, {backgroundColor:d.c}, at)
+      .fromTo(flashEl, {opacity:0}, {opacity:.62, duration:.07, ease:'none'}, at)
+      .to(flashEl, {opacity:0, duration:.42, ease:'power2.out'}, at+.08);
+
+    /* 마스크 리빌 — 가로 밴드가 위아래로 열린다 */
+    tl.set(el, {autoAlpha:1}, at+.04)
+      .fromTo(el+' .frame', {clipPath:'inset(48% 0% 48% 0%)'}, {clipPath:'inset(0% 0% 0% 0%)', duration:1.15}, at+.04)
+      .fromTo(el+' .ph img', {xPercent:i%2 ? 1.9 : -1.9, yPercent:i%3 ? -1.1 : 1.1},
+              {xPercent:i%2 ? -1.9 : 1.9, yPercent:i%3 ? 1.1 : -1.1, duration:SC+1.2, ease:'none'}, at)
+      .fromTo(el+' .veil.tint', {opacity:0}, {opacity:.09, duration:1.0, ease:'power2.out'}, at+.1)
+      .fromTo(el+' .veil.glow', {opacity:0}, {opacity:.22, duration:1.3, ease:'power2.out'}, at+.1)
+      /* 이 장면의 색이 아래 모서리에 한 줄로 남는다 — 마지막 판에서 여섯 줄이 나란히 선다 */
+      .fromTo(el+' .frame .bar', {scaleX:0}, {scaleX:1, duration:1.5, ease:'power3.out'}, at+.5);
+
+    /* 타이포 */
+    tl.to(qa(el+' .idx .l'), {yPercent:0, duration:.85}, at+.34)
+      .to(qa(el+' h2 .l'), {yPercent:0, duration:1.0}, at+.44)
+      .to(qa(el+' .alone .l'), {yPercent:0, duration:.85}, at+.54)
+      .fromTo(el+' .meta', {opacity:0, y:14}, {opacity:1, y:0, duration:.9, ease:'power2.out'}, at+.62);
+
+    /* 퇴장 — 다음 장면의 마스크가 다 열린 뒤에 치운다.
+       그래야 리빌이 '검은 띠'가 아니라 이전 화면 위를 덮으며 열린다. */
+    if (!last){
+      tl.to(el+' .type, '+el+' .alone', {opacity:0, duration:.4, ease:'power2.in'}, at+SC-.42)
+        .set(el, {autoAlpha:0}, at+SC+1.24);
+    } else {
+      tl.to(el+' .type, '+el+' .alone', {opacity:0, duration:.5, ease:'power2.in'}, at+SC-.5)
+        .to(el+' .frame', {clipPath:'inset(0% 50% 0% 50%)', duration:.95}, at+SC-.34)
+        .set(el, {autoAlpha:0}, at+SC+.62);
+    }
+  });
+
+  /* ── S7 수렴 ── */
+  var t7 = T[7], cells = qa('.cell');
+  /* 흩어진 출발점 — 화면 밖 사방 */
+  var scat = [
+    {x:-78, y:-46, r:-7}, {x: 66, y:-58, r: 6}, {x:-54, y: 62, r: 5},
+    {x: 84, y: 40, r:-6}, {x:  6, y:-74, r: 3}, {x:-14, y: 78, r:-4}
+  ];
+
+  tl.set('#final', {autoAlpha:1}, t7-.05)
+    .fromTo('#final .bg img', {opacity:0, yPercent:-1.4}, {opacity:1, duration:1.4, ease:'power2.out'}, t7-.05)
+    .to('#final .bg img', {yPercent:1.4, duration:7, ease:'none'}, t7-.05)
+    .fromTo('#final .bgv', {opacity:0}, {opacity:1, duration:1.2}, t7-.05);
+
+  cells.forEach(function(c, i){
+    var s = scat[i];
+    tl.fromTo(c,
+      {opacity:0, xPercent:s.x*2.4, yPercent:s.y*1.9, rotate:s.r, scale:.82},
+      {opacity:1, duration:.5, ease:'power2.out'}, t7+.1+i*.055)
+      .to(c, {xPercent:0, yPercent:0, rotate:0, scale:1, duration:1.85, ease:'power4.inOut'}, t7+.1+i*.055);
+  });
+
+  tl.to(qa('#head7 .l'), {yPercent:0, duration:1.0}, t7+.5)
+    /* 여섯 색이 판의 아래에서 차례로 그어진다 */
+    .fromTo(qa('.cell .cbar'), {scaleX:0}, {scaleX:1, duration:.9, stagger:.07, ease:'power3.out'}, t7+1.95);
+
+  /* ── S8 홈 ── */
+  var t8 = T[8];
+  tl.to('#head7', {opacity:0, y:-14, duration:.55, ease:'power2.in'}, t8-.5)
+    .to('#head8', {opacity:1, duration:.9, ease:'power2.out'}, t8-.05)
+    .fromTo('#head8', {y:16}, {y:0, duration:.9, ease:'power2.out'}, t8-.05)
+    .to(qa('.cell .cphoto'), {opacity:.24, duration:.8, stagger:.045, ease:'power2.out'}, t8-.15)
+    .to(qa('.cell .ccard'), {opacity:1, duration:.75, stagger:.045, ease:'power2.out'}, t8+.05)
+    .to('#foot', {opacity:1, duration:.7}, t8+.6)
+    .to({}, {duration:.6}, END-.6);
+}
+
+/* ─── 진행 표시 & 상태 동기화 ────────────────────────── */
+var curStep = -1;
+function stepAt(time){
+  var s = 0;
+  for (var i=0;i<STEPS;i++) if (time >= T[i]-.001) s = i;
+  return s;
+}
+function sync(){
+  var time = tl.time(), s = stepAt(time);
+  for (var i=0;i<8;i++){
+    var to = (i+1 < STEPS) ? T[i+1] : END;
+    var p = (time - T[i]) / Math.max(.001, to - T[i]);
+    tickBars[i].style.transform = 'scaleX('+Math.max(0, Math.min(1, p))+')';
+    tickBars[i].style.background = (i>=1 && i<=6) ? D[i-1].c : '#F2EFEA';
+  }
+  if (s !== curStep){
+    curStep = s;
+    /* file:// 에서 replaceState 가 막히는 브라우저가 있어 진행 표시까지 죽지 않게 감싼다 */
+    try { history.replaceState(null, '', '#step='+s); } catch (e) {}
+    document.querySelectorAll('.scene').forEach(function(el){ el.setAttribute('aria-hidden','true'); });
+    var act = (s===7||s===8) ? document.getElementById('final') : document.getElementById('s'+s);
+    if (act) act.setAttribute('aria-hidden','false');
+  }
+  if (time >= END-.02) setEnded();
+}
+
+var ended = false;
+function setEnded(){
+  if (ended) return; ended = true;
+  document.getElementById('btnSkip').textContent = '다시 보기';
+  document.getElementById('btnPause').style.display = 'none';
+  document.querySelector('.hint').textContent = '아래 여섯 입구에서 시작하세요';
+}
+function unEnded(){
+  ended = false;
+  document.getElementById('btnSkip').textContent = '건너뛰기';
+  document.getElementById('btnPause').style.display = '';
+  document.querySelector('.hint').textContent = '← → 이동 · SPACE 일시정지 · ESC 건너뛰기';
+}
+
+/* ─── 조작 ───────────────────────────────────────────── */
+function goStep(n){
+  n = Math.max(0, Math.min(8, n));
+  if (n < 8) unEnded();
+  tl.pause(); tl.time(n === 8 ? END - .05 : T[n], false);
+  if (n < 8){ tl.play(); setPauseLabel(false); }
+  else { setEnded(); setPauseLabel(true); }
+}
+function setPauseLabel(paused){ document.getElementById('btnPause').textContent = paused ? '이어보기' : '일시정지'; }
+
+document.getElementById('btnSkip').addEventListener('click', function(){
+  if (ended) { unEnded(); tl.time(0).play(); setPauseLabel(false); }
+  else goStep(8);
+});
+document.getElementById('btnPause').addEventListener('click', function(){
+  if (tl.paused()){ tl.play(); setPauseLabel(false); } else { tl.pause(); setPauseLabel(true); }
+});
+document.getElementById('replay').addEventListener('click', function(){ unEnded(); tl.time(0).play(); setPauseLabel(false); });
+
+document.addEventListener('keydown', function(ev){
+  if (!started) return;
+  var k = ev.key;
+  if (k === 'ArrowRight'){ ev.preventDefault(); goStep(stepAt(tl.time()) + 1); }
+  else if (k === 'ArrowLeft'){ ev.preventDefault(); goStep(stepAt(tl.time()) - 1); }
+  else if (k === ' ' || k === 'Spacebar'){ ev.preventDefault(); if (tl.paused()){ tl.play(); setPauseLabel(false);} else { tl.pause(); setPauseLabel(true);} }
+  else if (k === 'Escape'){ ev.preventDefault(); goStep(8); }
+});
+
+/* ─── 시작 ───────────────────────────────────────────── */
+function staticFallback(){
+  document.body.classList.add('static');
+  gsap.set('#final', {autoAlpha:1});
+  gsap.set(qa('.cell'), {opacity:1, xPercent:0, yPercent:0, rotate:0, scale:1});
+  gsap.set(qa('.cell .cphoto'), {opacity:.24});
+  gsap.set(qa('.cell .cbar'), {scaleX:1});
+  gsap.set(qa('.cell .ccard'), {opacity:1});
+  gsap.set('#head7', {display:'none'});
+  gsap.set('#head8', {opacity:1});
+  gsap.set('#foot', {opacity:1});
+  document.getElementById('btnPause').style.display = 'none';
+  document.getElementById('btnSkip').style.display = 'none';
+  loader.style.display = 'none';
+}
+
+function start(){
+  if (started) return; started = true;
+  loader.classList.add('gone');
+  setTimeout(function(){ loader.style.display='none'; }, 600);
+
+  if (REDUCED){ staticFallback(); return; }
+
+  build();
+
+  /* ?seek=<초> — 정해진 시각에 멈춰 세운다 (검수/캡처용) */
+  var sk = /[?&]seek=([\d.]+)/.exec(location.search);
+  if (sk){
+    loader.style.display = 'none';
+    tl.time(Math.min(parseFloat(sk[1]), END - .02), false); tl.pause();
+    sync(); setPauseLabel(true); return;
+  }
+
+  var m = /#step=(\d)/.exec(location.hash);
+  var s0 = m ? Math.max(0, Math.min(8, parseInt(m[1],10))) : 0;
+  if (s0 === 8){ tl.time(END - .05, false); setEnded(); setPauseLabel(true); }
+  else { tl.time(T[s0], false); tl.play(); }
+}
+})();
+</script>
+</body>
+</html>

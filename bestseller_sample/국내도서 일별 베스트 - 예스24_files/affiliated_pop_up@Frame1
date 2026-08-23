@@ -1,0 +1,5 @@
+function OAS_RICH(position) {
+if (position == 'Frame1') {
+document.write ('<A HREF="http://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/affiliated_pop_up/1153615868/Frame1/OasDefault/Scm_WelPopup260605154446347/Scm_WelPopup260605154446347C001/37393864363236393661323862343430" target="_blank"><IMG SRC="https://image.yes24.com/momo/scmfiles/AdvertFiles/202606/2744670_260604024106.png"  ALT="Á¦ÈÞ±¤°í¹è³Ê"  BORDER="0"></A>');
+}
+}

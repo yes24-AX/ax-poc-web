@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#020505"><meta name="description" content="Escape the data silo by recovering context.">
+  <title>DataHub — Find the Answer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/guide.css">
+  <link rel="stylesheet" href="css/binding.css">
+  <link rel="stylesheet" href="css/story.css">
+  <link rel="stylesheet" href="css/data-map.css">
+  <link rel="stylesheet" href="css/data-map-fix.css">
+  <link rel="stylesheet" href="css/font-scale.css">
+</head>
+<body>
+<main id="experience">
+  <div class="room" id="room">
+    <div class="noise"></div><div class="cursor-light"></div><div class="scanline"></div>
+    <div class="walls"><i></i><i></i><i></i><i></i></div>
+    <header><div class="brand"><i></i> DATAHUB / DISCOVERY</div><div class="status"><b></b><span>LIVE DATA</span></div></header>
+    <aside class="telemetry"><span>QUESTION</span><strong id="entity">UNKNOWN</strong><span>EVIDENCE</span><strong id="context">00%</strong><div class="meter"><i></i></div></aside>
+    <div class="scene-label"><small id="sceneNumber">01 / 07</small><strong id="sceneTitle">QUESTION</strong></div>
+    <div class="guide" role="status" aria-live="polite">
+      <div class="guide__step"><span id="guideStep">STEP 1</span><i></i></div>
+      <strong id="guideTitle">빛나는 신호를 찾으세요</strong>
+      <p id="guideBody">마우스를 움직여 중앙의 신호를 찾고 클릭하세요.</p>
+      <div class="guide__progress"><i id="guideProgress"></i></div>
+      <button class="guide__skip" id="skipStep" type="button">SKIP THIS STEP <span>→</span></button>
+    </div>
+
+    <section class="scene scene--wake active" data-scene="0">
+      <div class="signal target" tabindex="0" role="button" aria-label="Revenue question"><i></i><span>WHY?</span></div>
+      <div class="copy"><small>REVENUE CHANGED · REASON UNKNOWN</small><p id="wakeCopy">이번 달 매출은 왜 달라졌을까?</p></div>
+      <div class="hint">FIND THE QUESTION · CLICK TO BEGIN</div>
+    </section>
+
+    <section class="scene scene--identity" data-scene="1">
+      <div class="core dropzone"><span>COLLECT<br>EVIDENCE</span><i></i></div>
+      <button class="token" data-key="CAMPAIGN" style="--x:16%;--y:25%">캠페인 반응</button>
+      <button class="token" data-key="READER" style="--x:72%;--y:21%">독자 반응</button>
+      <button class="token" data-key="PRODUCT" style="--x:75%;--y:65%">상품·콘텐츠</button>
+      <button class="token" data-key="ORDER" style="--x:23%;--y:69%">주문·배송</button>
+      <button class="token" data-key="SALES" style="--x:46%;--y:15%">매출 성과</button>
+      <div class="copy"><small>DISCOVERY 01 · SOURCES</small><p>답은 하나의 데이터에 있지 않습니다.</p></div>
+      <div class="hint">CLICK OR DRAG DATA SOURCES INTO THE QUESTION</div>
+    </section>
+
+    <section class="scene scene--lineage" data-scene="2">
+      <div class="binding-board">
+        <button class="dataset business-card next" data-dataset="campaign"><small>관심의 시작</small><strong>캠페인</strong><span>무엇이 관심을 만들었을까?</span><em>START HERE</em></button>
+        <button class="dataset business-card" data-dataset="reader"><small>독자의 반응</small><strong>독자</strong><span>누가 반응했을까?</span><em>CONNECT</em></button>
+        <button class="dataset business-card" data-dataset="product"><small>상품의 맥락</small><strong>상품·콘텐츠</strong><span>무엇을 보고 있었을까?</span><em>CONNECT</em></button>
+        <button class="dataset business-card" data-dataset="order"><small>구매 경험</small><strong>주문·배송</strong><span>무엇이 구매로 이어졌을까?</span><em>CONNECT</em></button>
+        <button class="dataset business-card" data-dataset="sales"><small>비즈니스 결과</small><strong>매출</strong><span>성과는 어떻게 달라졌을까?</span><em>FINISH</em></button>
+      </div>
+      <svg class="line-svg binding-svg" aria-hidden="true"><g class="binding-lines"></g><path class="preview-path" d=""/></svg>
+      <div class="binding-status"><span>0 / 5 DATA CONNECTED</span><div><i></i></div></div>
+      <div class="copy"><small>DISCOVERY 02 · CONNECT</small><p>같은 질문의 언어로 데이터를 연결합니다.</p></div>
+      <div class="hint">CLICK THE GLOWING DATA CARD</div>
+    </section>
+
+    <section class="scene scene--trust" data-scene="3">
+      <div class="fork"></div>
+      <button class="exit bad"><small>개인 추출 파일</small><strong>매출_최종__v2.xlsx</strong><span>담당자 알 수 없음<br>19일 전 업데이트<br>산정 기준 미확인</span></button>
+      <button class="exit good"><small>회사 공식 지표 · 인증됨</small><strong>월간 매출</strong><span>담당 데이터전략팀<br>4분 전 업데이트<br>품질 검증 99.8%</span></button>
+      <div class="copy"><small>DISCOVERY 03 · STANDARD</small><p>보고와 의사결정에 어떤 기준을 사용해야 할까요?</p></div>
+      <div class="hint">COMPARE · CHOOSE THE COMPANY STANDARD</div>
+    </section>
+
+    <section class="scene scene--intelligence" data-scene="4">
+      <div class="network" aria-hidden="true"></div>
+      <div class="pattern-signals"><span>관심 <b>+24%</b></span><span>독자 반응 <b>+18%</b></span><span>구매 전환 <b>−11%</b></span><span>출고 가능성 <b>−16%</b></span><span>장바구니 이탈 <b>+9%</b></span><span>품절 상품 조회 <b>+31%</b></span><span>배송 예정일 <b>2.4일</b></span></div>
+      <button class="charger"><i></i><span>HOLD TO REVEAL PATTERN</span></button>
+      <div class="copy"><small>DISCOVERY 04 · PATTERN</small><p>관심과 반응은 늘었지만, 구매 경험 신호가 약해지고 있습니다.</p></div>
+      <div class="hint">PRESS AND HOLD</div>
+    </section>
+
+    <section class="scene scene--escape" data-scene="5">
+      <div class="silos"></div><div class="hero-particle"><i></i></div>
+      <div class="data-domains">
+        <span class="landscape-hub dropzone" aria-live="polite"><small><label>DROP EVIDENCE HERE</label><em>0%</em></small><b>이번 달 매출은<br>왜 달라졌을까?</b><i></i><span class="coverage-chips" aria-label="연결된 근거"></span></span>
+        <span class="domain-node" role="button" tabindex="0" data-domain="marketing"><b>마케팅</b><small>캠페인 · 유입 · 성과</small></span>
+        <span class="domain-node" role="button" tabindex="0" data-domain="crema"><b>크레마클럽</b><small>읽기 · 콘텐츠 반응</small></span>
+        <span class="domain-node" role="button" tabindex="0" data-domain="sarak"><b>사락</b><small>리뷰 · 독자의 목소리</small></span>
+        <span class="domain-node" role="button" tabindex="0" data-domain="b2x"><b>B2X</b><small>상품권 · 법인주문</small></span>
+        <span class="domain-node" role="button" tabindex="0" data-domain="clickstream"><b>클릭스트림</b><small>인기 검색어 · 태그 · 이벤트</small></span>
+        <span class="domain-node" role="button" tabindex="0" data-domain="pd"><b>PD</b><small>상품 브리핑</small></span>
+        <span class="domain-node" role="button" tabindex="0" data-domain="bookstore"><b>동네책방</b><small>지역별 출고 · 취소 · 반품</small></span>
+      </div>
+      <div class="dataset-cloud" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="copy"><small>THE BIGGER PICTURE</small><p>각 메뉴는 독립돼 있지만, 하나의 질문을 위해 함께 쓰입니다.</p></div>
+      <div class="hint">DRAG EVIDENCE TO THE CENTER</div>
+    </section>
+
+    <section class="scene scene--reveal" data-scene="6">
+      <div class="ui-shell"><nav><span class="ui-brand"><i></i> DATAHUB</span><span>마케팅 · 크레마클럽 · 사락 · 동네책방 · PD</span><b>DATA TRUST 99.8%</b></nav><aside><i></i><i></i><i></i><i></i></aside><article><small>CONNECTED BUSINESS CONTEXT</small><p>흩어진 데이터를 연결해 더 나은 의사결정으로.</p><div class="asset"><b>CONNECTED DATAHUB</b><span>One question · Multiple data perspectives</span></div></article></div>
+      <div class="answer-flash" aria-hidden="true"></div>
+      <div class="final-message"><small>EVIDENCE 100%</small><p class="answer-summary"><small>KEY FINDING</small><strong>유입은 늘었지만,<br>상품 가용성이 낮아지며 구매 전환율도 떨어졌습니다.</strong></p><span class="final-next">이건 하나의 질문에 대한 답입니다.<br>DataHub에서는 어떤 질문이든 같은 방식으로 근거를 찾을 수 있습니다.</span><button id="goDatahub" type="button">DATAHUB에서 만나보기 →</button></div>
+    </section>
+
+    <div class="gate"><span>ACTION REQUIRED</span><i></i></div>
+  </div>
+  <div class="scroll-space"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body></html>

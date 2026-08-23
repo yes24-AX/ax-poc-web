@@ -1,0 +1,1691 @@
+//==================메인페이지 팝업 띄우기 - 시작
+//20070907 김기만
+function OpenPopup() {
+    var todayDate = new Date();
+    var endDate = new Date();
+    endDate.setFullYear(2007, 10 - 1, 24);	// (년,월,일 month인자는 0이 1월이므로 해당월에 -1해야 함)
+    if (todayDate <= endDate && location.pathname.toLowerCase() == "/main/default.aspx") {
+        setCookie("YES24_POPUP", "OK", 1);
+        if (getCookie("YES24_POPUP2") != "OK") {
+            window.open('/notice/P071023.aspx', 'YES24_POPUP2', 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=no,resizable=no,width=404,height=250,top=80,left=20');
+        }
+    }
+}
+OpenPopup();
+//==================메인페이지 팝업 띄우기 - 끝
+
+
+/*즐겨찾기에 추가*/
+function addFavorite() {
+    window.external.AddFavorite("http://www.yes24.com", "YES24 - 대한민국 대표 인터넷서점");
+}
+
+/***********************************************************************************
+  정해진 숫자만큼 문자(영숫자)를 입력하면 자동으로 다음 필드로 포커스 이동
+  입력 항목 
+            - thisTab : 작업중인 필드 객체
+            - nextTab: 다음 포커스 대상
+            - thisTabSize: 작업중인 입력필드의 size 값
+   관련 이벤트 : onKeyUp          
+***********************************************************************************/
+function tabOrder(thisTab, nextTab, thisTabSize) {
+    if ((event.keyCode == 37) ||  // ← key
+       (event.keyCode == 38) ||  // ↑ key
+       (event.keyCode == 39) ||  // → key
+       (event.keyCode == 40) ||  // ↓ key
+       (event.keyCode == 35) ||  // HOME key
+       (event.keyCode == 36) ||  // END key
+       (event.keyCode == 13) ||  // Enter key
+       (event.keyCode == 229) || // mouse double click
+       (window.document.selection.createRange().text.length == thisTabSize)) {
+        return;
+    }
+    if (thisTab.value.length == thisTabSize) {
+        nextTab.select();
+        nextTab.focus();
+        return;
+    }
+}
+
+
+
+/**
+*입력필드에 숫자만 입력받을수 있도록 제어
+*/
+function isNumber() {
+
+    if ((event.keyCode == 46) ||  // DEL
+         (event.keyCode == 8) ||  // backspace
+         (event.keyCode == 9) ||  // tab
+         (event.keyCode == 37) ||  // ← key
+         (event.keyCode == 38) ||  // ↑ key
+         (event.keyCode == 39) ||  // → key
+         (event.keyCode == 40) ||  // ↓ key
+         (event.keyCode == 35) ||  // HOME key
+         (event.keyCode == 36) ||  // END key
+         (event.keyCode == 13) ||  // Enter key       
+         ((event.keyCode >= 48) && (event.keyCode <= 57)) || // 0 ~ 9
+         ((event.keyCode >= 96) && (event.keyCode <= 105)) ||   // 0 ~ 9 in 숫자패드
+           !isNaN(String.fromCharCode(event.keyCode))
+       ) {
+
+        //event.returnValue=true;
+
+    }
+    else {
+        var agent = navigator.userAgent.toLowerCase();
+        if ((navigator.appName == 'Netscape' && agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1)) {
+            // ie일 경우
+            event.preventDefault();
+        } else {
+            // ie가 아닐 경우
+            (event.preventDefalut) ? event.preventDefault() : event.returnValue = false;
+        }
+    }
+}
+
+function isNumber2(formName, fieldName, fieldAlt) {
+    var form = eval(formName + "." + fieldName);
+
+    if (!(/^\d+$/.test(form.value))) {
+        alert(fieldAlt + "을 숫자로 입력하세요");
+        form.value = "1";
+        form.focus();
+        return false;
+    }
+    else {
+        if (parseInt(form.value) <= 0) {
+            alert(fieldAlt + "은 0 보다 커야합니다.");
+            form.value = "1";
+            form.focus();
+            return false;
+        }
+        else {
+            form.value = parseInt(form.value);
+        }
+    }
+}
+
+
+function isNumeric(s) {
+    for (i = 0; i < s.length; i++) {
+        c = s.substr(i, 1);
+        if (c < "0" || c > "9") return false;
+    }
+    return true;
+}
+
+//숫자만 입력 - 정규식으로 치환
+function onlyReplaceNumber(loc) {
+    if (loc.value != loc.value.replace(/[^0-9\.]/g, '')) {
+        loc.value = loc.value.replace(/[^0-9\.]/g, '');
+    }
+}
+
+//영문, 숫자만 입력 - 정규식으로 치환
+function onlyReplaceAlphabetNumber(loc) {
+    if (loc.value != loc.value.replace(/[^A-Za-z0-9+]/g, '')) {
+        loc.value = loc.value.replace(/[^A-Za-z0-9+]/g, '');
+    }
+}
+
+
+//영문(대문자), 숫자만 입력 - 정규식으로 치환
+function onlyReplaceUpperAlphabetNumber(loc) {
+    if (loc.value != loc.value.replace(/[^A-Za-z0-9+]/g, '').toUpperCase()) {
+        loc.value = loc.value.replace(/[^A-Za-z0-9+]/g, '').toUpperCase();
+    }
+}
+
+//정규식으로 치환된 값만 입력
+function onlyReplaceRegex(loc, regExp) {
+    if (loc.value != loc.value.replace(regExp, '')) {
+        loc.value = loc.value.replace(regExp, '');
+    }
+}
+
+function checkIsNumber(e) {
+    var keycode = undefined;
+    if (window.event) keycode = window.event.keyCode;
+    else keycode = e.which;
+
+    var event;
+    if (keycode == 0 || keycode == 8 || keycode == 46 || keycode == 9) {
+        event = e || window.event;
+        if (typeof event.stopPropagation != "undefined") {
+            event.stopPropagation();
+        } else {
+            event.cancelBubble = true;
+        }
+        return;
+    }
+
+    if (keycode < 48 || (keycode > 57 && keycode < 96) || keycode > 105 || e.shiftKey) {
+        e.preventDefault ? e.preventDefault() : e.returnValue = false;
+    }
+}
+
+function getKeycode() {
+    var keycode = undefined;
+    if (window.event) keycode = window.event.keyCode;
+    else if (e) keycode = e.which;
+    return keycode;
+}
+
+/***************************************************************************
+   Input type="Text"를 돈에 관련된 내용으로 사용
+   돈에 '100,000'과 같이 ','을 추가 시켜준다.
+  
+   Event Handlers : onBlur  
+   관련 함수 : removeFormattedMoney(), isNumber(), util.js::reverse()
+   사용 방법 : onBlur="formattedMoney(this)"
+***************************************************************************/
+function formattedMoney(v) {
+    var format = "";
+    var a = removeFormat(v.toString(), ',');
+    a = parseInt10(a);
+    var money = a.toString();
+
+    money = reverse(money);
+
+    for (var i = money.length - 1; i > -1; i--) {
+        if ((i + 1) % 3 == 0 && money.length - 1 != i) format += ",";
+        format += money.charAt(i);
+    }
+    return format;
+}
+
+
+/**************************************************************************
+   String을 꺼꾸로 만들어 준다.
+**************************************************************************/
+function reverse(s) {
+    var rev = "";
+
+    for (var i = s.length - 1; i >= 0 ; i--) {
+        rev += s.charAt(i);
+    }
+
+    return rev;
+}
+
+/*********************************************************************
+    INPUT elements의 NULL여부 체크
+**********************************************************************/
+function isNull(form_field, msg) {
+    if (form_field.type == "text" || form_field.type == "textarea" || form_field.type == "password") {
+        if ((form_field.value == "") || (form_field.value == null)) {
+            alert('[' + msg + ']를(을) 입력하시기 바랍니다.');
+            form_field.focus();
+            return true;
+        }
+    }
+    else if (form_field.type == "select-one") {
+        if (form_field.selectedIndex == 0) {
+            alert('[' + msg + ']를(을) 선택하시기 바랍니다!');
+            return true;
+        }
+    }
+    else if (form_field[0].type == "radio") {
+        var cn = 0;
+        var r_cn = 0;
+
+        for (var k = 0; k < (document.forms.length) ; k++) {
+            for (var l = 0; l < (document.forms[k].length) ; l++) {
+                if (document.forms[k].elements[l].name == form_field[0].name)
+                    r_cn++;
+            }
+        }
+
+        for (var n = 0; n < r_cn; n++) {
+            if (form_field[n].checked)
+                cn++;
+        }
+        if (cn == 0) {
+            alert('[' + msg + ']를(을) 선택하시기 바랍니다!');
+            return true;
+        }
+    }
+    else { }
+
+    return false;
+}
+
+
+/*************post 방식으로 Submit해주는 method****************/
+function submit(form, target, action) {
+    var oForm = eval(form);
+    oForm.method = "post";
+    oForm.action = action;
+    oForm.target = target != '' ? target : "_self";
+    oForm.submit();
+}
+
+function fnPostSubmit(form, target, action) {
+    var oForm = eval(form);
+    oForm.method = "post";
+    oForm.action = action;
+    oForm.target = target != '' ? target : "_self";
+    oForm.submit();
+}
+
+/*************************************************************************
+  새로운 윈도우를 만들어 준다.
+
+  파라메터 : 링크정보, 윈도우넗이, 윈도우 높이
+*************************************************************************/
+function centerNewWin(url, winName, width, height) {
+    var wi = screen.width - width;
+    var hi = screen.height - height;
+
+    if (wi < 0) wi = 0;
+    if (hi < 0) hi = 0;
+
+    var info = 'left=' + (wi / 2) + ',top=' + (hi / 2) + ',width=' + width + ',height=' + height + ',resizable=yes,scrollbars=yes,menubars=no,status=yes';
+    var newwin = window.open(url, winName, info);
+    //newwin.focus();
+    return newwin;
+}
+
+function centerNewWin2(url, winName, width, height) {
+    var wi = screen.width - width;
+    var hi = screen.height - height;
+
+    if (wi < 0) wi = 0;
+    if (hi < 0) hi = 0;
+
+    var info = 'left=' + (wi / 2) + ',top=' + (hi / 2) + ',width=' + width + ',height=' + height + ',resizable=no,scrollbars=yes,menubars=no,status=no';
+    var newwin = window.open(url, winName, info);
+    //newwin.focus();	팝업차단 브라우저에서 에러발생하여 주석처리함 박대건
+    return newwin;
+}
+
+function centerNewWin3(url, winName) {
+
+    var info = 'resizable=yes,scrollbars=yes,menubars=yes,status=yes';
+    info = '';
+    var newwin = window.open(url, winName, info);
+    newwin.focus();
+}
+
+
+function centerNewWinNoScroll(url, winName, width, height) {
+    var wi = screen.width - width;
+    var hi = screen.height - height;
+
+    if (wi < 0) wi = 0;
+    if (hi < 0) hi = 0;
+
+    var info = 'left=' + (wi / 2) + ',top=' + (hi / 2) + ',width=' + width + ',height=' + height + ',resizable=no,scrollbars=no,menubars=no,status=no';
+    var newwin = window.open(url, winName, info);
+    newwin.focus();
+    return newwin;
+}
+
+
+/*************************************************************************
+  새로운 윈도우를 만들어 준다.
+
+  파라메터 : 링크정보, 윈도우이름, 윈도우넗이, 윈도우 높이
+*************************************************************************/
+function rightNewWin(url, winName, width, height) {
+    var wi = screen.width - width;
+    var hi = 0;
+
+    if (wi < 0) wi = 0;
+    if (hi < 0) hi = 0;
+
+    var info = 'left=' + wi + ',top=' + hi + ',width=' + width + ',height=' + height + ',resizable=yes,scrollbars=auto,menubars=no,status=no';
+    var newwin = window.open(url, winName, info);
+    newwin.focus();
+    return newwin;
+}
+
+/*************************************************************************
+  새로운 윈도우를 만들어 준다.
+
+  파라메터 : 링크정보, 윈도우넗이, 윈도우 높이
+*************************************************************************/
+function leftNewWin(url, winName, width, height) {
+    var wi = 0;
+    var hi = 0;
+
+    var info = 'left=' + wi + ',top=' + hi + ',width=' + width + ',height=' + height + ',resizable=yes,scrollbars=auto,menubars=no,status=no';
+    var newwin = window.open(url, winName, info);
+    newwin.focus();
+    return newwin;
+}
+
+function leftNewWin1(url, winName, width, height) {
+    var wi = 0;
+    var hi = 0;
+
+    var info = 'left=' + wi + ',top=' + hi + ',width=' + width + ',height=' + height + ',resizable=yes,scrollbars=yes,menubars=yes,status=no';
+    var newwin = window.open(url, winName, info);
+    newwin.focus();
+    return newwin;
+}
+
+
+/*************************************************************************
+   형식화된 내용의 심볼들을 없애고 원래의 내용만을 보여준다.
+   
+   ex)
+   var str = "31,000";
+   var res = removeFormat(str, ",");
+   
+   result : res -> 31000
+*************************************************************************/
+function removeFormat(content, sep) {
+    var real = "";
+    var contents = content.split(sep);
+
+    for (var i = 0; i < contents.length; i++) {
+        real += contents[i];
+    }
+
+    return real;
+}
+
+function parseInt10(data) {
+    return parseInt(data, 10);
+}
+
+
+/***************************************************************************
+  주민번호 체크
+  입력항목: 
+           preNoRes : 주민번호앞 6자리 필드
+           postNoRes:주민번호뒤7자리필드
+***************************************************************************/
+function checkNoRes(preNoRes, postNoRes) {
+    if (preNoRes.value.length != 6) {
+        alert("올바른 주민등록번호를 입력해주세요.");
+        preNoRes.focus();
+        return false;
+    }
+    else if (postNoRes.value.length != 7) {
+        alert("올바른 주민등록번호를 입력해주세요.");
+        postNoRes.focus();
+        return false;
+    }
+    else {
+        var str_serial1 = preNoRes.value;
+        var str_serial2 = postNoRes.value;
+
+        var digit = 0
+        for (var i = 0; i < str_serial1.length; i++) {
+            var str_dig = str_serial1.substring(i, i + 1);
+            if (str_dig < '0' || str_dig > '9') {
+                digit = digit + 1
+            }
+        }
+
+        if ((str_serial1 == '') || (digit != 0)) {
+            alert('잘못된 주민등록번호입니다.\n\n다시 확인하시고 입력해 주세요.');
+            preNoRes.focus();
+            return false;
+        }
+
+        var digit1 = 0
+        for (var i = 0; i < str_serial2.length; i++) {
+            var str_dig1 = str_serial2.substring(i, i + 1);
+            if (str_dig1 < '0' || str_dig1 > '9') {
+                digit1 = digit1 + 1
+            }
+        }
+
+        if ((str_serial2 == '') || (digit1 != 0)) {
+            alert('잘못된 주민등록번호입니다.\n\n다시 확인하시고 입력해 주세요.');
+            postNoRes.focus();
+            return false;
+        }
+
+        if (str_serial1.substring(2, 3) > 1) {
+            alert('잘못된 주민등록번호입니다.\n\n다시 확인하시고 입력해 주세요.');
+            preNoRes.focus();
+            return false;
+        }
+
+        if (str_serial1.substring(4, 5) > 3) {
+            alert('잘못된 주민등록번호입니다.\n\n다시 확인하시고 입력해 주세요.');
+            preNoRes.focus();
+            return false;
+        }
+
+        if (str_serial2.substring(0, 1) > 6 || str_serial2.substring(0, 1) == 0) {
+            alert('잘못된 주민등록번호입니다.\n\n다시 확인하시고 입력해 주세요.');
+            postNoRes.focus();
+            return false;
+        }
+
+        var a1 = str_serial1.substring(0, 1)
+        var a2 = str_serial1.substring(1, 2)
+        var a3 = str_serial1.substring(2, 3)
+        var a4 = str_serial1.substring(3, 4)
+        var a5 = str_serial1.substring(4, 5)
+        var a6 = str_serial1.substring(5, 6)
+
+        var check_digit = a1 * 2 + a2 * 3 + a3 * 4 + a4 * 5 + a5 * 6 + a6 * 7
+
+        var b1 = str_serial2.substring(0, 1)
+        var b2 = str_serial2.substring(1, 2)
+        var b3 = str_serial2.substring(2, 3)
+        var b4 = str_serial2.substring(3, 4)
+        var b5 = str_serial2.substring(4, 5)
+        var b6 = str_serial2.substring(5, 6)
+        var b7 = str_serial2.substring(6, 7)
+
+        var check_digit = check_digit + b1 * 8 + b2 * 9 + b3 * 2 + b4 * 3 + b5 * 4 + b6 * 5
+
+        check_digit = check_digit % 11
+        check_digit = 11 - check_digit
+        check_digit = check_digit % 10
+
+        if (check_digit != b7) {
+            alert('잘못된 주민등록번호입니다.\n\n다시 확인하시고 입력해 주세요.');
+            postNoRes.focus();
+            return false;
+        }
+    }
+    return true;
+}
+
+
+/***************************************************************************
+  년/월/일을 입력하면 나이를 리턴해준다.
+***************************************************************************/
+function returnAge(yy, mm, dd) {
+
+    days = new Date();
+    gdate = days.getDate();
+    gmonth = days.getMonth();
+    gyear = days.getYear();
+    age = gyear - yy;
+    if ((mm == (gmonth + 1)) && (dd <= parseInt(gdate))) {
+        age = age;
+    }
+    else {
+        if (mm <= (gmonth)) {
+            age = age;
+        }
+        else {
+            age = age - 1;
+        }
+    }
+    if (age == 0)
+        age = age;
+
+    return age;
+}
+
+
+/***************************************************************************
+  Modal로 띄어지는 다이얼로그창을 생성한다.
+***************************************************************************/
+window.hasModal = false;
+var modal = null;
+
+function doModal(url, windowStyle) {
+    window.hasModal = true;
+
+    var returnValue = showModalDialog(url, window, windowStyle);
+
+    window.hasModal = false;
+    return returnValue;
+}
+
+//날짜 유효성체크
+function CheckDateFields(formName, fields) {
+    var objForm = document.forms[formName];
+
+    var yy = objForm[fields[1]].value;
+    var mm = objForm[fields[2]].value;
+    var dd = objForm[fields[3]].value;
+
+    if (!IsValidDate(yy + mm + dd)) {
+        alert(fields[0] + "의 날자입력이 잘못되었습니다");
+        objForm[fields[1]].focus();
+        return false;
+    }
+
+
+    return true;
+}
+
+function IsValidDate(date) {
+    var year, month, day;
+
+    if (date.length < 8) return false;
+    if (isNaN(date)) return false;
+    if (date.length < 8) return false;
+
+    year = date.substring(0, 4);
+    month = date.substring(4, 6);
+    day = date.substring(6);
+
+    if (month == 0 || month > 12) return false;
+
+    if (day == 0 || day > GetDaysInMonth(year, month)) return false;
+
+    return true;
+}
+
+
+function GetDaysInMonth(year, month) {
+    var days;
+    if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 ||
+       month == 10 || month == 12) days = 31;
+    else if (month == 4 || month == 6 || month == 9 || month == 11) days = 30;
+    else if (month == 2) {
+        if (LeapYear(year) == 1) days = 29;
+        else days = 28;
+    }
+    return (days);
+}
+
+function LeapYear(Year) {
+    if (((Year % 4) == 0) && ((Year % 100) != 0) || ((Year % 400) == 0))
+        return (1);
+    else
+        return (0);
+}
+
+//다음 INPUT박스로 포커스 이동
+function moveFocus(num, fromform, toform) {
+    var str = fromform.value.length;
+    if (str == num)
+        toform.focus();
+}
+
+
+function checkEmail(invalue) {
+    var retval = true;
+
+    // 요런 문자가 들어있으면 안되죠~
+
+    if (invalue.indexOf("/") >= 0) retval = false;
+    if (invalue.indexOf(".@") >= 0) retval = false;
+    if (invalue.indexOf("@.") >= 0) retval = false;
+    if (invalue.indexOf("@@") >= 0) retval = false;
+    if (invalue.indexOf(",") >= 0) retval = false;
+    if (invalue.indexOf(" ") >= 0) retval = false;
+    if (invalue.indexOf("http:") >= 0) retval = false;
+
+    // 요런 문자가 안 들어있으면 안되죠~
+    if (invalue.indexOf("@") == -1) retval = false;
+    if (invalue.indexOf(".") == -1) retval = false;
+
+    // 요런 문자가 처음 나오면 안되죠~
+
+    if (invalue.indexOf("@") == 0) retval = false;
+    if (invalue.indexOf(".") == 0) retval = false;
+
+    // 요런 문자가 마지막에 나오면 안되죠~
+    if (invalue.charAt(invalue.length - 1) == ".") retval = false;
+
+    return retval;
+}
+
+//whiteman이 추가함. 2005-06-28. 주문시 이메일이 부정확할 경우 실시간 메일에서 에러가 남.  ^^;
+function checkEmail2(invalue) {
+    var strPattern = "^[a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)*@[a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+$";
+
+    if (invalue.match(strPattern)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+// 이메일 유효성 검사 : Input=string["X@X.XX"], Output=Object{bool, string}
+function checkValidEmail(sEmlAddr) {
+    var bReturn = true;
+    var sRetMsg = "";
+    var vEmailRule = /^[0-9a-zA-Z_.+-]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/i;
+
+    //빈값
+    if (sEmlAddr.trim() == "" || sEmlAddr.trim() == "@" || sEmlAddr == undefined) {
+        bReturn = false;
+        sRetMsg = "이메일 주소를 입력해 주세요.";
+    }
+    //띄어쓰기
+    else if (sEmlAddr.match(/\s/g)) {
+        bReturn = false;
+        sRetMsg = "이메일 형식이 올바르지 않습니다.";
+    }
+    //(!@#$%^&*()-_) 이외의 특수문자 있는 경우
+    //한글이 있는 경우
+    else if (sEmlAddr.match(/[^a-zA-Z0-9!@#$%^&*()\-_.]/)) {
+        bReturn = false;
+        sRetMsg = "이메일 형식이 올바르지 않습니다.";
+    }
+    //이메일 주소 형태가 아닌 경우(X@X.XX)
+    else if ((sEmlAddr.match(/[@]/g) && sEmlAddr.match(/[@]/g).length > 1) || sEmlAddr.match(/@[.]/) || sEmlAddr.match(/[.]@/)) {
+        bReturn = false;
+        sRetMsg = "이메일 형식이 올바르지 않습니다.";
+    }
+    else if (!sEmlAddr.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]*\.[a-zA-Z0-9-.]+$/)) {
+        bReturn = false;
+        sRetMsg = "이메일 형식이 올바르지 않습니다.";
+    }
+    //else if (!vEmailRule.test(sEmlAddr)) {
+    //    bReturn = false;
+    //    sRetMsg = "이메일 형식이 올바르지 않습니다.";
+    //}
+    
+    return { Success: bReturn, Message: sRetMsg };
+}
+
+//======================== ms 소송 문제로 flash 보여주기 =================================
+
+///플래시 보기
+//path	: 플래시 경로
+//wid	: 가로 사이즈
+//hei	: 세로 사이트
+function ViewFlash(path, width, height) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' codebase='" + strProtocol + "://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,23,0' width='" + width + "' height='" + height + "'>";
+    htmlBody = htmlBody + "<param name=movie value='" + path + "'>";
+    htmlBody = htmlBody + "<param name='quality' value='high'>";
+    htmlBody = htmlBody + "<param name='allowScriptAccess' value='always'>";
+
+    htmlBody = htmlBody + "<param name='wmode' value='transparent'>";
+    htmlBody = htmlBody + "<embed src='" + path + "' quality='high' wmode='transparent' pluginspage='" + strProtocol + "://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash' type='application/x-shockwave-flash' width='" + width + "' height='" + height + "' allowScriptAccess='always'>";
+    htmlBody = htmlBody + "</embed>";
+    htmlBody = htmlBody + "</object>";
+
+    document.write(htmlBody);
+}
+
+function ViewFlash3(path, width, height) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' codebase='" + strProtocol + "://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,23,0' width='" + width + "' height='" + height + "'>";
+    htmlBody = htmlBody + "<param name='movie' value='" + path + "'>";
+    htmlBody = htmlBody + "<param name='quality' value='high'>";
+    htmlBody = htmlBody + "<param name='allowScriptAccess' value='always'>";
+    htmlBody = htmlBody + "<embed src='" + path + "' quality='high' wmode='transparent' pluginspage='" + strProtocol + "://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash' type='application/x-shockwave-flash' width='" + width + "' height='" + height + "' allowScriptAccess='always'>";
+    htmlBody = htmlBody + "</embed>";
+    htmlBody = htmlBody + "</object>";
+    document.write(htmlBody);
+}
+
+///플래시동화용 보기
+//path	: 플래시 경로
+//wid	: 가로 사이즈
+//hei	: 세로 사이트
+function ViewFlashTale(path, width, height) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' codebase='" + strProtocol + "://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,23,0' width='" + width + "' height='" + height + "'>";
+    htmlBody = htmlBody + "<param name='movie' value='" + path + "'>";
+    htmlBody = htmlBody + "<param name='quality' value='high'>";
+    htmlBody = htmlBody + "<param name='allowScriptAccess' value='always'	>";
+    htmlBody = htmlBody + "<param name='wmode' value='transparent'>";
+    htmlBody = htmlBody + "<param name='allowFullScreen' value='true' />";
+    htmlBody = htmlBody + "<embed src='" + path + "' quality='high' wmode='transparent' pluginspage='" + strProtocol + "://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash' type='application/x-shockwave-flash' width='" + width + "' height='" + height + "' allowScriptAccess='always'>";
+    htmlBody = htmlBody + "</embed>";
+    htmlBody = htmlBody + "</object>";
+    document.write(htmlBody);
+    //return htmlBody;
+}
+
+///플래시동화용 보기
+//path	: 플래시 경로
+//wid	: 가로 사이즈
+//hei	: 세로 사이트
+function ViewFlashTaleDisplay(path, width, height) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' codebase='" + strProtocol + "://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,23,0' width='" + width + "' height='" + height + "'>";
+    htmlBody = htmlBody + "<param name='movie' value='" + path + "'>";
+    htmlBody = htmlBody + "<param name='quality' value='high'>";
+    htmlBody = htmlBody + "<param name='allowScriptAccess' value='always'	>";
+    htmlBody = htmlBody + "<param name='wmode' value='transparent'>";
+    htmlBody = htmlBody + "<param name='allowFullScreen' value='true' />";
+    htmlBody = htmlBody + "<embed src='" + path + "' quality='high' wmode='transparent' pluginspage='" + strProtocol + "://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash' type='application/x-shockwave-flash' width='" + width + "' height='" + height + "' allowScriptAccess='always'>";
+    htmlBody = htmlBody + "</embed>";
+    htmlBody = htmlBody + "</object>";
+    //document.write(htmlBody);
+    return htmlBody;
+}
+
+///플래시 보기 미리보기용
+//path	: 플래시 경로
+//wid	: 가로 사이즈
+//hei	: 세로 사이트
+function ViewFlashParam(path, width, height, flashvars) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' codebase='" + strProtocol + "://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,23,0' width='" + width + "' height='" + height + "'>";
+    htmlBody = htmlBody + "<param name=movie value='" + path + "'>";
+    htmlBody = htmlBody + "<param name='quality' value='high'>";
+    htmlBody = htmlBody + "<param name='allowScriptAccess' value='always'>";
+    htmlBody = htmlBody + "<param name='wmode' value='transparent'>";
+    htmlBody = htmlBody + "<param name='flashvars' value='" + flashvars + "'";
+    htmlBody = htmlBody + "<embed src='" + path + "' quality='high' wmode='transparent' pluginspage='" + strProtocol + "://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash' type='application/x-shockwave-flash' width='" + width + "' height='" + height + "' allowScriptAccess='always'>";
+    htmlBody = htmlBody + "</embed>";
+    htmlBody = htmlBody + "</object>";
+
+    document.write(htmlBody);
+}
+
+function GNBFlashView(path, width, height, param) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' codebase='" + strProtocol + "://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,23,0' width='" + width + "' height='" + height + "'>";
+    htmlBody = htmlBody + "<param name=movie value='" + path + "?" + param + "'>";
+    htmlBody = htmlBody + "<param name='quality' value='high'>";
+    htmlBody = htmlBody + "<param name='allowScriptAccess' value='always'>";
+    htmlBody = htmlBody + "<param name='wmode' value='transparent'>";
+    htmlBody = htmlBody + "<embed src='" + path + "?" + param + "' quality='high' wmode='transparent' pluginspage='" + strProtocol + "://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash' type='application/x-shockwave-flash' width='" + width + "' height='" + height + "' allowScriptAccess='always'>";
+    htmlBody = htmlBody + "</embed>";
+    htmlBody = htmlBody + "</object>";
+
+    document.write(htmlBody);
+}
+
+//======================== ms 소송 문제로 동영상 보여주기 =================================
+///동영상보기
+//path	: 동영상 경로
+//wid	: 가로 길이
+//hei	: 세로 길이
+//autoStart		: 자동시작 유무 0:자동시작안함 1:자동시작함
+function ViewMovie01(path, width, height, autoStart) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<OBJECT id=WMPlay1 codeBase=" + strProtocol + "://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701 type=application/x-oleobject width='" + width + "' height='" + height + "' standby='Loading Microsoft Windows Media Player components...' classid='clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95'>";
+    htmlBody = htmlBody + "<PARAM NAME='FileName' VALUE='" + path + "'>";
+    htmlBody = htmlBody + "<param name='AllowScan' value='-1'>";
+    htmlBody = htmlBody + "<param name='AllowChangeDisplaySize' value='-1'>";
+    htmlBody = htmlBody + "<param name='AnimationAtStart' value='1'>";
+    htmlBody = htmlBody + "<param name='AudioStream' value='-1'>";
+    htmlBody = htmlBody + "<param name='AutoStart' value='" + autoStart + "'>";
+    htmlBody = htmlBody + "<param Name='AutoSize' Value='0'>";
+    htmlBody = htmlBody + "<param name='AutoResize' value='-1'>";
+    htmlBody = htmlBody + "<param name='AutoRewind' value='0'>";
+    htmlBody = htmlBody + "<param name='Balance' value='0'>";
+    htmlBody = htmlBody + "<param name='BaseURL'>";
+    htmlBody = htmlBody + "<param name='BufferingTime' value='5'>";
+    htmlBody = htmlBody + "<param name='CaptioningID'>";
+    htmlBody = htmlBody + "<param name='ClickToPlay' value='-1'>";
+    htmlBody = htmlBody + "<param name='CursorType' value='0'>";
+    htmlBody = htmlBody + "<param name='CurrentPosition' value='-1'>";
+    htmlBody = htmlBody + "<param name='CurrentMarker' value='0'>";
+    htmlBody = htmlBody + "<param name='DefaultFrame'>";
+    htmlBody = htmlBody + "<param name='DisplayBackColor' value='0'>";
+    htmlBody = htmlBody + "<param name='DisplayForeColor' value='16777215'>";
+    htmlBody = htmlBody + "<param name='DisplayMode' value='0'>";
+    htmlBody = htmlBody + "<param name='DisplaySize' value='4'>";
+    htmlBody = htmlBody + "<param name='Enabled' value='-1'>";
+    htmlBody = htmlBody + "<param name='EnableContextMenu' value='0'>";
+    htmlBody = htmlBody + "<param name='EnablePositionControls' value='-1'>";
+    htmlBody = htmlBody + "<param name='EnableFullScreenControls' value='-1'>";
+    htmlBody = htmlBody + "<param name='EnableTracker' value='-1'>";
+    htmlBody = htmlBody + "<param name='InvokeURLs' value='-1'>";
+    htmlBody = htmlBody + "<param name='Language' value='-1'>";
+    htmlBody = htmlBody + "<param name='PlayCount' value='1'>";
+    htmlBody = htmlBody + "<param name='PreviewMode' value='0'>";
+    htmlBody = htmlBody + "<param name='Rate' value='1'>";
+    htmlBody = htmlBody + "<param name='ShowStatusBar' value='true'>";
+    htmlBody = htmlBody + "<embed name='WMPlay1' width='" + width + "' height='" + height + "' type='application/x-mplayer2' pluginspage='" + strProtocol + "://www.microsoft.com/windows/mediaplayer/download/' src='" + path + "' showcontrols='1' showstatusbar='0' autostart='" + autoStart + "'></embed> ";
+    htmlBody = htmlBody + "'</OBJECT>";
+    document.write(htmlBody);
+}
+
+//======================== ms 소송 문제로 동영상 보여주기 =================================
+///음원듣기
+//path	: 음원 경로
+//wid	: 가로 길이
+//hei	: 세로 길이(80고정하자)
+//autoStart		: 자동시작 유무 0:자동시작안함 1:자동시작함
+function ViewMusic01(path, width, autoStart) {
+    var strProtocol = (document.location.protocol.indexOf("https") != -1) ? "https" : "http";
+    var htmlBody = "";
+    htmlBody = "<OBJECT id=WMPlay1 codeBase=" + strProtocol + "://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701 type=application/x-oleobject width='" + width + "' standby='Loading Microsoft Windows Media Player components...' classid='clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95'>";
+    htmlBody = htmlBody + "<PARAM NAME='FileName' VALUE='" + path + "'>";
+    htmlBody = htmlBody + "<param name='AutoStart' value='" + autoStart + "'>";
+    htmlBody = htmlBody + "<param name='ShowControls' value='1'>";
+    htmlBody = htmlBody + "<param name='ShowStatusBar' value='0'>";
+    htmlBody = htmlBody + "<embed name='WMPlay1' width='" + width + "' type='application/x-mplayer2' pluginspage='" + strProtocol + "://www.microsoft.com/windows/mediaplayer/download/' src='" + path + "' showcontrols='1' showstatusbar='0' autostart='" + autoStart + "'></embed> ";
+    htmlBody = htmlBody + "'</OBJECT>";
+    document.write(htmlBody);
+}
+
+//문자열이 숫자로만 구성이 되었는지 체크한다.
+//숫자만 있을 경우 true, 아닌 경우 false를 리턴한다.
+function checkNumberOnly(strTemp) {
+    var blReturn = false;
+    var objRe = new RegExp("[^0-9]", "gi");
+
+    if (objRe.test(strTemp)) {
+        blReturn = false;
+    }
+    else {
+        blReturn = true;
+    }
+
+    return blReturn;
+}
+
+/*
+사업자 등록번호 체크
+*/
+function check_busino(vencod) {
+    var sum = 0;
+    var getlist = new Array(10);
+    var chkvalue = new Array("1", "3", "7", "1", "3", "7", "1", "3", "5");
+
+    try {
+        for (var i = 0; i < 10; i++) {
+            getlist[i] = vencod.substring(i, i + 1);
+        }
+
+        for (var i = 0; i < 9; i++) {
+            sum += getlist[i] * chkvalue[i];
+        }
+
+        sum = sum + parseInt((getlist[8] * 5) / 10);
+        sidliy = sum % 10;
+        sidchk = 0;
+
+        if (sidliy != 0) {
+            sidchk = 10 - sidliy;
+        }
+        else {
+            sidchk = 0;
+        }
+
+        if (sidchk != getlist[9]) {
+            return false;
+        }
+
+        return true;
+    }
+    catch (e) {
+        return false;
+    }
+}
+
+//HTML태그 제거코드
+function hrmlTagRemove(strHtml) {
+    var objRegExp = new RegExp("<html(.*|)<body([^>]*)>", "gi");
+    strHtml = strHtml.replace(objRegExp, "");
+
+    var objRegExp = new RegExp("</body(.*)</html>(.*)", "gi");
+    strHtml = strHtml.replace(objRegExp, "");
+
+    var objRegExp = new RegExp("<[/]*(div|layer|body|html|head|meta|form|input|select|textarea|base|font|br|p|b|img|embed|object|span|table|tbody|tr|td|embed|u|a|strong|li|em|col|bgsound|script|center|h1|hr|o:p)[^>]*>", "gi");
+    strHtml = strHtml.replace(objRegExp, "");
+
+    var objRegExp = new RegExp("<(style|script|title|link)(.*)</(style|script|title)>", "gi");
+    strHtml = strHtml.replace(objRegExp, "");
+
+    var objRegExp = new RegExp("<[/]*(scrit|style|title|xmp)>", "gi");
+    strHtml = strHtml.replace(objRegExp, "");
+
+    var objRegExp = new RegExp("&nbsp;", "gi");
+    strHtml = strHtml.replace(objRegExp, "");
+
+    return strHtml;
+}
+
+
+//쿠폰다운로드
+function downloadCoupon(coupNo, goodsNo) {
+    if (document.all["LoginYnH"].value == "N") {
+        alert("로그인을 하지 않았습니다. \n로그인 후 쿠폰을 다운받으십시오");
+        location.href = "https://www.yes24.com/Templates/FTLogIn.aspx?ReturnURL=" + document.location.href.replace(/&/g, "`").replace("?", "&&ReturnParams=");
+        //document.location = 
+    }
+    else {
+
+        window.open("/eventworld/popup_CouponDownA1.aspx?CoupNo=" + coupNo + "&GoodsNo=" + goodsNo, "", "toolbars=no, scrollbars=no, width=500, height=577");
+        /*
+		var req = new ActiveXObject("Microsoft.XMLHTTP");
+		var uri = "/Goods/FTCoupDownload.aspx?CoupNo=" + coupNo + "&MemNo=" + document.all["HdMemNo"].value + "&GoodsNo=" + goodsNo;
+
+		req.open("GET", uri, false);
+		req.send();
+		var message = req.responseText;
+
+		alert(message);
+		*/
+    }
+}
+
+
+
+function popEventPage(url, winName, width, height, mleft, mtop) {
+    var wi = screen.width - width;
+    var hi = screen.height - height;
+
+    if (wi < 0) wi = 0;
+    if (hi < 0) hi = 0;
+
+    var info = 'left=' + ((wi / 2) - mleft) + ',top=' + ((hi / 2) - mtop) + ',width=' + width + ',height=' + height + ',resizable=no,scrollbars=no,menubars=no,status=no';
+    var newwin = window.open(url, winName, info);
+    newwin.focus();
+    return newwin;
+}
+
+
+function GetCookie(sName) {
+    var aCookie = document.cookie.split("; ");
+    for (var i = 0; i < aCookie.length; i++) {
+        var aCrumb = aCookie[i].split("=");
+        if (sName == aCrumb[0])
+            return unescape(aCrumb[1]);
+    }
+    return '';
+}
+
+//========== 쿠키값 처리 함수 S
+function GetCookieVal(offset) {
+    var endstr = document.cookie.indexOf(";", offset);
+    if (endstr == -1)
+        endstr = document.cookie.length;
+    return unescape(document.cookie.substring(offset, endstr));
+}
+
+function GetCardCode(v) {
+    var cardcode = "";
+    switch (v) {
+
+        case "01":  //BC카드
+            cardcode = "CCBC";
+            break;
+        case "02":  //국민카드
+            cardcode = "CCKM";
+            break;
+        case "03":  //LG카드
+            cardcode = "CCLG";
+            break;
+        case "04":  //삼성카드
+            cardcode = "CCSS";
+            break;
+        case "05":  //외환카드
+            cardcode = "CCKE";
+            break;
+        case "06":  //신한카드
+            cardcode = "CCSH";
+            break;
+        case "07":  //수협카드
+            cardcode = "CCSU";
+            break;
+        case "08":  //광주은행
+            cardcode = "CCKJ";
+            break;
+        case "09":  //조흥카드(강원은행). 신한은행으로 처리함..
+            cardcode = "CCSH";
+            break;
+        case "10":  //하나은행
+            cardcode = "CCHN";
+            break;
+        case "11":  //국내아멕스. 롯데 아멕스로 본다..
+            cardcode = "CCLO";
+            break;
+        case "13":  //(구)한미,신세계한미
+            cardcode = "CCCT";
+            break;
+        case "16":  //제주은행
+            cardcode = "CCCJ";
+            break;
+        case "17":  //전북은행
+            cardcode = "CCJB";
+            break;
+        case "18":  //현대카드
+            cardcode = "CCDI";
+            break;
+        case "19":  //시티은행
+            cardcode = "CCCT";
+            break;
+        case "24":  //롯데카드   보훈은 이 값으로 사용하네.. CCAM
+            cardcode = "CCLO";
+            break;
+        case "26":  //산업은행카드
+            cardcode = "CCKD";
+            break;
+        default:
+            cardcode = "";
+    }
+    return cardcode;
+}
+
+function getPgCode(v) {
+    var Pgcode = "";  //01:KCP, 03:INICIS, 04:BOHOUN
+    switch (v) {
+        case "01":  // BC카드
+            Pgcode = "03";
+            break;
+        case "02":  // 국민카드
+            Pgcode = "03";
+            break;
+        case "03":  // LG카드
+            Pgcode = "03";
+            break;
+        case "04":  // 삼성카드
+            Pgcode = "03";
+            break;
+        case "05":  // 외환카드
+            Pgcode = "03";
+            break;
+        case "06":  // 신한카드
+            Pgcode = "03";
+            break;
+        case "07":  // 수협카드
+            Pgcode = "03";
+            break;
+        case "08":  // 광주은행
+            Pgcode = "03";
+            break;
+        case "09":  // 강원은행
+            Pgcode = "03";
+            break;
+        case "10":  // 하나은행
+            Pgcode = "03";
+            break;
+        case "11":  // 국내아멕스
+            Pgcode = "01";
+            break;
+        case "12":  // 해외아멕스
+            Pgcode = "03";
+            break;
+        case "13":  // 한미은행
+            Pgcode = "03";
+            break;
+        case "14":  // 축협카드
+            Pgcode = "03";
+            break;
+        case "15":  // 평화은행
+            Pgcode = "03";
+            break;
+        case "16":  // 제주은행
+            Pgcode = "03";
+            break;
+        case "17":  // 전북은행
+            Pgcode = "03";
+            break;
+        case "18":  // 현대카드
+            Pgcode = "03";
+            break;
+        case "19":  // 시티은행
+            Pgcode = "03";
+            break;
+        case "20":  // 동남은행
+            Pgcode = "03";
+            break;
+        case "21":  // 해외비자
+            Pgcode = "03";
+            break;
+        case "22":  // 해외마스타카드
+            Pgcode = "03";
+            break;
+        case "23":  // 해외JCB카드
+            Pgcode = "03";
+            break;
+        case "24":  // 롯데카드
+            Pgcode = "01";
+            break;
+        case "25":  // 기타
+            Pgcode = "03";
+            break;
+        case "26":  // 산업은행카드
+            Pgcode = "03";
+            break;
+        case "27":  // 국민카드-체리
+            Pgcode = "03";
+            break;
+        default:
+            Pgcode = "03";
+    }
+    return Pgcode;
+
+}
+
+//쿠키값 가져오기
+function getCookie(name) {
+    var cookieValue = "; " + document.cookie;
+    var cookieParts = cookieValue.split("; " + name + "=");
+    if (cookieParts.length == 2) {
+        return decodeURIComponent(cookieParts.pop().split(";").shift());
+    }
+    return '';
+}
+
+function setCookie(name, value, expiredays) {
+    var todayDate = new Date();
+    todayDate.setDate(todayDate.getDate() + expiredays);
+    document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+}
+
+function redirectToHttps() {
+    var url = document.location.href;
+    if (url.search("http://") != -1) {
+        url = url.replace("http://", "https://");
+        location.href = url;
+    }
+}
+
+function redirectToHttps(formId) {
+    var url = document.location.href;
+    if (url.search("http://") != -1) {
+        url = url.replace("http://", "https://");
+        var form = document.getElementById(formId);
+        if (form != null)
+            fnPostSubmit(form, "", url);
+        else
+            location.href = url;
+    }
+}
+
+//쿠키저장하기
+function setCookie(name, value, expiredays) {
+    try {
+        var todayDate = new Date();
+        todayDate.setDate(todayDate.getDate() + expiredays);
+        if (typeof expiredays != "undefined" && expiredays)
+            document.cookie = name + "=" + escape(value) + "; path=/;expires=" + todayDate.toGMTString() + ";";
+        else
+            document.cookie = name + "=" + escape(value) + "; path=/;";
+    }
+    catch (e) { }
+}
+
+//One Day Cookie Setting
+function setCookieOneDay(name, value, expiredays) {
+    var todayDate = new Date();
+    //todayDate.setHours(todayDate.getHours() + expiredays);
+    todayDate.setMinutes(59);
+    todayDate.setSeconds(59);
+    todayDate.setHours(23);
+    document.cookie = name + "=" + escape(value) + "; path=/; expires=" + todayDate.toGMTString() + ";domain=.yes24.com;"
+}
+
+//Set Option Cookie Setting (expiredays)
+function setCookieOptions(name, value, expiredays, samesite) {
+    var cookieOption = "";
+
+    try {
+        if (typeof expiredays != "undefined" && expiredays != undefined && isNumeric(expiredays)) {
+            var todayDate = new Date();
+            todayDate.setDate(todayDate.getDate() + expiredays);
+
+            cookieOption += "expires=" + todayDate.toGMTString() + ";";
+        }
+
+        if (typeof samesite != "undefined" && samesite != undefined && samesite.length > 0) {
+            cookieOption += "samesite=" + samesite + ";";
+        }
+    } catch (e) { }
+
+    document.cookie = name + "=" + escape(value) + "; path=/; " + cookieOption + " domain=.yes24.com;";
+}
+
+//Set Option Cookie Setting (expireMinute)
+function setCookieOptionsMinute(name, value, expireMinute, samesite) {
+    var cookieOption = "";
+
+    try {
+        if (typeof expireMinute != "undefined" && expireMinute != undefined && isNumeric(expireMinute)) {
+            var todayDate = new Date();
+            todayDate.setMinutes(todayDate.getMinutes() + expireMinute);
+
+            cookieOption += "expires=" + todayDate.toGMTString() + ";";
+        }
+
+        if (typeof samesite != "undefined" && samesite != undefined && samesite.length > 0) {
+            cookieOption += "samesite=" + samesite + ";";
+        }
+    } catch (e) { }
+
+    document.cookie = name + "=" + escape(value) + "; path=/; " + cookieOption + " domain=.yes24.com;";
+}
+
+function scriptQuery(scriptPath) {
+    var arrScript = document.getElementsByTagName('script');
+    var script = "";
+    for (var i = 0; i < arrScript.length; i++) {
+        if (arrScript[i].src.toLowerCase().indexOf(scriptPath.toLowerCase()) >= 0) {
+            script = arrScript[i].src;
+        }
+    }
+
+    script = script.replace(/^[^\?]+\?/, '').replace(/#.+$/, '').split('&');
+
+    var queries = {}
+        , query;
+    while (script.length) {
+        query = script.shift().split('=');
+        queries[query[0]] = query[1];
+    }
+    return queries;
+}
+
+/*
+OZ 분기
+*/
+var isOzBrowser = false;
+var RegOz = new RegExp("(((WV{1})([0-9]{2})(.){1}([0-9]{2})(.){1}([0-9]{2}))|(POLAR;){1}|((POLARIS ){1}([0-9]{2})(.)([0-9]{2}))){1}..((lgtelecom;){1})", "gi");
+var currentDocumentUrl = document.URL;
+
+//if (currentDocumentUrl.indexOf("m.yes24.com") > -1 && RegOz.test(navigator.appVersion)) {
+if (RegOz.test(navigator.appVersion)) {
+
+    setCookie("OZM", "True");
+}
+
+if (getCookie("OZM") == "True") {
+    isOzBrowser = true;
+
+    document.writeln("<style>.OZHIDE{display:none !important;}.OZSHOW{display:block !important;}</style>");
+
+
+    var relativeUrlSplitPosition = 0;
+    if (currentDocumentUrl.indexOf("yes24.com") > 0) {
+        relativeUrlSplitPosition = currentDocumentUrl.indexOf("yes24.com") + 9;
+    }
+    else {
+        relativeUrlSplitPosition = 21; // for test ramses
+    }
+    var relativePath = currentDocumentUrl.substr(relativeUrlSplitPosition, currentDocumentUrl.length - relativeUrlSplitPosition);
+
+    //OZ can't see splash page
+    if (relativePath == "/" || relativePath.toLowerCase() == "/main/default.aspx") {
+        location.href = "/Main/Book.aspx?CategoryNumber=001";
+    }
+
+    function rearraneSearchItemsByOzFunction(target) {
+        for (var i = target.options.length - 1; i > -1; i--) {
+            if (target.options[i].value != "국내도서" &&
+                target.options[i].value != "외국도서") {
+                target.removeChild(target.options[i]);
+            }
+        }
+    }
+}
+
+function passwordCheck(id, password) {
+    var result = new Array();
+    var score = 0;
+    var memberId = id.toLowerCase();
+
+    result[0] = true;  //예외처리 여부
+    result[1] = "";    //메시지
+    result[2] = 0;     //score
+    result[3] = false; //즉시 alert 여부
+
+    //if password bigger than 6 give 1 point
+    if (password.length > 7) {
+        score = score + 2;
+    }
+
+    //if password has both lower and uppercase characters give 1 point	
+    if (password.match(/[a-zA-Z]/)) score++;
+
+    //if password has at least one number give 1 point
+    if (password.match(/\d+/)) score++;
+
+    //if password has at least one special caracther give 1 point
+    if (password.match(/[!,@@,#,$,%,^,&,*,(,),\-,_]/)) score++;
+    
+    //빈 값인 경우
+    if (result[0] == true && password.length == 0) {
+        result[0] = false;
+        result[1] = "비밀번호를 입력해 주세요.";
+        result[2] = 0;
+
+        return result;
+    }
+    //띄어쓰기가 있는 경우
+    else if (result[0] == true && password.length > 0 && password.indexOf(' ') > -1) {
+        result[0] = false;
+        result[1] = "공백 없이 입력해 주세요.";
+        result[2] = 0;
+        result[3] = true;
+
+        return result;
+    }
+    //아이디와 동일한 경우
+    else if (result[0] == true && memberId != '' && password.search(memberId) != -1) {
+        result[0] = false;
+        result[1] = "아이디는 비밀번호에 사용할 수 없습니다.";
+        result[2] = 0;
+        result[3] = true;
+
+        return result;
+    }
+    else if (result[0] == true && memberId != '' && password.toLowerCase().search(memberId) != -1) {
+        result[0] = false;
+        result[1] = "아이디는 비밀번호에 사용할 수 없습니다.";
+        result[2] = 0;
+        result[3] = true;
+
+        return result;
+    }
+    //연속된 숫자 사용할 경우
+    else if (result[0] == true && password.match(/(0123)|(1234)|(2345)|(3456)|(4567)|(5678)|(6789)|(7890)/)) {
+        result[0] = false;
+        result[1] = "연속된 숫자는 사용할 수 없습니다.";
+        result[2] = 0;
+        result[3] = true;
+
+        return result;
+    }
+    //동일한 문자(숫자) 4회 연속 사용할 경우
+    else if (result[0] == true && password.match(/(\w)\1\1\1/)) {
+        result[0] = false;
+        result[1] = "동일한 문자(숫자)는 4회 연속 사용할 수 없습니다.";
+        result[2] = 0;
+        result[3] = true;
+
+        return result;
+    }
+    else if (result[0] == true && password.match(/[^a-zA-Z0-9!@#$%^&*()\-_]/)) {
+        result[0] = false;
+        result[1] = "특수문자는 !@#$%^&*()-_만 사용 가능합니다.";
+        result[2] = 0;
+        result[3] = true;
+        
+        return result;
+    }
+    //자릿수 부족하거나 초과 했을 경우
+    else if (result[0] == true && password.length < 8 || password.length > 20) {
+        result[0] = false;
+        result[1] = "8~20자리의 영문 대/소문자,숫자,특수문자 조합을 사용해 주세요.";
+        result[2] = score;
+
+        return result;
+    }
+
+    //비밀번호 안전도가 낮음(3점) 이하인 경우
+    if(score > 3) {
+        result[0] = true;
+        result[1] = "";
+        result[2] = score;
+
+        return result;
+    }
+    else {
+        result[0] = false;
+        result[1] = "8~20자리의 영문 대/소문자,숫자,특수문자 조합을 사용해 주세요.";
+        result[2] = score;
+
+        return result;
+    }
+}
+
+function passwordConfirm(password, passwordConfirm) {
+    var result = new Array();
+
+    result[0] = true;
+    result[1] = "";
+
+    //빈 값인 경우
+    if (result[0] == true && passwordConfirm.length == 0) {
+        result[0] = false;
+        result[1] = "비밀번호가 일치하지 않습니다.";
+    }
+
+    //비밀번호와 불일치 할 경우
+    if (result[0] == true && password != passwordConfirm) {
+        result[0] = false;
+        result[1] = "비밀번호가 일치하지 않습니다.";
+    }
+
+    return result;
+}
+
+//이메일 유효성 검사 (이메일조작의심계정필터링)
+function EmailCertificationCheckConfirm(email) {
+    var chkRetVal = false;
+    $.ajax({
+        url: "/Member/certification/EmailCertification.aspx",
+        data: { SEARCH_TYPE: 'T', SEARCH: email, CertNo: '', CheckCertNo: '', AUCTION_TYPE: 'I' },
+        dataType: "json",
+        async: false,
+        success: function (data, status, xhr) {
+            if (data.IsSuccess == "1") {
+                chkRetVal = true;
+            }
+        },
+        error: function (xhr, textStatus, throwError) {
+            alert('이메일 유효성 검사중 오류가 발생하였습니다.\n잠시 후 다시 확인 바랍니다.');
+        }
+    });
+    return chkRetVal;
+}
+
+//이메일 유효성 검사 (이메일조작의심계정필터링)
+function EmailCertificationCheckConfirmV2(email, id) {
+    var chkRetVal = false;
+    $.ajax({
+        url: "/Member/certification/EmailCertification.aspx",
+        data: { SEARCH_TYPE: 'T', SEARCH: email, CertNo: '', CheckCertNo: '', AUCTION_TYPE: 'I' },
+        dataType: "json",
+        async: false,
+        success: function (data, status, xhr) {
+            if (data.IsSuccess == "1") {
+                chkRetVal = true;
+            }
+            else {
+                showErrorTextAndFocus(id, data.Msg);
+            }
+        },
+        error: function (xhr, textStatus, throwError) {
+            alert('이메일 유효성 검사중 오류가 발생하였습니다.\n잠시 후 다시 확인 바랍니다.');
+        }
+    });
+    return chkRetVal;
+}
+
+//비밀번호 재 확인 프로세스 개선 (캡챠 추가)
+//캡챠 이미지 새로고침
+function refreshCatchaImage() {
+    $("#yesCaptchaImage").attr("src", "/Common/YesCaptchaImage.aspx?" + new Date().getTime());
+    $("#txtCaptcha").val('');
+}
+//캡챠 입력 시 에러문구 제거
+function removeErrorText(sender) {
+    switch (sender) {
+        case "Captcha":
+            $("#spanCaptcha").removeClass("error");
+            $("#pYesFormErrTxt_Capcha").hide();
+            break;
+    }
+}
+//엔터 버튼 클릭시 함수 호출
+function LoginEnter(event, functionName) {
+    var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+    if (keyCode == 13) {
+        if (functionName)
+            functionName();
+        return false;
+    }
+}
+
+// 스크롤 탑으로 이동(타켓, 타겟영역에서 추가로 이동 할 픽셀, 속도)
+function sclTop(tar, mov, dur) {
+    var $doc = $("html, body");
+    mov = (mov == null) || (mov == undefined) ? 0 : mov
+    dur = (dur == null) || (dur == undefined) ? 300 : dur;
+    
+    if (tar == null) {
+        $doc.stop().animate({ scrollTop: 0 + mov }, dur, 'easeInOutQuart');
+    } else {
+        if ($(tar).length > 0) {
+            $doc.stop().animate({ scrollTop: $(tar).offset().top + mov }, dur, 'easeInOutQuart');
+        }        
+    }
+}
+
+//생년월일 유효성 체크
+function checkBirthDay(strBirthDay) {
+    var todayDate = new Date();
+    if (strBirthDay.length == 8) {
+        var year = Number(strBirthDay.substr(0, 4));
+        var month = Number(strBirthDay.substr(4, 2));
+        var day = Number(strBirthDay.substr(6, 2));
+
+        if (1900 > year || year > todayDate.getFullYear()) {
+            return false;
+        } else if (month < 1 || month > 12) {
+            return false;
+        } else if (day < 1 || day > 31) {
+            return false;
+        } else if ((month == 4 || month == 6 || month == 9 || month == 11) && day == 31) {
+            return false;
+        } else if (month == 2 && day > 29) {
+            return false;
+        } else {
+            return true;
+        }
+    } else {
+        return false;
+    }
+}
+
+//생년월일 만14세 이상 여부 체크
+function checkAgeBirthDay(strBirthDay) {
+    var nowYear = new Date().getFullYear();
+    var nowMonth = new Date().getMonth() + 1;
+    var nowDay = new Date().getDate();
+
+    var birthYear = strBirthDay.substr(0, 4);
+    var birthMonth = strBirthDay.substr(4, 2);
+    var birthDay = strBirthDay.substr(6, 2);
+
+    var age = Number(nowYear) - Number(birthYear);
+    var mon = Number(nowMonth) - Number(birthMonth);
+
+    if (mon < 0 || (mon === 0 && Number(nowDay) < Number(birthDay))) {
+        age = age - 1;
+    }
+
+    if (age >= 14) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+//휴대폰번호 유효성 체크
+function checkValidMobNo(sTelNo) {
+    var bReturn = false;
+    var sConvertTelNo = sTelNo.replace(/-/g, '');
+
+    //휴대폰번호 패턴
+    var patternMobNo = /^(01[016789]{1})([0-9]{3,4})([0-9]{4})$/;
+
+    if (sConvertTelNo == "") {
+        bReturn = false;
+    } else if (sConvertTelNo.length < 10 || sConvertTelNo.length > 11) {
+        bReturn = false;
+    } else if (sConvertTelNo.match(patternMobNo)) {
+        bReturn = true;
+        sConvertTelNo = sConvertTelNo.replace(patternMobNo, "$1-$2-$3");
+    }
+
+    return { Success: bReturn, Message: sConvertTelNo };
+}
+
+//유선 전화번호 유효성 체크
+function checkValidTelNo(sTelNo) {
+    var bReturn = false;
+    var sConvertTelNo = sTelNo.replace(/-/g, '');
+
+    //유선전화 패턴
+    var patternTelNo = /^(050[256]{1}|02|0[3-9]{1}[0-9]{1})([0-9]{3,4})([0-9]{4})$/;
+
+    if (sConvertTelNo == "") {
+        bReturn = false;
+    } else if (sConvertTelNo.length < 9 || sConvertTelNo.length > 12) {
+        bReturn = false;
+    } else if (sConvertTelNo.match(patternTelNo)) {
+        bReturn = true;
+        sConvertTelNo = sConvertTelNo.replace(patternTelNo, "$1-$2-$3");
+    }
+
+    return { Success: bReturn, Message: sConvertTelNo };
+}
+
+//유선전화+휴대폰번호 유효성 체크
+function checkValidMobNoAndTelNo(sTelNo) {
+    var bReturn = false;
+    var sConvertTelNo = sTelNo.replace(/-/g, '');
+    var sType = ""; //MobNo, TelNo
+
+    if (sConvertTelNo != "") {
+        var objCheckMobNo = checkValidMobNo(sConvertTelNo);
+        var objCheckTelNo = checkValidTelNo(sConvertTelNo);
+
+        if (objCheckMobNo.Success) {
+            bReturn = true;
+            sConvertTelNo = objCheckMobNo.Message;
+            sType = "MobNo";
+        } else if (objCheckTelNo.Success) {
+            bReturn = true;
+            sConvertTelNo = objCheckTelNo.Message;
+            sType = "TelNo";
+        }
+    }
+
+    return { Success: bReturn, Message: sConvertTelNo, Type: sType};
+}
+
+//아이디 체크. [숫자,영문소문자 체크]
+function checkNumberAndLowerCase(tempValue, minLength, maxLength) {
+    var nonchar = "0123456789abcdefghijklmnopqrstuvwxyz-";
+    var i;
+    var returnValue = false;
+    var returnMsg = "";
+
+    if (tempValue.length < minLength || tempValue.length > maxLength) {
+        returnMsg = minLength + "~" + maxLength + "자리의 영문 소문자와 숫자만 가능합니다.";
+        returnValue = true;
+    }
+
+    for (i = 0; tempValue.length > i; i++) {
+        if (nonchar.indexOf(tempValue.substring(i, i + 1)) < 0) {
+            returnMsg = minLength + "~" + maxLength + "자리의 영문 소문자와 숫자만 가능합니다.";
+            returnValue = true;
+            break;
+        }
+    }
+
+    return { Success: returnValue, Message: returnMsg };
+}
+
+//특수문자 제거
+function replaceRegExp(str) {
+    var reg = /[<>]/g;
+    if (reg.test(str)) {
+        str = str.replace(reg, "");
+    }
+    return str;
+}
+
+//문자열 공백제거, 빈값 체크
+String.prototype.isEmpty = function () {
+    return (!this || this.length === 0 || !this.trim());
+}
+//문자열 공백 체크
+function getStringOrEmpty(strValue, defaultValue) {
+    return (!strValue || strValue.isEmpty() ? (!defaultValue || defaultValue.isEmpty() ? "" : defaultValue) : strValue);
+}
+
+//아이디 마스킹 처리
+function maskingID(str) {
+    if (str.length <= 2) {
+        return str; // 길이가 2 이하일 경우 그대로 반환
+    }
+
+    let firstChar = str[0];
+    let lastChar = str[str.length - 1];
+    let middlePart = '*'.repeat(str.length - 2);
+
+    return firstChar + middlePart + lastChar;
+}

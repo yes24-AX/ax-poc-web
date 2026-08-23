@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub v3 — Tower Ascent</title>
+<meta name="description" content="디자인 POC v3 — 타워 어센트. 게임 속 탑처럼 층층이 쌓인 데이터 타워를 수직 상승해 정상 비컨에 도달하면 새벽이 밝는다. CSS 3D, WebGL 미사용." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<style>
+/* ============================================================
+   v3 — TOWER ASCENT : 게임풍 데이터 타워 등정 (CSS 3D / WebGL 미사용)
+   층층이 좁아지는 6면 박스 타워(발광 창문·돌출 테라스·깃발)를
+   수직 상승 → 정상 비컨에 "등정"하는 순간 → 새벽 피날레.
+   ============================================================ */
+:root {
+  --ink: #f1ecff;
+  --dim: rgba(241, 236, 255, 0.55);
+  --violet: #a06bff;
+  --lime: #c6ff5e;
+  --amber: #ffca6b;
+  --font: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  background:
+    radial-gradient(ellipse 130% 70% at 50% 116%, rgba(160, 107, 255, 0.14), transparent 55%),
+    linear-gradient(180deg, #05030d 0%, #0b0718 44%, #120a26 100%);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow-x: hidden;
+}
+
+/* ---- 3D 스테이지 ---- */
+#vp {
+  position: fixed; inset: 0; z-index: 1;
+  perspective: 950px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+  opacity: 0; transition: opacity 1.1s ease;
+}
+body.is-ready #vp { opacity: 1; }
+#tower-world { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; will-change: transform; }
+.st { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.st > * { position: absolute; left: 0; top: 0; }
+
+#scroll-space { height: 740vh; pointer-events: none; }
+
+/* ============================================================
+   게임풍 타워 — 6면 박스 층(tier)
+   ============================================================ */
+.twr { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.twr > i {
+  position: absolute;
+  left: calc(var(--w) / -2); top: calc(var(--h) / -2);
+  width: var(--w); height: var(--h);
+  border: 1px solid rgba(160, 107, 255, 0.34);
+  /* 층 밴드 + 창문 열 + 석재 그라데이션 */
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.34) 0 5px, transparent 5px 56px),
+    repeating-linear-gradient(90deg, transparent 0 16px, rgba(5, 3, 14, 0.55) 16px 30px, transparent 30px 46px),
+    linear-gradient(180deg, #37225c 0%, #251643 100%);
+}
+.twr > .fx { width: var(--d); left: calc(var(--d) / -2); }
+.twr > .front { transform: translateZ(calc(var(--d) / 2)); }
+.twr > .back  { transform: translateZ(calc(var(--d) / -2)) rotateY(180deg); }
+.twr > .right { transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
+.twr > .left  { transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
+.twr > .left, .twr > .right {
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.34) 0 5px, transparent 5px 56px),
+    repeating-linear-gradient(90deg, transparent 0 16px, rgba(5, 3, 14, 0.55) 16px 30px, transparent 30px 46px),
+    linear-gradient(180deg, #2a1a48 0%, #1c1034 100%);
+}
+
+/* 발광 창문 (앞면 위에 흩어놓는 조각) */
+.twr .lit {
+  position: absolute;
+  width: 13px; height: 19px;
+  border-radius: 2px;
+  background: var(--c, var(--lime));
+  box-shadow: 0 0 12px var(--c, var(--lime));
+  opacity: 0.9;
+  animation: window-flicker 6s ease-in-out infinite;
+}
+@keyframes window-flicker {
+  0%, 100% { opacity: 0.9; } 88% { opacity: 0.9; } 91% { opacity: 0.25; } 94% { opacity: 0.9; }
+}
+
+/* 테라스(돌출 코니스) — 층과 층 사이 */
+.ledge { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.ledge > i {
+  position: absolute;
+  left: calc(var(--w) / -2); top: calc(var(--h) / -2);
+  width: var(--w); height: var(--h);
+  background: linear-gradient(180deg, #4a3178, #322055);
+  border: 1px solid rgba(198, 255, 94, 0.22);
+}
+.ledge > .fx { width: var(--d); left: calc(var(--d) / -2); }
+.ledge > .front { transform: translateZ(calc(var(--d) / 2)); }
+.ledge > .back  { transform: translateZ(calc(var(--d) / -2)) rotateY(180deg); }
+.ledge > .right { transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
+.ledge > .left  { transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
+.ledge > .fy { width: var(--w); height: var(--d); left: calc(var(--w) / -2); top: calc(var(--d) / -2); }
+.ledge > .top { transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); background: linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.12)), #3c2963; }
+.ledge > .bottom { transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); background: #170d2c; }
+
+/* 깃발 (게임 탑 감성) */
+.banner { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.banner .pole { position: absolute; left: -1.5px; bottom: 0; width: 3px; background: #cdb8ff; box-shadow: 0 0 8px rgba(205, 184, 255, 0.5); }
+.banner .flag {
+  position: absolute; left: 1px;
+  clip-path: polygon(0 0, 100% 24%, 0 52%, 0 100%, 6% 100%, 6% 0);
+  background: var(--c, var(--lime));
+  box-shadow: 0 0 14px rgba(198, 255, 94, 0.35);
+  transform-origin: left center;
+  animation: flag-wave 2.6s ease-in-out infinite;
+}
+@keyframes flag-wave { 0%, 100% { transform: skewY(0deg) scaleX(1); } 50% { transform: skewY(-5deg) scaleX(0.92); } }
+
+/* ---- 층 링 + 표지판 + KPI 패널 ---- */
+.floor-ring {
+  transform: translate(-50%, -50%) rotateX(78deg);
+  border-radius: 50%;
+  border: 1.5px solid rgba(198, 255, 94, 0.35);
+}
+.floor-ring.violet { border-color: rgba(160, 107, 255, 0.45); }
+
+.signage {
+  transform: translate(-50%, -50%);
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: 1.5px solid var(--c, var(--lime));
+  color: var(--c, var(--lime));
+  font-size: 14px; font-weight: 800; letter-spacing: 0.28em;
+  white-space: nowrap;
+  background: rgba(10, 6, 24, 0.78);
+  box-shadow: 0 0 20px rgba(198, 255, 94, 0.25);
+  animation: sign-flicker 5s ease-in-out infinite;
+}
+@keyframes sign-flicker { 0%, 100% { opacity: 1; } 92% { opacity: 1; } 94% { opacity: 0.5; } 96% { opacity: 1; } 98% { opacity: 0.7; } }
+
+.pane {
+  transform: translate(-50%, -50%) rotateY(var(--ry, 0deg));
+  border-radius: 12px;
+  border: 1px solid rgba(241, 236, 255, 0.22);
+  background: linear-gradient(135deg, rgba(160, 107, 255, 0.16), rgba(198, 255, 94, 0.05));
+  padding: 14px 18px;
+  animation: pane-bob 7s ease-in-out infinite;
+}
+.pane .k { font-size: 10.5px; font-weight: 800; letter-spacing: 0.24em; color: var(--lime); }
+.pane .v { margin-top: 6px; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+@keyframes pane-bob { 0%, 100% { transform: translate(-50%, -50%) rotateY(var(--ry, 0deg)) translateY(0); } 50% { transform: translate(-50%, -50%) rotateY(var(--ry, 0deg)) translateY(-13px); } }
+
+/* ---- 층 카피 ---- */
+.copy { transform: translate(-50%, -50%); white-space: nowrap; }
+.copy.left { text-align: left; }
+.copy.right { text-align: right; }
+.copy .eyebrow {
+  display: inline-block;
+  font-size: 14px; font-weight: 800; letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--lime);
+  text-shadow: 0 0 14px rgba(198, 255, 94, 0.6);
+  margin-bottom: 18px;
+}
+.copy h2 {
+  font-size: 76px; font-weight: 800; line-height: 1.12; letter-spacing: -0.035em;
+  background: linear-gradient(180deg, #ffffff 16%, #d8c8ff 58%, #8f6be0 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.copy p { margin-top: 20px; font-size: 19px; line-height: 1.7; color: var(--dim); }
+
+/* ---- 정상(SUMMIT) ---- */
+.beacon-glow {
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0%, rgba(255, 202, 107, 0.75) 30%, rgba(198, 255, 94, 0.3) 55%, transparent 72%);
+  animation: beacon-pulse 2.8s ease-in-out infinite;
+}
+@keyframes beacon-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.beacon-ring {
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 202, 107, 0.7);
+  animation: ring-out 2.8s ease-out infinite;
+}
+@keyframes ring-out {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+}
+.summit-sign {
+  transform: translate(-50%, -50%);
+  padding: 9px 22px;
+  border-radius: 999px;
+  border: 1.5px solid var(--amber);
+  color: var(--amber);
+  font-size: 13px; font-weight: 800; letter-spacing: 0.44em;
+  white-space: nowrap;
+  background: rgba(12, 7, 26, 0.8);
+  box-shadow: 0 0 22px rgba(255, 202, 107, 0.35);
+}
+
+/* ---- 옥상 도착 (새벽) ---- */
+#dawn {
+  position: fixed; inset: 0; z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(180deg,
+    #fdf3e3 0%, #fbe0c4 30%, #f4b8a0 54%, #c98bb8 76%, #8d6bd0 100%);
+}
+#skyline {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+  height: 26vh;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(0deg, rgba(46, 30, 80, 0.95) 0 34%, transparent 34%),
+    repeating-linear-gradient(90deg,
+      rgba(46, 30, 80, 0.95) 0 60px, transparent 60px 74px,
+      rgba(46, 30, 80, 0.95) 74px 150px, transparent 150px 170px,
+      rgba(46, 30, 80, 0.95) 170px 230px, transparent 230px 252px);
+  -webkit-mask-image: linear-gradient(0deg, #000 0 55%, transparent 100%);
+  mask-image: linear-gradient(0deg, #000 0 55%, transparent 100%);
+}
+
+/* ---- 오버레이 HUD ---- */
+.overlay { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.hud {
+  position: absolute; top: 30px; left: 40px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.24em;
+  color: var(--dim);
+}
+.hud b { color: var(--ink); }
+.lift { position: absolute; top: 30px; right: 40px; text-align: right; font-variant-numeric: tabular-nums; }
+.lift .lv { font-size: 30px; font-weight: 800; letter-spacing: 0.04em; color: var(--lime); text-shadow: 0 0 16px rgba(198, 255, 94, 0.6); }
+.lift small { display: block; margin-top: 3px; font-size: 10px; font-weight: 700; letter-spacing: 0.28em; color: var(--dim); }
+
+.scroll-hint {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  transition: opacity 0.5s ease;
+}
+.scroll-hint span { font-size: 10px; font-weight: 700; letter-spacing: 0.4em; color: var(--dim); }
+.scroll-hint i { width: 1px; height: 44px; background: linear-gradient(to top, rgba(241, 236, 255, 0.9), transparent); animation: lift-up 1.6s ease-in-out infinite; }
+@keyframes lift-up { 0% { transform: scaleY(0); transform-origin: bottom; } 50% { transform: scaleY(1); transform-origin: bottom; } 51% { transform-origin: top; } 100% { transform: scaleY(0); transform-origin: top; } }
+.scroll-hint.is-hidden { opacity: 0; }
+
+.progress-track { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.07); }
+.progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--violet), var(--lime)); box-shadow: 0 0 14px rgba(160, 107, 255, 0.7); }
+
+/* CTA — 새벽 옥상 위 */
+#cta {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 10px;
+  opacity: 0; visibility: hidden;
+}
+#cta .arrive-tag {
+  display: inline-block;
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(88, 48, 130, 0.45);
+  font-size: 11.5px; font-weight: 800; letter-spacing: 0.4em;
+  color: #6d3f9e;
+  margin-bottom: 22px;
+  background: rgba(255, 255, 255, 0.5);
+}
+#cta h1 { font-size: clamp(36px, 6vw, 78px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.12; color: #3a2360; }
+#cta p { margin-top: 14px; font-size: clamp(15px, 1.6vw, 19px); color: rgba(58, 35, 96, 0.66); line-height: 1.7; }
+.cta-actions { margin-top: 30px; display: flex; gap: 12px; pointer-events: auto; flex-wrap: wrap; justify-content: center; }
+.btn { padding: 14px 30px; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; border: 0; }
+.btn.primary { background: linear-gradient(135deg, #7a4fd8, #b06be0); color: #fff; box-shadow: 0 12px 34px rgba(122, 79, 216, 0.4); }
+.btn.glassy { background: rgba(255, 255, 255, 0.65); color: #52307e; border: 1.5px solid rgba(82, 48, 126, 0.35); }
+
+@media (max-width: 900px) {
+  .copy h2 { font-size: 42px; }
+  .copy p { font-size: 15px; }
+  #scroll-space { height: 640vh; }
+  .hud { font-size: 11px; left: 20px; }
+  .lift { right: 20px; }
+  .lift .lv { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .twr .lit, .signage, .pane, .banner .flag, .beacon-glow, .beacon-ring, .scroll-hint i { animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="vp" aria-hidden="true"><div id="tower-world"></div></div>
+<div id="dawn" aria-hidden="true"></div>
+<div id="skyline" aria-hidden="true"></div>
+<div id="scroll-space" aria-hidden="true"></div>
+
+<div class="overlay" aria-hidden="true">
+  <div class="hud"><b>AX DATAHUB</b> · TOWER ASCENT</div>
+  <div class="lift"><span class="lv" id="lv">LV 00</span><small id="alt">ALT 0m</small></div>
+
+  <div id="cta">
+    <span class="arrive-tag">AX DATAHUB</span>
+    <h1>이제,<br />시작하세요.</h1>
+    <p>탐색부터 분석, 공유까지<br />AX Datahub와 함께 더 빠르고 효율적인 업무를 시작해보세요.</p>
+    <div class="cta-actions">
+      <button class="btn primary" type="button">AX Datahub 시작하기</button>
+      <button class="btn glassy" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">처음부터 다시 보기</button>
+    </div>
+  </div>
+
+  <div class="scroll-hint" id="hint"><span>ASCEND</span><i></i></div>
+  <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+</div>
+
+<script>
+/* ============================================================
+   게임풍 타워 구축 + 상승 카메라
+   시퀀스: 층층 상승 → 정상 비컨 "등정" (0.83~0.94)
+          → 등정 직후 새벽이 터진다 (0.945~) → 스카이라인 → 문구
+   ============================================================ */
+(function () {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = matchMedia('(pointer: coarse)').matches || innerWidth < 900;
+  const world = document.getElementById('tower-world');
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  const SEG = 1300;
+  const N_ST = 4;
+  const GROUND_Y = 700;
+  const SUMMIT_Y = -5800;              // 정상 플랫폼 높이
+  const TOWER_Z = -470;                // 타워 중심 깊이
+  const fadeItems = [];
+
+  function put(cls, x, y, z, w, h, html) {
+    const wrap = document.createElement('div');
+    wrap.className = 'st';
+    wrap.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+    const el = document.createElement('div');
+    el.className = cls;
+    if (w) el.style.width = w + 'px';
+    if (h) el.style.height = h + 'px';
+    if (html) el.innerHTML = html;
+    wrap.appendChild(el);
+    world.appendChild(wrap);
+    return { wrap, el, y, last: -1 };
+  }
+
+  /** 6면 박스 (타워 층/테라스 공용) */
+  function box3d(cls, x, y, z, w, h, d, faces) {
+    const it = put(cls, x, y, z);
+    it.el.style.setProperty('--w', w + 'px');
+    it.el.style.setProperty('--h', h + 'px');
+    it.el.style.setProperty('--d', d + 'px');
+    (faces || ['front', 'back', 'left', 'right']).forEach((f) => {
+      const i = document.createElement('i');
+      i.className = (f === 'left' || f === 'right' ? 'fx ' : f === 'top' || f === 'bottom' ? 'fy ' : '') + f;
+      it.el.appendChild(i);
+    });
+    return it;
+  }
+
+  /* ============================================================
+     타워 본체 — 위로 갈수록 좁아지는 층 스택 (게임 탑 실루엣)
+     ============================================================ */
+  const TIER_H = 430;
+  const LEDGE_H = 30;
+  let yCur = GROUND_Y;
+  let tier = 0;
+  const litColors = ['#c6ff5e', '#ffca6b', '#c6ff5e', '#a06bff'];
+
+  while (yCur - TIER_H > SUMMIT_Y + 60) {
+    const w = Math.max(170, 360 - tier * 15);   // 점점 좁아진다
+    const cy = yCur - TIER_H / 2;
+
+    const t = box3d('twr', 0, cy, TOWER_Z, w, TIER_H, w);
+    // 앞면 발광 창문 (게임 탑의 불 켜진 방)
+    const front = t.el.querySelector('.front');
+    const lit = mobile ? 3 : 5;
+    for (let k = 0; k < lit; k++) {
+      const s = document.createElement('span');
+      s.className = 'lit';
+      s.style.left = rand(10, 85) + '%';
+      s.style.top = rand(8, 82) + '%';
+      s.style.setProperty('--c', litColors[(tier + k) % litColors.length]);
+      s.style.animationDelay = rand(-6, 0) + 's';
+      front.appendChild(s);
+    }
+    t.wide = true;
+    fadeItems.push(t);
+
+    // 층 사이 돌출 테라스
+    const lg = box3d('ledge', 0, yCur - TIER_H - LEDGE_H / 2, TOWER_Z, w + 56, LEDGE_H, w + 56,
+      ['front', 'back', 'left', 'right', 'top', 'bottom']);
+    lg.wide = true;
+    fadeItems.push(lg);
+
+    // 군데군데 깃발 (테라스 모서리)
+    if (tier % 3 === 1) {
+      const side = tier % 2 === 0 ? 1 : -1;
+      const bn = put('banner', side * (w / 2 + 34), yCur - TIER_H - LEDGE_H, TOWER_Z + w / 2 + 20);
+      bn.el.innerHTML =
+        `<span class="pole" style="height:110px"></span>` +
+        `<span class="flag" style="bottom:58px; width:64px; height:44px; --c:${tier % 2 ? 'var(--lime)' : 'var(--amber)'}"></span>`;
+      fadeItems.push(bn);
+    }
+
+    yCur -= TIER_H + LEDGE_H;
+    tier++;
+  }
+
+  /* ---- 정상부: 플랫폼 → 펜트하우스 → 안테나 → 비컨 ---- */
+  const topW = Math.max(170, 360 - tier * 15);
+  // 정상 플랫폼 (넓은 테라스)
+  const plat = box3d('ledge', 0, SUMMIT_Y - 20, TOWER_Z, topW + 90, 40, topW + 90,
+    ['front', 'back', 'left', 'right', 'top', 'bottom']);
+  plat.wide = true;
+  fadeItems.push(plat);
+  // 흉벽(merlon) — 게임 탑 감성
+  const merlons = 5;
+  for (let k = 0; k < merlons; k++) {
+    const mx = -((topW + 60) / 2) + (k / (merlons - 1)) * (topW + 60);
+    const m = box3d('ledge', mx, SUMMIT_Y - 58, TOWER_Z + (topW + 60) / 2, 26, 36, 20,
+      ['front', 'left', 'right', 'top']);
+    m.wide = true;
+    fadeItems.push(m);
+  }
+  // 펜트하우스
+  const pent = box3d('twr', 0, SUMMIT_Y - 110, TOWER_Z, 130, 140, 130);
+  pent.wide = true;
+  fadeItems.push(pent);
+  // 안테나 기둥
+  const mast = box3d('ledge', 0, SUMMIT_Y - 310, TOWER_Z, 10, 260, 10);
+  mast.wide = true;
+  fadeItems.push(mast);
+  // 비컨 (등정의 목표) + 확산 링 + SUMMIT 사인
+  const BEACON_Y = SUMMIT_Y - 470;
+  const glow = put('beacon-glow', 0, BEACON_Y, TOWER_Z, 240, 240);
+  glow.el.id = 'beacon';
+  glow.wide = true;
+  fadeItems.push(glow);
+  for (let k = 0; k < 2; k++) {
+    const r = put('beacon-ring', 0, BEACON_Y, TOWER_Z, 190, 190);
+    r.el.style.animationDelay = `${k * 1.4}s`;
+    r.wide = true;
+    fadeItems.push(r);
+  }
+  const ss = put('summit-sign', 0, BEACON_Y + 170, TOWER_Z + 100, 0, 0, 'SUMMIT · 52F');
+  ss.wide = true;
+  fadeItems.push(ss);
+
+  /* ---- 층 스테이션 (링·표지판·카피·KPI) ---- */
+  const stations = [
+    { lv: 'LV 01 · UNIFY', title: '흩어진 데이터를<br/>한곳에.', sub: '모든 데이터를 하나의 공간으로 —<br/>통합하여 한 번에 확인하세요.', side: 'left' },
+    { lv: 'LV 12 · DETECT', title: '변화는 먼저<br/>보여드립니다.', sub: '중요한 변화만 빠르게 발견하세요 —<br/>이상 징후와 추세를 한눈에.', side: 'right' },
+    { lv: 'LV 34 · CONNECT', title: '연결할수록<br/>더 많은 인사이트.', sub: '연결된 데이터로 더 깊이 분석하세요 —<br/>더 깊은 인사이트와 새로운 발견.', side: 'left' },
+    { lv: 'LV 52 · UTILIZE', title: '결과는 바로<br/>활용하세요.', sub: '조회한 데이터를 AI 리포트로 요약해<br/>팀과 공유하세요.', side: 'right' },
+  ];
+  const paneData = [
+    { k: 'SEARCH', v: '+34%' }, { k: 'STOCK', v: 'D-6' }, { k: 'CLICK', v: '+12%' },
+    { k: 'REVIEW', v: '▲' }, { k: 'EVENT', v: '-8%' }, { k: 'SALES', v: '+2.1%' },
+  ];
+
+  stations.forEach((s, i) => {
+    const Y = -(i + 1) * SEG;
+
+    const r1 = put('floor-ring' + (i % 2 ? ' violet' : ''), 0, Y + 210, TOWER_Z, 820, 820);
+    r1.el.style.height = '820px';
+    fadeItems.push(r1);
+
+    const sign = put('signage', 0, Y + 260, -120, 0, 0, s.lv);
+    sign.el.style.setProperty('--c', i % 2 ? '#a06bff' : '#c6ff5e');
+    sign.el.style.animationDelay = `${rand(-5, 0)}s`;
+    fadeItems.push(sign);
+
+    const cx = s.side === 'left' ? (mobile ? 0 : -470) : (mobile ? 0 : 470);
+    const c = put('copy ' + s.side, cx, Y, 80, 0, 0,
+      `<span class="eyebrow">${s.lv}</span><h2>${s.title}</h2><p>${s.sub}</p>`);
+    c.el.style.width = 'max-content';
+    c.narrow = true;
+    fadeItems.push(c);
+
+    const n = mobile ? 2 : 3;
+    for (let j = 0; j < n; j++) {
+      const side = j % 2 === 0 ? 1 : -1;
+      const d = paneData[(i * 2 + j) % paneData.length];
+      const pane = put('pane', side * rand(340, 640), Y + rand(-320, 320), rand(-220, 120), 0, 0,
+        `<div class="k">${d.k}</div><div class="v">${d.v}</div>`);
+      pane.el.style.setProperty('--ry', rand(-16, 16) + 'deg');
+      pane.el.style.animationDelay = `${rand(-7, 0)}s`;
+      fadeItems.push(pane);
+    }
+  });
+
+  /* ---- 상승 카메라 ---- */
+  const state = { p: 0 };
+  const TOTAL = -SUMMIT_Y + 550; // 정상 비컨을 지나 350px 위까지 — "등정" 오버슈트
+  const pf = document.getElementById('pf');
+  const hint = document.getElementById('hint');
+  const lvEl = document.getElementById('lv');
+  const altEl = document.getElementById('alt');
+  const pointer = { x: 0, y: 0 };
+  const target = { x: 0, y: 0 };
+  let lastT = '';
+
+  function apply(time) {
+    const camY = -state.p * TOTAL;
+    const sway = reduced ? 0 : 1;
+    const ox = pointer.x * 24 * sway + Math.sin(time * 0.45) * 6 * sway;
+    const oy = pointer.y * 14 * sway;
+    const yaw = Math.sin(state.p * Math.PI * 1.6) * 6 * sway; // 상승하며 타워 측면이 보이는 선회
+
+    const t = `rotateY(${yaw.toFixed(2)}deg) translate3d(${(-ox).toFixed(1)}px, ${(-camY - oy).toFixed(1)}px, 0px)`;
+    if (t !== lastT) { world.style.transform = t; lastT = t; }
+
+    for (const it of fadeItems) {
+      const dy = Math.abs(it.y - camY);
+      const near = it.narrow ? 340 : it.wide ? 900 : 620;
+      const far = it.narrow ? 720 : it.wide ? 1700 : 1250;
+      let a;
+      if (dy <= near) a = 1;
+      else if (dy >= far) a = 0;
+      else a = 1 - (dy - near) / (far - near);
+      if (Math.abs(a - it.last) < 0.02) continue;
+      it.last = a;
+      it.wrap.style.visibility = a <= 0.01 ? 'hidden' : 'visible';
+      if (a > 0.01) it.wrap.style.opacity = a.toFixed(3);
+    }
+
+    const lv = Math.min(52, Math.round(state.p * 55));
+    lvEl.textContent = state.p > 0.92 ? 'SUMMIT' : 'LV ' + String(lv).padStart(2, '0');
+    altEl.textContent = 'ALT ' + Math.round(state.p * 234) + 'm';
+  }
+
+  const noGsap = typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined';
+  const cta = document.getElementById('cta');
+
+  if (noGsap) {
+    state.p = 1; apply(0);
+    document.getElementById('dawn').style.opacity = 1;
+    document.getElementById('skyline').style.opacity = 1;
+    cta.style.opacity = 1; cta.style.visibility = 'visible';
+  } else {
+    gsap.registerPlugin(ScrollTrigger);
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: { trigger: '#scroll-space', start: 'top top', end: 'bottom bottom', scrub: 0.8 },
+    });
+    tl.to(state, {
+      p: 1, duration: 1,
+      onUpdate: () => {
+        pf.style.width = (state.p * 100).toFixed(2) + '%';
+        hint.classList.toggle('is-hidden', state.p > 0.02);
+      },
+    }, 0);
+
+    // ---- 등정 → 피날레 순서 ----
+    // 1) 0.83~0.94 : 마지막 층·정상 플랫폼·비컨이 시야에 들어오고 카메라가 비컨까지 오른다 (등정 먼저)
+    tl.to('#beacon', { scale: 1.35, duration: 0.05, ease: 'power2.out' }, 0.9); // 등정 순간 비컨 플레어
+    // 2) 0.945~ : 등정 직후 새벽이 터진다
+    tl.to('#dawn', { opacity: 1, duration: 0.032, ease: 'power2.in' }, 0.945);
+    tl.to('#skyline', { opacity: 1, duration: 0.028, ease: 'power2.out' }, 0.965);
+    tl.to(['.hud', '.lift', '.scroll-hint'], { autoAlpha: 0, duration: 0.04 }, 0.94);
+    // 3) 문구로 마무리
+    tl.fromTo('#cta',
+      { autoAlpha: 0, y: 36, scale: 1.04 },
+      { autoAlpha: 1, y: 0, scale: 1, duration: 0.028, ease: 'power2.out' },
+      0.972);
+
+    if (!mobile && !reduced) {
+      addEventListener('pointermove', (e) => {
+        target.x = (e.clientX / innerWidth - 0.5) * 2;
+        target.y = -(e.clientY / innerHeight - 0.5) * 2;
+      });
+    }
+    gsap.ticker.add((time, dms) => {
+      const dt = Math.min(dms / 1000, 0.05);
+      pointer.x += (target.x - pointer.x) * Math.min(1, dt * 3);
+      pointer.y += (target.y - pointer.y) * Math.min(1, dt * 3);
+      apply(time);
+    });
+  }
+
+  apply(0);
+  document.body.classList.add('is-ready');
+})();
+</script>
+</body>
+</html>

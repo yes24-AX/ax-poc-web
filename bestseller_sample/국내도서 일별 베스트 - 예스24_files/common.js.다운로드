@@ -1,0 +1,1226 @@
+﻿
+// ****************************************************************************************************
+//  기능   : layered 팝업을 위한 변수 선언
+// ****************************************************************************************************
+var yesLayerPopId = "";
+var yesLayerPopObjId = "";
+var yesLayerClientW = "";
+
+// ****************************************************************************************************
+//  함수명 : fnRePosYesLayer
+//  기능   : window resize event 발생시 tooltop resize해주는 함수
+// ****************************************************************************************************
+function fnRePosYesLayer()
+{
+    if (yesLayerPopId != "")
+    {
+        fnShowYesLayerPop(yesLayerPopId, yesLayerPopObjId)
+    }
+}
+
+// ****************************************************************************************************
+//  함수명 : fnOffsetPosY
+//  기능   : 툴팁의 Y좌표값을 리턴
+// ****************************************************************************************************
+function fnOffsetPosY(obj)
+{
+    var currentY = 0;
+    if (obj.offsetParent)
+    {
+        currentY = obj.offsetTop;
+        while (obj = obj.offsetParent)
+        {
+            currentY += obj.offsetTop;
+        }
+    }
+    return currentY;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnOffsetPosX
+//  기능   : 툴팁의 X좌표값을 리턴
+// ****************************************************************************************************
+function fnOffsetPosX(obj)
+{
+    var currentX = 0;
+    var objW = Math.round(obj.offsetWidth / 2);
+    if (obj.offsetParent)
+    {
+        currentX = obj.offsetLeft;
+
+        while (obj = obj.offsetParent)
+        {
+            currentX += obj.offsetLeft;
+        }
+    }
+    currentX = currentX + objW - 3;
+    return currentX;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnShowYesLayerPop
+//  기능   : 툴팁 오류  수정된 layered popup
+// ****************************************************************************************************
+function fnShowYesLayerPop(popupid, obj, offsetW, offsetH)
+{
+	if(offsetW == undefined) {
+		offsetW = 0;
+	}
+
+	if(offsetH == undefined) {
+		offsetH = 0;
+	}
+
+    if (yesLayerPopId != "")
+    {
+        fnPopupLayerHide(yesLayerPopId);
+    }
+
+    yesLayerPopId = popupid;
+    yesLayerPopObjId = obj;
+    yesLayerClientW = $(document).width();
+    var posT = fnOffsetPosY(obj);
+    var posX = fnOffsetPosX(obj);
+    var popW = $("#" + popupid).width();
+    var topPosition = posT + 25;
+    var lftPosition = ((posX - (popW / 2)) | 0);
+    var limitMaxX = ((960 + ((yesLayerClientW - 980) / 2)) | 0);
+    var limitMinX = (((yesLayerClientW - 960) / 2) | 0);
+    var posMove;
+
+    if (lftPosition + popW >= limitMaxX)
+    {
+        posMove = ((lftPosition + popW) - limitMaxX);
+        lftPosition -= posMove;
+        $("#" + popupid).find('.cock').each(function (i)
+        {
+            $(this).css("margin-left", +posMove)
+        });
+    } else if (lftPosition < limitMinX)
+    {
+        posMove = limitMinX - lftPosition;
+        lftPosition += posMove;
+        $("#" + popupid).find('.cock').each(function (i)
+        {
+            $(this).css("margin-left", -posMove)
+        });
+    } else
+    {
+        $("#" + popupid).find('.cock').each(function (i)
+        {
+            $(this).css("margin-left", "0")
+        });
+    }
+
+	topPosition += offsetH;
+	lftPosition += offsetW;
+
+    $("#" + popupid).css({
+        "display": "",
+        "position": "absolute",
+        "left": lftPosition,
+        "top": topPosition,
+        "z-index": "1000000"
+    });
+}
+
+function fnShowYesLayerPopFrm(frm, obj, w, h, offsetW, offsetH, scrollOption) {
+	if(offsetW == undefined) {
+		offsetW = 0;
+	}
+
+	if(offsetH == undefined) {
+		offsetH = 0;
+	}
+
+	if(scrollOption == undefined) {
+		scrollOption = false;
+	}
+
+    yesDiv = "";
+    yesDiv += '<div id="divYesPopIFrm" style="position:absolute;">';
+    yesDiv += '<div style="position:relative;background-color:#FFF;">';
+    yesDiv += '<div class="cockFrm" style="position:absolute;left:50%;top:-4px;width:8px;height:6px;font-size:1px;line-height:1px;background:url(https://secimage.yes24.com/sysimage/orderN/icon.gif) center -670px no-repeat;"></div>';
+    yesDiv += '<iframe id="ifrmYesLayerPop" style="border:solid 2px #3a96d7;" frameborder="0" marginwidth="0" marginheight="0" scrolling="';
+    if (scrollOption) {
+        yesDiv += 'auto';
+    } else {
+        yesDiv += '';
+    }
+    yesDiv += '"></iframe>';
+    yesDiv += '</div></div>';
+
+    if (yesLayerPopId != "") {
+        fnPopupLayerHide(yesLayerPopId);
+    }
+
+    if ($("#divYesPopIFrm").length == 0) {
+        $('body').append(yesDiv);
+    }
+
+    yesLayerPopId = "divYesPopIFrm";
+    yesLayerPopObjId = obj;
+
+    yesLayerClientW = $(document).width();
+
+    var posT = fnOffsetPosY(obj);
+    var posX = fnOffsetPosX(obj);
+    var popW = w;
+    var topPosition = posT + 25;
+    var lftPosition = posX - (popW / 2);
+    var limitMaxX = (960 + ((yesLayerClientW - 980) / 2));
+    var limitMinX = (yesLayerClientW - 960) / 2;
+    var posMove;
+
+    if (lftPosition + popW >= limitMaxX) {
+        posMove = ((lftPosition + popW) - limitMaxX);
+        lftPosition -= posMove;
+        $("#divYesPopIFrm").find('.cockFrm').each(function (i) {
+            $(this).css("margin-left", +posMove)
+        });
+    } else if (lftPosition < limitMinX) {
+        posMove = limitMinX - lftPosition;
+        lftPosition += posMove;
+        $("#divYesPopIFrm").find('.cockFrm').each(function (i) {
+            $(this).css("margin-left", -posMove)
+        });
+    } else {
+        $("#divYesPopIFrm").find('.cockFrm').each(function (i) {
+            $(this).css("margin-left", "0")
+        });
+    }
+
+	topPosition += offsetH;
+	lftPosition += offsetW;
+
+    $("#divYesPopIFrm").css({
+        "display": "",
+        "position": "absolute",
+        "left": lftPosition,
+        "top": topPosition,
+        "z-index": "1000000",
+        "width": w,
+        "height": h
+    });
+
+    $("#ifrmYesLayerPop").attr("src", frm);
+
+    $("#ifrmYesLayerPop").css({
+        "width": "100%",
+        "height": h
+    });
+}
+
+function fnShowYesLayerPopLoad(tp, tar, obj, w , offsetW, offsetH)
+{
+	if (offsetW == undefined)
+    {
+        offsetW = 0;
+    }
+    
+    if (offsetH == undefined)
+    {
+        offsetH = 0;
+    }
+    
+    if (yesLayerPopId != "")
+    {
+        fnPopupLayerHide(yesLayerPopId);
+    }
+        
+    yesDiv = "";
+	yesDiv += '<div id="divYesPopLoad" style="position:absolute;"><div id="loadHtmlYesLayerPop">d';
+	yesDiv += '</div></div>';
+
+	if(yesLayerPopId != "")
+	{
+		fnPopupLayerHide(yesLayerPopId);
+	}
+
+	if($("#divYesPopLoad").length == 0)
+	{
+		$('body').append(yesDiv);
+	}
+
+	yesLayerPopId = "divYesPopLoad";
+	yesLayerPopObjId = obj;
+
+	yesLayerClientW = $(document).width();
+
+	var posT = fnOffsetPosY(obj);
+	var posX = fnOffsetPosX(obj);
+	var popW = w;
+	var topPosition = posT + 25;
+	var lftPosition = ((posX - (popW / 2)) | 0);
+	var limitMaxX = (((960 + ((yesLayerClientW - 980)/2))) | 0);
+	var limitMinX = (((yesLayerClientW - 960)/2) | 0);
+	var posMove;
+
+	switch(tp)
+	{
+		case "get":
+			$("#loadHtmlYesLayerPop").load(tar, function(){
+				if(lftPosition + popW >= limitMaxX)
+				{
+					posMove = ((lftPosition + popW) - limitMaxX);
+					lftPosition -= posMove;
+					$("#divYesPopLoad").find('.cock').each(function(i){
+						$(this).css("margin-left",+posMove)
+					});
+				}else if(lftPosition < limitMinX){
+					posMove = limitMinX - lftPosition;
+					lftPosition += posMove;
+					$("#divYesPopLoad").find('.cock').each(function(i){
+						$(this).css("margin-left",-posMove)
+					});
+				}else{
+					$("#divYesPopLoad").find('.cock').each(function(i){
+						$(this).css("margin-left","0")
+					});
+				}
+
+                topPosition += offsetH;
+                lftPosition += offsetW;
+
+				$("#divYesPopLoad").css({
+					"display": "",
+					"position": "absolute",
+					"left": lftPosition,
+					"top": topPosition,
+					"z-index":"1000000",
+					"width":w
+				});
+			});
+		break;
+	}
+}
+
+
+// ****************************************************************************************************
+//  함수명 : fnLoadChkThumb
+//  기능   : 이미지 로드시 썸네일 이미지 출력하기 위한 함수(카트와 사은품선택화면 적용)
+// ****************************************************************************************************
+
+function fnLoadChkThumb(obj)
+{
+    var objW = Math.floor(obj.width);
+    var objH = Math.floor(obj.height);
+    if (objW > 140)
+    {
+        var tarH = Math.floor(14000 / objW)
+        obj.height = tarH;
+        obj.width = 140;
+    }
+}
+
+
+// ****************************************************************************************************
+//  함수명 : fnIsNaturalNumber
+//  기능   : 값의 자연수 여부를 확인 한다.
+// ****************************************************************************************************
+function fnIsNaturalNumber(number)
+{
+    for (var i = 0; i < number.length; i++)
+    {
+        if (number.charCodeAt(i) < 48 || number.charCodeAt(i) > 57)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnCheckedChangeChild
+//  기능   : Header CheckBox의 상태 값 변화에 따라 하위 모든 CheckBox의 상태 값을 바꾼다
+// ****************************************************************************************************
+function fnCheckedChangeChild(checkBoxName, checkBoxHeaderId)
+{
+    var checked = false;
+    if ($("#" + checkBoxHeaderId).attr("checked") == "checked")
+    {
+        checked = true;
+    }
+    $('input:checkbox[name="' + checkBoxName + '"]').each(
+        function (index)
+        {
+            if ($(this).attr("disabled") != "disabled")
+            {
+                $(this).attr("checked", checked);
+            }
+        }
+    );
+}
+
+// ****************************************************************************************************
+//  함수명 : fnCheckedChangeHeader
+//  기능   : 하위 CheckBox의 상태 값 변화에 따라 Header CheckBox의 상태 값을 바꾼다
+// ****************************************************************************************************
+function fnCheckedChangeHeader(checkBoxName, checkBoxHeaderId)
+{
+    var $ckeckboxes = $('input:checkbox[name="' + checkBoxName + '"]');
+    var checked = false;
+    if ($ckeckboxes.length == $ckeckboxes.filter(':checked').length)
+    {
+        checked = true;
+    }
+    $("#" + checkBoxHeaderId).attr("checked", checked);
+}
+
+// ****************************************************************************************************
+//  함수명 : fnAjaxLoaderLayerShow
+//  기능   : AJAX Loding Image 보이기
+// ****************************************************************************************************
+function fnAjaxLoaderLayerShow(divAjaxLoaderId, isCenterPosition, mouse, myEvent, isMain)
+{
+    if (myEvent == undefined)
+    {
+        myEvent = window.event;
+    }
+
+    $("#" + divAjaxLoaderId).css("display", "");
+    try
+    {
+        if (isMain == undefined)
+        {
+            $("#" + divAjaxLoaderId).html("<img src='/Resource/Images/ajax-loader.gif' align='center' alt='' />");
+            $("#" + divAjaxLoaderId).css("position", "absolute");
+        }
+        else
+        {
+            $("#" + divAjaxLoaderId).html("<img src='http://image.yes24.com/sysimage/orderN/pay_loading.gif' alt='' />");
+            $("#" + divAjaxLoaderId).css("position", "relative");
+            $("#" + divAjaxLoaderId).css("left", 0);
+        }
+
+        $("#" + divAjaxLoaderId).css("z-index", "100000");
+        if (isMain == undefined)
+        {
+            $("#" + divAjaxLoaderId).css("left", document.body.clientWidth / 2);
+            if (isCenterPosition == true)
+            {
+                $("#" + divAjaxLoaderId).css("top", document.body.clientHeight / 2);
+            }
+            else
+            {
+                $("#" + divAjaxLoaderId).css("top", parseInt(document.body.scrollTop) + parseInt(myEvent.clientY) + 10);
+            }
+            if (mouse == true)
+            {
+                $("#" + divAjaxLoaderId).css("top", parseInt(document.body.scrollTop) + myEvent.y);
+                $("#" + divAjaxLoaderId).css("left", parseInt(document.body.scrollLeft) + myEvent.x);
+                var pos = abspos(myEvent);
+                $("#" + divAjaxLoaderId).css("left", pos.x + "px");
+                $("#" + divAjaxLoaderId).css("top", (pos.y + 10) + "px");
+            }
+        }
+    }
+    catch (ex)
+    { }
+}
+
+
+function abspos(e)
+{
+    this.x = e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+    this.y = e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+    return this;
+}
+// ****************************************************************************************************
+//  함수명 : fnAjaxLoaderLayerHide
+//  기능   : AJAX Loding Image 숨기기
+// ****************************************************************************************************
+function fnAjaxLoaderLayerHide(divAjaxLoaderId)
+{
+    $("#" + divAjaxLoaderId).empty();
+    $("#" + divAjaxLoaderId).css("display", "none");
+}
+
+// ****************************************************************************************************
+//  함수명 : fnPopupLayerShow
+//  기능   : Popup 성격의 Layer 보이기
+// ****************************************************************************************************
+function fnPopupLayerShow(layerName, isCenterPositionX, myEvent)
+{
+    if (myEvent == undefined)
+    {
+        myEvent = window.event;
+    }
+
+    $("#" + layerName).css("display", "");
+    var width = $("#" + layerName).css("width").replace("px", "");
+    var height = $("#" + layerName).css("height").replace("px", "");
+
+    if (isCenterPositionX == true)
+    {
+        $("#" + layerName).css("left", ((document.body.clientWidth / 2) - (parseInt(width) / 2)) + 'px');
+        $("#" + layerName).css("top", (parseInt($(window).scrollTop()) + parseInt(myEvent.clientY)) + 'px');
+    }
+    else
+    {
+        $("#" + layerName).css("left", ((parseInt(myEvent.clientX) - (parseInt(width) / 2)) | 0) + 'px');
+        $("#" + layerName).css("top", ((parseInt($(window).scrollTop()) + parseInt(myEvent.clientY) + 10) | 0) + 'px');
+
+        if (layerName == "divGiftPackInfo")
+        {
+            $("#" + layerName).css("left", ((parseInt(myEvent.clientX) - (parseInt(width) / 2) - 230) | 0) + 'px');
+        }
+    }
+}
+
+// ****************************************************************************************************
+//  함수명 : fnPopupLayerShowPosition
+//  기능   : Popup 성격의 Layer 보이기 - 위치 지정
+// ****************************************************************************************************
+function fnPopupLayerShowPosition(layerName, left, top, myEvent)
+{
+    if (myEvent == undefined)
+    {
+        myEvent = window.event;
+    }
+
+    $("#" + layerName).css("display", "");
+    var width = $("#" + layerName).css("width").replace("px", "");
+    var height = $("#" + layerName).css("height").replace("px", "");
+    $("#" + layerName).css("left", parseInt(myEvent.clientX) - (parseInt(width) / 2) + parseInt(left));
+    $("#" + layerName).css("top", parseInt(document.body.scrollTop) + parseInt(myEvent.clientY) + parseInt(top));
+}
+
+// ****************************************************************************************************
+//  함수명 : fnPopupLayerShowFixedPosition
+//  기능   : Popup 성격의 Layer 보이기 - 위치 불변 지정  / milestoneName 기준이되는 id
+// ****************************************************************************************************
+function fnPopupLayerShowFixedPosition(milestoneName, layerName)
+{
+    var mHeight = parseInt($("#" + milestoneName).css("height").replace("px", ""));
+    var mWidth = parseInt($("#" + milestoneName).css("width").replace("px", ""));
+
+    var top = $("#" + milestoneName).offset().top + mHeight + 5;
+    var left = $("#" + milestoneName).offset().left + ((mWidth / 2) | 0);
+
+    $("#" + layerName).css("position", "absolute");
+    $("#" + layerName).css("display", "");
+
+    var width = parseInt($("#" + layerName).css("width").replace("px", "")) / 2;
+    $("#" + layerName).offset({ top: top, left: left - width });
+}
+
+// ****************************************************************************************************
+//  함수명 : fnPopupLayerHide
+//  기능   : Popup 성격의 Layer 숨기기
+// ****************************************************************************************************
+function fnPopupLayerHide(layerName)
+{
+    $("#" + layerName).css("display", "none");
+}
+
+// ****************************************************************************************************
+//  함수명 : fnWindowOpen
+//  기능   : Popup 성격의 Layer 보이기
+// ****************************************************************************************************
+function fnWindowOpen(url, popupName, width, height, isCenterPosition, left, top)
+{
+    if (isCenterPosition == true)
+    {
+        left = (((document.body.clientWidth / 2) - (width / 2)) | 0);
+        top = (((document.body.clientHeight / 2) - (height / 2)) | 0);
+    }
+    var features = "width=" + width +
+                    ",height=" + height +
+                    ",left=" + left +
+                    ",top=" + top +
+                    ",toolbar=no,location=no,directories=no,menubar=no,scrollbars=yes,resizable=no,copyhistory=no,status=no";
+
+    return window.open(url, popupName, features);
+}
+
+// ****************************************************************************************************
+//  함수명 : fnWindowOpenFeatures
+//  기능   : Popup 성격의 Layer 보이기
+// ****************************************************************************************************
+function fnWindowOpenFeatures(url, popupName, width, height, isCenterPosition, left, top, etcFeatures)
+{
+    if (isCenterPosition == true)
+    {
+        left = (document.body.clientWidth / 2) - (width / 2);
+        top = (document.body.clientHeight / 2) - (height / 2);
+    }
+    var features = "width=" + width +
+                    ",height=" + height +
+                    ",left=" + left +
+                    ",top=" + top + "," +
+                    etcFeatures;
+    return window.open(url, popupName, features);
+}
+
+// ****************************************************************************************************
+//  함수명 : fnReplaceAll
+//  기능   : 문자열에서 지정한 문자열을 특정 문자열로 치환
+// ****************************************************************************************************
+function fnReplaceAll(value, character, replaceCharacter)
+{
+    if (value == null)
+    {
+        return value;
+    }
+
+    value = value.replace(character, replaceCharacter);
+
+    if (value.indexOf(character) > -1)      // 바꿀 문자가 존재하면 재귀 호출
+    {
+        return fnReplaceAll(value, character, replaceCharacter);
+    }
+    else
+    {
+        return value;
+    }
+}
+
+// ****************************************************************************************************
+//  함수명 : fnNumberFomatTextbox
+//  기능   : Input Control에서 1000단위 구분자(,) 제거
+// ****************************************************************************************************
+function fnNumberFomatTextbox(textBox)
+{
+    $(textBox).attr("value", fnReplaceAll($(textBox).attr("value"), ",", ""));
+    $(textBox).select();
+}
+
+// ****************************************************************************************************
+//  함수명 : fnNumberFomat
+//  기능   : 문자열에서 1000단위 구분자(,) 제거
+// ****************************************************************************************************
+function fnNumberFomat(number)
+{
+    return fnReplaceAll(number, ",", "");
+}
+
+function is_number(x)
+{
+    var reg = /^\d+$/;
+
+    return reg.test(x);
+}
+
+// ****************************************************************************************************
+//  함수명 : fnNumberFomat
+//  기능   : 문자열에서 1000단위 구분자(,) 제거
+// ****************************************************************************************************
+function fnNumberFomatObject(obj)
+{
+    var inputVal = $(obj).attr("value");
+
+    inputVal = fnReplaceAll(inputVal, ",", "");
+
+    if (!is_number(inputVal))
+    {
+        $(obj).attr("value", "");
+    }
+
+    $(obj).attr("value", ($(obj).attr("value") == "" ? "0" : $(obj).attr("value")));
+
+    return fnReplaceAll($(obj).attr("value"), ",", "");
+}
+
+// ****************************************************************************************************
+//  함수명 : fnCurrencyFomat
+//  기능   : 문자열에 1000단위 구분자(,)를 설정
+// ****************************************************************************************************
+function fnCurrencyFomat(number)
+{
+    if (number.toString() == "")
+        return number;
+
+    if (isNaN(number))
+        return number;
+
+    var positiveNumberPart = "";
+    var lastDotIndex = number.toString().lastIndexOf(".");
+    if (lastDotIndex > -1)
+    {
+        positiveNumberPart = number.toString().substring(0, lastDotIndex);
+    }
+    else
+    {
+        positiveNumberPart = parseInt(number, 10).toString();
+    }
+
+    var value = "";
+    var temp = "";
+    for (var i = 0; i < positiveNumberPart.length; i++)
+    {
+        temp = positiveNumberPart.length - (i + 1);
+        if (i % 3 == 0 && i != 0)
+            value = "," + value;
+
+        value = positiveNumberPart.charAt(temp) + value
+    }
+
+    return value;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnCurrencyFomatTextbox
+//  기능   : Input control에 1000단위 구분자(,)를 설정
+// ****************************************************************************************************
+function fnCurrencyFomatTextbox(textBox)
+{
+    var number = $(textBox).attr("value");
+    $(textBox).attr("value", fnCurrencyFomat(number));
+}
+
+// ****************************************************************************************************
+//  함수명 : fnTextBoxNumericUp
+//  기능   : Input control의 값을 1 증가
+// ****************************************************************************************************
+function fnTextBoxNumericUp(textBoxControllId, maxValue)
+{
+    var isValueChanged = false;
+
+    if (maxValue == 0)
+    {
+        maxValue = 9999;
+    }
+    var number = fnNumberFomat($("#" + textBoxControllId).attr("value"));
+    if (number < 0)
+    {
+        number = 0;
+    }
+    if (parseInt(number) + 1 > maxValue)
+    {
+        number = maxValue;
+    }
+    else
+    {
+        number = parseInt(number) + 1;
+        isValueChanged = true;
+    }
+    $("#" + textBoxControllId).attr("value", fnCurrencyFomat(number));
+
+    return isValueChanged;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnTextBoxNumericDown
+//  기능   : Input control의 값을 1 감소
+// ****************************************************************************************************
+function fnTextBoxNumericDown(textBoxControllId)
+{
+    var isValueChanged = false;
+
+    var number = fnNumberFomat($("#" + textBoxControllId).attr("value"));
+    if (number < 2)
+    {
+        number = 1;
+    }
+    else
+    {
+        number = parseInt(number) - 1;
+        isValueChanged = true;
+    }
+    $("#" + textBoxControllId).attr("value", fnCurrencyFomat(number));
+
+    return isValueChanged;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnInputValueCheckAscii1
+//  기능   : 문자열이 허용 Ascii Code 범위 인지 확인(숫자, 영문 대소문자, [ ], [.], [,], ['], ["], [-], [/]
+// ****************************************************************************************************
+function fnInputValueCheckAscii1(address)
+{
+    for (var i = 0; i < address.length; i++)
+    {
+        if ((address.charAt(i) < "0" || address.charAt(i) > "9") &&
+            (address.charAt(i) < "A" || address.charAt(i) > "Z") &&
+            (address.charAt(i) < "a" || address.charAt(i) > "z") &&
+            address.charAt(i) != " " &&
+            address.charAt(i) != "." &&
+            address.charAt(i) != "," &&
+            address.charAt(i) != "'" &&
+            address.charAt(i) != '"' &&
+            address.charAt(i) != "-" &&
+            address.charAt(i) != "/")
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnCalculationLeapYear
+//  기능   : 2월의 말일을 계산
+// ****************************************************************************************************
+function fnCalculationLeapYear(year)
+{
+    var maxDayInMonth = 28;
+    if (year % 4 == 0)
+    {
+        if (year % 100 == 0)
+        {
+            if (year % 400 == 0)
+            {
+                maxDayInMonth = 29;
+            }
+        }
+        else
+        {
+            maxDayInMonth = 29;
+        }
+    }
+
+    return maxDayInMonth;
+}
+
+// ****************************************************************************************************
+//  함수명 : fnLoadChkThumb
+//  기능   : Image의 Size를 특정 넓이 기준으로 재 조정
+// ****************************************************************************************************
+function fnLoadChkThumb(obj)
+{
+    var objWidth = Math.floor(obj.width);
+    var objHeight = Math.floor(obj.height);
+    var ratio = parseFloat(100) / parseFloat(objHeight);
+
+    obj.height = Math.floor(parseFloat(objHeight) * parseFloat(ratio));
+    obj.width = Math.floor(parseFloat(objWidth) * parseFloat(ratio));
+}
+
+// ****************************************************************************************************
+//  함수명 : fnMoveFocus
+//  기능   : 지정한 Control로 Focus 이동
+// ****************************************************************************************************
+function fnMoveFocus(currentControl, nextControlName, size)
+{
+    if (currentControl.value.length == size)
+    {
+        if (document.getElementById(nextControlName) != undefined)
+        {
+            document.getElementById(nextControlName).focus();
+            document.getElementById(nextControlName).select();
+        }
+    }
+}
+
+// ****************************************************************************************************
+//  함수명 : fnMoveFocusSelToText
+//  기능   : 지정한 Control로 Focus 이동
+// ****************************************************************************************************
+function fnMoveFocusSelToText(currentControl, nextControlName)
+{
+    if (document.getElementById(nextControlName) != undefined)
+    {
+        document.getElementById(nextControlName).focus();
+        document.getElementById(nextControlName).select();
+    }
+}
+
+// ****************************************************************************************************
+//  함수명 : fnPopupLayerShowGrdGoodsInfoCommon
+//  기능   : 사은품 정보 Html 영역의 Interface를 호출
+// ****************************************************************************************************
+function fnPopupLayerShowGrdGoodsInfoCommon(goodsNo, eveNo, ordNo, onlineGb)
+{
+    fnPopupLayerShowPosition("divGrdGoodsInfo", 340, 10, event);
+    $.post(
+        "/Interface/GrdGoodsInfoDisplay",
+        {
+            "goodsNo": goodsNo,
+            "eveNo": eveNo,
+            "ordNo": ordNo,
+            "onlineGb": onlineGb
+        },
+        function (data)
+        {
+            $("#divGrdGoodsInfoIfrm").html(data);
+        }
+    );
+}
+
+// ****************************************************************************************************
+//  함수명 : fnShowGiftMessagePreview
+//  기능   : 선물 포장 Message 보기
+// ****************************************************************************************************
+function fnShowGiftMessagePreview()
+{
+    var url = "/WebForm/OrderPayment/Popup/popup_giftMessage.aspx";
+    fnWindowOpen(url, "GiftMessagePreview", 750, 485, true);
+}  
+
+
+// ****************************************************************************************************
+//  함수명 : window resize event callback 함수
+// ****************************************************************************************************
+setTimeout(eval('window.onresize = function () { fnRePosYesLayer(); };'), 1000);
+
+
+
+// clickcode : 클릭로그를 남긴다.
+function setWcode(Wcode) {
+
+    if (Wcode != null) {
+       try{ 
+           clickstream.setClickstreamLog(Wcode);
+       }
+       catch(e){}
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setBBcode(code) {
+    if (code != null) {
+        try {
+            clickstream.setClickstreamLog(code);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setBScode(code) {
+    if (code != null) {
+        try {
+            clickstream.setClickstreamLog(code);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode 후 페이지 이동
+function setWcodeNRedirection(url, Wcode) {
+    setWcode(Wcode);
+
+    document.location.href = url;  
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setPcode(Pcode, extra_code) {
+    if (Pcode != null) {
+        try {
+            clickstream.setClickstreamLog(Pcode, extra_code);
+        }
+        catch (e) { }
+    }
+}
+// clickcode extra : 확장클릭로그를 남긴다.
+function setPcodeExtraLog(codeNo, extraKindCode, hashTagNo, keywordName, goodsNo) {
+    var keyword = '';
+
+    if (extraKindCode == "recommend_goods_click") {
+        //추천상품 영역인 경우, keyword에 현재 페이지의 상품번호 전송
+        keyword = goods_no;
+    }
+    else {
+        //해시태그
+        keyword = encodeURIComponent(keywordName);
+    }
+
+    var extra_code = {
+        ExtraKindCode: extraKindCode,
+        keyword: keyword,
+        GoodsNo: goodsNo,
+        TagNo: hashTagNo
+    };
+
+    try {
+        setPcode(codeNo, extra_code);
+    }
+    catch (e) {
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setHcode(Hcode) {
+
+    if (Hcode != null) {
+        try {
+            clickstream.setClickstreamLog(Hcode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setNcode(Ncode) {
+
+    if (Ncode != null) {
+        try {
+            clickstream.setClickstreamLog(Ncode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setOcode(Ocode) {
+    if (Ocode != null) {
+        try {
+            clickstream.setClickstreamLog(Ocode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function SetCdCode(Ocode) {
+    if (Ocode != null) {
+        try {
+            clickstream.setClickstreamLog(Ocode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setPsCode(psCode) {
+    if (psCode != null) {
+        try {
+            clickstream.setClickstreamLog(psCode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setCUHCode(CUHCode) {
+    if (CUHCode != null) {
+        try {
+            clickstream.setClickstreamLog(CUHCode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setCUSCode(CUSCode) {
+    if (CUSCode != null) {
+        try {
+            clickstream.setClickstreamLog(CUSCode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setSCode(sCode) {
+    if (sCode != null) {
+        try {
+            clickstream.setClickstreamLog(sCode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setMCcode(MCcode) {
+    if (MCcode != null) {
+        try {
+            clickstream.setclickstreamlog(MCcode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setSCcode(SCcode) {
+    if (SCcode != null) {
+        try {
+            clickstream.setClickstreamLog(SCcode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setGTcode(GTcode) {
+    if (GTcode != null) {
+        try {
+            clickstream.setClickstreamLog(GTcode);
+        }
+        catch (e) { }
+    }
+}
+
+// clickcode : 클릭로그를 남긴다.
+function setMScode(MScode) {
+    if (MScode != null) {
+        try {
+            clickstream.setClickstreamLog(MScode);
+        }
+        catch (e) { }
+    }
+}
+
+//클릭스트림 수동 전송
+function sendClickstreamExtraLog(click_code, extra_kind_code, keyword, goods_no, hashtag_no) {
+    try {
+        var extra_code = {
+            ExtraKindCode: extra_kind_code,
+            keyword: keyword,
+            GoodsNo: goods_no,
+            TagNo: hashtag_no
+        };
+        clickstream.setClickstreamLog(click_code, extra_code)
+    }
+    catch (e) { }
+}
+
+function setScodeWithExtraCode(code, keyWord, goods_no, tag_no, sender) {
+    if (code != null) {
+        try {
+            var iyNo = $(sender).closest('li').data('iy-no');
+            if (iyNo) {
+                var keyword_extra_code = {
+                    ExtraKindCode: "keywordAD_goods_click",
+                    keyword: keyWord,
+                    GoodsNo: goods_no,
+                    TagNo: iyNo
+                };
+                clickstream.setClickstreamLog(code, keyword_extra_code)
+            }
+          
+            var extra_code = {
+                ExtraKindCode: 'search_goods_click',
+                keyword: keyWord,
+                GoodsNo: goods_no,
+                TagNo: tag_no
+            };
+            clickstream.setClickstreamLog(code, extra_code);
+        }
+        catch (e) { }
+    }
+}
+
+function setTagClickExtraCode(code, keyWord, goods_no, tag_no) {
+    if (code != null) {
+        try {
+            var extra_code = {
+                ExtraKindCode: 'tag_click',
+                keyword: keyWord,
+                GoodsNo: goods_no,
+                TagNo: tag_no
+            };
+            clickstream.setClickstreamLog(code, extra_code);
+        }
+        catch (e) { }
+    }
+}
+
+function loginPage() {
+    var url = document.location.href;
+
+    var urls = url.split('?');
+    var page = urls[0];
+    var params = urls.length > 1 ? urls[1] : '';
+
+    var urlU = new URLUtil();
+
+    var loginUrl = "/Templates/FTLogin.aspx?ReturnURL=" + urlU.getURL();
+    var returnParams = urlU.getQueryString();
+
+    if (returnParams != '') loginUrl += "&ReturnParams=" + returnParams.replace(/&/g, "`");
+
+    document.location = loginUrl;
+}
+
+//Get QueryString(대소문자 구분 안함)
+function getQuerystringParam(name) {
+    var url = window.location.href.toLowerCase();
+    name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+//클릭스크림 로그만 전송 
+function setCustomClickstreamLog(eventType, goodsNo) {
+    var eventNo = getQuerystringParam("eventno") > 0 ? getQuerystringParam("eventno") : $('meta[property="eventno"]').attr("content");
+    goodsNo = typeof (goodsNo) == "undefined" ? "" : goodsNo;
+
+    //페이지진입로그
+    if (eventType == "page_init") {
+        clickstream.setClickstreamLog('000_000_000')
+    }
+
+    //이벤트 페이지 클릭스트림 전송
+    if (eventNo > 0) {
+        //이벤트 페이지 클릭코드
+        var eventClickCode = eventNo;
+
+        //페이지 진입 파라미터 세팅
+        if (eventType == "page_init") {
+            eventType = "event_page_init";
+        }
+
+        //클릭스트림 로그 전송
+        var extra_code = {
+            ExtraKindCode: eventType,
+            keyword: "",
+            GoodsNo: goodsNo,
+            TagNo: eventNo
+        };
+        clickstream.setClickstreamLog(eventClickCode, extra_code);
+    }
+}
+
+//이벤트 템플릿 여부 체크(이벤트/사은품/출판사)
+function checkEventTemplate() {
+    var isEvent = false;
+    var currentPage = document.location.pathname.toLocaleLowerCase();
+    if (currentPage.indexOf("yespresent.aspx") > -1 || currentPage.indexOf("dirpresent.aspx") > -1 || currentPage.indexOf("eworld/eventworld/event") > -1 || currentPage.indexOf("campaign/") > -1) {
+        isEvent = true;
+    }
+    return isEvent;
+}
+
+//모바일기기 여부
+function getIsMobileDevice() {
+    var mobileDevices = /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i;
+    return (mobileDevices).test(navigator.userAgent);
+}
+
+//사업자 등록번호 체크
+function checkValidBusinessNumber(number) {
+    var bReturn = false;
+    var sRetMsg = "";
+
+    number = number.replaceAll('-','');
+
+    // 사업자등록번호 형식 확인 (숫자 10자리)
+    var regex = /^\d{10}$/;
+
+    if (!regex.test(number)) {
+        return { Success: bReturn, Message: sRetMsg };
+    } else {
+        sRetMsg = number.replace(/-/g, '');
+
+        // 사업자등록번호 유효성 검증을 위한 가중치
+        var weights = [1, 3, 7, 1, 3, 7, 1, 3, 5];
+
+        // 가중치 적용 및 합산
+        var sum = 0;
+        for (var i = 0; i < weights.length; i++) {
+            sum += number[i] * weights[i];
+        }
+
+        // 9번째 자리 수와 가중치를 곱한 값의 1의 자리를 구하고 10에서 뺀 값을 sum에 더함
+        sum += Math.floor((number[8] * 5) / 10);
+
+        // 검증코드 (마지막 자리 수)
+        var checkDigit = (10 - (sum % 10)) % 10;
+
+        // 마지막 자리와 검증코드 비교
+        bReturn = checkDigit === parseInt(number[9]);
+
+        if (bReturn) {
+            // 유효한 경우, 형식에 맞게 '-'를 추가
+            sRetMsg = number.substring(0, 3) + '-' + number.substring(3, 5) + '-' + number.substring(5);
+        }
+
+        return { Success: bReturn, Message: sRetMsg };
+    }
+}

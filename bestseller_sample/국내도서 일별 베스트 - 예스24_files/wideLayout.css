@@ -1,0 +1,46 @@
+﻿
+
+#yLocation .yLocationCont { width:1200px !important; }
+
+#yHeader { }
+#yHeader h1 { width:1200px; }
+#yHeader h1 a.logo { width:265px;text-align:center; }
+#yHeader h1 .lnk_disney { left:-8px; }
+
+#ySkyWrap { display:none; }
+
+#yHeader #yHeaderWrap { width:1200px; }
+#yHeader #yHeaderWrap .yHeaderTop .cateLi li a { padding:0 7px;font-size:14px;font-weight:bold;letter-spacing:-1px; }
+#yHeader #yHeaderWrap .yHeaderMid .yesSearch { left:265px; }
+#yHeader #yHeaderWrap .yHeaderMid .hotIssueDl { left:715px; }
+#yHeader #yHeaderWrap .yHeaderMid .hotIssueDl .hotIssueCont { width:170px; } 
+#yHeader #yHeaderWrap .yHeaderMid .hotIssueDl .hotIssueCont dl dd ul li a { width:165px; }
+#yHeader #yHeaderWrap .yHeaderMid .hotIssueDl .hotIssueCont.ovr { width:208px; }
+#yHeader #yHeaderWrap .yHeaderMid .hotIssueDl .hotIssueCont.ovr dl dd ul { width:178px; }
+#yHeader #yHeaderWrap .yHeaderMid .hotIssueDl .hotIssueCont.ovr dl dd ul li a { width:178px; }
+
+#yHeader #yHeaderWrap .yHeaderBot .yesCornerServ { left:116px; }
+#yHeader #yHeaderWrap .yHeaderBot .yesCornerServ li a { font-size:13px;font-weight:bold; }
+#yHeader #yHeaderWrap .yHeaderBot .yesSubCorner li a { font-size:13px; }
+#yHeader #yHeaderWrap .yHeaderBot .yesSubCorner li.commonSub a { font-size:12px; }
+
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone h2 { width:110px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone h2 a { font-size:13px;font-weight:bold; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap { height:396px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap ul#quickCate { width:104px;height:382px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap li.quickCate_dept1 { width:104px;height:36px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap li.division { display:none; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap li a.qTit { width:104px;height:36px;line-height:36px;font-size:14px;text-indent:14px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap .quickCateSub { left:106px;top:0; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap .quickCateSub .qCateSubCon { width:497px;height:396px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap .quickCateSub .qCateSubCon .bnImg { right:-124px;height:396px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap .quickCateSub .qCateSubCon .bnImg img { width:auto !important;height:396px !important; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap .quickCateSub .qCateSubCon dl dd li { padding:1px 0 0;height:20px; }
+#yHeader #yHeaderWrap .yHeaderBot .quickCateZone #quickCateWrap .quickCateSub .qCateSubCon dl dd a { height:20px;line-height:20px;font-size:13px; }
+
+#yesPartnerLayers #bnPartnerWing { margin-left:730px !important; }
+#yesFooter { min-width:1200px; }
+#yesFooter #footerWrap { width:1200px; } 
+#yesFooter .yes24Glory { text-align:center; }
+
+#yesWrap #yesPartnerLayers #bnPartnerWing { margin-left:630px !important; }

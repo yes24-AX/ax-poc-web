@@ -1,0 +1,130 @@
+/* 로그인 화면 전용 스타일 */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://image.yes24.com/sysimage/font/Ptd/Pretendard-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://image.yes24.com/sysimage/font/Ptd/Pretendard-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://image.yes24.com/sysimage/font/Ptd/Pretendard-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://image.yes24.com/sysimage/font/Ptd/Pretendard-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://image.yes24.com/sysimage/font/Ptd/Pretendard-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+* { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+
+.login-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.login-left,
+.login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.login-left {
+    background: linear-gradient(135deg, #1a0533 0%, #3d1a6e 55%, #2a0f52 100%);
+    color: white;
+}
+
+.login-left-content {
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-brand-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.login-brand-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.login-brand-logo {
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+
+.login-logo-img {
+  max-width: 280px;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.95;
+}
+
+.login-brand-desc {
+  opacity: 0.8;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.login-form-wrap {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-form-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.login-form-subtitle {
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+}
+
+.login-alert {
+  margin-bottom: 1rem;
+}
+
+.login-form-group {
+  margin-bottom: 1rem;
+}
+
+.login-form-group:last-of-type {
+  margin-bottom: 1.5rem;
+}
+
+.login-submit {
+  padding: 0.625rem;
+}

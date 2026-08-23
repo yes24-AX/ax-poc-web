@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오류 코드 — YES24 Developers</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">개발자센터</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html" class="active">문서</a></li>
+      <li><a href="api-explorer.html">API 테스트</a></li>
+      <li><a href="support.html">지원</a></li>
+
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <span id="nav-user-info" style="display:none"></span>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-docs" style="max-width:none;">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">시작하기</div>
+      <ul class="sidebar-nav">
+        <li><a href="docs.html">개요</a></li>
+        <li><a href="docs-apikey.html">API Key 발급</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">API 문서</div>
+      <ul class="sidebar-nav">
+        <li><a href="api-catalog.html">API 카탈로그</a></li>
+        <li>
+          <a href="api-category-list.html">Category API</a>
+          <ul class="sub-nav">
+            <li><a href="api-category-list.html">카테고리 목록 조회</a></li>
+            <li><a href="api-category-bestseller-realtime.html">실시간 베스트셀러 조회</a></li>
+            <li><a href="api-category-bestseller.html">종합 베스트셀러 조회</a></li>
+            <li><a href="api-category-bestseller-deal.html">특가 베스트셀러 조회</a></li>
+            <li><a href="api-category-bestseller-steady.html">스테디셀러 조회</a></li>
+            <li><a href="api-category-newproduct.html">신상품 조회</a></li>
+            <li><a href="api-category-newproduct-attention.html">주목할 신상품 조회</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-goods-item-list.html">Goods API</a>
+          <ul class="sub-nav">
+            <li><a href="api-goods-item-list.html">상품 검색</a></li>
+            <li><a href="api-goods-item-detail.html">상품 상세 조회</a></li>
+            <li><a href="api-goods-content.html">상품 목차 조회</a></li>
+            <li><a href="api-goods-author.html">작가 기본 정보 조회</a></li>
+          </ul>
+        </li>
+        <li><a href="docs-error-codes.html" class="active">오류 코드</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="doc-content">
+    <nav class="doc-breadcrumb">
+      <a href="index.html">홈</a>
+      <span>&gt;</span>
+      <a href="docs.html">문서</a>
+      <span>&gt;</span>
+      <span>오류 코드</span>
+    </nav>
+
+    <div class="doc-page-title">
+      <h1>오류 코드</h1>
+      <p>YES24 Open API에서 반환하는 공통 오류 코드 목록입니다.</p>
+    </div>
+
+    <h2 id="auth-errors">인증 오류 (AUTH)</h2>
+    <div class="param-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>코드</th><th>HTTP</th><th>메시지</th><th>해결 방법</th></tr></thead>
+        <tbody>
+          <tr><td><code>AUTH_001</code></td><td><span class="badge badge-danger">401</span></td><td>Invalid API Key</td><td>유효한 API Key를 <code>X-API-Key</code> 헤더에 포함하세요.</td></tr>
+          <tr><td><code>AUTH_002</code></td><td><span class="badge badge-danger">401</span></td><td>Missing API Key header</td><td><code>X-API-Key: {apiKey}</code> 헤더를 포함하세요.</td></tr>
+          <tr><td><code>AUTH_003</code></td><td><span class="badge badge-danger">403</span></td><td>Insufficient permissions</td><td>해당 API에 대한 권한을 신청하세요. My Applications &gt; 권한 신청.</td></tr>
+          <tr><td><code>AUTH_004</code></td><td><span class="badge badge-danger">403</span></td><td>Application is inactive</td><td>앱이 비활성화 상태입니다. 내 애플리케이션에서 앱 상태를 확인하세요.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="request-errors">요청 오류 (4xx)</h2>
+    <div class="param-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>코드</th><th>HTTP</th><th>메시지</th><th>해결 방법</th></tr></thead>
+        <tbody>
+          <tr><td><code>BOOKS_001</code></td><td><span class="badge badge-warning">400</span></td><td>query parameter is required</td><td><code>query</code> 파라미터를 포함하세요.</td></tr>
+          <tr><td><code>BOOKS_002</code></td><td><span class="badge badge-warning">400</span></td><td>size must be between 1 and 100</td><td><code>size</code> 값을 1~100 범위로 조정하세요.</td></tr>
+          <tr><td><code>BOOKS_003</code></td><td><span class="badge badge-warning">404</span></td><td>Book not found</td><td>요청한 도서 ID가 존재하지 않습니다.</td></tr>
+          <tr><td><code>RATE_001</code></td><td><span class="badge badge-warning">429</span></td><td>Rate limit exceeded</td><td>요청 빈도를 줄이세요. <code>X-RateLimit-Reset</code> 헤더에서 초기화 시간 확인.</td></tr>
+          <tr><td><code>PARAM_001</code></td><td><span class="badge badge-warning">400</span></td><td>Invalid parameter value</td><td>파라미터 값 형식을 확인하세요.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="server-errors">서버 오류 (5xx)</h2>
+    <div class="param-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>코드</th><th>HTTP</th><th>메시지</th><th>해결 방법</th></tr></thead>
+        <tbody>
+          <tr><td><code>SERVER_001</code></td><td><span class="badge badge-danger">500</span></td><td>Internal server error</td><td>재시도 후 지속 시 지원팀에 문의하세요.</td></tr>
+          <tr><td><code>SERVER_002</code></td><td><span class="badge badge-danger">503</span></td><td>Service temporarily unavailable</td><td>점검 중입니다. 공지사항을 확인하세요.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <div class="callout-content">
+        <p>각 API별 상세 오류는 개별 API 문서의 오류 코드 섹션에서도 확인할 수 있습니다.</p>
+      </div>
+    </div>
+  </main>
+
+  <aside class="toc-panel">
+    <div class="toc-title">이 페이지에서</div>
+    <ul class="toc-nav">
+      <li><a href="#auth-errors">인증 오류</a></li>
+      <li><a href="#request-errors">요청 오류 (4xx)</a></li>
+      <li><a href="#server-errors">서버 오류 (5xx)</a></li>
+    </ul>
+  </aside>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-brand">
+        <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="28" style="display:block;">
+      </a>
+      <p class="footer-desc">YES24 Open API Developer Portal</p>
+      <p class="footer-copy">© 2026 YES24 Co., Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-link-group">
+        <h4>문서</h4>
+        <ul>
+          <li><a href="docs.html">시작하기</a></li>
+          <li><a href="api-catalog.html">API 카탈로그</a></li>
+          <li><a href="api-goods-item-list.html">API 문서</a></li>
+          <li><a href="docs-error-codes.html">오류 코드</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API 테스트</a></li>
+          <li><a href="my-applications.html">내 애플리케이션</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>지원</h4>
+        <ul>
+          <li><a href="support.html">공지사항</a></li>
+          <li><a href="support-faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

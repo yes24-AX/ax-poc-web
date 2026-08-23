@@ -1,0 +1,69 @@
+<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/mobile/comN/trans_commonV4.css?v=20260624">
+<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/mobile/comN/trans_layoutV4.css?v=20250613">
+<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/mobile/layout/trans_baseV2.css?v=20260224">
+<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/mobile/comN/com.css?v=20260624">
+<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/mobile/comN/elem.css?v=20260624">
+<link rel="stylesheet" type="text/css" href="https://image.yes24.com/sysimage/yesUI/mobile/welcome/trans_w4.css?v=20260601b">
+
+<div id="yesWrap">
+    <div id="yHdWrap" class="subMod">
+                
+        <div id="yHd">
+            <h1 class="logo">
+                <a href="https://m.yes24.com/home/main" class="logo_lnk"></a>
+            </h1>
+            <div class="mnu">
+                <a href="https://ssl.yes24.com/mMyCart/CartMain" class="mnu_cart">카트<span class="cnt" id="cartNum">14</span></a>
+            </div>
+            <div class="sch">
+                <div class="ipt">
+                    <label>
+                        <input type="search" placeholder="뱀파이어와 늑대인간의 고향" id="query" name="searchquery" title="YES24 검색" maxlength="80" value="" autocapitalize="off" autocomplete="off" class="ipt_box" onkeypress="if (event.keyCode === 13) { searchGoods(); return false; }">
+                        <button type="button" id="btn_del_schKWord" class="ipt_del"><span class="txt">입력삭제</span></button>
+                    </label>
+                </div>
+                <span class="btn"><button type="button" id="search_real_search" class="btn_sch"><span class="txt">검색하기</span></button></span>
+                <span class="ad"><button type="button" id="btn_ad_search" class="btn_ad"><span class="txt">광고이동</span></button></span>
+                <span class="app">
+                    <button type="button" id="btn_app_search" class="btn_qr">
+                        <span class="txt">QR/바코드 검색</span>
+                    </button>
+                </span>
+                <span class="appTip">이미지 검색을 사용해 보세요</span>
+                <input id="hdSearchCategory" type="hidden">
+            </div>
+            <span class="prev">
+                <a href="javascript:void(0);" class="prev_rset" id="prevSch">
+                    <span class="txt">검색창 이전화면</span>
+                </a>
+                <a href="javascript:void(0);" class="prev_back" onclick="commonPrevBtn();">
+                    <span class="txt">이전화면</span>
+                </a>
+            </span>
+        </div>
+        <div id="yKeyWrap">
+            <div id="yKWD" class="yKeywords">
+                
+                <dl class="keyDl keyPop">
+                    <dt>
+                        <strong class="keyTit">인기 검색어</strong>
+                        <span id="date_search_popular" class="date"></span>
+                    </dt>
+                    <dd>
+                        <div id="search_popular_nodata" class="noData" style="display:none;">
+                        </div>
+                        <ol id="search_popular" class="popOl" style="display:none;">
+                        </ol>
+                    </dd>
+                </dl>
+            </div>
+            <div id="ySGST" class="ySuggest" style="display:none;">
+                <ul id="search_suggest" class="sgstLi">
+                </ul>
+            </div>
+            <div class="yKEtc">
+                <a href="javascript:void(0);" id="search_close" class="lnk_close"><em class="txt">닫기</em><em class="ico"></em></a>
+            </div>
+        </div>
+    </div>
+</div>

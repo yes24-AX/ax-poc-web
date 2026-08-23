@@ -1,0 +1,9 @@
+# Visual Studio
+.vs/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# 배포용으로 압축한 사본 — 내용이 저장소에 이미 있고 금세 낡는다
+*.zip

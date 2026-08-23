@@ -1,0 +1,782 @@
+/* The upper layers sit physically above the lower layers. */
+.layer-question { z-index: 4; }
+.layer-context { z-index: 3; }
+.layer-data { z-index: 2; }
+.layer-views { z-index: 1; }
+
+/* Give every completed composition more scroll time to settle. */
+.scroll-space { height: 1100vh; }
+
+@media (max-width: 760px) {
+  .scroll-space { height: 900vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-space { height: 650vh; }
+}
+
+/* Longer narrative: perspectives → many work questions → focused views. */
+.perspectives {
+  opacity: clamp(0, min(calc(var(--views) * 3), calc(1 - var(--field) * 3)), 1);
+}
+
+.question-field,
+.work-questions {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.question-field {
+  opacity: clamp(0, min(calc(var(--field) * 3), calc(1 - var(--workset) * 3)), 1);
+  transform: translateY(calc((1 - var(--field)) * 10vh));
+}
+
+.question-field > .eyebrow,
+.work-questions > .eyebrow {
+  position: absolute;
+  left: 7vw;
+  top: 15vh;
+}
+
+.question-field > h2,
+.work-questions > h2 {
+  position: absolute;
+  left: 7vw;
+  top: 20vh;
+  margin: 0;
+  font-family: "Gowun Batang", serif;
+  font-size: clamp(38px, 5vw, 76px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -.055em;
+}
+
+.question-field h2 em,
+.work-questions h2 em {
+  font-family: ui-monospace, monospace;
+  font-size: .48em;
+  font-style: italic;
+  color: #69665f;
+}
+
+.field-question {
+  position: absolute;
+  width: 20vw;
+  min-height: 156px;
+  padding: 23px 24px;
+  background: #fff;
+  border-top: 2px solid var(--accent);
+  box-shadow: 0 18px 38px rgba(28, 27, 23, .08);
+}
+
+.field-question > span {
+  font: 12px ui-monospace, monospace;
+  color: var(--accent);
+}
+
+.field-question strong {
+  display: block;
+  margin: 13px 0 18px;
+  font-family: "Gowun Batang", serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.38;
+}
+
+.field-question small {
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: #85827b;
+}
+
+.fq-one { left: 7vw; bottom: 8vh; transform: rotate(-2deg); }
+.fq-two { left: 29vw; bottom: 12vh; transform: rotate(1deg); }
+.fq-three { left: 52vw; bottom: 7vh; transform: rotate(-1deg); }
+.fq-four { right: 5vw; bottom: 13vh; transform: rotate(2deg); }
+
+.work-questions {
+  opacity: clamp(0, min(calc(var(--workset) * 3), calc(1 - var(--resolve) * 3)), 1);
+  transform: translateY(calc((1 - var(--workset)) * 10vh));
+}
+
+.lens-stack {
+  position: absolute;
+  right: 6vw;
+  top: 14vh;
+  width: 42vw;
+  height: 78vh;
+  perspective: 900px;
+}
+
+.lens {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  min-height: 148px;
+  padding: 25px 28px;
+  background: #fff;
+  border: 1px solid #dedcd5;
+  border-radius: 14px;
+  box-shadow: 0 20px 42px rgba(28, 27, 23, .10);
+}
+
+.lens small {
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: var(--accent);
+}
+
+.lens strong {
+  display: block;
+  margin: 12px 0 18px;
+  font-family: "Gowun Batang", serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.lens span {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.lens span b {
+  padding: 9px 11px;
+  background: #eeece6;
+  font-size: 12px;
+  font-weight: 500;
+  color: #5f5c56;
+}
+
+.lens-content { top: 0; transform: translateX(calc((1 - var(--workset)) * 15vw)) rotate(-1deg); }
+.lens-product { top: 150px; z-index: 2; transform: translateX(calc((1 - var(--workset)) * 21vw)) rotate(1deg); }
+.lens-order { top: 300px; z-index: 3; transform: translateX(calc((1 - var(--workset)) * 27vw)) rotate(-.5deg); }
+.lens-reaction { top: 450px; z-index: 4; transform: translateX(calc((1 - var(--workset)) * 33vw)) rotate(.5deg); }
+
+.work-note {
+  position: absolute;
+  left: 7vw;
+  bottom: 13vh;
+  margin: 0;
+  color: #77746d;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+@media (max-width: 760px) {
+  .question-field > h2,
+  .work-questions > h2 { font-size: 9.5vw; }
+  .field-question { width: 41vw; min-height: 130px; }
+  .fq-one { left: 5vw; bottom: 29vh; }
+  .fq-two { left: 53vw; bottom: 31vh; }
+  .fq-three { left: 5vw; bottom: 8vh; }
+  .fq-four { right: 5vw; bottom: 10vh; }
+  .lens-stack { left: 7vw; right: auto; top: 33vh; width: 86vw; height: 62vh; }
+  .lens { min-height: 125px; }
+  .lens-product { top: 120px; }
+  .lens-order { top: 240px; }
+  .lens-reaction { top: 360px; }
+  .work-note { display: none; }
+}
+
+@font-face {
+  font-family: "GmarketSans";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "GmarketSans";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* V15 type and material system */
+:root {
+  --serif: "GmarketSans", "Noto Sans KR", sans-serif;
+  --sans: "Noto Sans KR", sans-serif;
+  --mono: "IBM Plex Mono", monospace;
+  --paper-deep: #f1efe9;
+  --paper-card: rgba(255, 255, 252, .92);
+  --charcoal: #1a1a18;
+  --rust: #ad4a20;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--charcoal);
+}
+
+.stage {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,.82), transparent 31%),
+    linear-gradient(135deg, #f8f7f3 0%, var(--paper-deep) 100%);
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .038;
+  background-image: repeating-radial-gradient(circle at 23% 31%, #151513 0 .35px, transparent .65px 4px);
+  background-size: 8px 9px;
+}
+
+.site-head b,
+.intro h1,
+.question-card strong,
+.layer-question strong,
+.perspectives h2,
+.view strong,
+.view q,
+.question-field > h2,
+.work-questions > h2,
+.field-question strong,
+.lens strong,
+.final-copy strong {
+  font-family: var(--serif);
+  word-break: keep-all;
+}
+
+.site-head b {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -.035em;
+}
+
+.intro h1,
+.final-copy strong {
+  font-weight: 700;
+}
+
+.site-head > span,
+.eyebrow,
+.question-card small,
+.layer small,
+.view small,
+.field-question > span,
+.lens small,
+.scroll-cue,
+.layer-labels span,
+.assembled header b {
+  font-family: var(--mono);
+  text-transform: uppercase;
+}
+
+.site-head > span {
+  color: #76726b;
+  letter-spacing: .2em;
+}
+
+.site-head a,
+.enter {
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+.intro h1 {
+  font-weight: 500;
+  letter-spacing: -.062em;
+}
+
+.intro h1 em,
+.perspectives h2 em,
+.question-field h2 em,
+.work-questions h2 em {
+  font-family: var(--mono);
+  font-weight: 400;
+  letter-spacing: -.055em;
+}
+
+.eyebrow,
+.question-card small,
+.layer small,
+.view small,
+.lens small {
+  color: var(--rust);
+  font-weight: 500;
+}
+
+.question-card,
+.layer,
+.view,
+.field-question,
+.lens {
+  background: var(--paper-card);
+  border-color: rgba(91, 84, 73, .17);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.95) inset,
+    0 22px 48px rgba(49, 43, 34, .09);
+  backdrop-filter: blur(4px);
+}
+
+.question-card,
+.layer,
+.lens {
+  border-radius: 10px;
+}
+
+.question-card::before,
+.field-question::before,
+.lens::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 54px;
+  height: 2px;
+  background: var(--rust);
+}
+
+.question-card::before,
+.lens::before { border-radius: 10px 0 0; }
+
+.question-card strong {
+  font-weight: 500;
+  letter-spacing: -.04em;
+}
+
+.layer-question strong,
+.view strong,
+.view q,
+.field-question strong,
+.lens strong {
+  letter-spacing: -.035em;
+}
+
+.matrix i,
+.lens span b {
+  background: #e9e5dd;
+}
+
+.matrix i:nth-child(5),
+.matrix i:nth-child(9) {
+  background: #d49a7b;
+}
+
+.field-question {
+  border-top: 0;
+}
+
+.field-question > span {
+  color: var(--rust);
+  font-size: 11px;
+}
+
+.assembled {
+  border-color: rgba(50,72,67,.2);
+  box-shadow: 0 34px 90px rgba(33, 39, 36, .16);
+}
+
+.assembled header {
+  background: #173f3d;
+}
+
+.final-copy strong {
+  font-weight: 500;
+  letter-spacing: -.045em;
+}
+
+.top-progress {
+  background: linear-gradient(90deg, var(--rust), #262622);
+}
+
+/* Bookmaking details: binding, page edge and folio. */
+.question-card,
+.layer,
+.field-question,
+.lens {
+  overflow: hidden;
+}
+
+.question-card {
+  padding-left: 45px;
+  background:
+    linear-gradient(90deg, rgba(97,82,63,.08) 0 1px, transparent 1px 100%) 23px 0 / 1px 100% no-repeat,
+    var(--paper-card);
+}
+
+.question-card::after {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 15px;
+  bottom: 15px;
+  width: 3px;
+  border-left: 1px solid rgba(64,58,49,.14);
+  border-right: 1px solid rgba(255,255,255,.9);
+}
+
+.layer {
+  padding-left: 34px;
+  background:
+    linear-gradient(90deg, rgba(86,75,59,.10) 0 1px, transparent 1px 100%) 17px 0 / 1px 100% no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(252,250,245,.94));
+}
+
+.layer::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-left: 1px solid rgba(72,63,51,.14);
+  border-right: 1px solid rgba(255,255,255,.92);
+}
+
+.layer::after {
+  content: attr(data-folio) " / 04";
+  position: absolute;
+  right: 17px;
+  bottom: 11px;
+  font: 8px var(--mono);
+  letter-spacing: .08em;
+  color: #aaa69e;
+}
+
+.field-question::after,
+.lens::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 5px;
+  height: 3px;
+  opacity: .6;
+  background: repeating-linear-gradient(180deg, rgba(105,96,81,.14) 0 1px, transparent 1px 2px);
+}
+
+/* The first sentence reveals the three lenses before the card separates. */
+.question-token {
+  position: relative;
+  display: inline-block;
+  transition: color .15s linear;
+}
+
+.question-token::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 1px;
+  transform-origin: left center;
+  transform: scaleX(clamp(0, calc(var(--question) * 2 - .7), 1));
+}
+
+.token-time::after { background: #918b80; }
+.token-book::after { background: var(--teal); }
+.token-interest::after { background: var(--rust); }
+
+.token-time {
+  color: color-mix(in srgb, var(--charcoal) calc(100% - var(--layers) * 35%), #888 35%);
+  transform: translateX(calc(var(--layers) * -7px));
+}
+
+.token-book {
+  color: color-mix(in srgb, var(--charcoal) calc(100% - var(--layers) * 48%), var(--teal) 48%);
+  transform: translateY(calc(var(--layers) * -5px));
+}
+
+.token-interest {
+  color: color-mix(in srgb, var(--charcoal) calc(100% - var(--layers) * 48%), var(--rust) 48%);
+  transform: translateX(calc(var(--layers) * 7px));
+}
+
+/* Three inks carry meaning instead of decoration. */
+.layer-context b,
+.view-product > span,
+.view-content > span,
+.view-sales > span,
+.lens span b:nth-child(2) {
+  color: var(--teal);
+}
+
+.layer-data > span,
+.view-reader > span,
+.work-note {
+  color: #716d65;
+}
+
+.layer-views div:nth-child(2) b,
+.field-question > span,
+.lens small {
+  color: var(--rust);
+}
+
+.lens span b:first-child {
+  border-left: 2px solid var(--rust);
+}
+
+.lens span b:last-child {
+  border-left: 2px solid var(--teal);
+}
+
+/* 1. Typesetting: words settle like movable type, not a typing cursor. */
+.question-token {
+  opacity: var(--token-progress);
+  filter: blur(calc((1 - var(--token-progress)) * 3px));
+  transform:
+    translate(
+      calc((1 - var(--token-progress)) * var(--token-x)),
+      calc((1 - var(--token-progress)) * 12px)
+    );
+}
+
+.token-time { --token-progress: var(--type-time); --token-x: -13px; }
+.token-book { --token-progress: var(--type-book); --token-x: 8px; }
+.token-interest { --token-progress: var(--type-interest); --token-x: -8px; }
+
+.question-token::after {
+  transform: scaleX(var(--token-progress));
+}
+
+/* 2. Each leaf lifts separately; distance controls shadow and clarity. */
+.layer-question {
+  opacity: clamp(.12, var(--lift-question), 1);
+  transform: translateY(calc(-50% + -205px * var(--lift-question))) scale(calc(.9 + .1 * var(--lift-question)));
+  box-shadow: 0 calc(7px + 18px * var(--lift-question)) calc(13px + 30px * var(--lift-question)) rgba(49,43,34,calc(.04 + .08 * var(--lift-question)));
+}
+
+.layer-context {
+  opacity: clamp(.12, var(--lift-context), 1);
+  transform: translateY(calc(-50% + -67px * var(--lift-context))) translateX(calc((1 - var(--lift-context)) * 7px)) scale(calc(.9 + .1 * var(--lift-context)));
+}
+
+.layer-data {
+  opacity: clamp(.12, var(--lift-data), 1);
+  transform: translateY(calc(-50% + 71px * var(--lift-data))) translateX(calc((1 - var(--lift-data)) * -6px)) scale(calc(.9 + .1 * var(--lift-data)));
+}
+
+.layer-views {
+  opacity: clamp(.12, var(--lift-views), 1);
+  transform: translateY(calc(-50% + 209px * var(--lift-views))) scale(calc(.9 + .1 * var(--lift-views)));
+}
+
+.layer-context,
+.layer-data,
+.layer-views {
+  box-shadow: 0 22px 44px rgba(49,43,34,.10);
+}
+
+/* 3. Focus travels through the existing four view marks. */
+.layer-views div {
+  opacity: .42;
+  transform: translateY(2px);
+}
+
+.layer-views div i {
+  transition: none;
+  background: transparent;
+  border-color: #77736c;
+  box-shadow: none;
+}
+
+.experience[data-view-focus="product"] .layer-views div:nth-child(2),
+.experience[data-view-focus="content"] .layer-views div:nth-child(3),
+.experience[data-view-focus="sales"] .layer-views div:nth-child(4),
+.experience[data-view-focus="reaction"] .layer-views div:nth-child(5) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.experience[data-view-focus="product"] .layer-views div:nth-child(2) i,
+.experience[data-view-focus="content"] .layer-views div:nth-child(3) i,
+.experience[data-view-focus="sales"] .layer-views div:nth-child(4) i,
+.experience[data-view-focus="reaction"] .layer-views div:nth-child(5) i {
+  background: var(--rust);
+  border-color: var(--rust);
+  box-shadow: 0 0 0 5px rgba(173,74,32,.09);
+}
+
+/* 4. The former paper layers flatten into the final interface grammar. */
+.assembled {
+  clip-path: inset(calc((1 - var(--resolve)) * 5%) round calc((1 - var(--resolve)) * 14px));
+}
+
+.assembled header {
+  transform: translateY(calc((1 - var(--resolve)) * -72px));
+  opacity: clamp(0, calc(var(--resolve) * 2 - .35), 1);
+}
+
+.assembled-body aside {
+  transform: translateX(calc((1 - var(--resolve)) * -42px));
+  opacity: clamp(0, calc(var(--resolve) * 2 - .55), 1);
+}
+
+.assembled-body main > div:first-child {
+  transform-origin: top center;
+  transform: scaleY(clamp(.08, var(--resolve), 1));
+  opacity: clamp(0, calc(var(--resolve) * 2 - .7), 1);
+}
+
+.assembled-body main > div:nth-child(2),
+.assembled-body main > div:nth-child(3) {
+  transform: translateY(calc((1 - var(--resolve)) * 34px));
+  opacity: clamp(0, calc(var(--resolve) * 2 - .95), 1);
+}
+
+.final-copy,
+.enter {
+  opacity: clamp(0, calc(var(--resolve) * 3 - 2), 1);
+  transform: translateY(calc((1 - var(--resolve)) * 14px));
+}
+
+/* A layer does not disappear; it becomes the field for the next view. */
+.layers {
+  transform-origin: 50% 50%;
+  transform:
+    translateX(calc(var(--views) * -13vw))
+    scale(calc(1 + var(--views) * 1.18));
+  filter: blur(calc(var(--views) * 1.2px));
+}
+
+.perspectives {
+  clip-path: inset(calc((1 - var(--views)) * 7%) round calc((1 - var(--views)) * 18px));
+}
+
+.view {
+  transform: translateY(calc((1 - var(--views)) * 28px));
+}
+
+.view-content { transform: translateY(calc((1 - var(--views)) * 38px)); }
+.view-sales { transform: translateY(calc((1 - var(--views)) * 48px)); }
+.view-reader { transform: translateY(calc((1 - var(--views)) * 58px)); }
+
+/* The same data face changes emphasis as the reading lens moves. */
+.focus-readout {
+  position: absolute;
+  right: 28px;
+  top: 18px;
+  height: 14px;
+  min-width: 150px;
+  text-align: right;
+}
+
+.focus-readout b {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font: 500 8px var(--mono);
+  letter-spacing: .04em;
+  color: var(--teal);
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.experience[data-view-focus="product"] .focus-readout b[data-focus="product"],
+.experience[data-view-focus="content"] .focus-readout b[data-focus="content"],
+.experience[data-view-focus="sales"] .focus-readout b[data-focus="sales"],
+.experience[data-view-focus="reaction"] .focus-readout b[data-focus="reaction"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.experience[data-view-focus="product"] .matrix i:nth-child(5),
+.experience[data-view-focus="product"] .matrix i:nth-child(6),
+.experience[data-view-focus="content"] .matrix i:nth-child(2),
+.experience[data-view-focus="content"] .matrix i:nth-child(3),
+.experience[data-view-focus="sales"] .matrix i:nth-child(8),
+.experience[data-view-focus="sales"] .matrix i:nth-child(9),
+.experience[data-view-focus="reaction"] .matrix i:nth-child(10),
+.experience[data-view-focus="reaction"] .matrix i:nth-child(12) {
+  background: var(--teal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(43,119,116,.16);
+}
+
+.data-description {
+  opacity: .45;
+}
+
+/* The final shell begins as the last question card and grows into the UI. */
+.assembled {
+  isolation: isolate;
+  transform:
+    perspective(1000px)
+    rotateX(calc((1 - var(--resolve)) * 8deg))
+    translateY(calc((1 - var(--resolve)) * 8vh))
+    scale(calc(.38 + var(--resolve) * .62));
+  box-shadow:
+    0 calc(18px + var(--resolve) * 12px)
+    calc(36px + var(--resolve) * 39px)
+    rgba(27,29,27,calc(.18 - var(--resolve) * .05));
+}
+
+.assembled::before {
+  content: "요즘 어떤 책에 관심이 모이고 있을까?";
+  position: absolute;
+  z-index: 5;
+  left: 8%;
+  top: 34%;
+  width: 70%;
+  font: 500 clamp(20px, 2.2vw, 34px)/1.45 var(--serif);
+  letter-spacing: -.04em;
+  color: var(--charcoal);
+  opacity: clamp(0, calc(1.35 - var(--resolve) * 2.15), 1);
+  transform: translateY(calc(var(--resolve) * -14px));
+}
+
+.assembled::after {
+  content: "QUESTION  —  VIEW";
+  position: absolute;
+  z-index: 5;
+  left: 8%;
+  top: 24%;
+  font: 500 8px var(--mono);
+  letter-spacing: .16em;
+  color: var(--rust);
+  opacity: clamp(0, calc(1.25 - var(--resolve) * 2.4), 1);
+}
+
+.resolution {
+  opacity: clamp(0, calc(var(--resolve) * 4), 1);
+  background: rgba(247,246,242,clamp(0,calc(var(--resolve) * 3.2),.97));
+}
+
+.assembled {
+  border-color: rgba(173,74,32,calc(.12 + (1 - var(--resolve)) * .28));
+}
+
+/* Let the question card register before the interface grammar is revealed. */
+.assembled header {
+  opacity: clamp(0, calc(var(--resolve) * 2.8 - 1.05), 1);
+}
+
+.assembled-body aside {
+  opacity: clamp(0, calc(var(--resolve) * 2.7 - 1.25), 1);
+}
+
+.assembled-body main > div:first-child {
+  opacity: clamp(0, calc(var(--resolve) * 2.6 - 1.35), 1);
+}
+
+.assembled-body main > div:nth-child(2),
+.assembled-body main > div:nth-child(3) {
+  opacity: clamp(0, calc(var(--resolve) * 2.8 - 1.72), 1);
+}
+
+/* Actual DataHub capture replaces the neutral shell without changing morph geometry. */
+.assembled {
+  overflow: hidden;
+  background: #f5f7fb;
+}
+
+.assembled .datahub-actual {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #f5f7fb;
+  opacity: clamp(0, calc(var(--resolve) * 2.6 - .9), 1);
+}

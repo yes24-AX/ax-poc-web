@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --version)",
+      "Bash(dotnet --list-sdks)",
+      "Bash(find \"D:/Sources/yes24-ax/developers\" -type f -not -path '*/.git/*' -not -path '*/bin/*' -not -path '*/obj/*' 2>&1 | head -80)",
+      "Read(//d/Sources/yes24-ax/developers/**)"
+    ],
+    "additionalDirectories": [
+      "D:\\Sources\\yes24-ax\\developers\\developers\\Views\\Shared",
+      "D:\\Sources\\yes24-ax\\developers\\developers\\Controllers",
+      "D:\\Sources\\yes24-ax\\developers\\developers\\Models",
+      "D:\\Sources\\yes24-ax\\developers\\developers\\Views\\Home",
+      "D:\\Sources\\yes24-ax\\developers\\developers\\Views\\Docs"
+    ]
+  }
+}

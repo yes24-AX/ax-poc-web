@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ — YES24 Developers</title>
+  <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
+      <span class="nav-logo-developers">개발자센터</span>
+    </a>
+    <div class="nav-divider"></div>
+    <ul class="nav-links">
+      <li><a href="docs.html">문서</a></li>
+      <li><a href="api-explorer.html">API 테스트</a></li>
+      <li><a href="support.html" class="active">지원</a></li>
+
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <span id="nav-user-info" style="display:none"></span>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-docs" style="max-width:none;grid-template-columns:var(--sidebar-width) minmax(0,1fr);">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">지원</div>
+      <ul class="sidebar-nav">
+        <li><a href="support.html">공지사항</a></li>
+        <li><a href="support-faq.html" class="active">FAQ</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="doc-content">
+    <nav class="doc-breadcrumb">
+      <a href="index.html">홈</a>
+      <span>&gt;</span>
+      <a href="support.html">지원</a>
+      <span>&gt;</span>
+      <span>FAQ</span>
+    </nav>
+
+    <div class="doc-page-title">
+      <h1>FAQ</h1>
+      <p>YES24 Open API 이용 중 자주 묻는 질문입니다.</p>
+    </div>
+
+    <div style="margin-top:24px;border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);background:var(--color-bg);">
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          API Key는 어떻게 발급받나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p><a href="api-key-apply.html">API Key 신청 페이지</a>에서 담당자 정보, 서비스 정보, YES24 계정 정보를 입력하면 즉시 발급됩니다. 입력한 신청 정보와 발급 결과는 브라우저의 로컬 저장소에 JSON 형태로 저장됩니다.</p><p style="margin-top:8px;"><a href="docs-apikey.html">API Key 발급 문서 보기</a></p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          API Key는 어디에 넣어야 하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>발급받은 API Key는 모든 요청의 <code>X-API-Key</code> 헤더에 포함합니다. 별도의 Auth API나 토큰 발급 절차는 사용하지 않습니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          로그인하지 않아도 API 문서를 볼 수 있나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>문서, API 카탈로그, 오류 코드, FAQ는 로그인 없이 확인할 수 있습니다. 내 애플리케이션과 발급된 Key 관리는 로그인 후 이용하는 개인 영역입니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          내 애플리케이션은 어디에서 확인하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>로그인 후 상단 오른쪽의 프로필 영역을 클릭하면 <a href="my-applications.html">내 애플리케이션</a>으로 이동합니다. 발급받은 API Key와 애플리케이션 상태를 이 화면에서 확인합니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          API 테스트는 실제 API를 호출하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>현재 API 테스트 화면은 실제 호출 화면과 동일한 입력 흐름을 제공하되, 응답은 각 API에 맞춘 예시 JSON으로 반환합니다. 실제 API 연동 전 요청 파라미터와 응답 구조를 확인하는 용도로 사용할 수 있습니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          요청 파라미터는 어떻게 확인하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>각 API 상세 문서의 <strong>Query Parameters</strong> 섹션에서 확인할 수 있습니다. API 테스트 화면의 Request Query Parameters도 선택한 API에 맞춰 동기화됩니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          응답 형식은 모든 API가 동일한가요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>공통 응답은 <code>success</code>, <code>message</code>, <code>data</code>, <code>errorCode</code> 구조를 사용합니다. 다만 <code>data</code> 안의 상세 필드는 API별로 다르며, 각 API 상세 문서의 <strong>Response Fields</strong>에서 확인할 수 있습니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          페이지네이션은 어떻게 동작하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>목록형 API는 보통 <code>page</code>와 <code>pageSize</code> 파라미터를 사용합니다. 기본 페이지는 1이며, 페이지 크기는 API 문서에 명시된 기본값과 최대값을 따릅니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          오류 코드는 어디에서 확인하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>공통 오류 코드는 <a href="docs-error-codes.html">문서 &gt; 오류 코드</a>에서 확인할 수 있습니다. API별로 자주 발생하는 오류는 각 API 상세 문서의 오류 코드 섹션에서도 안내합니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          인증 오류가 발생하면 무엇을 확인해야 하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p><code>X-API-Key</code> 헤더가 누락되지 않았는지, Key 값이 정확한지, 해당 API 사용 권한이 있는지, 애플리케이션 상태가 활성 상태인지 확인합니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          Category API와 Goods API는 어떻게 다르나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>Category API는 카테고리 목록, 베스트셀러, 신상품처럼 카테고리 기준의 탐색 데이터를 제공합니다. Goods API는 상품 검색, 상품 상세, 목차, 작가 정보처럼 개별 상품 중심의 데이터를 제공합니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          ISBN13과 ItemId 중 무엇을 사용해야 하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>상품 상세, 상품 목차, 작가 기본 정보 조회에서는 <code>searchType</code>으로 <code>ISBN13</code> 또는 <code>ItemId</code>를 선택합니다. ISBN 기반 조회가 필요하면 ISBN13을, YES24 상품 번호를 알고 있으면 ItemId를 사용합니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          API 사용량 제한이 있나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>운영 정책에 따라 요청량 제한이 적용될 수 있습니다. 제한을 초과하면 <code>429 Too Many Requests</code>가 반환될 수 있으며, 세부 기준은 운영 정책 확정 후 공지사항과 문서에 안내합니다.</p>
+        </div>
+      </details>
+
+      <details style="border-bottom:1px solid var(--color-border);">
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          상업적 서비스에 사용할 수 있나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>상업적 서비스 적용은 제공 범위, 호출량, 데이터 사용 방식에 따라 별도 검토가 필요할 수 있습니다. 서비스 출시 전 사용 목적과 데이터 노출 방식을 확인한 뒤 문의해 주세요.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
+          문의는 어디로 하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
+        </summary>
+        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
+          <p>오류나 사용 문의가 있으면 발생한 API, 요청 파라미터, 응답 전문, 발생 시각을 함께 정리해 담당 채널로 문의해 주세요. 오류 코드는 먼저 <a href="docs-error-codes.html">오류 코드 문서</a>에서 확인할 수 있습니다.</p>
+        </div>
+      </details>
+    </div>
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-brand">
+        <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="28" style="display:block;">
+      </a>
+      <p class="footer-desc">YES24 Open API Developer Portal</p>
+      <p class="footer-copy">© 2026 YES24 Co., Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-link-group">
+        <h4>문서</h4>
+        <ul>
+          <li><a href="docs.html">시작하기</a></li>
+          <li><a href="api-catalog.html">API 카탈로그</a></li>
+          <li><a href="api-goods-item-list.html">API 문서</a></li>
+          <li><a href="docs-error-codes.html">오류 코드</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API 테스트</a></li>
+          <li><a href="my-applications.html">내 애플리케이션</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>지원</h4>
+        <ul>
+          <li><a href="support.html">공지사항</a></li>
+          <li><a href="support-faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

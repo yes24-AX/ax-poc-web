@@ -1,0 +1,1533 @@
+﻿var BLOG_URL = document.location.protocol + "//blog.yes24.com";
+var HTTP_URL = "http://" + window.location.host;
+var HTTPS_URL = (window.location.host.split('.')[0].indexOf("event") >= 0) ? "https://www.yes24.com" : "https://" + window.location.host;
+var NOW_YES_HTTP_URL = (window.location.host.split('.')[0].indexOf("event") >= 0) ? "https://www.yes24.com" : "https://" + window.location.host;
+var IMG_HOTS_SYS = "//image.yes24.com";
+
+//BASE64 인코딩/디코딩 Polyfill
+(function () {
+    if (!window.atob) {
+        window.atob = function (b64text) { return Base64.decode(b64text); };
+        window.btoa = function (utf8text) { return Base64.encode(utf8text); };
+
+        var Base64 = {
+            keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+            encode: function (input) {
+                var output = "";
+                var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+                var x = 0;
+
+                input = Base64._utf8_encode(input);
+
+                while (x < input.length) {
+                    chr1 = input.charCodeAt(x++);
+                    chr2 = input.charCodeAt(x++);
+                    chr3 = input.charCodeAt(x++);
+
+                    enc1 = chr1 >> 2;
+                    enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                    enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                    enc4 = chr3 & 63;
+
+                    if (isNaN(chr2)) enc3 = enc4 = 64;
+                    else if (isNaN(chr3)) enc4 = 64;
+
+                    output = output + this.keyStr.charAt(enc1) + this.keyStr.charAt(enc2) + this.keyStr.charAt(enc3) + this.keyStr.charAt(enc4);
+                }
+                return output;
+            },
+            decode: function (input) {
+                var output = "";
+                var chr1, chr2, chr3;
+                var enc1, enc2, enc3, enc4;
+                var x = 0;
+
+                input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+                while (x < input.length) {
+                    enc1 = this.keyStr.indexOf(input.charAt(x++));
+                    enc2 = this.keyStr.indexOf(input.charAt(x++));
+                    enc3 = this.keyStr.indexOf(input.charAt(x++));
+                    enc4 = this.keyStr.indexOf(input.charAt(x++));
+
+                    chr1 = (enc1 << 2) | (enc2 >> 4);
+                    chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                    chr3 = ((enc3 & 3) << 6) | enc4;
+
+                    output = output + String.fromCharCode(chr1);
+
+                    if (enc3 != 64) output = output + String.fromCharCode(chr2);
+                    if (enc4 != 64) output = output + String.fromCharCode(chr3);
+                }
+                output = Base64._utf8_decode(output);
+                return output;
+            },
+            _utf8_encode: function (string) {
+                string = string.replace(/\r\n/g, "\n");
+                var utftext = "";
+
+                for (var n = 0; n < string.length; n++) {
+                    var c = string.charCodeAt(n);
+                    if (c < 128) {
+                        utftext += String.fromCharCode(c);
+                    } else if ((c > 127) && (c < 2048)) {
+                        utftext += String.fromCharCode((c >> 6) | 192);
+                        utftext += String.fromCharCode((c & 63) | 128);
+                    } else {
+                        utftext += String.fromCharCode((c >> 12) | 224);
+                        utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                        utftext += String.fromCharCode((c & 63) | 128);
+                    }
+                }
+                return utftext;
+            },
+            _utf8_decode: function (utftext) {
+                var string = "";
+                var x = 0;
+                var c = c1 = c2 = 0;
+
+                while (x < utftext.length) {
+                    c = utftext.charCodeAt(x);
+                    if (c < 128) {
+                        string += String.fromCharCode(c);
+                        x++;
+                    } else if ((c > 191) && (c < 224)) {
+                        c2 = utftext.charCodeAt(x + 1);
+                        string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+                        x += 2;
+                    } else {
+                        c2 = utftext.charCodeAt(x + 1);
+                        c3 = utftext.charCodeAt(x + 2);
+                        string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+                        x += 3;
+                    }
+                }
+                return string;
+            }
+        }
+    }
+}());
+
+//element에 ajax로 로드한 데이터로 바꾼다.
+function loadItem(element_id, url) {
+    $.get(url, function (data, textStatus) {
+        $('#' + element_id).replaceWith(data);
+    });
+}
+
+function loadItemWithCallback(element_id, url, callback) {
+    $.get(url, function (data, textStatus) {
+        $('#' + element_id).replaceWith(data);
+        if (callback && typeof callback == "function")
+            callback();
+    });
+}
+
+//폼
+function get_formInstance() {
+    var form = document.createElement("FORM");
+    form.method = "POST";
+    document.body.appendChild(form);
+    return form;
+}
+
+//나이 체크 여부
+function check_limit_age(data) {
+    var bRet = true;
+
+    try {
+        if (data.limit_age_yn == "Y") {
+            if (data.limit_age > data.member_age && data.limit_age >= 19) {
+                bRet = false;
+            }
+        }
+    }
+    catch (Exception) {
+        alert("연령 체크 에러");
+    }
+    return bRet;
+}
+
+//리스트 유효성 검사 리스트
+function check_valid_mylist(data) {
+    var result = true;
+    //연령제한
+    if (!check_limit_age(data)) {
+
+        //성인상품이고 로그인하지 않음
+        if (!check_login_alert(data.goods_name + "은(는) 연 " + data.limit_age + "세 이상 회원님만 리스트에 넣을 수 있는 상품입니다.\n로그인을 하시겠습니까?")) {
+            alert(data.limit_age + "세 이상 회원님만 리스트에 넣을 수 있는 상품입니다.");
+            result = false;
+        }
+        else {
+            //성인상품이지만 로그인함.
+            alert(data.goods_name + "은(는) " + data.limit_age + "세 이상 회원님만 리스트에 넣을 수 있는 상품입니다.");
+            result = false;
+        }
+    }
+    return result;
+
+}
+
+//유효성 검사
+function check_valid(data, order_count, cart_yn) {
+
+    var result = true;
+    //판매예정, 판매중인 상품만 장바구니에 담는다.
+    if (data.goods_state == "01" || data.goods_state == "02") {
+
+        //연령제한
+        if (!check_limit_age(data)) {
+
+            //성인상품이고 로그인하지 않음
+            if (!check_login_alert(data.goods_name + "은(는) 연 " + data.limit_age + "세 이상 회원님만 구입가능한 상품입니다.\n로그인을 하시겠습니까?")) {
+                alert(data.limit_age + "세 이상 회원님만 카트에 넣을 수 있는 상품입니다.");
+                result = false;
+            }
+            else {
+                //성인상품이지만 로그인함.
+                alert(data.goods_name + "은(는) " + data.limit_age + "세 이상 회원님만 구입가능한 상품입니다.");
+                result = false;
+            }
+        }
+        else if (data.order_limit_yn == "Y" && order_count > data.order_remain_count) {
+            alert("[" + data.goods_name + "]의 재고수량이 부족합니다.");
+            result = false;
+        }
+        else if (data.add_cart_yn == "N" && cart_yn) {
+            alert("[" + data.goods_name + "]은 카트에 담을 수 없는 상품입니다.");
+            result = false;
+        }
+        else if (data.order_limit_count > 0 && order_count > data.order_limit_count) {
+            alert("[" + data.goods_name + "]은 최대허용 주문수량 [" + data.order_limit_count + "]을 초과하였습니다.");
+            result = false;
+        }
+    }
+    else {
+        alert("[" + data.goods_name + "](일시품절 상품)은 카트에 담을 수 없는 상품입니다.");
+        result = false;
+    }
+
+    return result;
+}
+
+//장바구니담기
+function insert_cart(dispNo) {
+
+    var data = eval("(" + $("*[name='CATEGORY_VALUE']").val() + ")");
+    if (data == null) {
+        alert("상품의 옵션을 선택하세요");
+        return;
+    }
+    var ordCnt = $("*[name='ORD_CNT']").val();
+
+    var mainForm = get_formInstance();
+    //var returnUrl = get_url(); 
+    //var returnParams = get_param(); 
+
+
+    //이북 동시, 일반구매
+    if ($("#set_option_ebook").checked || data.resource_key == "13" || data.resource_key == "12") {
+        if (!check_login_alert("eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?"))
+            return;
+
+    }
+
+
+    if (check_valid(data, ordCnt, true)) {
+
+        var oInput = document.createElement("INPUT");
+        oInput.type = "hidden";
+
+        oInput.name = "PROC_CART";
+        oInput.value = ordCnt + "`" + data.goods_no + "`" + data.goods_seq;
+
+        mainForm.appendChild(oInput);
+
+        if ($("#set_option_ebook").checked)
+            mainForm.action = "/Order/FTCartReg.aspx?CategoryNumber=" + dispNo + "&ebook=true";
+        else
+            mainForm.action = "/Order/FTCartReg.aspx?CategoryNumber=" + dispNo;
+
+        mainForm.submit();
+    }
+
+}
+
+function insert_cart_notDirect(GoodsNo, codeName, code) {
+
+    var data = eval("(" + $("*[name='CATEGORY_VALUE']").val() + ")");
+    if (data == null) {
+        alert("상품의 옵션을 선택하세요");
+        return;
+    }
+
+    //이북 동시, 일반구매
+    if ($("#set_option_ebook").checked || data.resource_key == "13" || data.resource_key == "12") {
+        if (!check_login_alert("eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?"))
+            return;
+    }
+
+    var ordCnt = $("*[name='ORD_CNT']").val();
+
+    if (check_valid(data, ordCnt, true)) {
+        var proc_cart = ordCnt + "`" + data.goods_no + "`" + data.goods_seq;
+        var carturl = '/Order/FTCartReg.aspx?IsAjaxRequest=Y';
+        jQuery.ajax({
+            type: 'POST',
+            url: carturl,
+            data: 'PROC_CART=' + proc_cart,
+            success: function (data) {
+                if (String(data).length != 0 && String(data).charAt(0) == '1') {
+                    $("#alertmsg_detail").show();
+                }
+                else {
+                    alert('카트담기실패');
+                }
+            },
+            error: function () { alert('카트담기실패'); }
+        });
+    }
+    
+    setPcode(code);
+}
+
+// 미리보기 뷰어 - 카트에 넣기 (카트레이어)
+function insert_cart_notDirect_ByPreview(GoodsNo) {
+
+    var proc_cart = "1`" + GoodsNo + "`1";
+    var carturl = '/Order/FTCartReg.aspx?IsAjaxRequest=Y';
+    jQuery.ajax({
+        type: 'POST',
+        url: carturl,
+        data: 'PROC_CART=' + proc_cart,
+        success: function (data) {
+            if (String(data).length != 0 && String(data).charAt(0) == '1') {
+                $("#alertmsg").show();
+            } else {
+                $("#cartmessage").html(data);
+            }
+        },
+        error: function () { alert('카트담기실패'); }
+    });
+
+}
+
+//장바구니담기
+function insert_items_cart(locNo, dispNo) {
+
+    var items = $("*[name='CATEGORY_VALUE']");
+    var checkbox = $("*[name='CART_KEY']");
+    var ordCnt = $("*[name='ORD_CNT']");
+    var mainForm = get_formInstance();
+
+    if (locNo >= 0) {
+        checkbox[locNo].checked = true;
+    }
+
+    var isItem = false;
+    for (var i = 0; i < checkbox.length; i++) {
+        if (checkbox[i].checked) {
+            var data = eval("(" + $(items[i]).val() + ")");
+            if (data.resource_key == "13" || data.resource_key == "12") {
+                if (!check_login_alert("eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?"))
+                    return;
+            }
+
+            if (check_valid(data, $(ordCnt[i]).val(), true)) {
+                var oInput = document.createElement("INPUT");
+                oInput.type = "hidden";
+                oInput.name = "PROC_CART";
+                oInput.value = $(ordCnt[i]).val() + "`" + data.goods_no + "`" + data.goods_seq;
+                mainForm.appendChild(oInput);
+                isItem = true;
+            }
+            else {
+                checkbox[locNo].checked = false;
+            }
+
+        }
+    }
+    if (!isItem) {
+        alert("상품을 선택하세요.");
+        return;
+    }
+
+    mainForm.action = "/Order/FTCartReg.aspx?CategoryNumber=" + dispNo;
+    mainForm.submit();
+
+}
+
+//장바구니담기
+function insert_items_cart2(locNo, dispNo) {
+    var items = $("*[name='CATEGORY_VALUE']");
+    var ordCnt = $("*[name='ORD_CNT']");
+    var mainForm = get_formInstance();
+
+    var isItem = false;
+
+    var data = eval("(" + $(items[locNo]).val() + ")");
+    if (data.resource_key == "13" || data.resource_key == "12") {
+        if (!check_login_alert("eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?"))
+            return;
+    }
+
+    if (check_valid(data, $(ordCnt[locNo]).val(), true)) {
+        var oInput = document.createElement("INPUT");
+        oInput.type = "hidden";
+        oInput.name = "PROC_CART";
+        oInput.value = $(ordCnt[locNo]).val() + "`" + data.goods_no + "`" + data.goods_seq;
+        mainForm.appendChild(oInput);
+        isItem = true;
+    }
+
+    if (!isItem) {
+        alert("상품을 선택하세요.");
+        return;
+    }
+
+    mainForm.action = "/Order/FTCartReg.aspx?CategoryNumber=" + dispNo;
+    mainForm.submit();
+}
+
+//바로구매
+function direct_order(dispNo) {
+
+    var data = eval("(" + $("*[name='CATEGORY_VALUE']").val() + ")");
+    var ordCnt = $("*[name='ORD_CNT']").val();
+    var goods_price = $("*[name='Goods_Price']").val();
+
+    if (data == null) {
+        alert("상품의 옵션을 선택하세요");
+        return;
+    }
+
+    if ($("#set_option_ebook").checked || data.resource_key == "13" || data.resource_key == "12") {
+        if (!check_login_alert("eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?"))
+            return;
+
+    }
+
+    if (check_valid(data, ordCnt, false)) {
+
+        if (check_login() == false) {//비회원주문
+
+            var result = "";
+            if (window.showModalDialog) {
+                var fileName = "/Common/FTPopUp_Login.aspx";
+                var dlgStyle = "dialogHeight: 292px; dialogWidth:282px; dialogTop: ((availHeight /2) - (dialogHeight/2 ) )px; dialogLeft: ((availWidth /2) - (dialogWidth/2 ) )px; scroll:0; help:0; status:0;";
+                result = showModalDialog(fileName, window, dlgStyle);
+            }
+            else {
+                result = confirm("회원으로 주문하시겠습니까?");
+            }
+
+            if (result == "MEM_ORDER" || result == true) {	//회원주문
+                goto_login(HTTP_URL + "/Order/FTOrderReg04.aspx", "OrdGoodsNoH=" + data.goods_no + "`ActionType=DIRECT`OrdGoodsSeqH=" + data.goods_seq + "`LoginYnH=Y`DispNoH=" + dispNo + "`OCNT=" + ordCnt);
+            }
+            else if (result == "NONE_MEM_ORDER" || result == false) { //비회원주문
+                if (goods_price * ordCnt > 500000) //비회원주문  50만원 제한
+                {
+                    alert("비회원 주문은 50만원까지만 가능합니다. \n50만원 이상 주문 시에는 회원 로그인을 통해 구매해 주세요.");
+                    return;
+                }
+                else
+                    location.href = HTTP_URL + "/Order/FTOrderReg04.aspx?OrdGoodsNoH=" + data.goods_no + "&ActionType=DIRECT&OrdGoodsSeqH=" + data.goods_seq + "&DispNoH=" + dispNo + "&OCNT=" + ordCnt;
+            }
+            else { //주문창 Close
+                return;
+            }
+        }
+        else {
+            location.href = HTTP_URL + "/Order/FTOrderReg04.aspx?OrdGoodsNoH=" + data.goods_no + "&ActionType=DIRECT&OrdGoodsSeqH=" + data.goods_seq + "&LoginYnH=Y&DispNoH=" + dispNo + "&OCNT=" + ordCnt;
+        }
+    }
+
+}
+
+
+//상세페이지의 로그인 레이어 
+function direct_orderNew(dispNo, obj, codeName, code) {
+
+    var data = eval("(" + $("*[name='CATEGORY_VALUE']").val() + ")");
+    var ordCnt = $("*[name='ORD_CNT']").val();
+
+    if (data == null) {
+        alert("상품의 옵션을 선택하세요");
+        return;
+    }
+
+    if ($("#set_option_ebook").checked || data.resource_key == "13" || data.resource_key == "12") {
+        if (!check_login_alert("eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?"))
+            return;
+
+    }
+
+    if (check_valid(data, ordCnt, false)) {
+
+        if (check_login() == false) {//비회원
+            open_layer('nomemberOrderInfo', obj);
+        }
+        else {
+            if (codeName != null)
+                location.href = getClickCodeUrl(HTTP_URL + "/Order/FTOrderReg04.aspx?OrdGoodsNoH=" + data.goods_no + "&ActionType=DIRECT&OrdGoodsSeqH=" + data.goods_seq + "&LoginYnH=Y&DispNoH=" + dispNo + "&OCNT=" + ordCnt,
+                                                codeName,
+                                                code);
+            else
+                location.href = HTTP_URL + "/Order/FTOrderReg04.aspx?OrdGoodsNoH=" + data.goods_no + "&ActionType=DIRECT&OrdGoodsSeqH=" + data.goods_seq + "&LoginYnH=Y&DispNoH=" + dispNo + "&OCNT=" + ordCnt;
+        }
+    }
+}
+
+function loginOrderYn(loginTp, id) {
+
+    var data = eval("(" + $("*[name='CATEGORY_VALUE']").val() + ")");
+    var ordCnt = $("*[name='ORD_CNT']").val();
+    var dispNo = $("*[name='dispNo']").val();
+    if (data == null) {
+        alert("상품의 옵션을 선택하세요");
+        return;
+    }
+
+    var result = loginTp;
+
+    if (result == "MEM_ORDER") {	//회원주문
+        goto_login(HTTP_URL + "/Order/FTOrderReg04.aspx", "OrdGoodsNoH=" + data.goods_no + "`ActionType=DIRECT`OrdGoodsSeqH=" + data.goods_seq + "`LoginYnH=Y`DispNoH=" + dispNo + "`OCNT=" + ordCnt);
+    }
+    else if (result == "NONE_MEM_ORDER") { //비회원주문
+        location.href = HTTP_URL + "/Order/FTOrderReg04.aspx?OrdGoodsNoH=" + data.goods_no + "&ActionType=DIRECT&OrdGoodsSeqH=" + data.goods_seq + "&DispNoH=" + dispNo + "&OCNT=" + ordCnt;
+    }
+    else { //주문창 Close
+        $('#' + id).parent().remove();
+        return;
+    }
+
+}
+
+
+
+function direct_items_order(locNo, dispNo) {
+
+    var items = $("*[name='CATEGORY_VALUE']");
+    var orderCountList = $("*[name='ORD_CNT']");
+
+    var data = eval("(" + $(items[locNo]).val() + ")");
+    var ordCnt = $(orderCountList[locNo]).val();
+
+    var goods_price = $("*[name='Goods_Price']").val();
+
+    if (data.resource_key == "13" || data.resource_key == "12") {
+        if (!check_login_alert("eBook 상품은 로그인을 먼저 해주세요.\r\n로그인 하시겠습니까?"))
+            return false;
+
+    }
+
+    if (check_valid(data, ordCnt, false)) {
+
+        if (check_login() == false) {//비회원
+
+            var result = "";
+            if (window.showModalDialog) {
+                var fileName = "/Common/FTPopUp_Login.aspx";
+                var dlgStyle = "dialogHeight: 292px; dialogWidth:282px; dialogTop: ((availHeight /2) - (dialogHeight/2 ) )px; dialogLeft: ((availWidth /2) - (dialogWidth/2 ) )px; scroll:0; help:0; status:0;";
+                result = showModalDialog(fileName, window, dlgStyle);
+            }
+            else {
+                result = confirm("회원으로 주문하시겠습니까?");
+            }
+
+            if (result == "MEM_ORDER" || result == true) {	//회원주문
+                goto_login(HTTP_URL + "/Order/FTOrderReg04.aspx", "OrdGoodsNoH=" + data.goods_no + "`ActionType=DIRECT`OrdGoodsSeqH=" + data.goods_seq + "`LoginYnH=Y`DispNoH=" + dispNo + "`OCNT=" + ordCnt);
+            }
+            else if (result == "NONE_MEM_ORDER" || result == false) { //비회원주문
+                if (goods_price * ordCnt > 500000) //비회원주문  50만원 제한
+                {
+                    alert("비회원 주문은 50만원까지만 가능합니다. \n50만원 이상 주문 시에는 회원 로그인을 통해 구매해 주세요.");
+                    return;
+                }
+                else
+                    location.href = HTTP_URL + "/Order/FTOrderReg04.aspx?OrdGoodsNoH=" + data.goods_no + "&ActionType=DIRECT&OrdGoodsSeqH=" + data.goods_seq + "&DispNoH=" + dispNo + "&OCNT=" + ordCnt;
+            }
+            else { //주문창 Close 
+                return;
+            }
+        }
+        else {
+            location.href = HTTP_URL + "/Order/FTOrderReg04.aspx?OrdGoodsNoH=" + data.goods_no + "&ActionType=DIRECT&OrdGoodsSeqH=" + data.goods_seq + "&LoginYnH=Y&DispNoH=" + dispNo + "&OCNT=" + ordCnt;
+        }
+    }
+
+}
+
+// 성인 용품에 대한 기본 처리 모음
+function checkAdultView(str) {
+    var data = eval("(" + $("*[name='CATEGORY_VALUE']").val() + ")");
+
+    if (data == null && document.getElementById("SelectGoodsOptions")) { // 다중 옵션인 경우에 선택안하면 data가 null
+        data = document.getElementById("SelectGoodsOptions").options[1].value;
+    }
+
+    if (data == null) {
+        alert("데이터를 가져오는데 실패하였습니다");
+        return false;
+    }
+
+    if (!check_limit_age(data)) {
+
+
+        //성인상품이고 로그인하지 않음
+        if (!check_login_alert(data.goods_name + "은(는) 연 " + data.limit_age + "세 이상 회원님만 리스트에 넣을 수 있는 상품입니다.\n로그인을 하시겠습니까?")) {
+            if (typeof str == "undefined")
+                alert(data.goods_name + "은(는) " + "나이제한 상품으로 " + data.limit_age + "세 이상 회원님만 이용하실 수 있습니다");
+            else
+                alert(data.limit_age + "세 이상 회원님만 " + str + " 있는 상품입니다.");
+
+            return false;
+        }
+        else {
+            //성인상품이지만 로그인함.
+            if (typeof str == "undefined")
+                alert(data.goods_name + "은(는) " + "나이제한 상품으로 " + data.limit_age + "세 이상 회원님만 이용하실 수 있습니다");
+            else
+                alert(data.goods_name + "은(는) " + data.limit_age + "세 이상 회원님만 " + str + " 있는 상품입니다.");
+
+            return false;
+        }
+    }
+    return true;
+}
+
+//마이리스트 담기
+function insert_mylist(goods_no, codeName, code) {
+
+    //var returnUrl = get_url();
+    //var returnParams = get_param();
+
+    if (!check_login_alert("로그인이 필요합니다.\r\n로그인 하시겠습니까?")) {
+        return;
+    }
+
+    //    if(!checkAdultView("리스트에 넣을 수")) {
+    //        return;
+    //    }
+
+    var url = BLOG_URL + '/yes24/listAddGoodsPop.aspx?goodsno=' + goods_no;
+    if (codeName != null)
+        url = getClickCodeUrl(url, codeName, code);
+
+    centerNewWinNoScroll(url, 'addinlist', "320", "180");
+}
+
+//마이리스트 담기 전시용
+function insert_items_mylist(locNo) {
+
+    if (!check_login_alert("로그인이 필요합니다.\r\n로그인 하시겠습니까?")) {
+        return;
+    }
+
+    var items = $("*[name='CATEGORY_VALUE']");
+    var checkbox = $("*[name='CART_KEY']");
+    var ordCnt = $("*[name='ORD_CNT']");
+
+    if (locNo >= 0) {
+        checkbox[locNo].checked = true;
+    }
+
+    var isItem = false;
+    var value = "";
+    for (var i = 0; i < checkbox.length; i++) {
+        if (checkbox[i].checked) {
+            var data = eval("(" + $(items[i]).val() + ")");
+            if (check_valid_mylist(data)) {
+                value += data.goods_no + ",";
+                isItem = true;
+            }
+
+        }
+    }
+    if (isItem) {
+        centerNewWinNoScroll(BLOG_URL + '/yes24/listAddGoodsPop.aspx?goodsno=' + value, 'addinlist', "320", "180");
+    }
+    else {
+        alert("마이리스트에 담을 상품을 선택하세요.");
+        return;
+    }
+
+}
+
+function insert_cart3(id) {
+
+    var value = "";
+    var isItem = false;
+    $('#' + id).find(":checkbox").each(function () {
+        if (this.checked == true) {
+            value += eval("(" + this.value + ")").goods_no + ",";
+            isItem = true;
+        }
+    });
+
+
+    if (isItem) {
+        parent.location.href = "/Order/FTCartReg.aspx?AllGoodsNo=" + value;
+
+    }
+    else {
+        alert("상품을 선택하세요.");
+    }
+
+}
+
+//카트 담기(다른 컨텐츠 용)
+function insert_cart2(id) {
+
+    var value = "";
+    var isItem = false;
+    $('#' + id).find(":checkbox").each(function () {
+        if (this.checked == true) {
+            value += eval("(" + this.value + ")").goods_no + ",";
+            isItem = true;
+        }
+    });
+
+
+    if (isItem) {
+        location.href = "/Order/FTCartReg.aspx?AllGoodsNo=" + value;
+
+    }
+    else {
+        alert("상품을 선택하세요.");
+    }
+
+}
+//특별 구성용 카트 담기
+function insert_specialcart(goodsNo) {
+    //var goodsNo = eval("(" + data + ")").goods_no;
+    location.href = "/Order/FTCartReg.aspx?AllGoodsNo=" + goodsNo;
+
+}
+
+//리스트담기(다른 컨텐츠 용)
+function insert_mylist2(id) {
+    var value = "";
+    var isItem = false;
+    $('#' + id).find(":checkbox").each(function () {
+        if (this.checked == true) {
+            value += eval("(" + this.value + ")").goods_no + ",";
+            isItem = true;
+        }
+    });
+
+    if (isItem) {
+        centerNewWinNoScroll(BLOG_URL + '/yes24/listAddGoodsPop.aspx?goodsno=' + value, 'addinlist', "320", "180");
+    }
+    else {
+        alert("마이리스트에 담을 상품을 선택하세요.");
+    }
+}
+//로그인 체크
+function check_login() {
+
+    var logYn = false;
+    try {
+        logYn = (getCookie('ServiceCookies') == '' || getCookie('ServiceCookies') == null) ? false : true;
+        ///logYn = ($("#LoginYnH").val() == "N") ? false : true;
+    }
+    catch (Exception) {
+    }
+    return logYn;
+}
+
+//실명인증 체크
+function check_realname() {
+
+    var logYn = false;
+    try {
+        logYn = ($("#RealNameCheckYnH").val() == "N") ? false : true;
+    }
+    catch (Exception) {
+    }
+    return logYn;
+
+}
+
+//실명인증체크하여서 이동.
+function gotoRealname() {
+    if (!check_realname()) {
+        if (confirm("예스24는 건전한 인터넷 문화를 위해 본인확인 절차를 시행하고 있습니다.\r\n 가입시 본인인증을 하지 않으신 분은, 마이페이지 > 회원정보관리 > [I-Pin으로 인증변경] 후 글작성이 가능합니다. \r\n 본인인증은 최초 한번만 진행하시면 됩니다.")) {
+            location.href = "/Member/FTMypageMain.aspx?Gcode=001_001_005";
+            return false;
+        }
+        return false;
+    }
+    return true;
+}
+
+
+
+
+function sale_up(locNo) {
+    var chkArr = document.getElementsByName("ORD_CNT");
+
+    if (chkArr.length > 0) {
+        old_qty = parseInt(chkArr[locNo].value);
+        chkArr[locNo].value = old_qty + 1;
+
+        check_sale_noint(chkArr[locNo].value, locNo);
+    }
+
+    return;
+}
+
+function sale_down(locNo) {
+    var chkArr = document.getElementsByName("ORD_CNT");
+
+    if (chkArr.length > 0) {
+        old_qty = parseInt(chkArr[locNo].value);
+        if (old_qty > 1) {
+            chkArr[locNo].value = old_qty - 1;
+        }
+        else {
+            alert("1개 이상 구매 가능합니다.");
+        }
+
+        check_sale_noint(chkArr[locNo].value, locNo);
+    }
+
+    return;
+}
+
+function check_sale_noint(qty, locNo) {
+    var items = $("*[name='CATEGORY_VALUE']");
+    var data = eval("(" + $(items[locNo]).val() + ")");
+
+    if (data.noint_quotamonth > 0)
+        if (qty > 1)
+            alert("주문수량이 한 개 이상이면, " + data.noint_quotamonth + "개월 무이자할부 혜택을 받을 수 없습니다.");
+}
+
+function used_sale_up(locNo, remCnt) {
+    var chkArr = document.getElementsByName("ORD_CNT");
+
+    if (chkArr.length > 0) {
+        old_qty = parseInt(chkArr[locNo].value);
+
+        if (remCnt >= old_qty + 1) {
+            chkArr[locNo].value = old_qty + 1;
+        } else {
+            alert("본 상품은 한정수량 상품으로 " + remCnt + "개 이상으로는 주문할 수 없습니다.");
+
+        }
+
+    }
+
+    return;
+}
+
+
+
+
+//컨텐츠를 열고 닫는다.
+function show_contents(obj, contents_list_id) {
+
+    $('.more_contents', $('#' + contents_list_id)).toggle();
+    $('.more_button_on', $(obj)).toggle();
+    $('.more_button_off', $(obj)).toggle();
+
+    return false;
+}
+
+//전체 체크 박스 ON,OFF
+function check_all(id, checkObj) {
+    $('#' + id).find(":checkbox").each(function () {
+        if ($(this).css("display") != "none") {
+            this.checked = checkObj.checked;
+        }
+    });
+}
+
+//전시 유형에서 체크박스 ON,OFF
+function check_items_all(checkObj) {
+
+    //전시 유형들은 아래의 아이디를 가져야한다.
+    check_all("category_layout", checkObj);
+    $("input[name='category_checkAll']").each(function () {
+        this.checked = checkObj.checked
+    });
+}
+
+//검색한다.
+function search_themeword(id, codeName, code) {
+    var value = "";
+    var isItem = false;
+    $('#' + id).find(":checkbox").each(function () {
+        if (this.checked == true) {
+            value += this.value + " ";
+            isItem = true;
+        }
+    });
+
+    if (isItem) {
+        var originUrl = "/SearchCorner/Result?domain=ALL&mstr_query=&title_yn=Y&author_yn=Y&company_yn=Y&query=" + jQuery.trim(value);
+        if (codeName != null)
+            window.open(getClickCodeUrl(originUrl, codeName, code));
+        else
+            window.open(originUrl);
+    }
+    else {
+        alert("검색할 주제어를 선택하세요.");
+    }
+}
+
+//로그인 페이지로 이동
+function goto_login(returnUrl, returnParams) {
+    document.location = HTTPS_URL + "/Templates/FTLogin.aspx?ReturnURL=" + returnUrl + "&ReturnParams=" + encodeURIComponent(returnParams);
+
+}
+function goto_login2(returnUrl, returnParams) {
+
+    document.location = HTTPS_URL + "/Templates/FTLogin.aspx?ReturnURL=" + returnUrl + "&ReturnParams=" + encodeURIComponent(returnParams);
+
+}
+function goto_login() {
+
+    var returnUrl = get_url();
+    var returnParams = get_param();
+    document.location = HTTPS_URL + "/Templates/FTLogin.aspx?ReturnURL=" + returnUrl + "&ReturnParams=" + encodeURIComponent(returnParams);//.replace(/&/g, "`");
+}
+
+function get_url() {
+    return window.location.href.split("?")[0];
+}
+
+function get_param() {
+    var arr = new Array();
+    arr = window.location.href.split("?");
+    if (arr.length > 1)
+        return arr[1];
+    else
+        return "";
+}
+
+function get_obj_x(obj) {
+    return $(obj).offset().left + $(obj).width() / 2;
+}
+
+function get_obj_y(obj) {
+    return $(obj).offset().top + $(obj).height();
+}
+
+function set_layer_xy(obj, x, y) {
+    $(obj).css("top", y);
+    $(obj).css("left", x - $(obj).width() / 2);
+}
+
+//레이어를 오픈한다.
+function open_layer(layerId, obj) {
+
+    if ($('#' + layerId).length == 0) {
+        var layer = document.createElement("div");
+        document.body.appendChild(layer);
+        $(layer).css("position", "absolute");
+        $(layer).css("z-index", "99999");
+        $(layer).hide();
+
+        var x, y;
+
+        x = get_obj_x(obj);
+        y = get_obj_y(obj);
+
+        $(layer).load('/24/content/yes24layer.html #' + layerId, function () {
+            set_layer_xy(this, x, y);
+            $(this).show();
+            //제휴사별 비회원 구매 버튼 노출
+            switch (getCookie("PID")) {
+                case "215180":  //여민동락
+                case "245380":  //유아바우처
+                case "250929":  //한국난방공사(꿈꾸는모바일)
+                case "251148":  //군인공제회 복지몰
+                case "258924":  //카카오_B2E
+                case "271302":  //군인공제회2021 복지몰
+                case "341748":  //군인공제회2026 복지몰
+                    $("#btnNoMemberOrder").css({
+                        "display": "none"
+                    });
+                    break;
+            }
+        });
+    }
+}
+
+function open_layerAddGap(layerId, obj, gapX, gapY) {
+
+    if ($('#' + layerId).length == 0) {
+        var layer = document.createElement("div");
+        document.body.appendChild(layer);
+        $(layer).css("position", "absolute");
+        $(layer).hide();
+
+        var x, y;
+        x = get_obj_x(obj) + (gapX);
+        y = get_obj_y(obj) + (gapY);
+
+        $(layer).load('/24/content/yes24layer.html #' + layerId, function () {
+            set_layer_xy(this, x, y);
+            $(this).show();
+        });
+
+    }
+
+}
+
+//레이어를 닫는다.
+function close_layer(id) {
+    $('#' + id).parent().remove();
+}
+//레이어를 닫는다.
+function close_layer2(id) {
+    nomemberOrderInfo.style.display = "none";
+}
+
+
+
+//MSN IM THIS와 관련된 함수
+function im_this(goodsNo, CategoryNumber) {
+    try {
+        var obj = new ActiveXObject("MSNMessenger.P4QuickLaunch");
+    }
+    catch (e) {
+        obj = null;
+    }
+
+    if (obj != null) {
+
+
+        check_cookie();
+        set_cookie_article(goodsNo, CategoryNumber);
+
+        obj.LaunchApp('99995770', '');
+
+
+    }
+    else {
+        alert('IE 계열의 브라우저를 사용하고 MSN이 설치되어 있어야 합니다. ');
+    }
+}
+
+function check_cookie() {
+    var cookieName = "conturl";
+
+    document.cookie = cookieName + "=1;path=/" + ((location.host.toLowerCase().indexOf("yes24.com") >= 0) ? ";domain=yes24.com" : "");
+
+    var value = get_dz_cookie(cookieName);
+
+    if (value == null || value == "") {
+        alert("쿠키설정이 안되어 있는 경우 다른컨텐츠가 전송될 수 있습니다. \n\n인터넷옵션에서 쿠키허용을 확인해 주세요.");
+    }
+
+    document.cookie = cookieName + "=;path=/;expires=Fri, 31 Dec 1900 23:59:59 GMT" + ((location.host.toLowerCase().indexOf("yes24.com") >= 0) ? ";domain=yes24.com" : "");
+}
+
+function get_dz_cookie(name) {
+    var cookies = document.cookie;
+    var value = "";
+    if (cookies.indexOf(name) != -1) {
+        var start = cookies.indexOf(name) + name.length + 1;
+        var end = cookies.indexOf(";", start);
+
+        if (end == -1) {
+            end = cookies.length;
+        }
+
+        value = cookies.substring(start, end);
+        value = unescape(value);
+    }
+
+    return value;
+}
+
+function set_cookie_article(goodsNo, CategoryNumber) {
+
+
+    //var sValue = location.href;
+    var sValue = 'G' + ',' + goodsNo + ',' + CategoryNumber; //location.href;	            
+    var sExpires = new Date();
+    sExpires.setDate(sExpires.getDate() + 1);
+    sExpires.setHours(0, 0, 0, 0);
+    document.cookie = 'conturl=' + sValue + ";expires=" + (sExpires.toGMTString()) + ";path=/" + ((location.host.toLowerCase().indexOf("yes24.co.kr") >= 0) ? ";domain=yes24.co.kr" : "");
+}
+
+function copy_html_toClipboard(obj) {
+    var body = document.getElementsByTagName('body')[0];
+    if (typeof body == 'undefined') return;
+
+    if (body.createTextRange) {
+        var doc = document.body.createTextRange();
+        try {
+            doc.moveToElementText(obj);
+            doc.select();
+        }
+        catch (Exception) {
+
+        }
+        doc.execCommand("copy");
+        document.selection.empty();
+
+        return true;
+    }
+
+    return false;
+}
+
+
+
+//큰이미지보기
+function zoom_window(linkpage) {
+    var zoom;
+    zoom = window.open('', 'Zoom', 'width=760, height=560,toolbar=no,status=no,menubar=no,scrollbars=1,resizable=1');
+    zoom.location.href = linkpage;
+}
+
+//센터에 팝업창 띄우기
+function center_newWindow(url, winName, width, height, isScroll) {
+    var wi = screen.width - width;
+    var hi = screen.height - height;
+
+    if (wi < 0) wi = 0;
+    if (hi < 0) hi = 0;
+
+    var info = 'left=' + (wi / 2) + ',top=' + (hi / 2) + ',width=' + width + ',height=' + height + ',resizable=no,menubars=no,status=no';
+    if (isScroll) info += ',scrollbars=no';
+    var newwin = window.open(url, winName, info);
+    return newwin;
+}
+
+//쿠폰다운로드
+function download_Coupon(goodsNo, coupNo) {
+    if (check_login_alert("로그인 후 ‘쿠폰 다운로드’를 클릭하시면 쿠폰을 받으실 수 있습니다.\n로그인 하시겠습니까?")) {
+
+        window.open("/eventworld/popup_CouponDownA1.aspx?CoupNo=" + coupNo + "&GoodsNo=" + goodsNo, "", "toolbars=no, scrollbars=yes, width=500, height=577");
+    }
+}
+
+//멀티쿠폰다운로드
+function download_CouponV2(goodsNo, totalCount, coupNo, lmtGb) {
+    if (check_login_alert("로그인 후 ‘쿠폰 다운로드’를 클릭하시면 쿠폰을 받으실 수 있습니다.\n로그인 하시겠습니까?")) 
+    {
+        if (totalCount > 1) {
+            var url = "/Product/Coupon/CouponDownByN?goodsNo=" + goodsNo;
+            if (lmtGb != undefined) {
+                url += "&lmtGb=" + lmtGb;
+            }
+            window.open(url, "multi_coupon_down", "toolbars=no, scrollbars=yes, width=500, height=577");
+        }
+        else {
+            DownGoodsCoupon(goodsNo, coupNo);
+        }
+    }
+}
+
+//단일쿠폰 다운로드(1개일 경우 사용)
+function DownGoodsCoupon(goodsNo, coupNo) {
+    $.get("/Product/Coupon/CouponDown?goodsNo=" + goodsNo + "&coupNo=" + coupNo, function (result) {
+        if (isNaN(result) == false) {
+            window.open("/Product/Coupon/DownSuccess?coupNo=" + result + "&goodsNo=" + goodsNo, "single_coupon_down", "toolbars=no, scrollbars=yes, width=500, height=577");
+        }
+        else {
+            couponError(result);
+        }
+    });
+}
+
+//단일쿠폰다운오류 메시지 처리
+function couponError(resultMessage) {
+    var limitYn = "";
+    switch (resultMessage) {
+        case "쿠폰발급실패": limitYn = "N"; break;
+        case "중복발급": limitYn = "N"; break;
+        case "한정갯수초과": limitYn = "Y"; break;
+        case "쿠폰기간오류": limitYn = "N"; break;
+    }
+    if (limitYn == "Y") {
+        window.open("/Product/Coupon/DownLimitError", "coupon_limit_error", "toolbars=no, scrollbars=yes, width=500, height=577");
+    }
+    else if (resultMessage == "중복발급") {
+        window.open("/Product/Coupon/DownDuplicatedError", "coupon_duplicated_error", "toolbars=no, scrollbars=yes, width=500, height=577");
+    }
+    else {
+        alert("죄송합니다. \n쿠폰을 다시 다운 받아주세요.");
+    }
+}
+
+//로그인 여부 후 메시지 처리
+function check_login_alert(msg) {
+    if (!check_login()) {
+        if (confirm(msg) == true) {
+            var returnUrl = get_url();
+            var returnParams = get_param();
+            goto_login(HTTP_URL + returnUrl, returnParams);
+        }
+        return false;
+    }
+    return true;
+}
+
+//로그인 여부 후 바로 이동 처리
+function check_login_direct() {
+    if (!check_login()) {
+        var returnUrl = get_url();
+        var returnParams = get_param();
+
+        goto_login(returnUrl, returnParams);
+        return false;
+    }
+    return true;
+}
+
+function slide_element(elemId, top) {
+    var yMenuFrom, yMenuTo, yOffset, timeoutNextCheck;
+    var obj = $('#' + elemId);
+
+    yMenuFrom = $(obj).offset().top;
+    yMenuTo = document.body.scrollTop + top;
+
+    timeoutNextCheck = 500;
+
+    if (yMenuFrom != yMenuTo) {
+        yOffset = Math.ceil(Math.abs(yMenuTo - yMenuFrom) / 20);
+        if (yMenuTo < yMenuFrom)
+            yOffset = -yOffset;
+        $(obj).css("top", $(obj).offset().top + yOffset);
+        timeoutNextCheck = 10;
+    }
+
+    setTimeout("slide_element('" + elemId + "'," + top + ")", timeoutNextCheck);
+}
+
+function open_flashview(mediaFileKey, pKey) {
+    window.open("/chyes/story_viewer_V2.asp?mediaFileKey=" + mediaFileKey + "&AK=" + pKey, "yesTV", "scrollbars=no,resizable=no,width=1000,height=622,top=0,left=0");
+}
+
+//Date에 날짜를 더한다.
+function addDays(date, days) {
+    return new Date(date.getTime() + days * 86400000);
+}
+
+//해당 달의 마지막일을 구한다.
+function lastday_of_month(year, month) {
+    return addDays(new Date(year, month, 1), -1).getDate();
+
+}
+
+function open_subdepth(obj) {
+
+    $('.subdepth', $(obj)).show();
+}
+
+function close_subdepth(obj) {
+    $('.subdepth', $(obj)).hide();
+}
+
+//Textarea에서 글자수체크
+function fc_chk_byte(aro_name, ari_max) {
+
+    var ls_str = aro_name.value; // 이벤트가 일어난 컨트롤의 value 값
+    var li_str_len = ls_str.length; // 전체길이
+
+    // 변수초기화
+    var li_max = ari_max; // 제한할 글자수 크기
+    var i = 0; // for문에 사용
+    var li_byte = 0; // 한글일경우는 2 그밗에는 1을 더함
+    var li_len = 0; // substring하기 위해서 사용
+    var ls_one_char = ""; // 한글자씩 검사한다
+    var ls_str2 = ""; // 글자수를 초과하면 제한할수 글자전까지만 보여준다.
+
+    for (i = 0; i < li_str_len; i++) {
+        // 한글자추출
+        ls_one_char = ls_str.charAt(i);
+
+        // 한글이면 2를 더한다.
+        if (escape(ls_one_char).length > 4) {
+            li_byte += 2;
+        }
+        // 그밗의 경우는 1을 더한다.
+        else {
+            li_byte++;
+        }
+
+        // 전체 크기가 li_max를 넘지않으면
+        if (li_byte <= li_max) {
+            li_len = i + 1;
+        }
+    }
+
+    // 전체길이를 초과하면
+    if (li_byte > li_max) {
+        alert(ari_max + "자 이하로 입력하시기 바랍니다.");
+        ls_str2 = ls_str.substr(0, li_len);
+        aro_name.value = ls_str2;
+
+    }
+    aro_name.focus();
+}
+
+function getClickCodeUrl(originUrl, codeName, code) {
+if (originUrl.indexOf('?') > 0)
+    if (originUrl.substr(originUrl.length - 1, 1) == "&")
+        return originUrl + codeName + "=" + code;
+    else
+        return originUrl + "&" + codeName + "=" + code;
+else
+    if (originUrl.substr(originUrl.length - 1, 1) == "?")
+        return originUrl + codeName + "=" + code;
+    else
+        return originUrl + "?" + codeName + "=" + code;
+}
+
+/*AuthorFile Move Script*/
+function ShowInterestAuthorN(target, authNo, paddLeft) {
+    var interestProcessing = false;
+    var interestAuthNo = 0;
+
+    if (typeof authNo == "undefined" || authNo == 0) {
+        alert('Unknown Error : 64302');
+        return;
+    }
+
+    if (interestProcessing) {
+        alert("현재 데이터를 로드 중입니다.");
+        return;
+    }
+    interestProcessing = true;
+
+    interestAuthNo = authNo;
+
+    var addMarginLeft = 0;
+
+    if (typeof paddLeft != "undefined" && paddLeft != 0) {
+        addMarginLeft = paddLeft;
+    }
+
+    HideInterestAuthorN();
+
+    var InterestAuthorDiv = document.createElement("div");
+    InterestAuthorDiv.id = "InterestAuthor";
+    InterestAuthorDiv.style.position = "absolute";
+    document.body.appendChild(InterestAuthorDiv);
+
+    $.ajaxSetup ({ cache: false });
+    $("#" + "InterestAuthor").load("/24/AuthorFile/AuthorInterest/" + interestAuthNo, function () {
+        $(InterestAuthorDiv).css({
+            left: $(target).offset().left - $(target).width() / 2 - addMarginLeft,
+            top: $(target).offset().top + $(target).height()
+        });
+
+        $("#InterestAuthor").css("z-index", "100000");
+        $("#AuthorInterest_infoboxArrow").css({ marginLeft: addMarginLeft + 100 });
+
+        interestProcessing = false;
+
+    }, function () {
+        alert('Unknown Error : 64303');
+        interestProcessing = false;
+    });
+}
+
+function HideInterestAuthorN() {
+    if (document.getElementById("InterestAuthor")) {
+        var parentObj = document.getElementById("InterestAuthor").parentNode;
+
+        for (var i = 0; i < parentObj.childNodes.length; i++) {
+            if (typeof parentObj.childNodes[i].id != "undefined"
+               && parentObj.childNodes[i].id == "InterestAuthor") {
+                parentObj.removeChild(parentObj.childNodes[i]);
+                break;
+            }
+        }
+    }
+}
+
+// 공통 로딩
+var loagindBlock = '<div id="yesComLoading" style="z-index:199999"></div>';
+var fullMaskLoading = '<div id="fullMaskLoading" class="yesFullLoading">' + loagindBlock + '</div>';
+
+// 전체 로딩 보여주기
+function fullMaskLoadingShow() {
+    var findLoaging = $('body').find('#fullMaskLoading').length;
+    if (findLoaging == 0) {
+        $('body').append(fullMaskLoading);
+    }
+}
+
+// 전체 로딩 감추기
+function fullMaskLoadingHide() {
+    $('#fullMaskLoading').remove();
+}
+
+// 로딩 보여주기
+function loadingShow() {
+    var findLoaging = $('body').find('#yesComLoading').length;
+    if (findLoaging == 0) {
+        $('body').append(loagindBlock);
+    }
+}
+
+// 로딩 감추기
+function loadingHide() {
+    $('#yesComLoading').remove();
+}
+
+//웰컴 이미지 레이지 로드 
+function setProductLazyLoad(element, is_skip_invisible) {
+    element.lazyload({
+        effectTime: 200,                            //이미지가 등장시 효과 지속시간 설정
+        load: function () {                       //이미지 호출이 완료 되면 실행될 콜백 함수 지정
+            $(this).removeClass("lazy").removeAttr("data-original");
+        },
+        failure_limit: 1,
+        threshold: 500,         //이미지가 뷰포트에 출력되기 이전부터 호출(설정값 픽셀전)
+        skip_invisible: is_skip_invisible,
+        effect: "fadeIn"        //이미지등장시의 효과 변경
+    });
+}
+
+String.prototype.replaceAll = function (org, dest) {
+    return this.split(org).join(dest);
+}
+
+/**
+ * 카트에 넣기 로그 전송
+ * @param {string} goodsOpt 상품 정보 데이터 json string
+ */
+function sendDfineryAddCartLog(goodsOpt) {
+    //퍼포먼스 마케팅 태그&픽셀 로그 전송
+    sendMarketingCartAddLog();
+}
+
+/**
+ * 카트에 넣기 로그 전송 (상품번호로 상품 옵션 데이터 조회)
+ * @param {number} goodsNo 상품 번호
+ */
+function sendDfineryAddCartLogByGoodsNo(goodsNo) {
+    //퍼포먼스 마케팅 태그&픽셀 로그 전송
+    sendMarketingCartAddLog();
+}
+
+/**
+ * 리스트에 넣기(WishList) 로그 전송
+ * @param {string} goodsOpt 상품 정보 데이터 json string
+ */
+function sendDfineryAddWishListLog(goodsOpt) {
+
+}
+
+/**
+ * 리스트에 넣기(WishList) 로그 전송 (상품번호로 상품 옵션 데이터 조회)
+ * @param {number} goodsNo 상품 번호
+ */
+function sendDfineryAddWishListLogByGoodsNo(goodsNo) {
+
+}
+
+/**
+ * 시리즈 상품 카트에 넣기 로그
+ * @param {string} areaId 시리즈 상품이 표시되는 영역 element id 이름
+ * @param {string} isAll 시리즈 상품 전체 선택 여부('y'일 경우 areaId 영역내 모든 시리즈 goods 데이터)
+ */
+function sendDfinerySeriesAddCartLog(areaId, isAll) {
+    areaId = (!areaId || typeof (areaId) === 'undefined' || !areaId.trim()) ? 'series_list' : areaId;
+
+    // 시리즈 모두 flag
+    isAll = (isAll && isAll.toLowerCase() === 'y') ? true : false;
+
+    var checkSeriesList = (isAll) ? $('#' + areaId).find(":checkbox")  : $('#' + areaId).find(":checkbox:checked");
+    if (checkSeriesList.length > 0) {
+        //퍼포먼스 마케팅 태그&픽셀 로그 전송
+        sendMarketingCartAddLog();
+    }
+}
+
+/**
+ * 선택 여러 상품 카트에 넣기 로그 전송
+ */
+function sendDfineryMultiAddCartLog() {
+    var chkControlList = $("*[name='ORD_GOODS_CHKBOX']");
+    if (chkControlList.length > 0) { // CHECKBOX LIST
+        //퍼포먼스 마케팅 태그&픽셀 로그 전송
+        sendMarketingCartAddLog();
+    }
+}
+
+//퍼포먼스 마케팅 태그&픽셀 로그 전송
+function sendMarketingCartAddLog() {
+    try {
+        //카카오
+        kakaoPixel('4526708593004072917').addToCart();
+    } catch (e) {
+    }
+
+    try {
+        //트위터
+        twq('event', 'tw-o89tq-ogn1n', {
+            value: null // use this to pass the value of the conversion (e.g. 5.00)
+        });
+    } catch (e) {
+    }
+
+    if (IsScExpDate) {  //스크립트 참조 여부 설정 값 (momo header)
+        try {
+            //카카오
+            kakaoPixel('3610339934309599626').addToCart();
+        } catch (e) {
+        }
+
+        try {
+            //Naver 전환 스크립트
+            var _nasa = {};
+            if (window.wcs) _nasa["cnv"] = wcs.cnv("3", "1");   //전환유형 (장바구니 담기 : 3), 전환가치 (defalut : 1)
+
+            if (!wcs_add) var wcs_add = {};
+            wcs_add["wa"] = "s_1b6883469aa6";
+            if (!_nasa) var _nasa = {};
+            if (window.wcs) {
+                wcs.inflow("yes24.com");
+                wcs_do(_nasa);
+            }
+        } catch (e) {
+        }
+    }
+}
+
+//search/ giftpick 브랜드 정렬 토글
+function toggleBrandSort(obj) {
+    var radio = $(obj);
+    if (radio.hasClass("tabOn")) {
+        radio.attr("class", "toggle tabOff");
+        $("#moreBrandLiFlex li").each(function () {
+            var ordNo = $(this).data("aorder");
+            $(this).attr("style", "-ms-flex-order:" + ordNo + ";order:" + ordNo);
+        });
+    } else {
+        radio.attr("class", "toggle tabOn");
+        $("#moreBrandLiFlex li").each(function () {
+            var ordNo = $(this).data("corder");
+            $(this).attr("style", "-ms-flex-order:" + ordNo + ";order:" + ordNo);
+        });
+    }
+}
+
+// 숫자 체크(숫자 이외 값 모두 제거)
+function chkNumber(obj) {
+    var tmpValue = $(obj).val().replace(/[^0-9,]/g, '');
+    tmpValue = tmpValue.replace(/[,]/g, '');
+
+    if (tmpValue.length > 8) {
+        tmpValue = tmpValue.substring(0, 8);
+    }
+    // 천단위 콤마 처리 후 값 강제변경
+    obj.value = numberWithCommas(tmpValue);
+}
+
+function numberWithCommas(num) {
+    var parts = num.toString().split(".");
+    return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (parts[1] ? "." + parts[1] : "");
+}

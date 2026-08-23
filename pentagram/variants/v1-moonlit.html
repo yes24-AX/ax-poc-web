@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PENTAGRAM · 달빛 서고</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#0b1220;
+    --bg2:#0f1728;
+    --bg3:#151f34;
+    --ink:#e9e4d4;
+    --ink-mute:#8a92a8;
+    --gold:#c8a55b;
+    --gold-hi:#e6c574;
+    --line:#1e2a44;
+    --line2:#2c3a58;
+    --serif:'Noto Serif KR','Nanum Myeongjo',serif;
+    --latin:'Cormorant Garamond',serif;
+    --sans:'Pretendard',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body{line-height:1.75}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  ::selection{background:var(--gold);color:var(--bg)}
+
+  /* subtle star particles */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.35;
+    background-image:
+      radial-gradient(1px 1px at 22% 18%, #fff5d6, transparent 45%),
+      radial-gradient(1px 1px at 68% 32%, #fff5d6, transparent 45%),
+      radial-gradient(1px 1px at 85% 76%, #fff5d6, transparent 45%),
+      radial-gradient(1px 1px at 12% 82%, #fff5d6, transparent 45%),
+      radial-gradient(1px 1px at 45% 60%, #fff5d6, transparent 45%),
+      radial-gradient(1.5px 1.5px at 78% 12%, #fff5d6, transparent 45%);
+  }
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:80;padding:24px 44px;
+    display:flex;justify-content:space-between;align-items:center;transition:.35s;
+    background:linear-gradient(to bottom,rgba(11,18,32,.6),transparent)}
+  .nav.scrolled{background:rgba(11,18,32,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 44px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand svg{width:28px;height:28px;color:var(--gold)}
+  .brand .wm{font-family:var(--latin);font-weight:600;letter-spacing:.42em;font-size:16px}
+  .brand .kr{font-family:var(--serif);font-size:12px;color:var(--ink-mute);letter-spacing:.3em;
+    padding-left:14px;margin-left:8px;border-left:1px solid var(--line2)}
+  .menu{display:flex;gap:34px;align-items:center;font-size:13.5px;color:var(--ink-mute);letter-spacing:.05em}
+  .menu a{transition:.2s;padding:6px 0;position:relative}
+  .menu a:hover{color:var(--gold)}
+  .menu a::before{content:attr(data-n);font-family:var(--latin);font-style:italic;font-size:11px;
+    color:var(--gold);margin-right:8px;opacity:.7}
+  .menu .cta{padding:10px 22px;background:var(--gold);color:var(--bg);border-radius:999px;
+    font-family:var(--sans);font-weight:600;font-size:12.5px;letter-spacing:.12em}
+  .menu .cta::before{content:"";margin:0}
+  .menu .cta:hover{background:var(--gold-hi)}
+
+  /* HERO */
+  .hero{position:relative;min-height:100vh;overflow:hidden;
+    display:flex;align-items:center;justify-content:flex-start;padding:120px 44px 80px}
+  .hero .bg{position:absolute;inset:0;background:url("../assets/hero-moonlit.jpg") center/cover;
+    filter:brightness(.7) contrast(1.05)}
+  .hero .bg::after{content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(90deg, rgba(11,18,32,.9) 0%, rgba(11,18,32,.55) 40%, transparent 65%),
+      linear-gradient(to top, rgba(11,18,32,1), transparent 25%)}
+  .hero-content{position:relative;z-index:2;max-width:720px}
+  .hero .rule{width:56px;height:1px;background:var(--gold);margin-bottom:32px}
+  .hero .kicker{font-family:var(--latin);font-style:italic;font-size:15px;color:var(--gold);letter-spacing:.15em;margin-bottom:20px}
+  .hero .kicker::before{content:"— "}
+  .hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(40px,6vw,80px);line-height:1.15;
+    letter-spacing:-.02em;margin:0 0 34px}
+  .hero h1 em{font-style:normal;font-weight:600;color:var(--gold);
+    background:linear-gradient(180deg, transparent 65%, rgba(200,165,91,.15) 65%);padding:0 4px}
+  .hero .sub{font-size:17.5px;color:#c9c4b3;max-width:560px;margin:0 0 44px;line-height:1.9;font-weight:300}
+  .hero .actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .hero .btn-main{padding:18px 34px;background:var(--gold);color:var(--bg);font-family:var(--sans);
+    font-weight:600;font-size:14px;letter-spacing:.12em;border-radius:2px;transition:.25s;
+    display:inline-flex;align-items:center;gap:12px}
+  .hero .btn-main:hover{background:var(--gold-hi);transform:translateY(-2px)}
+  .hero .btn-main::after{content:"→";font-family:var(--latin)}
+  .hero .btn-ghost{padding:18px 26px;border:1px solid var(--line2);color:var(--ink);font-family:var(--sans);
+    font-weight:500;font-size:14px;letter-spacing:.12em;border-radius:2px;transition:.2s}
+  .hero .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+  .hero-side{position:absolute;right:44px;bottom:80px;text-align:right;z-index:2}
+  .hero-side .yr{font-family:var(--latin);font-style:italic;font-size:14px;color:var(--ink-mute);letter-spacing:.3em}
+  .hero-side .yr b{color:var(--gold);font-weight:400}
+  .hero-side .label{font-family:var(--latin);letter-spacing:.5em;font-size:11px;color:var(--gold);margin-top:8px}
+
+  /* section frame */
+  .section-index{position:absolute;top:80px;left:44px;font-family:var(--latin);letter-spacing:.4em;
+    font-size:12px;color:var(--gold)}
+  .section-index b{color:var(--ink-mute);font-style:italic;font-weight:400;margin-left:14px;padding-left:14px;
+    border-left:1px solid var(--line2)}
+  .container{max-width:1240px;margin:0 auto;padding:0 44px}
+  section{position:relative;z-index:2}
+
+  /* ABOUT */
+  .about{padding:180px 0 140px;background:var(--bg)}
+  .about h2{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4vw,44px);
+    letter-spacing:-.01em;line-height:1.5;text-align:center;max-width:940px;margin:0 auto 24px}
+  .about h2 em{font-style:normal;color:var(--gold);font-weight:600}
+  .about .lead{text-align:center;color:var(--ink-mute);max-width:660px;margin:0 auto 90px;font-size:15.5px}
+  .principles{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+  .principle{padding:44px 36px 40px;border-left:1px solid var(--line);position:relative}
+  .principle:first-child{border-left:none}
+  .principle .num{font-family:var(--latin);font-style:italic;font-size:60px;color:var(--gold);opacity:.35;line-height:1;position:absolute;top:26px;right:36px}
+  .principle .no{font-family:var(--latin);letter-spacing:.35em;font-size:11px;color:var(--gold);margin-bottom:20px}
+  .principle h3{font-size:20px;font-weight:600;margin:0 0 14px;color:var(--ink);letter-spacing:-.005em}
+  .principle p{font-size:14.5px;color:var(--ink-mute);margin:0;line-height:1.85}
+
+  /* MOONLIT ARCHIVE — cover shelf */
+  .shelf{padding:160px 0 180px;background:linear-gradient(180deg, var(--bg) 0%, var(--bg2) 50%, var(--bg) 100%);position:relative;overflow:hidden}
+  .shelf .head{text-align:center;margin-bottom:60px}
+  .shelf .head .kicker{font-family:var(--latin);font-style:italic;letter-spacing:.2em;font-size:14px;color:var(--gold)}
+  .shelf .head h2{font-family:var(--serif);font-weight:300;font-size:clamp(32px,4.5vw,52px);margin:14px 0 14px;letter-spacing:-.02em}
+  .shelf .head h2 em{font-style:normal;color:var(--gold);font-weight:600}
+  .shelf .head p{color:var(--ink-mute);max-width:560px;margin:0 auto;font-size:15px}
+
+  .genre-tabs{display:flex;justify-content:center;gap:0;margin-bottom:50px;flex-wrap:wrap;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .genre-tabs button{background:none;border:none;padding:20px 30px;font-family:var(--serif);
+    font-size:14.5px;color:var(--ink-mute);cursor:pointer;letter-spacing:.05em;transition:.2s;
+    border-right:1px solid var(--line);position:relative}
+  .genre-tabs button:last-child{border-right:none}
+  .genre-tabs button:hover{color:var(--ink)}
+  .genre-tabs button.on{color:var(--gold)}
+  .genre-tabs button.on::before{content:"";position:absolute;left:20%;right:20%;bottom:-1px;height:2px;background:var(--gold)}
+  .genre-tabs button .cnt{font-family:var(--latin);font-style:italic;font-size:12px;margin-left:8px;opacity:.7}
+
+  .cover-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:32px 28px}
+  .cover-card{cursor:pointer;transition:.35s}
+  .cover-card:hover{transform:translateY(-6px)}
+  .cover{aspect-ratio:2/3;background:linear-gradient(160deg, var(--bg3), #0a1122);border:1px solid var(--line2);
+    position:relative;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.5);transition:.35s}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block;transition:.5s}
+  .cover-card:hover .cover{border-color:var(--gold);box-shadow:0 30px 60px rgba(200,165,91,.25)}
+  .cover-card:hover .cover img{transform:scale(1.06)}
+  .cover .gradient{position:absolute;inset:0;background:linear-gradient(to top, rgba(11,18,32,.6) 0%, transparent 40%);pointer-events:none;opacity:0;transition:.3s}
+  .cover-card:hover .cover .gradient{opacity:1}
+  .cover .tag-new{position:absolute;top:12px;right:12px;background:var(--gold);color:var(--bg);
+    padding:5px 10px;font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.12em;z-index:2;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+  .cover .tag-new.hit{background:#c94a3f;color:#fff}
+
+  .cover-card .caption{padding:16px 4px 0}
+  .cover-card .caption .g{font-family:var(--latin);font-style:italic;letter-spacing:.15em;font-size:12px;color:var(--gold)}
+  .cover-card .caption h3{font-size:16px;font-weight:600;margin:6px 0 4px;color:var(--ink);letter-spacing:-.005em}
+  .cover-card .caption .au{font-size:13px;color:var(--ink-mute)}
+
+  /* CHRONICLE */
+  .chronicle-sec{padding:160px 0;background:var(--bg)}
+  .chronicle-sec .head{text-align:center;margin-bottom:56px}
+  .chronicle-sec .head .kicker{font-family:var(--latin);font-style:italic;letter-spacing:.2em;font-size:14px;color:var(--gold)}
+  .chronicle-sec .head h2{font-family:var(--serif);font-weight:300;font-size:clamp(30px,4vw,44px);margin:12px 0 0}
+  .chronicle-list{max-width:900px;margin:0 auto;border-top:1px solid var(--line)}
+  .chronicle-list a{display:grid;grid-template-columns:120px 84px 1fr auto;gap:24px;align-items:center;
+    padding:22px 8px;border-bottom:1px solid var(--line);transition:.22s}
+  .chronicle-list a:hover{padding-left:20px;background:linear-gradient(to right,transparent,rgba(200,165,91,.04),transparent)}
+  .chronicle-list .dt{font-family:var(--latin);font-style:italic;font-size:14px;color:var(--gold);letter-spacing:.1em}
+  .chronicle-list .tg{font-family:var(--sans);font-weight:600;letter-spacing:.14em;font-size:10.5px;padding:5px 10px;
+    text-align:center;border:1px solid var(--line2);color:var(--ink-mute);text-transform:uppercase;border-radius:2px}
+  .chronicle-list .tg.launch{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+  .chronicle-list .tg.deal{border-color:var(--gold);color:var(--gold)}
+  .chronicle-list .tt{font-size:15.5px;color:var(--ink);letter-spacing:-.005em}
+  .chronicle-list .ar{color:var(--ink-mute);opacity:0;transition:.2s;font-family:var(--latin);font-style:italic}
+  .chronicle-list a:hover .ar{opacity:1;color:var(--gold);transform:translateX(4px)}
+
+  /* AUTHORS */
+  .authors-sec{padding:160px 0;background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%)}
+  .authors-sec .head{text-align:center;margin-bottom:70px}
+  .authors-sec .head .kicker{font-family:var(--latin);font-style:italic;letter-spacing:.2em;font-size:14px;color:var(--gold)}
+  .authors-sec .head h2{font-family:var(--serif);font-weight:300;font-size:clamp(30px,4vw,48px);margin:12px 0 16px}
+  .authors-sec .head p{color:var(--ink-mute);max-width:560px;margin:0 auto;font-size:15px}
+  .author-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+  .author-strip .a-card{background:var(--bg);padding:38px 28px;text-align:center;transition:.25s;cursor:pointer}
+  .author-strip .a-card:hover{background:var(--bg3);transform:translateY(-3px)}
+  .author-strip .glyph{font-family:var(--serif);font-weight:900;font-size:44px;color:var(--gold);line-height:1;margin-bottom:16px;letter-spacing:.03em}
+  .author-strip .nm{font-size:17px;font-weight:600;margin:0 0 4px}
+  .author-strip .pn{font-family:var(--latin);font-style:italic;font-size:12.5px;color:var(--gold);margin-bottom:14px;letter-spacing:.05em}
+  .author-strip .wk{font-size:12.5px;color:var(--ink-mute);line-height:1.7}
+  .author-strip .wk b{color:var(--ink);font-weight:500}
+
+  /* CONTACT */
+  .contact-sec{padding:160px 0 180px;background:var(--bg);position:relative;overflow:hidden}
+  .contact-sec::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at 50% 50%, rgba(200,165,91,.08), transparent 60%);pointer-events:none}
+  .contact-sec .container{max-width:900px;position:relative;z-index:2}
+  .contact-sec .head{text-align:center;margin-bottom:60px}
+  .contact-sec .head .kicker{font-family:var(--latin);font-style:italic;letter-spacing:.2em;font-size:14px;color:var(--gold)}
+  .contact-sec .head h2{font-family:var(--serif);font-weight:300;font-size:clamp(34px,5vw,60px);margin:16px 0 24px;line-height:1.15}
+  .contact-sec .head h2 em{font-style:normal;color:var(--gold);font-weight:600}
+  .contact-sec .head p{color:var(--ink-mute);max-width:520px;margin:0 auto;font-size:15.5px;line-height:1.9}
+
+  .submit-card{margin-top:56px;background:linear-gradient(160deg,var(--bg3),var(--bg2));
+    border:1px solid var(--gold);padding:56px 48px;position:relative;text-align:center}
+  .submit-card::before,.submit-card::after{content:"";position:absolute;width:14px;height:14px;
+    border:1px solid var(--gold)}
+  .submit-card::before{top:-7px;left:-7px;border-right:none;border-bottom:none;background:var(--bg)}
+  .submit-card::after{bottom:-7px;right:-7px;border-left:none;border-top:none;background:var(--bg)}
+  .submit-card .lb{font-family:var(--latin);font-style:italic;letter-spacing:.35em;font-size:11px;color:var(--gold);margin-bottom:8px}
+  .submit-card h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 32px}
+  .submit-card .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:36px}
+  .submit-card .cell{background:var(--bg2);padding:24px 18px}
+  .submit-card .cell .k{font-family:var(--latin);font-style:italic;font-size:11px;color:var(--gold);letter-spacing:.2em;margin-bottom:8px;text-transform:uppercase}
+  .submit-card .cell .v{font-family:var(--serif);font-size:15px;color:var(--ink);letter-spacing:-.005em}
+  .submit-card .cell .v small{display:block;font-size:12px;color:var(--ink-mute);margin-top:3px;font-weight:400}
+  .submit-card .mail{display:inline-flex;align-items:center;gap:12px;padding:20px 40px;background:var(--gold);color:var(--bg);
+    font-family:var(--sans);font-weight:700;font-size:15px;letter-spacing:.1em;border-radius:2px;transition:.25s}
+  .submit-card .mail:hover{background:var(--gold-hi);transform:translateY(-2px)}
+  .submit-card .mail::after{content:"→"}
+
+  /* FOOTER */
+  footer{padding:60px 44px 44px;background:#060b16;border-top:1px solid var(--line);color:var(--ink-mute);font-size:12.5px}
+  footer .row{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+  footer .lg{font-family:var(--latin);font-weight:600;letter-spacing:.45em;color:var(--ink);font-size:16px}
+  footer .cp{font-family:var(--latin);font-style:italic;letter-spacing:.1em;font-size:13px}
+
+  @media (max-width:900px){
+    .nav{padding:14px 22px}
+    .menu{display:none}
+    .container{padding:0 22px}
+    .section-index{left:22px;top:40px}
+    .principles{grid-template-columns:1fr}
+    .principle{border-left:none;border-top:1px solid var(--line);padding:36px 24px}
+    .principle:first-child{border-top:none}
+    .genre-tabs button{padding:14px 16px;font-size:13px}
+    .submit-card .grid{grid-template-columns:1fr 1fr}
+    .submit-card{padding:44px 24px}
+    .chronicle-list a{grid-template-columns:auto 1fr;gap:12px}
+    .chronicle-list .tg{grid-column:1;grid-row:1}
+    .chronicle-list .dt{grid-column:2;grid-row:1;text-align:right}
+    .chronicle-list .tt{grid-column:1/-1;grid-row:2}
+    .chronicle-list .ar{display:none}
+    .hero-side{display:none}
+  }
+
+  /* rolling cover marquee — thin strip between hero and about */
+  .roll{padding:44px 0 56px;background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);overflow:hidden;position:relative;border-bottom:1px solid var(--line)}
+  .roll::before,.roll::after{content:"";position:absolute;top:0;bottom:0;width:180px;z-index:3;pointer-events:none}
+  .roll::before{left:0;background:linear-gradient(to right,var(--bg),transparent)}
+  .roll::after{right:0;background:linear-gradient(to left,var(--bg2),transparent)}
+  .roll .label{text-align:center;font-family:var(--latin);font-style:italic;letter-spacing:.35em;color:var(--gold);font-size:12px;margin-bottom:22px;text-transform:uppercase}
+  .roll .label::before,.roll .label::after{content:"";display:inline-block;width:32px;height:1px;background:var(--gold);vertical-align:middle;margin:0 14px 3px;opacity:.6}
+  .roll .track-wrap{overflow:hidden}
+  .roll .track{display:flex;gap:24px;width:max-content;animation:roll 60s linear infinite}
+  .roll:hover .track{animation-play-state:paused}
+  @keyframes roll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .roll .rc{flex:none;width:180px;aspect-ratio:2/3;border-radius:4px;overflow:hidden;
+    box-shadow:0 12px 32px rgba(0,0,0,.5);border:1px solid var(--line2);transition:.3s;cursor:pointer}
+  .roll .rc:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 20px 44px rgba(200,165,91,.25)}
+  .roll .rc img{width:100%;height:100%;object-fit:cover;display:block}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="brand">
+    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.4">
+      <polygon points="50,8 61,42 96,42 68,63 79,96 50,76 21,96 32,63 4,42 39,42"/>
+    </svg>
+    <span class="wm">PENTAGRAM</span>
+    <span class="kr">펜타그램</span>
+  </div>
+  <div class="menu">
+    <a href="#about" data-n="i">About</a>
+    <a href="#shelf" data-n="ii">Works</a>
+    <a href="#chronicle" data-n="iii">Chronicle</a>
+    <a href="#authors" data-n="iv">Authors</a>
+    <a href="#contact" class="cta">투고하기</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" data-screen-label="01 Hero">
+  <div class="bg"></div>
+  <div class="hero-content">
+    <div class="rule"></div>
+    <div class="kicker">YNK Media · Fantasy &amp; Wuxia Label</div>
+    <h1>달빛이 닿지 않는<br/>산 너머의 <em>이야기</em>를<br/>기록하는 곳.</h1>
+    <p class="sub">
+      판타지·무협·현대판타지·대체역사·SF. 펜타그램은 다섯 장르의 별을 이어
+      독자와 작가 사이에 오래도록 남을 세계를 짓습니다.
+    </p>
+    <div class="actions">
+      <a href="#contact" class="btn-main">작가 투고하기</a>
+      <a href="#shelf" class="btn-ghost">작품 보러가기</a>
+    </div>
+  </div>
+  <div class="hero-side">
+    <div class="yr">EST. <b>MMXVI</b></div>
+    <div class="label">— MOONLIT ARCHIVE —</div>
+  </div>
+</section>
+
+<!-- ROLLING COVERS -->
+<section class="roll" aria-hidden="true">
+  <div class="label">Our Latest Works</div>
+  <div class="track-wrap"><div class="track" id="rollTrack"></div></div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about" data-screen-label="02 About">
+  <div class="section-index">I · ABOUT <b>레이블 소개</b></div>
+  <div class="container">
+    <h2>펜타그램은 <em>다섯 개의 별</em>을 봅니다.<br/>서로 다른 장르, 하나의 밤하늘.</h2>
+    <p class="lead">
+      YNK미디어 산하 판타지·무협 전문 웹소설 레이블. 매년 20편 안팎의 신작을 세상에 내놓고,
+      작가와 오래 남는 세계를 함께 짓습니다.
+    </p>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="num">01</div>
+        <div class="no">— PRINCIPLE ONE —</div>
+        <h3>세계관을 훼손하지 않는다</h3>
+        <p>작가의 세계는 작가의 것. 우리는 세계를 다듬을 뿐, 다시 짓지 않습니다. 편집의 방향은 언제나 작가와 함께 정합니다.</p>
+      </div>
+      <div class="principle">
+        <div class="num">02</div>
+        <div class="no">— PRINCIPLE TWO —</div>
+        <h3>동료로서 함께 간다</h3>
+        <p>업계 상위권 요율, 투명한 정산, 마케팅·MG·IP 전개까지. 결과가 아닌 과정을 함께 쓰는 파트너십을 지향합니다.</p>
+      </div>
+      <div class="principle">
+        <div class="num">03</div>
+        <div class="no">— PRINCIPLE THREE —</div>
+        <h3>장르는 서로를 비춘다</h3>
+        <p>판타지가 무협을, 무협이 SF를 비추도록. 우리는 한 장르가 아니라 다섯 별이 이루는 하나의 하늘을 만듭니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHELF -->
+<section class="shelf" id="shelf" data-screen-label="03 Shelf">
+  <div class="section-index">II · WORKS <b>연작·신작 목록</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">— The Moonlit Archive —</div>
+      <h2>펜타그램의 <em>서고</em></h2>
+      <p>지금 이 순간 독자를 만나고 있는 펜타그램의 작품들. 장르를 골라 살펴보세요.</p>
+    </div>
+
+    <div class="genre-tabs" id="genreTabs">
+      <button class="on" data-genre="all">전체 <span class="cnt">·</span></button>
+      <button data-genre="fantasy">판타지 <span class="cnt">·</span></button>
+      <button data-genre="wuxia">무협 <span class="cnt">·</span></button>
+      <button data-genre="modern">현대판타지 <span class="cnt">·</span></button>
+      <button data-genre="alt">대체역사 <span class="cnt">·</span></button>
+      <button data-genre="sf">SF <span class="cnt">·</span></button>
+    </div>
+
+    <div class="cover-grid" id="coverGrid"></div>
+  </div>
+</section>
+
+<!-- CHRONICLE -->
+<section class="chronicle-sec" id="chronicle" data-screen-label="04 Chronicle">
+  <div class="section-index">III · CHRONICLE <b>연대기·공지</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">— Chronicle —</div>
+      <h2>연대기</h2>
+    </div>
+    <div class="chronicle-list">
+      <a href="#"><span class="dt">2026.07.02</span><span class="tg launch">LAUNCH</span>
+        <span class="tt">신작 「검은 산의 노래」 6월 28일 카카오페이지 정식 연재 개시</span><span class="ar">→</span></a>
+      <a href="#"><span class="dt">2026.06.18</span><span class="tg deal">DEAL</span>
+        <span class="tt">「무협 고수의 회귀록」 웹툰화 계약 체결 · 2027년 상반기 공개 예정</span><span class="ar">→</span></a>
+      <a href="#"><span class="dt">2026.05.20</span><span class="tg">EVENT</span>
+        <span class="tt">제3회 펜타그램 판타지 신인 공모전 접수 시작 (~2026.08.31)</span><span class="ar">→</span></a>
+      <a href="#"><span class="dt">2026.04.02</span><span class="tg">NOTICE</span>
+        <span class="tt">투고 요강 개정 안내 — 이메일 접수 채널 변경 및 응답 기간 단축</span><span class="ar">→</span></a>
+      <a href="#"><span class="dt">2026.03.11</span><span class="tg launch">LAUNCH</span>
+        <span class="tt">「별을 삼킨 검객」 시리즈 완결 · 총 320화 독자 성원에 감사드립니다</span><span class="ar">→</span></a>
+      <a href="#"><span class="dt">2026.02.14</span><span class="tg deal">DEAL</span>
+        <span class="tt">「서울, 밤의 신들」 일본 · 대만 판권 계약 완료</span><span class="ar">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHORS -->
+<section class="authors-sec" id="authors" data-screen-label="05 Authors">
+  <div class="section-index">IV · AUTHORS <b>작가 소개</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">— The Fellows —</div>
+      <h2>이야기를 짓는 사람들</h2>
+      <p>펜타그램과 함께 세계를 짓고 있는 작가님들. 이들의 손끝에서 다섯 별이 태어납니다.</p>
+    </div>
+    <div class="author-strip" id="authorStrip"></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-sec" id="contact" data-screen-label="06 Contact">
+  <div class="section-index">V · SUBMIT <b>투고 안내</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">— Join the Pentagram —</div>
+      <h2>당신의 이야기가<br/>다음 <em>별</em>이 됩니다.</h2>
+      <p>펜타그램은 모든 원고를 성심으로 읽습니다. 영업일 기준 14일 안에 답신을 드리겠습니다.</p>
+    </div>
+    <div class="submit-card">
+      <div class="lb">— PENTAGRAM SUBMISSION · 2026 —</div>
+      <h3>투고 요강</h3>
+      <div class="grid">
+        <div class="cell"><div class="k">Genre</div><div class="v">판타지 · 무협 · 현판<small>대체역사 · SF</small></div></div>
+        <div class="cell"><div class="k">Volume</div><div class="v">20편 이상<small>회당 5,000자 내외</small></div></div>
+        <div class="cell"><div class="k">Documents</div><div class="v">원고 + 시놉시스<small>PDF · Word · HWP</small></div></div>
+        <div class="cell"><div class="k">Reply</div><div class="v">14 영업일<small>회신 이메일 발송</small></div></div>
+      </div>
+      <a class="mail" href="mailto:submit@pentagram.co.kr">submit@pentagram.co.kr 로 보내기</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="row">
+    <div class="lg">PENTAGRAM</div>
+    <div class="cp">© 2026 · YNK Media · All stories reserved.</div>
+  </div>
+</footer>
+
+<script>
+// NAV
+const nav = document.getElementById('nav');
+addEventListener('scroll', ()=> nav.classList.toggle('scrolled', scrollY > 60));
+
+const grid = document.getElementById('coverGrid');
+const tabs = document.getElementById('genreTabs');
+let filter = 'all';
+let works = [];
+
+function render(){
+  grid.innerHTML = works
+    .filter(w=> filter==='all' || w.genre===filter)
+    .map(w=>`
+      <div class="cover-card">
+        <div class="cover">
+          ${w.tag ? `<div class="tag-new ${w.tag==='HIT'?'hit':''}">${w.tag}</div>`:''}
+          <img src="../assets/covers/${w.file}" alt="${w.title}" loading="lazy" onerror="this.style.display='none'">
+          <div class="gradient"></div>
+        </div>
+        <div class="caption">
+          <div class="g">— ${w.genreKo} —</div>
+          <h3>${w.title}</h3>
+          <div class="au">by ${w.author}</div>
+        </div>
+      </div>
+    `).join('');
+}
+
+// count map for tabs (from actual data)
+function updateTabCounts(){
+  const counts = works.reduce((m,w)=>{ m[w.genre]=(m[w.genre]||0)+1; return m; },{});
+  counts.all = works.length;
+  tabs.querySelectorAll('button').forEach(b=>{
+    const cnt = b.querySelector('.cnt');
+    if (cnt) cnt.textContent = counts[b.dataset.genre] ?? 0;
+  });
+}
+
+function renderAuthors(){
+  const strip = document.getElementById('authorStrip');
+  if (!strip) return;
+  // group by author
+  const map = new Map();
+  works.forEach(w=>{
+    if (!map.has(w.author)) map.set(w.author, []);
+    map.get(w.author).push(w);
+  });
+  const list = [...map.entries()].map(([name, ws])=>({
+    name, ws,
+    genre: ws[0].genreEn,
+    initial: name.charAt(0)
+  }));
+  strip.innerHTML = list.map(a=>`
+    <div class="a-card">
+      <div class="glyph">${a.initial}</div>
+      <div class="nm">${a.name}</div>
+      <div class="pn">${a.genre}</div>
+      <div class="wk">${a.ws.slice(0,2).map((w,i)=> i===0 ? `<b>『${w.title}』</b>` : `『${w.title}』`).join('<br/>')}</div>
+    </div>
+  `).join('');
+}
+
+function renderRoll(){
+  const t = document.getElementById('rollTrack');
+  if (!t) return;
+  // duplicate the list for seamless loop
+  const html = works.concat(works).map(w=>`
+    <a href="#shelf" class="rc"><img src="../assets/covers/${w.file}" alt="${w.title}" loading="lazy"></a>
+  `).join('');
+  t.innerHTML = html;
+}
+
+fetch('../assets/works.json').then(r=>r.json()).then(data=>{
+  works = data;
+  updateTabCounts();
+  render();
+  renderAuthors();
+  renderRoll();
+}).catch(()=>{
+  grid.innerHTML = '<p style="color:var(--ink-mute);text-align:center;grid-column:1/-1;padding:60px 0">작품 목록을 불러오지 못했습니다.</p>';
+});
+
+tabs.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if (!b) return;
+  tabs.querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  filter = b.dataset.genre;
+  render();
+});
+</script>
+</body>
+</html>

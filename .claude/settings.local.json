@@ -4,7 +4,22 @@
       "PowerShell(Get-ChildItem D:\\\\ax-poc-web\\\\developers -Recurse -File | Select-Object @{N='Path';E={$_.FullName.Substring\\('D:\\\\ax-poc-web\\\\'.Length\\)}}, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}} | Format-Table -AutoSize)",
       "WebFetch(domain:www.yes24.com)",
       "Bash(Get-ChildItem -Recurse \"D:\\\\ax-poc-web\\\\review-ai\")",
-      "Bash(Select-Object FullName, Length)"
+      "Bash(Select-Object FullName, Length)",
+      "Bash(git add *)",
+      "Bash(git commit -m '온보딩 POC v18~v20 추가 + v17 입체 책 개선 *)",
+      "Bash(git commit -m 'v19 허니콤 디테일 개선 — 실제 밀랍 벌집 표현 *)",
+      "Bash(sed -i 's/v9/v7/g; s/V9/V7/g' hsseo_datahub_onboarding_v7/index.html)",
+      "Bash(sed -i 's/v12/v8/g; s/V12/V8/g' hsseo_datahub_onboarding_v8/index.html)",
+      "Bash(sed -i 's/v17/v9/g; s/V17/V9/g' hsseo_datahub_onboarding_v9/index.html)",
+      "Bash(sed -i 's/v18/v10/g; s/V18/V10/g' hsseo_datahub_onboarding_v10/index.html)",
+      "Bash(sed -i 's/v19/v11/g; s/V19/V11/g' hsseo_datahub_onboarding_v11/index.html)",
+      "Bash(git commit -m '온보딩 POC 라인업 정리 — 6종 삭제 후 v1~v12 시리얼 재번호 *)",
+      "Bash(sed -i 's/v5/v1/g; s/V5/V1/g' hsseo_datahub_onboarding_v1/index.html)",
+      "Bash(sed -i 's/v6/v2/g; s/V6/V2/g' hsseo_datahub_onboarding_v2/index.html)",
+      "Bash(sed -i 's/v7/v3/g; s/V7/V3/g' hsseo_datahub_onboarding_v3/index.html)",
+      "Bash(sed -i 's/v8/v4/g; s/V8/V4/g' hsseo_datahub_onboarding_v4/index.html)",
+      "Bash(sed -i 's/v9/v5/g; s/V9/V5/g' hsseo_datahub_onboarding_v5/index.html)",
+      "Bash(git commit -m '온보딩 POC 최종 정리 — 구 v1~v4 삭제, v1~v8 시리얼 재번호 *)"
     ]
   }
 }

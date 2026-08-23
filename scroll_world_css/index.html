@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AX LABS — 일하는 방식을 다시 설계하다</title>
+  <meta name="description" content="WebGL 없이 CSS 3D와 Canvas 2D로 구현한 AX LABS 소개 페이지. 카메라가 하나의 공간을 자동으로 여행합니다." />
+
+  <!-- Pretendard (SIL OFL, 오픈소스) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="./styles/main.css" />
+
+  <!-- GSAP (UMD). Three.js / WebGL은 사용하지 않는다 -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+</head>
+<body>
+  <!-- 배경: 별·성운 (Canvas 2D — WebGL 아님) -->
+  <canvas id="space-canvas"></canvas>
+
+  <!-- CSS 3D 뷰포트 : perspective가 걸린 카메라 렌즈 -->
+  <div id="viewport">
+    <!-- 월드 : 카메라 역변환이 적용되는 컨테이너 -->
+    <div id="world"></div>
+  </div>
+
+  <!-- 대기(포그 대용) 비네트 — 여정에 따라 색이 변한다 -->
+  <div id="atmosphere"></div>
+
+  <!-- ===== 고정 UI ===== -->
+
+  <!-- 상단 내비게이션 -->
+  <header class="nav">
+    <div class="nav-brand">
+      <span class="nav-mark"></span>
+      <span class="nav-name">AX&nbsp;LABS</span>
+    </div>
+    <nav class="nav-menu">
+      <span>DataHub</span>
+      <span>LLM Core</span>
+      <span>Automation</span>
+      <span>Workspace</span>
+    </nav>
+  </header>
+
+  <!-- 우측 챕터 인디케이터 (클릭하면 해당 씬부터 재생) -->
+  <aside class="chapters">
+    <button class="chapter"><i></i><em>Intro</em></button>
+    <button class="chapter"><i></i><em>DataHub</em></button>
+    <button class="chapter"><i></i><em>LLM Core</em></button>
+    <button class="chapter"><i></i><em>Automation</em></button>
+    <button class="chapter"><i></i><em>Workspace</em></button>
+  </aside>
+
+  <!-- 씬 캡션 -->
+  <div class="overlay">
+    <section class="caption is-first" id="cap-intro">
+      <span class="eyebrow">Introducing</span>
+      <h2>일하는 방식을<br />다시 설계합니다</h2>
+      <p>AX LABS는 데이터와 AI를 업무의 기본값으로 만드는<br />예스24의 AI 전환 실험실입니다.</p>
+    </section>
+
+    <section class="caption" id="cap-hub">
+      <span class="eyebrow">01 — AX DataHub</span>
+      <h2>흩어진 데이터를<br />하나의 흐름으로</h2>
+      <p>사내 곳곳의 데이터를 한곳에 모으고 정제해<br />누구나 물어볼 수 있는 형태로 만듭니다.</p>
+    </section>
+
+    <section class="caption" id="cap-core">
+      <span class="eyebrow">02 — LLM Core</span>
+      <h2>업무를 이해하는<br />AI 코어</h2>
+      <p>Prompt · Vector · SQL · API · Docs가<br />하나의 지능 위에서 함께 동작합니다.</p>
+    </section>
+
+    <section class="caption" id="cap-factory">
+      <span class="eyebrow">03 — Automation</span>
+      <h2>반복은 기계에게,<br />판단은 사람에게</h2>
+      <p>워크플로가 스스로 굴러가며<br />사람은 더 중요한 결정에 집중합니다.</p>
+    </section>
+
+    <!-- 피날레 -->
+    <div class="finale" id="finale">
+      <span class="eyebrow is-dark">04 — AX Workspace</span>
+      <h2>Welcome to<br /><strong>AX Workspace</strong></h2>
+      <p>데이터, AI, 자동화가 하나의 화면에서 만나는 곳.<br />오늘의 업무가 여기서 시작됩니다.</p>
+      <div class="finale-actions">
+        <span class="btn btn-primary">AX LABS 살펴보기</span>
+        <button class="btn btn-ghost" id="replay">처음부터 다시 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 재생 컨트롤 -->
+  <div class="player">
+    <button class="play-btn" id="play-toggle" data-mode="pause" aria-label="일시정지">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path class="i-play" d="M8 5.5v13l11-6.5z" />
+        <path class="i-pause" d="M8 5.5h3.2v13H8zM12.8 5.5H16v13h-3.2z" />
+        <path class="i-replay" d="M12 5V2.5L8 6l4 3.5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z" />
+      </svg>
+    </button>
+    <span class="player-time" id="time-label">00:00 / 00:00</span>
+
+    <!-- 재생 시간(속도) 조절 — 메뉴 항목은 journey.js가 실제 길이로 채운다 -->
+    <div class="speed">
+      <button class="speed-btn" id="speed-toggle" aria-haspopup="true" aria-expanded="false">
+        <span id="speed-label">1×</span>
+      </button>
+      <div class="speed-menu" id="speed-menu" role="menu" aria-label="재생 시간"></div>
+    </div>
+
+    <span class="player-hint">Space 재생·정지 &nbsp;·&nbsp; ← → 씬 이동 &nbsp;·&nbsp; [ ] 속도</span>
+  </div>
+
+  <!-- 진행바 (클릭하면 해당 지점으로 이동) -->
+  <div class="progress-track" id="progress-track" role="slider" aria-label="여정 진행" tabindex="0">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

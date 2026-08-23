@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AX Datahub 온보딩 — 디자인 갤러리 (v1~v7)</title>
+<meta name="description" content="온보딩 디자인 POC v1~v7을 한 화면에서 탭으로 전환하며 비교하는 갤러리 허브. AI 3-페르소나 평가 순위 포함." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<style>
+/* ============================================================
+   디자인 갤러리 허브 — v1~v7을 iframe 탭으로 전환
+   어느 버전과도 충돌하지 않는 뉴트럴 다크 크롬.
+   ============================================================ */
+:root {
+  --bg: #17181d;
+  --bar: #1e2027;
+  --ink: #eef0f6;
+  --dim: #8b90a0;
+  --line: rgba(255, 255, 255, 0.09);
+  --font: "Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- 상단 바 ---- */
+.bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 18px;
+  height: 58px;
+  background: var(--bar);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.brand i {
+  width: 12px; height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #8f9bff, #5fd4ff);
+}
+.brand b { font-size: 14px; font-weight: 800; letter-spacing: -0.01em; }
+.brand span { font-size: 12px; color: var(--dim); font-weight: 600; }
+
+.tabs { display: flex; gap: 6px; margin-left: 8px; overflow-x: auto; }
+.tab {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--dim);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.tab:hover { color: var(--ink); background: rgba(255, 255, 255, 0.05); }
+.tab.is-on {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--line);
+}
+.tab i {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--c, #8f9bff);
+  box-shadow: 0 0 8px var(--c, #8f9bff);
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+.tab.is-on i { opacity: 1; }
+.tab small { font-weight: 600; font-size: 11px; color: var(--dim); }
+
+/* ---- AI 평가 순위 배지 (탭) ---- */
+.tab em.rank {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+.tab em.rank.top {
+  color: #f5d47a;
+  border-color: rgba(245, 212, 122, 0.35);
+  background: rgba(245, 212, 122, 0.09);
+}
+
+.spacer { flex: 1; }
+
+.open-new {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.open-new:hover { color: var(--ink); border-color: rgba(255, 255, 255, 0.25); }
+
+/* ---- AI 평가 버튼 + 오버레이 패널 ---- */
+.eval-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border-radius: 9px;
+  border: 1px solid rgba(245, 212, 122, 0.35);
+  background: rgba(245, 212, 122, 0.08);
+  color: #f5d47a;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.eval-btn:hover { background: rgba(245, 212, 122, 0.16); border-color: rgba(245, 212, 122, 0.6); }
+
+.eval-overlay {
+  position: absolute; inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 34px 20px;
+  overflow-y: auto;
+  background: rgba(10, 11, 15, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.eval-overlay.is-on { opacity: 1; pointer-events: auto; }
+
+.eval-panel {
+  width: min(820px, 100%);
+  background: var(--bar);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px 28px 22px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+}
+.eval-panel h2 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.eval-panel h2 span { font-size: 12px; font-weight: 600; color: var(--dim); }
+.eval-close {
+  float: right;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--dim);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.eval-close:hover { color: var(--ink); }
+
+.eval-scroll { overflow-x: auto; margin-top: 18px; }
+.eval-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.eval-table th, .eval-table td {
+  padding: 9px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.eval-table th { color: var(--dim); font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; }
+.eval-table td.vname { text-align: left; font-weight: 700; }
+.eval-table td.total { font-weight: 800; }
+.eval-table tr.top3 td { background: rgba(245, 212, 122, 0.05); }
+.eval-table tr.top3 td.total { color: #f5d47a; }
+.eval-table td .medal { margin-right: 6px; }
+
+.eval-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+.eval-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 15px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.eval-card b { display: block; font-size: 13px; margin-bottom: 6px; color: #f5d47a; }
+.eval-card p { font-size: 12px; line-height: 1.65; color: var(--dim); }
+
+.eval-foot { margin-top: 16px; font-size: 11px; color: var(--dim); line-height: 1.6; }
+
+@media (max-width: 900px) {
+  .eval-cards { grid-template-columns: 1fr; }
+  .eval-panel { padding: 20px 16px; }
+  .eval-btn span { display: none; }
+  .eval-table { font-size: 12px; }
+  .eval-table th, .eval-table td { padding: 7px 6px; }
+}
+
+.keys {
+  flex: none;
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.keys b {
+  display: inline-block;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-weight: 700;
+  margin: 0 1px;
+}
+
+/* ---- 뷰어 ---- */
+.viewer { flex: 1; position: relative; background: #000; }
+.viewer iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0;
+  display: block;
+}
+.loading {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px;
+  background: var(--bg);
+  color: var(--dim);
+  font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.loading.is-on { opacity: 1; }
+.loading i {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: #8f9bff;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) {
+  .keys, .brand span { display: none; }
+  .tab small { display: none; }
+  .bar { gap: 10px; height: 52px; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand"><i></i><b>AX Datahub 온보딩</b><span>디자인 갤러리</span></div>
+  <nav class="tabs" id="tabs" aria-label="디자인 버전"></nav>
+  <div class="spacer"></div>
+  <button class="eval-btn" id="evalBtn" type="button">🏆 <span>AI 평가</span> ▾</button>
+  <span class="keys"><b>←</b><b>→</b> 로 전환</span>
+  <a class="open-new" id="openNew" href="#" target="_blank" rel="noopener">새 창에서 열기 ↗</a>
+</header>
+
+<main class="viewer" id="viewer">
+  <div class="loading" id="loading"><i></i>LOADING</div>
+
+  <!-- AI 3-페르소나 평가 오버레이 -->
+  <div class="eval-overlay" id="evalOverlay">
+    <section class="eval-panel" role="dialog" aria-label="AI 평가 결과">
+      <button class="eval-close" id="evalClose" type="button">닫기 ✕</button>
+      <h2>🏆 AI 5-페르소나 평가 <span>기획자 · 디자이너 · 실무자 · 개발팀장 · 임원 (200점 만점)</span></h2>
+
+      <div class="eval-scroll">
+      <table class="eval-table">
+        <thead>
+          <tr><th>순위</th><th style="text-align:left">버전</th><th>기획자</th><th>디자이너</th><th>실무자</th><th>개발팀장</th><th>임원</th><th>합계</th></tr>
+        </thead>
+        <tbody>
+          <tr class="top3"><td><span class="medal">🥇</span>1</td><td class="vname">V4 · 브리핑 북</td><td>36</td><td>37.5</td><td>35</td><td>31.5</td><td>37</td><td class="total">177</td></tr>
+          <tr class="top3"><td><span class="medal">🥈</span>2</td><td class="vname">V5 · 도서관</td><td>29</td><td>35</td><td>29</td><td>30</td><td>34</td><td class="total">157</td></tr>
+          <tr class="top3"><td><span class="medal">🥉</span>3</td><td class="vname">V7 · 북 투 허브</td><td>34</td><td>36</td><td>22</td><td>23</td><td>35.5</td><td class="total">150.5</td></tr>
+          <tr><td>4</td><td class="vname">V6 · 모자이크</td><td>28</td><td>27</td><td>33</td><td>33.5</td><td>28.5</td><td class="total">150</td></tr>
+          <tr><td>5</td><td class="vname">V2 · 미드나잇 로툰다</td><td>25</td><td>32</td><td>20</td><td>29</td><td>31.5</td><td class="total">137.5</td></tr>
+          <tr><td>6</td><td class="vname">V1 · 글래스 터널</td><td>30</td><td>29</td><td>17</td><td>26.5</td><td>26.5</td><td class="total">129</td></tr>
+          <tr><td>7</td><td class="vname">V3 · 타워 어센트</td><td>28</td><td>28</td><td>12</td><td>22</td><td>26</td><td class="total">116</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="eval-cards">
+        <div class="eval-card">
+          <b>🥇 V4 브리핑 북 — 5인 전원 TOP 3, 4인 1위</b>
+          <p>기획자·디자이너·실무자·임원 1위, 개발팀장 2위. 유일한 '진짜 6면 입체 책' + 종이·명조·금박의 보고톤이 브랜드와 완벽 일치. 데이터가 아니라 '결정'(재고를 먼저 확보하세요 + 승인 스탬프)을 보여주는 유일한 안으로, 경영보고에 그대로 쓸 수 있음. 상시 렌더 루프 없음 + 저DOM + 견고한 정적 폴백으로 기술적으로도 안정적.</p>
+        </div>
+        <div class="eval-card">
+          <b>🥈 V5 도서관 — 4인 TOP 3</b>
+          <p>'2.4만 권 중 오늘의 한 권'이라는 AI 큐레이션 은유가 책 회사 정체성과 정확히 맞고, 종이 톤이라 가독성·저피로도 우수. 무루프·경량으로 개발 관점도 상위권. 약점: STEP 04가 캡션이 아닌 결론 소제목으로 처리, 서가 배치가 로드마다 랜덤이라 QA 재현성이 낮음.</p>
+        </div>
+        <div class="eval-card">
+          <b>🥉 V7 북 투 허브 — 관점 따라 극명하게 갈린 3위</b>
+          <p>'책→빛→데이터 허브' 전환 서사로 기획자·디자이너 2위, 임원 2위(대외 시연 임팩트 최고). 반면 실무자·개발팀장은 최하위권 — Canvas 입자 상시 rAF 루프의 저사양 부담과 color-mix 구형 브라우저 미지원. 4위 V6 모자이크(개발팀장 1위, 안정성 최상)와 0.5점 차 초접전.</p>
+        </div>
+      </div>
+
+      <p class="eval-foot">평가 방식: 기획자(메시지 전달력·온보딩 효과·서사 완결성·사내 적합성) · 디자이너(비주얼·모션·브랜드·독창성) · 실무자(이해 속도·가독성·실용 톤·환경 안정성) · 개발팀장(코드 품질·이식 비용·성능·기술 리스크) · 임원(첫인상 임팩트·이미지 격·비즈니스 메시지·시연 가치) — 5개 AI 페르소나 × 각 4개 기준(10점 만점) 합산. 기획자·디자이너·실무자 2026-07-30, 개발팀장·임원 2026-08-04 평가.</p>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  /* ---- 버전 목록 (상대경로 — Live Server·임시서버·Pages 모두 동작)
+       rank/score: AI 5-페르소나(기획자·디자이너·실무자·개발팀장·임원) 합산 평가 (200점 만점, 2026-08-04) ---- */
+  const VERSIONS = [
+    { id: 'v1', name: '글래스 터널', sub: 'Deep Dive', color: '#8f9bff', path: './v1/', rank: 6, score: 129 },
+    { id: 'v2', name: '미드나잇 로툰다', sub: 'Gallery', color: '#d4a95c', path: './v2/', rank: 5, score: 137.5 },
+    { id: 'v3', name: '타워 어센트', sub: 'Summit', color: '#c6ff5e', path: './v3/', rank: 7, score: 116 },
+    { id: 'v4', name: '브리핑 북', sub: 'One-Scene · Book', color: '#c9a227', path: './v4/', rank: 1, score: 177 },
+    { id: 'v5', name: '도서관', sub: 'One Pick', color: '#4a69c9', path: './v5/', rank: 2, score: 157 },
+    { id: 'v6', name: '모자이크', sub: 'Snap Fit', color: '#5b8def', path: './v6/', rank: 4, score: 150 },
+    { id: 'v7', name: '북 투 허브', sub: 'Book → Light → Hub', color: '#ffd977', path: './v7/', rank: 3, score: 150.5 },
+  ];
+  const MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+  const tabsEl = document.getElementById('tabs');
+  const viewer = document.getElementById('viewer');
+  const loading = document.getElementById('loading');
+  const openNew = document.getElementById('openNew');
+  let current = -1;
+  let frame = null;
+
+  /* ---- 탭 생성 ---- */
+  const tabs = VERSIONS.map((v, i) => {
+    const b = document.createElement('button');
+    b.className = 'tab';
+    b.type = 'button';
+    b.style.setProperty('--c', v.color);
+    const badge = v.rank <= 3
+      ? `<em class="rank top">${MEDALS[v.rank]} AI ${v.rank}위</em>`
+      : `<em class="rank">AI ${v.rank}위</em>`;
+    b.innerHTML = `<i></i>${v.id.toUpperCase()} · ${v.name} <small>${v.sub}</small>${badge}`;
+    b.addEventListener('click', () => select(i));
+    tabsEl.appendChild(b);
+    return b;
+  });
+
+  /* ---- 버전 선택 — iframe을 새로 만들어 상태(스크롤/타임라인)를 리셋 ---- */
+  function select(i, pushHash = true) {
+    if (i === current) return;
+    current = i;
+    const v = VERSIONS[i];
+
+    tabs.forEach((t, k) => t.classList.toggle('is-on', k === i));
+    openNew.href = v.path;
+    document.title = `AX Datahub 온보딩 갤러리 — ${v.id.toUpperCase()} ${v.name}`;
+    if (pushHash) history.replaceState(null, '', '#' + v.id);
+
+    loading.classList.add('is-on');
+    if (frame) frame.remove();
+    frame = document.createElement('iframe');
+    frame.title = `${v.id} ${v.name}`;
+    frame.addEventListener('load', () => loading.classList.remove('is-on'));
+    frame.src = v.path;
+    viewer.appendChild(frame);
+  }
+
+  /* ---- AI 평가 패널 토글 (버튼 · ESC · 바깥 클릭) ---- */
+  const evalBtn = document.getElementById('evalBtn');
+  const evalOverlay = document.getElementById('evalOverlay');
+  const evalClose = document.getElementById('evalClose');
+  function toggleEval(on) {
+    evalOverlay.classList.toggle('is-on', on ?? !evalOverlay.classList.contains('is-on'));
+  }
+  evalBtn.addEventListener('click', () => toggleEval());
+  evalClose.addEventListener('click', () => toggleEval(false));
+  evalOverlay.addEventListener('click', (e) => {
+    if (e.target === evalOverlay) toggleEval(false); /* 패널 바깥(어두운 영역) 클릭 시 닫기 */
+  });
+
+  /* ---- 키보드 ←/→ 전환 · ESC로 평가 패널 닫기 ---- */
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') toggleEval(false);
+    else if (evalOverlay.classList.contains('is-on')) return; /* 패널 열림 중엔 탭 전환 잠금 */
+    else if (e.key === 'ArrowRight') select(Math.min(VERSIONS.length - 1, current + 1));
+    else if (e.key === 'ArrowLeft') select(Math.max(0, current - 1));
+  });
+
+  /* ---- 해시 딥링크 (#v6 등) ---- */
+  function fromHash() {
+    const id = location.hash.replace('#', '');
+    const idx = VERSIONS.findIndex((v) => v.id === id);
+    select(idx >= 0 ? idx : 0, false);
+  }
+  addEventListener('hashchange', fromHash);
+  fromHash();
+})();
+</script>
+</body>
+</html>

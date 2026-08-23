@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>AX Datahub — 한 줄로 묻는다</title>
+<meta name="description" content="흩어져 있던 6개의 데이터가 한 곳에 모여, 판단이 빨라집니다. AX Datahub 온보딩 티저." />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   AX DATAHUB · ONBOARDING TEASER  "ONE LINE / 한 줄로 묻는다"
+   키네틱 타이포 + 마그네틱 커서 + clip-path 색면 전환 (CSS/DOM only)
+
+   구조 원칙 — 정적 우선(static first):
+   이 문서의 기본 상태는 "완성된 최종 화면"(헤드라인 + 요약 + 6개 입구)이다.
+   스크립트와 GSAP 이 모두 정상일 때만 <body> 에 .js 가 붙어 시네마틱
+   시퀀스로 전환된다. 따라서 JS 가 죽거나 CDN 이 실패하거나
+   prefers-reduced-motion 이면 최종 화면과 6개 입구가 그대로 남는다.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root{
+  --ink:#0B0B0E;
+  --paper:#F1EEE7;
+  --dim-d:rgba(241,238,231,.5);
+  --dim-l:rgba(11,11,14,.52);
+  --line-d:rgba(241,238,231,.16);
+
+  --nw:236px;  --nh:140px;  --ngap:16px;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--paper)}
+body{
+  font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;
+  background:var(--paper); color:var(--ink);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+
+/* ── 공통 타이포 ────────────────────────────────────────────── */
+.m{display:inline-block; overflow:hidden; vertical-align:top;
+   padding-bottom:.14em; margin-bottom:-.14em}
+.i{display:inline-block}
+
+.giant{font-size:clamp(46px,11.2vw,150px); font-weight:900; line-height:.94;
+  letter-spacing:-.052em; word-break:keep-all}
+.giant.sm{font-size:clamp(38px,7.4vw,92px); letter-spacing:-.045em}
+.mid{font-size:clamp(22px,4.4vw,54px); font-weight:800; letter-spacing:-.035em; line-height:1.06}
+.sub{font-size:clamp(13.5px,1.55vw,19px); font-weight:600; line-height:1.7;
+  letter-spacing:-.01em; word-break:keep-all; max-width:34em; color:var(--dim-l)}
+.stage.d .sub{color:var(--dim-d)}
+.eyebrow{font-size:clamp(9.5px,1vw,11.5px); font-weight:800; letter-spacing:.34em;
+  color:rgba(11,11,14,.42)}
+.stage.d .eyebrow{color:rgba(241,238,231,.42)}
+
+/* ═══ 기본 상태 = 정적 문서(최종 화면) ═══════════════════════ */
+/* .field 는 클래스로 끈다 — body.js .field 가 다시 켤 수 있어야 하므로 */
+.field{display:none}
+#wires,#query,#prog,#skip,#cursor{display:none}
+.stage{display:none}
+
+#app{padding:0}
+#brand{font-size:11px; font-weight:900; letter-spacing:.26em; color:var(--ink); opacity:.5;
+  padding:clamp(18px,3vh,30px) clamp(16px,3vw,34px) 0}
+
+#s5{
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  padding:clamp(30px,6vh,72px) 5vw clamp(30px,6vh,60px);
+}
+#s5 .eyebrow{margin-bottom:14px}
+#s5 .sub{margin-top:16px}
+
+#rm{max-width:44em; margin-top:clamp(18px,3vh,30px)}
+#rm ol{list-style:none; display:flex; flex-direction:column; gap:8px;
+  font-size:clamp(13px,1.5vw,16px); font-weight:600; color:var(--dim-l); line-height:1.65}
+#rm ol b{color:var(--ink); font-weight:800}
+
+#nodes{
+  display:grid; grid-template-columns:repeat(3,var(--nw)); gap:var(--ngap);
+  justify-content:center; margin-top:clamp(28px,5vh,56px);
+}
+
+#foot{
+  display:flex; justify-content:center; gap:clamp(10px,2vw,22px); flex-wrap:wrap;
+  padding:clamp(26px,5vh,44px) 20px clamp(20px,4vh,34px); text-align:center;
+  font-size:10.5px; font-weight:700; letter-spacing:.04em; color:var(--ink); opacity:.4;
+}
+#foot kbd{font-family:inherit; font-weight:800; border:1px solid currentColor;
+  border-radius:4px; padding:1px 5px; margin:0 1px; opacity:.8}
+body:not(.js) #foot .kbdhint{display:none}
+
+/* ── 입구 카드 (정적/시네마틱 공용) ────────────────────────── */
+.node{
+  width:var(--nw); height:var(--nh); display:block; text-decoration:none; color:inherit;
+}
+.node__in{
+  position:relative; display:flex; flex-direction:column; width:100%; height:100%;
+  background:#141419; border-radius:14px; overflow:hidden;
+  border:1px solid rgba(241,238,231,.1);
+  box-shadow:0 18px 44px rgba(0,0,0,.42);
+  padding:14px 15px 12px;
+  transition:border-color .35s var(--ease), box-shadow .45s var(--ease), background .35s var(--ease);
+}
+.node__bar{position:absolute; left:0; top:0; height:4px; width:100%; background:var(--c)}
+.node__head{display:flex; align-items:baseline; gap:8px; margin-top:2px}
+.node__head b{font-size:17px; font-weight:900; letter-spacing:-.03em; color:var(--paper);
+  white-space:nowrap}
+.node__head i{font-size:9px; font-style:normal; font-weight:800; letter-spacing:.2em;
+  color:var(--c); opacity:.9}
+.node__body{flex:1; display:flex; flex-direction:column; justify-content:flex-end; gap:8px}
+.node__spark{width:100%; height:30px; display:block; overflow:visible}
+.node__meta{display:flex; justify-content:space-between; align-items:baseline; gap:8px}
+.node__meta em{font-style:normal; font-size:10.5px; font-weight:700; letter-spacing:-.01em;
+  color:rgba(241,238,231,.42); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.node__meta em:last-child{color:rgba(241,238,231,.72); flex:none}
+.node__cta{
+  position:absolute; right:13px; top:16px; display:flex; align-items:center; gap:5px;
+  font-size:10.5px; font-weight:800; letter-spacing:.06em; color:var(--c);
+}
+.node:hover .node__in, .node:focus-visible .node__in{
+  background:#1B1B22; border-color:var(--c);
+  box-shadow:0 26px 60px rgba(0,0,0,.34), 0 0 0 1px var(--c);
+}
+.node:focus-visible{outline:none}
+
+/* ═══ .js — 시네마틱 시퀀스 레이아웃 ═════════════════════════ */
+body.js{overflow:hidden; overscroll-behavior:none; background:var(--ink)}
+body.js #app{position:fixed; inset:0; height:100dvh; width:100%; padding:0}
+
+body.js .field{display:block; position:absolute; inset:0; pointer-events:none}
+body.js #dark{
+  z-index:1;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,.05), transparent 62%),
+    radial-gradient(ellipse 60% 50% at 10% 100%, rgba(255,75,36,.07), transparent 70%),
+    var(--ink);
+}
+body.js #paper{
+  z-index:3;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% -10%, rgba(11,11,14,.045), transparent 60%),
+    var(--paper);
+  clip-path:inset(100% 0 0 0);
+}
+body.js .stage{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:0 5vw; text-align:center;
+  pointer-events:none; visibility:hidden; opacity:0;
+}
+body.js .stage.d{z-index:2; color:var(--paper)}
+body.js .stage.l{z-index:4; color:var(--ink)}
+body.js #rm{display:none}
+
+/* 카드 더미가 아래에 쌓이므로 헤드라인은 위로 */
+body.js #s3{padding-bottom:30vh}
+/* 질문창이 중앙을 차지하므로 헤드라인은 그 위로 */
+body.js #s4{padding-bottom:48vh}
+body.js #s5{justify-content:flex-start}
+
+body.js #nodes{
+  position:absolute; inset:0; z-index:6; display:block; margin:0;
+  pointer-events:none;
+}
+body.js .node{position:absolute; left:50%; top:50%; visibility:hidden}
+body.js .node__cta{opacity:0; transform:translateY(4px)}
+body.js #nodes:not(.live) .node:hover .node__in{
+  background:#141419; border-color:rgba(241,238,231,.1);
+  box-shadow:0 18px 44px rgba(0,0,0,.42);
+}
+body.js #nodes.live{pointer-events:auto}
+
+body.js .ui{position:absolute; z-index:12}
+body.js #brand{left:clamp(16px,3vw,34px); top:clamp(16px,3vh,30px); padding:0;
+  color:var(--paper); opacity:.55; transition:color .5s var(--ease)}
+body.js #skip{
+  display:inline-flex; align-items:center; gap:9px;
+  right:clamp(16px,3vw,34px); top:clamp(16px,3vh,30px);
+  padding:10px 17px; border-radius:999px; border:1px solid currentColor; background:none;
+  font:inherit; font-size:11.5px; font-weight:800; letter-spacing:.08em;
+  color:var(--paper); opacity:.62; transition:opacity .3s var(--ease), color .5s var(--ease);
+}
+body.js #skip:hover,body.js #skip:focus-visible{opacity:1; outline:none}
+body.js #skip svg{width:11px;height:11px}
+body.js #prog{display:flex; left:0; right:0; bottom:0; gap:3px;
+  padding:0 clamp(16px,3vw,34px); height:2px; pointer-events:none}
+body.js #prog i{flex:1; background:currentColor; opacity:.16; position:relative; overflow:hidden;
+  color:var(--paper); transition:color .5s var(--ease)}
+body.js #foot{
+  left:0; right:0; bottom:clamp(16px,3vh,26px); padding:0 20px; pointer-events:none;
+  color:var(--paper); transition:color .5s var(--ease);
+}
+/* 밝은 색면일 때 크롬 반전 */
+body.js.light #skip, body.js.light #brand, body.js.light #prog i, body.js.light #foot{color:var(--ink)}
+
+body.js #wires{display:block; position:absolute; inset:0; z-index:5; pointer-events:none; opacity:0}
+body.js #wires line{stroke-width:1.4; opacity:.55}
+
+/* ── 단어 교체 슬롯 (마스크 높이가 자기 폰트 크기로 계산되도록) ── */
+body.js #s1 .swapTop{margin-bottom:clamp(10px,1.8vh,20px)}
+.slot{position:relative; display:block; width:100%; overflow:hidden;
+  font-size:clamp(48px,12vw,152px); line-height:1.14; height:1.14em}
+.slot > span{position:absolute; left:0; right:0; top:0; display:block;
+  font-size:inherit; font-weight:900; line-height:1.14; letter-spacing:-.055em}
+.slot2{position:relative; display:block; width:100%; overflow:hidden;
+  font-size:clamp(13.5px,1.55vw,19px); line-height:1.9; height:1.9em;
+  margin-top:clamp(10px,1.8vh,20px)}
+.slot2 > span{position:absolute; left:0; right:0; top:0; display:block;
+  font-size:inherit; font-weight:700; letter-spacing:-.01em; color:var(--dim-d); line-height:1.9}
+.slot2 > span em{font-style:normal; color:rgba(241,238,231,.85)}
+
+/* ── 마찰 ──────────────────────────────────────────────────── */
+#s2 .strikewrap{position:relative; display:inline-block}
+#s2 .strike{position:absolute; left:-2%; top:50%; width:104%; height:clamp(5px,.9vw,11px);
+  background:#FF4B24; transform:translateY(-50%) rotate(-1.4deg);
+  clip-path:inset(0 100% 0 0); border-radius:2px}
+.stats{display:flex; flex-wrap:wrap; justify-content:center; gap:clamp(10px,1.6vw,20px);
+  margin-top:clamp(24px,4vh,44px)}
+.stat{border:1px solid var(--line-d); border-radius:999px; padding:9px 18px;
+  display:flex; align-items:baseline; gap:.5em}
+.stat b{font-size:clamp(15px,1.9vw,23px); font-weight:900; letter-spacing:-.02em}
+.stat span{font-size:clamp(10.5px,1.1vw,12.5px); font-weight:700; color:var(--dim-d)}
+
+#s0 .count{display:inline-flex; align-items:baseline; gap:.34em; margin-top:22px;
+  font-weight:900; letter-spacing:-.03em}
+#s0 .count b{font-size:clamp(30px,4.4vw,54px); color:#FF4B24; line-height:1}
+#s0 .count span{font-size:clamp(12px,1.4vw,15px); font-weight:700; color:var(--dim-d)}
+#s0 .eyebrow{margin-bottom:clamp(18px,3vh,34px)}
+#s0 .sub{margin-top:clamp(20px,3.4vh,38px)}
+#s3 .sub{margin-top:clamp(18px,3vh,32px)}
+
+/* ── 질문창 ────────────────────────────────────────────────── */
+body.js #query{
+  display:block; position:absolute; z-index:5; left:50%; top:50%; width:min(760px,88vw);
+  transform:translate(-50%,-50%); pointer-events:none; visibility:hidden; opacity:0;
+}
+.qbar{background:var(--ink); border-radius:16px;
+  padding:clamp(16px,2.4vw,22px) clamp(18px,2.6vw,26px);
+  box-shadow:0 30px 80px rgba(11,11,14,.28); text-align:left; clip-path:inset(0 0 0 0)}
+.qrow{display:flex; align-items:center; gap:14px}
+.qdots{display:flex; gap:5px; flex:none}
+.qdots i{width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.22}
+.qtext{flex:1; font-size:clamp(14px,1.85vw,22px); font-weight:700; color:var(--paper);
+  letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.qcaret{display:inline-block; width:2px; height:1.05em; background:#FF4B24;
+  vertical-align:-.15em; margin-left:2px}
+.qtime{flex:none; font-size:clamp(10px,1.05vw,12px); font-weight:800; letter-spacing:.12em;
+  color:rgba(241,238,231,.45)}
+.qans{margin-top:clamp(14px,2vw,18px); padding-top:clamp(14px,2vw,18px);
+  border-top:1px solid rgba(241,238,231,.13)}
+.qans .lab{font-size:10.5px; font-weight:800; letter-spacing:.28em;
+  color:rgba(241,238,231,.4); display:block; margin-bottom:10px}
+.qans .val{font-size:clamp(15px,2.05vw,25px); font-weight:800; letter-spacing:-.025em;
+  color:var(--paper); line-height:1.42; word-break:keep-all}
+.qsrc{display:flex; flex-wrap:wrap; gap:7px; margin-top:14px}
+.qsrc b{font-size:11px; font-weight:800; padding:5px 11px; border-radius:999px;
+  border:1px solid currentColor; color:var(--c); display:inline-flex; align-items:center; gap:6px}
+.qsrc b::before{content:''; width:5px; height:5px; border-radius:50%; background:currentColor}
+
+/* ── 마그네틱 커서 ─────────────────────────────────────────── */
+#cursor{
+  position:fixed; z-index:100; left:0; top:0; width:14px; height:14px; border-radius:999px;
+  background:var(--paper); pointer-events:none; mix-blend-mode:difference; opacity:0;
+  align-items:center; justify-content:center;
+}
+#cursor span{font-size:10.5px; font-weight:900; letter-spacing:.1em; color:var(--ink);
+  opacity:0; white-space:nowrap; mix-blend-mode:normal}
+@media (pointer:fine){
+  body.js #cursor{display:flex}
+  /* 커스텀 커서가 첫 mousemove 로 자리를 잡은 뒤에만 네이티브 커서를 숨긴다.
+     즉시 숨기면 그 전까지 커서가 아예 없다(GSAP 지연·실패 시 영영 없음) */
+  body.js.cursor-on, body.js.cursor-on a, body.js.cursor-on button{cursor:none}
+}
+
+/* ── 반응형 ────────────────────────────────────────────────── */
+@media (max-width:900px){ :root{--nw:200px; --nh:124px; --ngap:12px} }
+@media (max-width:640px){
+  :root{--nw:150px; --nh:112px; --ngap:9px}
+  #nodes{grid-template-columns:repeat(2,var(--nw))}
+  .node__in{padding:11px 11px 9px; border-radius:11px}
+  .node__head b{font-size:14px}
+  .node__head i{display:none}
+  .node__spark{height:22px}
+  .node__meta em{font-size:9px}
+  .node__meta em:first-child{display:none}
+  .node__cta{font-size:9px; right:10px; top:12px}
+  .stat{padding:7px 13px}
+  #foot{font-size:9.5px; gap:8px}
+  #foot .kbdhint{display:none}   /* 터치 환경에선 키보드 힌트가 의미 없다 */
+  .qbar{border-radius:13px}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="field" id="dark"></div>
+  <div class="field" id="paper"></div>
+
+  <div id="brand" class="ui">AX DATAHUB</div>
+
+  <!-- ACT 1 · 질문 -->
+  <section class="stage d" id="s0" aria-hidden="true">
+    <span class="eyebrow" data-fade>AX DATAHUB · 온보딩</span>
+    <h2 class="giant"><span data-split>어제</span><br /><span data-split>왜 그랬을까?</span></h2>
+    <p class="sub" data-fade>이 질문 하나에 답하려고, 우리는 매번 다른 화면을 엽니다.</p>
+    <span class="count" data-fade><b>6</b><span>곳</span></span>
+  </section>
+
+  <!-- ACT 2 · 흩어짐 -->
+  <section class="stage d" id="s1" aria-hidden="true">
+    <span class="eyebrow swapTop" data-fade>지금은</span>
+    <span class="slot" id="slotWord"></span>
+    <span class="slot2" id="slotTool"></span>
+  </section>
+
+  <!-- ACT 3 · 마찰 -->
+  <section class="stage d" id="s2" aria-hidden="true">
+    <h2 class="giant sm">
+      <span class="strikewrap"><span data-split>6곳을 열어야</span><i class="strike"></i></span>
+      <br /><span data-split>1개를 압니다</span>
+    </h2>
+    <div class="stats">
+      <span class="stat" data-fade><b>6</b><span>개 탭</span></span>
+      <span class="stat" data-fade><b>6</b><span>번 로그인</span></span>
+      <span class="stat" data-fade><b>34</b><span>분 · 질문 1건당</span></span>
+    </div>
+  </section>
+
+  <!-- ACT 4 · 수렴 -->
+  <section class="stage l" id="s3" aria-hidden="true">
+    <h2 class="giant"><span data-split>한 곳으로</span></h2>
+    <p class="sub" data-fade>6개의 출처가 하나의 질문창 아래로 모입니다.</p>
+  </section>
+
+  <!-- ACT 5 · 답 -->
+  <section class="stage l" id="s4" aria-hidden="true">
+    <h2 class="mid"><span data-split>그래서 판단이 빨라집니다</span></h2>
+  </section>
+
+  <!-- ACT 6 · 홈 — 스크립트가 없어도 이 화면이 문서의 기본 상태다 -->
+  <section class="stage l" id="s5">
+    <span class="eyebrow" data-fade>AX DATAHUB</span>
+    <h1 class="giant sm"><span data-split>하나의 질문창</span></h1>
+    <p class="sub" data-fade>흩어져 있던 6개가 한 곳에 모였습니다. 들어갈 곳을 고르세요.</p>
+
+    <div id="rm">
+      <ol>
+        <li><b>흩어짐 —</b> 매출·검색·재고·리뷰·이벤트·고객 행동이 각각 다른 화면에 있었습니다.</li>
+        <li><b>마찰 —</b> 질문 1건에 탭 6개, 로그인 6번, 평균 34분. (샘플 수치)</li>
+        <li><b>수렴 —</b> AX Datahub 는 6개를 한 곳에서 함께 질의합니다. 아래에서 원하는 데이터로 들어가세요.</li>
+      </ol>
+    </div>
+
+    <!-- 6개 입구 — 마크업에 그대로 존재한다(JS 실패해도 남는다) -->
+    <div id="nodes">
+      <a class="node" href="../sites/sales.html" style="--c:#FF4B24" data-src="sales" aria-label="매출 데이터로 이동">
+        <span class="node__in">
+          <i class="node__bar"></i>
+          <span class="node__head"><b>매출</b><i>SALES</i></span>
+          <span class="node__body">
+            <svg class="node__spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <span class="node__meta"><em>ERP 일별 추출본</em><em>전일 −12%</em></span>
+          </span>
+          <span class="node__cta">열기 →</span>
+        </span>
+      </a>
+      <a class="node" href="../sites/search.html" style="--c:#3B76FF" data-src="search" aria-label="검색 데이터로 이동">
+        <span class="node__in">
+          <i class="node__bar"></i>
+          <span class="node__head"><b>검색</b><i>SEARCH</i></span>
+          <span class="node__body">
+            <svg class="node__spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <span class="node__meta"><em>검색 로그 콘솔</em><em>쿼리 8.2만</em></span>
+          </span>
+          <span class="node__cta">열기 →</span>
+        </span>
+      </a>
+      <a class="node" href="../sites/stock.html" style="--c:#00BE79" data-src="stock" aria-label="재고 데이터로 이동">
+        <span class="node__in">
+          <i class="node__bar"></i>
+          <span class="node__head"><b>재고</b><i>STOCK</i></span>
+          <span class="node__body">
+            <svg class="node__spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <span class="node__meta"><em>물류 담당자 시트</em><em>품절 34종</em></span>
+          </span>
+          <span class="node__cta">열기 →</span>
+        </span>
+      </a>
+      <a class="node" href="../sites/review.html" style="--c:#FFC43D" data-src="review" aria-label="리뷰 데이터로 이동">
+        <span class="node__in">
+          <i class="node__bar"></i>
+          <span class="node__head"><b>리뷰</b><i>REVIEW</i></span>
+          <span class="node__body">
+            <svg class="node__spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <span class="node__meta"><em>CS 주간 리포트</em><em>평점 4.31</em></span>
+          </span>
+          <span class="node__cta">열기 →</span>
+        </span>
+      </a>
+      <a class="node" href="../sites/event.html" style="--c:#A855F7" data-src="event" aria-label="이벤트 데이터로 이동">
+        <span class="node__in">
+          <i class="node__bar"></i>
+          <span class="node__head"><b>이벤트</b><i>EVENT</i></span>
+          <span class="node__body">
+            <svg class="node__spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <span class="node__meta"><em>기획전 관리자</em><em>진행 12건</em></span>
+          </span>
+          <span class="node__cta">열기 →</span>
+        </span>
+      </a>
+      <a class="node" href="../sites/user.html" style="--c:#00CBDE" data-src="user" aria-label="고객 행동 데이터로 이동">
+        <span class="node__in">
+          <i class="node__bar"></i>
+          <span class="node__head"><b>고객 행동</b><i>USER</i></span>
+          <span class="node__body">
+            <svg class="node__spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <span class="node__meta"><em>GA 대시보드</em><em>세션 21.4만</em></span>
+          </span>
+          <span class="node__cta">열기 →</span>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <svg id="wires" aria-hidden="true"></svg>
+
+  <div id="query" aria-hidden="true">
+    <div class="qbar">
+      <div class="qrow">
+        <span class="qdots" id="qdots"></span>
+        <span class="qtext" id="qtext"></span>
+        <span class="qtime" id="qtime">0.0s</span>
+      </div>
+      <div class="qans" id="qans">
+        <span class="lab">답</span>
+        <span class="val" id="qval"></span>
+        <span class="qsrc" id="qsrc"></span>
+      </div>
+    </div>
+  </div>
+
+  <button id="skip" class="ui" type="button">
+    건너뛰기
+    <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M1 6h9M6.5 2l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div id="prog" class="ui" aria-hidden="true"></div>
+  <div id="foot" class="ui">
+    <span>화면의 수치·문구는 시연용 <b>샘플</b>입니다</span>
+    <span class="kbdhint"><kbd>←</kbd><kbd>→</kbd> 이동 · <kbd>Space</kbd> 일시정지 · <kbd>Esc</kbd> 건너뛰기</span>
+  </div>
+</div>
+
+<div id="cursor" aria-hidden="true"><span>열기</span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+const $  = (s,p)=> (p||document).querySelector(s);
+const $$ = (s,p)=> Array.from((p||document).querySelectorAll(s));
+
+/* ═══ 데이터 ══════════════════════════════════════════════ */
+const SRC = [
+  {id:'sales',  short:'매출',   c:'#FF4B24', tool:'ERP 일별 추출본',  up:false, seed:7},
+  {id:'search', short:'검색',   c:'#3B76FF', tool:'검색 로그 콘솔',   up:true,  seed:23},
+  {id:'stock',  short:'재고',   c:'#00BE79', tool:'물류 담당자 시트', up:false, seed:41},
+  {id:'review', short:'리뷰',   c:'#FFC43D', tool:'CS 주간 리포트',   up:true,  seed:59},
+  {id:'event',  short:'이벤트', c:'#A855F7', tool:'기획전 관리자',    up:false, seed:77},
+  {id:'user',   short:'고객',   c:'#00CBDE', tool:'GA 대시보드',      up:true,  seed:95},
+];
+const KO = {sales:'매출', search:'검색', stock:'재고', review:'리뷰', event:'이벤트', user:'고객 행동'};
+
+/* ═══ 1) 스크립트 없이도 남는 부분 — 스파크라인 채우기 ════ */
+const nodes = $$('#nodes .node');
+
+function sparkPoints(seed, up){
+  let s = seed >>> 0;
+  const rnd = ()=> ((s = (s*1664525 + 1013904223) >>> 0) / 4294967296);
+  const n = 18, pts = []; let v = up ? .34 : .70;
+  for(let i=0;i<n;i++){
+    v += (rnd()-.5)*.30 + (up ? .026 : -.026);
+    v = Math.max(.10, Math.min(.90, v));
+    pts.push([ (i/(n-1))*100, (1-v)*28 + 1 ]);
+  }
+  return pts;
+}
+nodes.forEach(a=>{
+  const s = SRC.find(x=>x.id === a.dataset.src);
+  if(!s) return;
+  const poly = sparkPoints(s.seed, s.up).map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  $('.node__spark', a).innerHTML =
+    '<polygon points="'+poly+' 100,30 0,30" fill="'+s.c+'" opacity=".12"></polygon>' +
+    '<polyline points="'+poly+'" fill="none" stroke="'+s.c+'" stroke-width="1.6" ' +
+      'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>';
+});
+
+/* ═══ 2) 여기서부터는 연출. 실패하면 정적 문서가 그대로 남는다 ═══ */
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduced || typeof gsap === 'undefined') return;
+
+const finePointer = window.matchMedia('(pointer:fine)').matches;
+document.body.classList.add('js');
+
+/* 카드 레이어를 #s5 밖으로 꺼낸다 — #s5 는 연출 중 opacity 0 이 되므로 */
+const nodesWrap = $('#nodes');
+$('#app').appendChild(nodesWrap);
+nodes.forEach(n=> n.setAttribute('tabindex','-1'));
+
+const STEPS = [
+  {id:'ask',      dur:3.4, settle:2.2},
+  {id:'scatter',  dur:5.8, settle:5.0},
+  {id:'friction', dur:3.0, settle:2.0},
+  {id:'converge', dur:3.6, settle:2.6},
+  {id:'answer',   dur:5.0, settle:3.4},
+  {id:'home',     dur:0,   settle:2.4},
+];
+const HOME = STEPS.length - 1;
+
+const SCATTER = [
+  {fx:-.335, fy:-.268, r:-8.5},
+  {fx: .305, fy:-.318, r: 6.5},
+  {fx:-.372, fy: .186, r: 5.0},
+  {fx: .352, fy: .120, r:-7.0},
+  {fx:-.108, fy: .330, r: 3.0},
+  {fx: .155, fy: .312, r:-4.0},
+];
+
+const QUESTION   = '어제 인문 매출이 왜 12% 빠졌지?';
+const ANSWER     = '기획전 종료 −7% · 베스트 3종 품절 −4%';
+const ANSWER_SRC = ['event','stock','sales'];
+
+/* 단어 단위 마스크 분할 */
+function split(el){
+  if(el.dataset.done) return $$('.i', el);
+  const words = (el.textContent||'').trim().split(/\s+/);
+  el.textContent = '';
+  words.forEach((w,ix)=>{
+    const m = document.createElement('span'); m.className = 'm';
+    const i = document.createElement('span'); i.className = 'i'; i.textContent = w;
+    m.appendChild(i); el.appendChild(m);
+    if(ix < words.length-1) el.appendChild(document.createTextNode(' '));
+  });
+  el.dataset.done = '1';
+  return $$('.i', el);
+}
+$$('[data-split]').forEach(split);
+
+const inners = nodes.map(n=> $('.node__in', n));
+const bodies = nodes.map(n=> $('.node__body', n));
+const ctas   = nodes.map(n=> $('.node__cta', n));
+gsap.set(nodes, {xPercent:-50, yPercent:-50});
+
+const qdots = SRC.map(s=>{
+  const i = document.createElement('i'); i.style.color = s.c; $('#qdots').appendChild(i); return i;
+});
+$('#qsrc').innerHTML = ANSWER_SRC.map(id=>{
+  const s = SRC.find(x=>x.id===id);
+  return '<b style="--c:'+s.c+'">'+KO[id]+'</b>';
+}).join('');
+
+const fills = STEPS.slice(0,-1).map(()=>{
+  const seg = document.createElement('i');
+  const f = document.createElement('span');
+  f.style.cssText = 'position:absolute;inset:0;background:currentColor;transform:scaleX(0);transform-origin:0 50%';
+  seg.appendChild(f); $('#prog').appendChild(seg);
+  return f;
+});
+
+const stages = ['#s0','#s1','#s2','#s3','#s4','#s5'].map(s=>$(s));
+const slotWord = $('#slotWord'), slotTool = $('#slotTool');
+
+/* ═══ 레이아웃 ════════════════════════════════════════════ */
+let L = {};
+function layout(){
+  const W = window.innerWidth, H = $('#app').clientHeight || window.innerHeight;
+  const nw = nodes[0].offsetWidth, nh = nodes[0].offsetHeight;
+  const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ngap')) || 14;
+  const mobile = W <= 640;
+  const cols = mobile ? 2 : 3, rows = mobile ? 3 : 2;
+
+  const scatter = SCATTER.map(p=>({ x:p.fx*W*(mobile?.86:1), y:p.fy*H*(mobile?.96:1), r:p.r }));
+
+  const gw = cols*nw + (cols-1)*gap, gh = rows*nh + (rows-1)*gap;
+  const s5 = stages[5];
+  s5.style.paddingTop = '0px';
+  const first = s5.querySelector('.eyebrow');
+  const textH = s5.querySelector('.sub').getBoundingClientRect().bottom
+              - first.getBoundingClientRect().top;
+  const vgap  = mobile ? 26 : 54;
+  let compTop = Math.max(mobile ? 26 : 44, (H - (textH + vgap + gh)) / 2);
+  if(compTop + textH + vgap + gh > H - 44) compTop = Math.max(16, H - 44 - (textH + vgap + gh));
+  s5.style.paddingTop = compTop + 'px';
+  const gyTop = compTop + textH + vgap;
+
+  const grid = SRC.map((_,i)=>{
+    const c = i % cols, r = Math.floor(i/cols);
+    return { x:-gw/2 + c*(nw+gap) + nw/2, y:gyTop - H/2 + r*(nh+gap) + nh/2, r:0 };
+  });
+
+  const stackY = H * (mobile ? .17 : .14);
+  const stack = SRC.map((_,i)=>({ x:(i-2.5)*3.4, y:stackY + (i-2.5)*4.6, r:(i-2.5)*.9 }));
+
+  L = {W,H,scatter,grid,stack,mobile};
+  drawWires();
+  if(current >= 0) placeNodes(current, false);
+}
+
+const wires = $('#wires');
+let wireLines = [];
+function drawWires(){
+  if(!L.W) return;
+  wires.setAttribute('viewBox', '0 0 '+L.W+' '+L.H);
+  wires.innerHTML = '';
+  wireLines = SRC.map((s,i)=>{
+    const ln = document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1', L.W/2 + L.scatter[i].x); ln.setAttribute('y1', L.H/2 + L.scatter[i].y);
+    ln.setAttribute('x2', L.W/2);                  ln.setAttribute('y2', L.H/2);
+    ln.setAttribute('stroke', s.c);
+    wires.appendChild(ln);
+    const len = Math.hypot(L.scatter[i].x, L.scatter[i].y);
+    gsap.set(ln, {strokeDasharray:len, strokeDashoffset:len});
+    return ln;
+  });
+}
+
+/* 노드를 스텝의 "진입 직전" 상태로. withAlpha=false 면 위치만 갱신 */
+function placeNodes(step, withAlpha){
+  withAlpha = withAlpha !== false;
+  const put = (n,o)=> gsap.set(n, withAlpha ? o : {x:o.x, y:o.y, rotation:o.rotation});
+  if(step <= 0){
+    nodes.forEach(n=> put(n, {x:0, y:0, rotation:0, autoAlpha:0}));
+  }else if(step === 1){
+    nodes.forEach((n,i)=> put(n, {x:L.scatter[i].x, y:L.scatter[i].y, rotation:L.scatter[i].r, autoAlpha:0}));
+  }else if(step === 2 || step === 3){
+    nodes.forEach((n,i)=> put(n, {x:L.scatter[i].x, y:L.scatter[i].y, rotation:L.scatter[i].r, autoAlpha:1}));
+  }else{
+    nodes.forEach((n,i)=> put(n, {x:L.stack[i].x, y:L.stack[i].y, rotation:L.stack[i].r, autoAlpha:0}));
+  }
+}
+
+/* ═══ 상태 리셋 ═══════════════════════════════════════════ */
+function resetStage(el){
+  gsap.set(el, {autoAlpha:0});
+  gsap.set($$('.i', el), {yPercent:118, rotate:3, opacity:1});
+  gsap.set($$('[data-fade]', el), {opacity:0, y:14});
+}
+
+function hardState(step){
+  gsap.killTweensOf('*');
+  stages.forEach(resetStage);
+
+  /* 색면 전환은 스텝 3 안에서 일어난다 → 스텝 3 의 시작 상태는 어둡다 */
+  const light = step >= 4;
+  document.body.classList.toggle('light', light);
+  gsap.set('#paper', {clipPath: light ? 'inset(0% 0 0 0)' : 'inset(100% 0 0 0)'});
+  gsap.set('#dark',  {opacity: light ? 0 : 1});
+  gsap.set('#wires', {opacity:0});
+  wireLines.forEach(ln=>{
+    const len = Math.hypot(
+      ln.x1.baseVal.value - ln.x2.baseVal.value,
+      ln.y1.baseVal.value - ln.y2.baseVal.value);
+    gsap.set(ln, {strokeDashoffset:len, opacity:.55});
+  });
+
+  gsap.set('#query', {autoAlpha:0});
+  gsap.set('.qbar',  {clipPath:'inset(0 100% 0 0)'});
+  gsap.set('#qans',  {opacity:0, y:10});
+  gsap.set(qdots,    {opacity:.22, scale:1});
+  $('#qtext').innerHTML = ''; $('#qtime').textContent = '0.0s'; $('#qval').textContent = '';
+
+  gsap.set('.strike', {clipPath:'inset(0 100% 0 0)'});
+  gsap.set([slotWord, slotTool], {opacity:1});
+  slotWord.innerHTML = ''; slotTool.innerHTML = ''; slotEls = null;
+
+  gsap.set(bodies, {opacity: (step===3||step===4) ? 0 : 1});
+  gsap.set(ctas,   {opacity: step>=HOME ? 1 : 0, y: step>=HOME ? 0 : 4});
+  gsap.set(inners, {x:0, y:0});
+  placeNodes(step, true);
+
+  nodesWrap.classList.toggle('live', step >= HOME);
+  nodes.forEach(n=> n.setAttribute('tabindex', step>=HOME ? '0' : '-1'));
+  fills.forEach((f,i)=> gsap.set(f, {scaleX: i < step ? 1 : 0}));
+
+  if(step === 1) setSlot(0);
+  if(step >= 2)  setSlot(5);
+}
+
+/* ═══ 단어 교체 슬롯 ══════════════════════════════════════ */
+let slotEls = null;
+function setSlot(i){
+  const s = SRC[i];
+  slotWord.innerHTML = '<span></span>';
+  slotTool.innerHTML = '<span></span>';
+  const w = slotWord.firstChild, t = slotTool.firstChild;
+  w.textContent = s.short; w.style.color = s.c;
+  t.innerHTML = '<em>' + s.tool + '</em>에서';
+  gsap.set([w,t], {yPercent:0, opacity:1});
+  slotEls = {w,t};
+}
+function swapSlot(i, tl, at){
+  const s = SRC[i];
+  const oldW = slotEls && slotEls.w, oldT = slotEls && slotEls.t;
+  const w = document.createElement('span');
+  w.textContent = s.short; w.style.color = s.c;
+  const t = document.createElement('span');
+  t.innerHTML = '<em>' + s.tool + '</em>에서';
+  slotWord.appendChild(w); slotTool.appendChild(t);
+  gsap.set([w,t], {yPercent:112, opacity:1});
+  if(oldW) tl.to([oldW,oldT], {yPercent:-112, duration:.62, ease:'expo.inOut',
+    onComplete(){ oldW.remove(); oldT.remove(); }}, at);
+  tl.to([w,t], {yPercent:0, duration:.72, ease:'expo.out'}, at + .04);
+  slotEls = {w,t};
+}
+
+/* ═══ 스텝 타임라인 ═══════════════════════════════════════ */
+function enterText(el, tl, at){
+  at = at || 0;
+  tl.set(el, {autoAlpha:1}, at);
+  const ins = $$('.i', el);
+  if(ins.length) tl.to(ins, {yPercent:0, rotate:0, duration:1.15, ease:'expo.out', stagger:.055}, at);
+  const fades = $$('[data-fade]', el);
+  if(fades.length) tl.to(fades, {opacity:1, y:0, duration:.9, ease:'power3.out', stagger:.07}, at + .28);
+}
+function exitText(el, tl, at){
+  tl.to($$('.i', el), {yPercent:-118, rotate:-2, duration:.62, ease:'power3.in', stagger:.03}, at);
+  tl.to($$('[data-fade]', el), {opacity:0, y:-10, duration:.45, ease:'power2.in'}, at);
+  tl.set(el, {autoAlpha:0}, at + .68);
+}
+
+function buildStep(n){
+  const tl = gsap.timeline({paused:true});
+  const S = STEPS[n];
+
+  if(n === 0){
+    enterText(stages[0], tl, 0);
+    exitText(stages[0], tl, S.dur - .8);
+
+  }else if(n === 1){
+    tl.set(stages[1], {autoAlpha:1}, 0);
+    tl.to($$('[data-fade]', stages[1]), {opacity:1, y:0, duration:.7, ease:'power3.out'}, 0);
+    if(slotEls){
+      gsap.set([slotEls.w, slotEls.t], {yPercent:112});
+      tl.to([slotEls.w, slotEls.t], {yPercent:0, duration:.9, ease:'expo.out'}, .1);
+    }
+    const step = .82;
+    SRC.forEach((s,i)=>{
+      const at = .45 + i*step;
+      if(i > 0) swapSlot(i, tl, at - .12);
+      tl.fromTo(nodes[i],
+        {x:L.scatter[i].x, y:L.scatter[i].y - 34, rotation:L.scatter[i].r*1.7, autoAlpha:0},
+        {x:L.scatter[i].x, y:L.scatter[i].y, rotation:L.scatter[i].r, autoAlpha:1,
+         duration:1.05, ease:'expo.out'}, at);
+    });
+    tl.to($$('[data-fade]', stages[1]), {opacity:0, duration:.4}, S.dur - .55);
+    tl.to([slotWord, slotTool], {opacity:0, duration:.5, ease:'power2.in'}, S.dur - .55);
+
+  }else if(n === 2){
+    tl.set([slotWord, slotTool], {opacity:0}, 0);
+    enterText(stages[2], tl, 0);
+    tl.to('.strike', {clipPath:'inset(0 0% 0 0)', duration:.72, ease:'expo.inOut'}, .85);
+    nodes.forEach((n2,i)=>{
+      tl.to(inners[i], {x:'random(-3,3)', y:'random(-3,3)', duration:.09,
+        repeat:7, yoyo:true, ease:'none'}, .9 + i*.04);
+      tl.set(inners[i], {x:0, y:0});
+    });
+    exitText(stages[2], tl, S.dur - .75);
+
+  }else if(n === 3){
+    tl.set('#wires', {opacity:1}, 0);
+    wireLines.forEach((ln,i)=> tl.to(ln, {strokeDashoffset:0, duration:.6, ease:'power2.out'}, i*.05));
+    tl.to('#paper', {clipPath:'inset(0% 0 0 0)', duration:1.15, ease:'expo.inOut'}, .34);
+    tl.to('#dark', {opacity:0, duration:.6, ease:'none'}, .9);
+    tl.call(()=> document.body.classList.add('light'), null, 1.0);
+    nodes.forEach((n2,i)=>{
+      tl.to(n2, {x:L.stack[i].x, y:L.stack[i].y, rotation:L.stack[i].r,
+        duration:1.15, ease:'power4.inOut'}, .62 + i*.045);
+    });
+    tl.to(bodies, {opacity:0, duration:.4, ease:'power2.in'}, .72);
+    tl.to(wireLines, {opacity:0, duration:.45, ease:'power2.in'}, 1.05);
+    tl.set('#wires', {opacity:0}, 1.6);
+    enterText(stages[3], tl, 1.35);
+    exitText(stages[3], tl, S.dur - .8);
+    tl.to(nodes, {autoAlpha:0, duration:.4, ease:'power2.in', stagger:.02}, S.dur - .95);
+
+  }else if(n === 4){
+    tl.set('#query', {autoAlpha:1}, 0);
+    tl.to('.qbar', {clipPath:'inset(0 0% 0 0)', duration:.85, ease:'expo.inOut'}, 0);
+    enterText(stages[4], tl, .35);
+
+    const qt = $('#qtext');
+    const chars = QUESTION.split('');
+    const typeDur = 1.25, startAt = .75;
+    tl.call(()=>{ qt.innerHTML = '<span class="qcaret"></span>'; }, null, startAt);
+    chars.forEach((ch,i)=>{
+      tl.call(()=>{ qt.innerHTML = QUESTION.slice(0,i+1) + '<span class="qcaret"></span>'; },
+        null, startAt + (i/chars.length)*typeDur);
+    });
+
+    const answerAt = startAt + typeDur + .18;
+    qdots.forEach((d,i)=>{
+      tl.to(d, {opacity:1, duration:.16, ease:'power2.out'}, answerAt + i*.055);
+      tl.to(d, {scale:.62, duration:.2, ease:'power2.inOut', yoyo:true, repeat:1}, answerAt + i*.055);
+    });
+    const timer = {v:0};
+    tl.to(timer, {v:.8, duration:.62, ease:'power1.out',
+      onUpdate(){ $('#qtime').textContent = timer.v.toFixed(1)+'s'; }}, answerAt);
+    tl.call(()=>{ $('#qval').textContent = ANSWER; qt.innerHTML = QUESTION; }, null, answerAt + .5);
+    tl.to('#qans', {opacity:1, y:0, duration:.75, ease:'expo.out'}, answerAt + .5);
+
+    exitText(stages[4], tl, S.dur - .85);
+    tl.to('.qbar', {clipPath:'inset(0 0 100% 0)', duration:.6, ease:'expo.inOut'}, S.dur - .7);
+    tl.set('#query', {autoAlpha:0}, S.dur - .05);
+
+  }else{
+    enterText(stages[5], tl, .12);
+    nodes.forEach((n2,i)=>{
+      tl.fromTo(n2,
+        {x:L.stack[i].x, y:L.stack[i].y, rotation:L.stack[i].r, autoAlpha:0},
+        {x:L.grid[i].x, y:L.grid[i].y, rotation:0, autoAlpha:1,
+         duration:1.25, ease:'expo.out'}, .18 + i*.06);
+    });
+    tl.to(bodies, {opacity:1, duration:.6, ease:'power2.out', stagger:.05}, .5);
+    tl.to(ctas, {opacity:1, y:0, duration:.5, ease:'power2.out', stagger:.05}, .95);
+    tl.call(()=>{
+      nodesWrap.classList.add('live');
+      nodes.forEach(n3=> n3.setAttribute('tabindex','0'));
+    }, null, 1.1);
+  }
+
+  if(S.dur > 0){
+    tl.fromTo(fills[n], {scaleX:0}, {scaleX:1, duration:S.dur, ease:'none'}, 0);
+    tl.call(()=>{ go(n+1); }, null, S.dur);
+  }
+  return tl;
+}
+
+/* ═══ 스텝 머신 ═══════════════════════════════════════════ */
+let current = -1, tl = null, paused = false;
+
+/* opts.at  — 그 시각으로 즉시 이동한 뒤 이어서 재생 (딥링크 진입)
+   opts.hold — 이동만 하고 정지 (캡처·QA 용 #step=N&t=초) */
+function go(n, opts){
+  opts = opts || {};
+  n = Math.max(0, Math.min(HOME, n));
+  if(tl){ tl.kill(); tl = null; }
+  current = n;
+  hardState(n);
+  tl = buildStep(n);
+
+  if(opts.at != null){
+    const cap = STEPS[n].dur > 0 ? Math.min(opts.at, STEPS[n].dur - .05) : opts.at;
+    tl.pause();
+    tl.seek(cap, false);          /* 콜백을 살려 텍스트·타이핑까지 완성 상태로 */
+    if(!opts.hold && !paused) tl.play();
+  }else if(!paused){ tl.play(); }
+  else { tl.pause(); }
+
+  try{ history.replaceState(null, '', '#step=' + n); }catch(e){}
+  $('#skip').style.display = (n === HOME) ? 'none' : '';
+}
+
+function togglePause(){
+  if(!tl) return;
+  paused = !paused;
+  paused ? tl.pause() : tl.play();
+}
+
+/* ═══ 딥링크 ══════════════════════════════════════════════ */
+function parseHash(){
+  const m = /step=(\d+)/.exec(location.hash || '');
+  if(!m) return null;
+  return Math.max(0, Math.min(HOME, parseInt(m[1],10)));
+}
+function parseSeek(){
+  const m = /[#&]t=([\d.]+)/.exec(location.hash || '');
+  return m ? parseFloat(m[1]) : null;
+}
+
+/* ═══ 입력 ════════════════════════════════════════════════ */
+$('#skip').addEventListener('click', ()=>{ paused = false; go(HOME); });
+window.addEventListener('keydown', e=>{
+  if(e.key === 'ArrowRight'){ e.preventDefault(); paused=false; go(current+1); }
+  else if(e.key === 'ArrowLeft'){ e.preventDefault(); paused=false; go(current-1); }
+  else if(e.code === 'Space'){
+    if(document.activeElement && document.activeElement.classList.contains('node')) return;
+    e.preventDefault(); togglePause();
+  }
+  else if(e.key === 'Escape'){ e.preventDefault(); paused=false; go(HOME); }
+});
+window.addEventListener('hashchange', ()=>{
+  const n = parseHash();
+  if(n !== null && n !== current) go(n, {at: STEPS[n].settle});
+});
+
+/* ═══ 마그네틱 커서 ═══════════════════════════════════════ */
+if(finePointer){
+  const cur = $('#cursor'), label = $('#cursor span');
+  gsap.set(cur, {xPercent:-50, yPercent:-50});
+  const qx = gsap.quickTo(cur, 'x', {duration:.32, ease:'power3'});
+  const qy = gsap.quickTo(cur, 'y', {duration:.32, ease:'power3'});
+  let hot = null, woke = false;
+
+  window.addEventListener('mousemove', e=>{
+    const mx = e.clientX, my = e.clientY;
+    if(!woke){
+      woke = true;
+      gsap.set(cur, {x:mx, y:my});
+      document.body.classList.add('cursor-on');   /* 이 순간부터 네이티브 커서를 숨긴다 */
+      gsap.to(cur, {opacity:1, duration:.3});
+    }
+    qx(mx); qy(my);
+    if(hot){
+      const r = hot.getBoundingClientRect();
+      gsap.to($('.node__in', hot), {
+        x:(mx - (r.left + r.width/2))*.16, y:(my - (r.top + r.height/2))*.16,
+        duration:.5, ease:'power3.out'});
+    }
+  }, {passive:true});
+
+  function leave(){
+    if(hot) gsap.to($('.node__in', hot), {x:0, y:0, duration:.7, ease:'elastic.out(1,.5)'});
+    hot = null;
+    gsap.to(cur, {width:14, height:14, duration:.42, ease:'expo.out'});
+    gsap.to(label, {opacity:0, duration:.2});
+  }
+  nodes.forEach(n=>{
+    n.addEventListener('mouseenter', ()=>{
+      if(!nodesWrap.classList.contains('live')) return;
+      hot = n;
+      gsap.to(cur, {width:58, height:58, duration:.42, ease:'expo.out'});
+      gsap.to(label, {opacity:1, duration:.3, ease:'power2.out'});
+    });
+    n.addEventListener('mouseleave', leave);
+  });
+  $('#skip').addEventListener('mouseenter', ()=> gsap.to(cur, {width:34, height:34, duration:.35, ease:'expo.out'}));
+  $('#skip').addEventListener('mouseleave', ()=> gsap.to(cur, {width:14, height:14, duration:.35, ease:'expo.out'}));
+}
+
+/* ═══ 부팅 ════════════════════════════════════════════════ */
+let rz;
+window.addEventListener('resize', ()=>{ clearTimeout(rz); rz = setTimeout(layout, 140); });
+
+function boot(){
+  layout();
+  const deep = parseHash(), seek = parseSeek();
+  if(deep === null){
+    go(0);                                        /* 처음부터 자동재생 */
+  }else if(seek !== null){
+    go(deep, {at:seek, hold:true});                /* 캡처용 정지 프레임 */
+  }else{
+    go(deep, {at:STEPS[deep].settle});             /* 딥링크 → 완성된 모습으로 */
+  }
+}
+
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(boot).catch(boot);
+}else{
+  window.addEventListener('load', boot);
+}
+})();
+</script>
+</body>
+</html>

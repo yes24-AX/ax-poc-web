@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>어제 인문 매출이 왜 12% 빠졌지? · AX Datahub 온보딩</title>
+<meta name="description" content="질문 하나에 214분. 흩어져 있던 6개의 데이터가 한 곳에 모여, 답이 8초가 됩니다. — AX Datahub 온보딩 티저" />
+<link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+<style>
+/* ============================================================
+   AX DATAHUB — ONBOARDING TEASER  /  h2
+   t4(에디토리얼 텔레메트리) 베이스 + t3 의 오프닝 훅 이식
+
+   조판 규율
+   - 괘선 · 번호 · 모노 메타 · 하드컷.  영화 슬레이트 장식은 쓰지 않는다.
+   - 색은 두 개뿐이고, 각각 한 번씩만 나온다.
+       RED  = 취소   → 00 장의 취소선. 이 문서에서 붉은색은 여기 말고 없다.
+       ACID = 해결   → 06 장의 "8.0초"와 그 여운(07 입구). 그 앞에는 쓰지 않는다.
+   - 가장자리는 비우지 않고 데이터로 채운다.
+   ============================================================ */
+
+:root{
+  --bg:#0A0A0A;
+  --ink:#F2F1EC;
+  --paper:#F2F1EC;
+  --acid:#D8FF3E;          /* 해결 — 06 "8.0초" 이후에만 */
+  --red:#FF4B24;           /* 취소 — 00 취소선 전용 */
+  --g1:rgba(242,241,236,.66);
+  --g2:rgba(242,241,236,.56);
+  --g3:rgba(242,241,236,.16);
+  --rule:rgba(242,241,236,.22);
+  --rule-hard:rgba(242,241,236,.5);
+  /* 한글은 모노 폰트에 없어 시스템 폴백(얇은 맑은고딕)으로 빠진다 —
+     Pretendard 를 스택 뒤에 두어 글리프 단위로 받아낸다 */
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"DejaVu Sans Mono","Pretendard Variable",Pretendard,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;
+  --pad:24px;
+  --grain:none;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+
+/* ---------- 텍스처: 인쇄 그레인만 (스캔라인·비네트 삭제) ---------- */
+.tex{position:fixed;inset:0;pointer-events:none;z-index:90;}
+.tex.grain{
+  background-image:var(--grain);
+  background-size:180px 180px;
+  opacity:.065; mix-blend-mode:overlay;
+  animation:grainshift .6s steps(1) infinite;
+}
+@keyframes grainshift{
+  0%{background-position:0 0}
+  33%{background-position:-90px 40px}
+  66%{background-position:60px -70px}
+  100%{background-position:0 0}
+}
+
+/* 하드컷 플래시 */
+#cut{position:fixed;inset:0;z-index:95;pointer-events:none;background:var(--paper);opacity:0;}
+#cut.fire{animation:cutflash .12s steps(3) 1;}
+@keyframes cutflash{0%{opacity:.8}40%{opacity:.08}100%{opacity:0}}
+
+/* ---------- 고정 프레임 (괘선만 — 코너 크롭마크 제거) ---------- */
+#frame{position:fixed;inset:var(--pad);border:1px solid var(--rule);pointer-events:none;z-index:60;}
+
+/* ---------- 상·하단 메타 바 ---------- */
+.bar{
+  position:fixed;left:var(--pad);right:var(--pad);z-index:70;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--g2);display:flex;align-items:center;gap:16px;height:32px;padding:0 12px;
+}
+.bar.top{top:var(--pad);border-bottom:1px solid var(--rule);}
+.bar.bot{bottom:var(--pad);border-top:1px solid var(--rule);}
+.bar .sp{flex:1;}
+.bar b{font-weight:400;color:var(--ink);}
+.bar .hide-s{display:inline;}
+
+#chapter{color:var(--ink);letter-spacing:.16em;}
+#tc{font-variant-numeric:tabular-nums;}
+/* 프레임 카운터 자리에 실제 데이터를 넣는다 — 장마다 그 장의 수치 */
+#edge{color:var(--g1);text-transform:none;letter-spacing:.04em;}
+
+/* 진행 눈금 */
+#ticks{position:fixed;left:var(--pad);right:var(--pad);bottom:var(--pad);height:1px;z-index:71;display:flex;gap:2px;}
+#ticks span{flex:1;background:var(--rule);transform-origin:left;}
+#ticks span i{display:block;height:100%;width:0;background:var(--ink);}
+
+#skip{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink);
+  border:1px solid var(--rule-hard);padding:5px 10px;text-transform:uppercase;line-height:1;
+}
+#skip:hover,#skip:focus-visible{background:var(--acid);color:#0A0A0A;border-color:var(--acid);outline:none;}
+body.on-last #skip{visibility:hidden;}
+
+/* ---------- 스테이지 / 스텝 ---------- */
+#stage{position:fixed;top:calc(var(--pad) + 44px);bottom:calc(var(--pad) + 40px);left:calc(var(--pad) + 12px);right:calc(var(--pad) + 12px);z-index:20;}
+.stp{position:absolute;inset:0;display:none;}
+.stp.live{display:block;}
+
+/* 반전(백지) 스텝 */
+body.invert{background:var(--paper);color:#0A0A0A;}
+body.invert{--ink:#0A0A0A;--g1:rgba(10,10,10,.74);--g2:rgba(10,10,10,.68);--g3:rgba(10,10,10,.14);--rule:rgba(10,10,10,.24);--rule-hard:rgba(10,10,10,.5);}
+body.invert .tex.grain{mix-blend-mode:multiply;opacity:.06;}
+body.invert #cut{background:#0A0A0A;}
+body.invert #skip{background:rgba(242,241,236,.6);}
+
+/* ---------- 공통 조판 요소 ---------- */
+.eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--g1);}
+.rule{height:1px;background:var(--rule);width:100%;}
+.rule.hard{height:2px;background:var(--ink);}
+.mono{font-family:var(--mono);letter-spacing:.05em;font-variant-numeric:tabular-nums;}
+.huge{
+  font-weight:900;letter-spacing:-.045em;line-height:.84;
+  font-size:clamp(40px,10.2vw,148px);
+}
+.num{font-variant-numeric:tabular-nums;}
+.acid{color:var(--acid);}
+body.invert .acid{color:#0A0A0A;background:var(--acid);padding:0 .12em;}
+
+/* 등장 모션 — 괘선은 그어지고, 글자는 잘려 올라온다 */
+@keyframes drawX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes riseIn{from{transform:translateY(104%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes snapIn{
+  from{transform:translate(var(--dx,0),var(--dy,0)) rotate(var(--dr,0deg));opacity:0}
+  60%{opacity:1}
+  to{transform:translate(0,0) rotate(0deg);opacity:1}
+}
+.clip{overflow:hidden;display:block;}
+.live .anim-rule{animation:drawX .5s cubic-bezier(.16,1,.3,1) both;transform-origin:left;}
+.live .anim-rise{animation:riseIn .62s cubic-bezier(.16,1,.3,1) both;}
+.live .anim-fade{animation:fadeIn .5s linear both;}
+
+/* 정지 캡처 / 모션 축소 — 모든 등장 모션을 종료 상태로 고정.
+   따라서 각 요소의 '기본 상태'는 반드시 종료 상태여야 한다. */
+body.freeze *,body.freeze *::before,body.freeze *::after{animation:none !important;transition:none !important;}
+body.freeze .tex.grain{animation:none !important;}
+
+/* ============================================================
+   00 — 질문 / THE QUESTION
+   t3 의 오프닝 문법(거대 질문 → 붉은 취소선 반전)을
+   t4 의 격자·괘선·모노 메타로 다시 조판한 장.
+   ============================================================ */
+#hook.live{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:clamp(8px,1.7vh,18px);}
+#hook .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;}
+#hook .band{padding-top:clamp(4px,1.2vh,14px);}
+#hook .qgiant{
+  font-size:clamp(30px,7.6vw,112px);font-weight:900;letter-spacing:-.045em;
+  /* 한글 받침이 다음 줄과 물리적으로 충돌하지 않는 하한(1.02~1.06) */
+  line-height:1.04;word-break:keep-all;
+}
+#hook .qgiant .clip{padding-bottom:.05em;margin-bottom:-.05em;}
+#hook .qgiant .num{letter-spacing:-.05em;}
+#hook .midrule{margin:clamp(10px,2vh,22px) 0;}
+/* 취소선이 가리키는 '여섯 곳' — 아래 띠를 비우지 않고 그 여섯을 실제로 적는다 */
+#hook .opens{display:flex;flex-direction:column;min-height:0;}
+#hook .opens .lab{margin-bottom:9px;}
+#hook .opens .grid{flex:1;display:grid;grid-template-columns:repeat(6,1fr);
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+#hook .op{border-left:1px solid var(--rule);padding:clamp(10px,1.9vh,18px) 10px;
+  display:flex;flex-direction:column;animation:fadeIn .32s linear both;}
+#hook .op:first-child{border-left:none;}
+#hook .op .on{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--g2);}
+#hook .op .ok{margin-top:5px;font-size:clamp(13px,1.6vw,19px);font-weight:800;letter-spacing:-.02em;color:var(--g1);}
+#hook .op .os{margin-top:auto;padding-top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--g2);line-height:1.55;}
+
+/* 취소선 반전 — 붉은 룰이 좌→우로 그어지고, 그어진 절이 회색으로 내려앉는다 */
+#hook .rev{font-size:clamp(19px,4.1vw,52px);font-weight:900;letter-spacing:-.035em;line-height:1.24;word-break:keep-all;}
+#hook .sw{position:relative;display:inline-block;color:var(--g2);}
+#hook .sw .strike{
+  position:absolute;left:-1.2%;top:52%;width:102.4%;height:clamp(4px,.56vw,8px);
+  background:var(--red);transform:translateY(-50%) scaleX(1);transform-origin:left;border-radius:1px;
+}
+#hook.live .strike{animation:strikeIn .46s cubic-bezier(.2,.85,.25,1) both;}
+@keyframes strikeIn{from{transform:translateY(-50%) scaleX(0)}to{transform:translateY(-50%) scaleX(1)}}
+@keyframes dimTo{from{color:var(--ink)}to{color:var(--g2)}}
+#hook.live .sw{animation:dimTo .4s linear both;}
+#hook .rev b{font-weight:900;color:var(--ink);}
+#hook .rev .clip{margin-left:.22em;}
+#hook .bot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-top:1px solid var(--rule);padding-top:11px;}
+#hook .bot p{font-size:clamp(12.5px,1.7vw,18px);color:var(--g1);max-width:40ch;line-height:1.6;}
+#hook .cnt{display:flex;align-items:baseline;gap:.3em;}
+#hook .cnt b{font-size:clamp(34px,6vw,72px);font-weight:900;letter-spacing:-.04em;line-height:.9;}
+#hook .cnt i{font-style:normal;font-size:clamp(12px,1.5vw,17px);font-weight:800;color:var(--g1);}
+
+/* ============================================================
+   01 — 표제 / MASTHEAD  (질문에 대한 대답: 제품이 무엇인가)
+   ============================================================ */
+#mast.live{display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:clamp(8px,1.8vh,18px);}
+#mast .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:1px solid var(--rule);padding-bottom:9px;}
+#mast .title{font-size:clamp(40px,11.4vw,160px);}
+#mast .say{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;padding-top:clamp(8px,1.6vh,16px);}
+#mast .say p{font-size:clamp(13px,1.75vw,19px);color:var(--g1);line-height:1.65;max-width:40ch;}
+#mast .say .cnt{text-align:right;}
+#mast .say .cnt .k{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--g2);text-transform:uppercase;}
+#mast .say .cnt b{display:block;font-size:clamp(28px,5vw,60px);font-weight:900;letter-spacing:-.03em;line-height:1;}
+/* 아래 띠 — 무엇이 어떻게 달라지는지를 표로. 빈 여백 대신 대조표가 들어간다 */
+#mast .cmp{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1fr) minmax(0,1fr);
+  border-top:2px solid var(--ink);align-content:stretch;min-height:0;}
+#mast .cmp > *{display:flex;align-items:center;padding:clamp(8px,1.7vh,16px) 12px;border-bottom:1px solid var(--rule);}
+#mast .cmp .hd{border-bottom:1px solid var(--rule-hard);font-family:var(--mono);font-size:11.5px;
+  letter-spacing:.12em;color:var(--g1);text-transform:uppercase;}
+#mast .cmp .lb{font-family:var(--mono);font-size:clamp(11.5px,1.2vw,14px);color:var(--g1);}
+#mast .cmp .a{color:var(--g2);font-size:clamp(13px,1.6vw,19px);font-weight:700;letter-spacing:-.02em;
+  border-left:1px solid var(--rule);}
+#mast .cmp .b{color:var(--ink);font-size:clamp(14px,1.9vw,23px);font-weight:900;letter-spacing:-.025em;
+  border-left:1px solid var(--rule);}
+#mast .cmp .hd.a,#mast .cmp .hd.b{font-size:11.5px;font-weight:600;letter-spacing:.12em;}
+#mast .cmp .hd.b{color:var(--ink);}
+
+/* ============================================================
+   02 — 흩어짐 / DISPERSION
+   ============================================================ */
+#dsp.live{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;}
+#dsp .hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;z-index:3;pointer-events:none;}
+#dsp .hdr h2{font-size:clamp(22px,4.4vw,52px);font-weight:900;letter-spacing:-.03em;line-height:1.06;margin-top:7px;}
+#dsp .field{position:relative;}
+.plate{
+  position:absolute;width:clamp(146px,16vw,218px);
+  border:1px solid rgba(242,241,236,.62);background:#0C0C0C;
+  padding:10px 11px 11px;box-shadow:0 18px 40px rgba(0,0,0,.8);
+  animation:snapIn .7s cubic-bezier(.2,.9,.25,1) both;
+}
+.plate .pi{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--g2);}
+.plate .pi b{font-weight:400;color:var(--ink);font-size:15px;letter-spacing:.04em;}
+.plate .pn{margin-top:7px;font-size:clamp(15px,1.9vw,21px);font-weight:800;letter-spacing:-.02em;}
+.plate .pl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--g2);margin-top:2px;text-transform:uppercase;}
+.plate .prule{height:1px;background:var(--rule);margin:9px 0 8px;}
+.plate .pm{font-family:var(--mono);font-size:11px;line-height:1.75;color:rgba(242,241,236,.88);}
+.plate .pm span{display:flex;justify-content:space-between;gap:8px;}
+.plate .pm span u{text-decoration:none;color:var(--g2);}
+.plate svg{display:block;width:100%;height:22px;margin-top:8px;opacity:.75;}
+#dsp .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;z-index:3;border-top:1px solid var(--rule);padding-top:10px;}
+#dsp .foot p{font-size:clamp(12.5px,1.7vw,17px);color:var(--g1);max-width:36ch;line-height:1.6;}
+#dsp .bignum{font-size:clamp(56px,11vw,150px);font-weight:900;letter-spacing:-.05em;line-height:.8;color:var(--g3);}
+
+/* ============================================================
+   03 — 비용 / THE COST  (백지 반전 · 원장)
+   ============================================================ */
+#cost.live{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(10px,2vh,22px);}
+#cost .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;}
+#cost .mid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:clamp(16px,4vw,54px);align-items:stretch;min-height:0;}
+/* 위아래로 벌려 띠를 채운다 — 질문은 위, 각주는 아래 */
+#cost .qbox{display:flex;flex-direction:column;justify-content:space-between;}
+#cost .qbox p{font-size:clamp(15px,2.3vw,29px);font-weight:800;letter-spacing:-.02em;line-height:1.34;}
+/* 214분의 구성비 — 왼쪽 단의 빈 띠 대신 원장 항목의 비율을 그대로 띠로 놓는다 */
+#cost .split{display:flex;margin-top:clamp(14px,2.8vh,28px);border:1px solid var(--ink);height:clamp(26px,6vh,56px);}
+#cost .split i{border-left:1px solid var(--ink);background:rgba(10,10,10,.12);}
+#cost .split i:first-child{border-left:none;}
+#cost .split i.max{background:rgba(10,10,10,.62);}
+#cost .splitcap{margin-top:10px;font-family:var(--mono);font-size:clamp(11px,1.16vw,13px);color:var(--g1);letter-spacing:.02em;}
+#cost .splitcap b{color:var(--ink);font-weight:700;}
+#cost .total{padding-bottom:clamp(0px,2vh,20px);}
+#cost .bigcost{display:flex;align-items:flex-end;gap:10px;}
+#cost .bigcost b{font-size:clamp(64px,15vw,190px);font-weight:900;letter-spacing:-.055em;line-height:.78;font-variant-numeric:tabular-nums;}
+#cost .bigcost i{flex:0 0 auto;white-space:nowrap;font-style:normal;font-size:clamp(12px,1.9vw,22px);font-weight:700;letter-spacing:.02em;padding-bottom:.55em;}
+#cost .ledger{font-family:var(--mono);font-size:clamp(10.5px,1.32vw,14px);line-height:1;display:flex;flex-direction:column;}
+/* 항목 행이 남는 높이를 균등하게 나눠 갖는다 — 원장이 지면 전체를 쓴다 */
+#cost .ledger .row{display:flex;align-items:center;gap:8px;flex:1 1 0;min-height:34px;padding:0;border-bottom:1px dotted var(--rule-hard);}
+#cost .ledger .row .l{white-space:nowrap;font-family:var(--sans);font-size:1.05em;letter-spacing:-.01em;}
+/* 빈 span 을 세로 가운데 정렬하면 괘선이 글자 중앙에 걸린다 — 베이스라인까지 내린다 */
+#cost .ledger .row .d{flex:1;border-bottom:1px dotted var(--rule);transform:translateY(.4em);}
+#cost .ledger .row .c{color:var(--g1);white-space:nowrap;}
+#cost .ledger .row .v{width:5.4em;text-align:right;white-space:nowrap;}
+#cost .ledger .sum{flex:0 0 auto;border-bottom:none;border-top:2px solid var(--ink);margin-top:6px;padding-top:14px;font-size:1.26em;}
+#cost .ledger .sum .v{font-weight:700;}
+#cost .bot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-top:1px solid var(--rule);padding-top:10px;}
+#cost .bot p{font-size:clamp(12.5px,1.8vw,18px);letter-spacing:-.01em;}
+
+/* ============================================================
+   04 — 정렬 / REGISTRATION
+   ============================================================ */
+#reg.live{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;}
+#reg .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:1px solid var(--rule);padding-bottom:9px;}
+#reg .top h2{font-size:clamp(20px,4vw,50px);font-weight:900;letter-spacing:-.03em;}
+/* 격자가 띠 전체를 차지한다 — 막대가 남는 높이를 먹는다 */
+#reg .grid{display:grid;grid-template-columns:repeat(6,1fr);align-content:stretch;min-height:0;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);}
+#reg .col{border-left:1px solid var(--rule);padding:clamp(14px,2.6vh,26px) 10px;display:flex;flex-direction:column;animation:snapIn .5s cubic-bezier(.2,.95,.2,1) both;}
+#reg .col:first-child{border-left:none;}
+#reg .col .cn{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--g2);}
+#reg .col .ck{margin-top:8px;font-size:clamp(13px,1.7vw,20px);font-weight:800;letter-spacing:-.02em;}
+#reg .col .cl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--g2);margin-top:3px;text-transform:uppercase;}
+#reg .col .bars{margin-top:16px;display:flex;gap:2px;align-items:flex-end;flex:1 1 0;min-height:44px;border-bottom:1px solid var(--rule);}
+/* 아래 끝은 '무엇이 정렬되었는가'로 닫는다 — 05 결합의 전제 */
+#reg .col .keys{padding-top:12px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--g1);line-height:1.9;}
+#reg .col .keys span{display:flex;justify-content:space-between;gap:6px;}
+#reg .col .keys u{text-decoration:none;color:var(--g2);}
+#reg .col .bars i{flex:1;background:rgba(242,241,236,.22);transform-origin:bottom;animation:barUp .5s cubic-bezier(.2,.9,.25,1) both;}
+@keyframes barUp{from{transform:scaleY(.04)}to{transform:scaleY(1)}}
+#reg .bot{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-top:1px solid var(--rule);padding-top:10px;}
+#reg .bot p{font-size:clamp(12.5px,1.7vw,17px);color:var(--g1);}
+/* 공통 키 — 라임을 쓰지 않는다(라임은 06 "8.0초" 전용) */
+#reg .keytag{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--ink);border:1px solid var(--rule-hard);padding:5px 10px;}
+
+/* ============================================================
+   05 — 결합 / THE JOIN  (한 장의 표)
+   ============================================================ */
+#join.live{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;}
+#join .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:9px;}
+#join .top h2{font-size:clamp(19px,3.6vw,46px);font-weight:900;letter-spacing:-.03em;}
+#join .tw{overflow-x:auto;align-self:stretch;display:flex;align-items:center;}
+#join table{border-collapse:collapse;width:100%;min-width:640px;table-layout:fixed;font-family:var(--mono);font-variant-numeric:tabular-nums;}
+#join col.k1{width:9.8%;} #join col.k2{width:12.4%;} #join col.c{width:12.96%;}
+#join th,#join td{padding:clamp(7px,2.9vh,29px) 9px;text-align:right;font-size:clamp(11px,1.28vw,15px);white-space:nowrap;border-bottom:1px solid var(--rule);}
+/* 열 이름이 장식보다 작지 않게 — 헤더는 본문과 같은 급으로 */
+#join th{font-size:clamp(10.5px,1.16vw,13px);letter-spacing:.1em;color:var(--g1);text-transform:uppercase;border-bottom:1px solid var(--rule-hard);font-weight:400;}
+#join tbody tr{animation:joinRow .34s cubic-bezier(.16,1,.3,1) both;}
+@keyframes joinRow{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+/* 조인 키 — 채움 색이 아니라 좌우 룰과 밝기로만 묶는다 */
+#join .k{color:var(--ink);background:rgba(242,241,236,.045);text-align:left;}
+#join th.k{color:var(--ink);}
+#join .k1{box-shadow:inset 1px 0 0 var(--rule-hard);}
+#join .k2{box-shadow:inset -1px 0 0 var(--rule-hard);}
+#join .bot{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;border-top:1px solid var(--rule);padding-top:10px;}
+#join .bot p{font-size:clamp(12.5px,1.7vw,18px);color:var(--g1);max-width:46ch;line-height:1.55;}
+#join .bot p b{color:var(--ink);font-weight:800;}
+
+/* ============================================================
+   06 — 질의 / QUERY  (질의 → 판단)   ※ 라임은 여기서 처음 등장한다
+   ============================================================ */
+#qry.live{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:clamp(10px,2vh,20px);}
+#qry .top{display:flex;justify-content:space-between;align-items:baseline;gap:14px;border-bottom:1px solid var(--rule);padding-bottom:9px;}
+#qry .body{display:flex;flex-direction:column;justify-content:space-between;min-height:0;padding:clamp(4px,1.4vh,14px) 0;}
+#qry .q{font-family:var(--mono);font-size:clamp(12.5px,2.2vw,26px);letter-spacing:-.01em;border-left:2px solid var(--acid);padding:10px 0 10px 14px;color:var(--ink);}
+/* 질문과 답 사이를 비워 두지 않는다 — 콘솔이 실제로 한 일을 적는다 */
+#qry .trace{margin-top:clamp(10px,2vh,20px);border-top:1px solid var(--rule);}
+#qry .trace .tr{display:grid;grid-template-columns:88px minmax(0,1fr);gap:14px;align-items:baseline;
+  padding:clamp(8px,1.7vh,16px) 2px;border-bottom:1px solid var(--rule);
+  font-family:var(--mono);font-size:clamp(11px,1.18vw,13.5px);letter-spacing:.02em;
+  animation:fadeIn .3s linear both;}
+#qry .trace .tr u{text-decoration:none;color:var(--g2);letter-spacing:.14em;}
+#qry .trace .tr span{color:var(--g1);}
+#qry .trace .tr span em{font-style:normal;color:var(--ink);}
+#qry .caret{display:inline-block;width:.55em;height:1.05em;background:var(--acid);transform:translateY(.16em);animation:blink .8s steps(1) infinite;}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+#qry .mid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:clamp(14px,3.4vw,44px);align-content:center;}
+#qry .facts{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--rule);}
+#qry .fact{border-bottom:1px solid var(--rule);border-left:1px solid var(--rule);padding:clamp(9px,2.5vh,25px) 12px;animation:fadeIn .28s linear both;}
+#qry .fact:nth-child(2n+1){border-left:none;}
+#qry .fact .fl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--g1);text-transform:uppercase;}
+#qry .fact .fv{margin-top:5px;font-size:clamp(17px,3vw,34px);font-weight:900;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums;}
+#qry .fact .fn{font-family:var(--mono);font-size:11px;color:var(--g2);margin-top:4px;}
+#qry .clockwrap{border:1px solid var(--rule-hard);padding:clamp(12px,2.4vh,20px) 15px;}
+#qry .clockwrap .before{font-family:var(--mono);font-size:clamp(12px,1.55vw,16px);color:var(--g1);text-decoration:line-through;text-decoration-thickness:1px;}
+#qry .clockwrap .arrow{font-family:var(--mono);font-size:12px;color:var(--g2);margin:6px 0 2px;letter-spacing:.16em;}
+#qry .clockwrap .after{display:flex;align-items:flex-end;gap:8px;}
+#qry .clockwrap .after b{font-size:clamp(44px,9vw,104px);font-weight:900;letter-spacing:-.05em;line-height:.8;color:var(--acid);font-variant-numeric:tabular-nums;}
+#qry .clockwrap .after i{flex:0 0 auto;white-space:nowrap;font-style:normal;font-size:clamp(11.5px,1.5vw,17px);font-weight:700;letter-spacing:.02em;padding-bottom:.5em;color:var(--acid);}
+#qry .verdict{border-top:2px solid var(--ink);padding-top:11px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;}
+#qry .verdict p{font-size:clamp(13px,2.2vw,26px);font-weight:800;letter-spacing:-.025em;}
+
+/* ============================================================
+   07 — 입구 / ENTRY  (제품 홈 · 6개 입구)
+   ============================================================ */
+#ent.live{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:clamp(8px,1.6vh,16px);}
+#ent .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;}
+#ent .hero h1{font-size:clamp(26px,5vw,64px);font-weight:900;letter-spacing:-.045em;line-height:1.04;}
+#ent .hero h1 small{display:block;font-size:.46em;font-weight:800;letter-spacing:-.02em;color:var(--g1);margin-top:.3em;}
+#ent .hero .stat{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--g1);text-align:right;line-height:1.95;}
+#ent .hero .stat b{color:var(--acid);font-weight:400;}
+#ent .idx{border-top:2px solid var(--acid);align-self:stretch;display:flex;flex-direction:column;justify-content:center;}
+#ent .row{
+  display:grid;grid-template-columns:54px minmax(0,1fr) minmax(0,1.25fr) auto;
+  align-items:center;gap:12px;padding:clamp(8px,1.9vh,17px) 8px;
+  border-bottom:1px solid var(--rule);
+}
+#ent .row .n{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--g2);}
+#ent .row .k{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+#ent .row .k b{font-size:clamp(16px,2.7vw,30px);font-weight:900;letter-spacing:-.03em;}
+#ent .row .k u{text-decoration:none;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--g2);text-transform:uppercase;}
+#ent .row .d{font-family:var(--mono);font-size:clamp(11px,1.24vw,13.5px);color:var(--g1);}
+#ent .row .go{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--g2);white-space:nowrap;}
+#ent .row:hover,#ent .row:focus-visible{background:var(--acid);color:#0A0A0A;outline:none;}
+#ent .row:hover .n,#ent .row:hover .d,#ent .row:hover .go,#ent .row:hover .k u,
+#ent .row:focus-visible .n,#ent .row:focus-visible .d,#ent .row:focus-visible .go,#ent .row:focus-visible .k u{color:#0A0A0A;}
+#ent .foot{display:flex;justify-content:space-between;align-items:center;gap:14px;border-top:1px solid var(--rule);padding-top:9px;}
+#ent .foot .note{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--g1);}
+#ent .replay{font-family:var(--mono);font-size:11px;letter-spacing:.16em;border:1px solid var(--rule-hard);padding:7px 12px;text-transform:uppercase;}
+#ent .replay:hover{background:var(--acid);color:#0A0A0A;border-color:var(--acid);}
+
+/* 정적 폴백 요약 (reduced-motion 전용) */
+#summary{display:none;}
+body.rm #summary{display:block;border-top:1px solid var(--rule);padding-top:9px;margin-top:2px;}
+body.rm #summary p{font-size:13px;line-height:1.7;color:var(--g1);}
+
+/* ============================================================
+   MOBILE  ≤ 720 / ≤ 500
+   ============================================================ */
+@media (max-width:720px){
+  :root{--pad:12px;}
+  .bar{font-size:10px;letter-spacing:.08em;gap:10px;padding:0 8px;}
+  .bar .hide-s{display:none;}
+  #stage{top:calc(var(--pad) + 40px);bottom:calc(var(--pad) + 36px);left:calc(var(--pad) + 8px);right:calc(var(--pad) + 8px);}
+  #skip{padding:4px 7px;font-size:10px;letter-spacing:.06em;}
+
+  #hook .opens .grid{grid-template-columns:repeat(3,1fr);}
+  #hook .op:nth-child(4){border-left:none;}
+  #hook .op:nth-child(-n+3){border-bottom:1px solid var(--rule);}
+  #mast .cmp{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);}
+  #mast .cmp > *{padding:8px 8px;}
+  #cost .mid{grid-template-columns:1fr;gap:14px;align-content:center;}
+  #cost .ledger .row{padding:9px 0;}
+  #join th,#join td{padding:9px;}
+  #qry .fact{padding:11px 12px;}
+  #cost .ledger .row .c{display:none;}
+  #reg .grid{grid-template-columns:repeat(3,1fr);}
+  #reg .col:nth-child(4){border-left:none;}
+  #reg .col:nth-child(-n+3){border-bottom:1px solid var(--rule);}
+  #reg .col .bars{height:26px;}
+  #reg .col .keys{font-size:10px;padding-top:8px;line-height:1.7;}
+  #qry .mid{grid-template-columns:1fr;gap:12px;}
+  #qry .facts{grid-template-columns:1fr 1fr;}
+  #ent .row{grid-template-columns:34px minmax(0,1fr) auto;gap:8px;}
+  #ent .row .d{display:none;}
+  #ent .hero .stat{text-align:left;font-size:11px;}
+}
+@media (max-width:500px){
+  .huge{font-size:clamp(34px,12.5vw,80px);}
+  #hook .qgiant{font-size:clamp(27px,8.6vw,52px);}
+  #hook .rev{font-size:clamp(17px,5.4vw,32px);}
+  #hook .cnt b{font-size:38px;}
+  #hook .opens .grid{grid-template-columns:repeat(2,1fr);}
+  #hook .op:nth-child(odd){border-left:none;}
+  #hook .op:nth-child(-n+4){border-bottom:1px solid var(--rule);}
+  #hook .op .os{font-size:10px;}
+  #mast .cmp .lb{font-size:10.5px;}
+  #mast .cmp > *{padding:7px 6px;}
+  .plate{width:44%;}
+  .plate .pm span:nth-child(n+3){display:none;}
+  .plate svg{display:none;}
+  #dsp .bignum{font-size:64px;}
+  #cost .ledger .row{padding:6px 0;}
+  /* 8열 전부를 가로 스크롤 없이 — 결합의 요점이 열 개수이므로 열을 숨기지 않는다 */
+  #join table{min-width:0;}
+  #join th,#join td{padding:clamp(5px,2.2vh,20px) 2px;font-size:9px;letter-spacing:-.04em;}
+  #join th{font-size:8.5px;letter-spacing:.02em;}
+  #join col.k1{width:10%;} #join col.k2{width:13%;} #join col.c{width:12.83%;}
+  #ent .row .k b{font-size:17px;}
+  #ent .hero h1{font-size:clamp(24px,8.4vw,40px);}
+}
+@media (max-height:560px){
+  #cost .ledger .row{padding:5px 0;}
+  #ent .row{padding:6px 8px;}
+  #mast .cmp > *{padding:6px 10px;}
+  #hook .op{padding:8px 8px;}
+  #join th,#join td{padding:7px 9px;}
+}
+
+/* ============================================================
+   REDUCED MOTION — 정적 폴백
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important;}
+  .tex.grain{animation:none;}
+  #cut{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="tex grain" aria-hidden="true"></div>
+<div id="cut" aria-hidden="true"></div>
+
+<div id="frame" aria-hidden="true"></div>
+
+<header class="bar top">
+  <b>AX&nbsp;DATAHUB</b>
+  <span class="hide-s">YES24 / INTERNAL</span>
+  <span class="sp"></span>
+  <span id="chapter">00 — 질문 / THE QUESTION</span>
+  <span class="sp"></span>
+  <span class="hide-s">KR</span>
+  <span><b id="stepno">00</b>/07</span>
+  <button id="skip" type="button" aria-label="건너뛰고 바로 들어가기">SKIP →</button>
+</header>
+
+<main id="stage">
+
+  <!-- ══ 00 / 질문 — t3 오프닝 문법을 t4 조판으로 ══ -->
+  <section class="stp" id="hook" data-chapter="00 — 질문 / THE QUESTION"
+           data-edge="질문 1건 · 관련 원천 6" aria-label="질문">
+    <div class="top">
+      <div class="eyebrow">00 — 어제 온 질문</div>
+      <div class="eyebrow mono">Q.01 · 2026-03-10 09:12 KST</div>
+    </div>
+
+    <div class="band">
+      <h2 class="qgiant">
+        <span class="clip"><span class="anim-rise" style="display:block">어제 인문 매출이</span></span>
+        <span class="clip"><span class="anim-rise" style="display:block;animation-delay:.12s">왜 <span class="num">12%</span> 빠졌지?</span></span>
+      </h2>
+
+      <div class="rule hard anim-rule midrule" style="animation-delay:.7s"></div>
+
+      <p class="rev">
+        <span class="sw" style="animation-delay:1.42s"><span>6곳을 열어야</span><i class="strike" style="animation-delay:1.28s"></i></span>
+        <span class="clip" style="display:inline-block;vertical-align:top"><b class="anim-rise" style="display:block;animation-delay:1.86s">1개를 압니다</b></span>
+      </p>
+    </div>
+
+    <div class="opens">
+      <div class="eyebrow lab anim-fade" style="animation-delay:2.25s">이 질문 하나를 위해 열어야 하는 곳</div>
+      <div class="grid" id="opensGrid"></div>
+    </div>
+
+    <div class="bot">
+      <p class="anim-fade" style="animation-delay:2.9s">포맷도, 접속 방법도 제각각입니다.<br />같은 질문에 여섯 번 답을 찾아야 합니다.</p>
+      <div class="cnt anim-fade" style="animation-delay:3s"><b class="num" id="hookCount" data-pad="2">06</b><i>곳</i></div>
+    </div>
+  </section>
+
+  <!-- ══ 01 / 표제 ══ -->
+  <section class="stp" id="mast" data-chapter="01 — 표제 / MASTHEAD"
+           data-edge="원천 6 · 콘솔 1" aria-label="표제">
+    <div class="top">
+      <div class="eyebrow">01 — YES24 사내 데이터 포털</div>
+      <div class="eyebrow mono">ONBOARDING · 06 SOURCES → 1 CONSOLE</div>
+    </div>
+    <div class="band">
+      <span class="clip"><span class="huge title anim-rise" style="display:block">AX DATAHUB</span></span>
+      <div class="say">
+        <p class="anim-fade" style="animation-delay:.4s">매출·검색·재고·리뷰·이벤트·고객 행동.<br />여섯 곳에 흩어진 데이터를 한 화면으로 모읍니다.</p>
+        <div class="cnt anim-fade" style="animation-delay:.55s">
+          <span class="k">데이터 원천</span>
+          <b class="num" id="mastCount" data-pad="2">06</b>
+        </div>
+      </div>
+    </div>
+    <div class="cmp">
+      <div class="hd lb">항목</div>
+      <div class="hd a">지금</div>
+      <div class="hd b">AX DATAHUB</div>
+      <div class="lb">열어야 하는 시스템</div>
+      <div class="a">6개</div>
+      <div class="b">1개</div>
+      <div class="lb">로그인·권한 확인</div>
+      <div class="a">6번</div>
+      <div class="b">1번</div>
+      <div class="lb">데이터 형식</div>
+      <div class="a">엑셀 · 시트 · 로그 6종</div>
+      <div class="b">한 장의 표</div>
+    </div>
+  </section>
+
+  <!-- ══ 02 / 흩어짐 ══ -->
+  <section class="stp" id="dsp" data-chapter="02 — 흩어짐 / DISPERSION"
+           data-edge="포맷 6종 · 공통 키 없음" aria-label="흩어짐">
+    <div class="hdr">
+      <div>
+        <div class="eyebrow anim-fade">02 — 지금</div>
+        <h2 class="anim-fade" style="animation-delay:.08s">여섯 곳에<br />따로 있다</h2>
+      </div>
+      <div class="eyebrow anim-fade mono" style="text-align:right;line-height:1.9;animation-delay:.2s">
+        SRC 01–06<br />FORMAT · MIXED<br />KEY · 없음
+      </div>
+    </div>
+    <div class="field" id="plateField"></div>
+    <div class="foot">
+      <p class="anim-fade" style="animation-delay:.9s">포맷도, 갱신 주기도, 접속 방법도 제각각.<br />같은 질문에 여섯 번 답을 찾아야 합니다.</p>
+      <div class="bignum num anim-fade" style="animation-delay:1s">06</div>
+    </div>
+  </section>
+
+  <!-- ══ 03 / 비용 ══ -->
+  <section class="stp" id="cost" data-chapter="03 — 비용 / THE COST" data-invert="1"
+           data-edge="누적 214분 · 판단 1건" aria-label="비용">
+    <div class="top">
+      <div class="eyebrow">03 — 그 질문에 답하는 데 든 시간</div>
+      <div class="eyebrow mono">UNIT · 분 · SAMPLE</div>
+    </div>
+    <div class="mid">
+      <div class="qbox">
+        <div>
+          <p class="anim-fade">“어제 인문 매출이<br />왜 12% 빠졌지?”</p>
+          <div class="split" id="split"></div>
+          <div class="splitcap anim-fade" style="animation-delay:1.25s">이 중 <b>96분(45%)</b>이 엑셀 내려받기·병합</div>
+        </div>
+        <div class="total">
+          <div class="bigcost">
+            <b class="num" id="costNum">0</b><i>분</i>
+          </div>
+          <div class="rule anim-rule" style="animation-delay:.1s;margin-top:14px"></div>
+          <div class="eyebrow anim-fade" style="animation-delay:1.4s;margin-top:9px">질문 하나가 답이 되기까지</div>
+        </div>
+      </div>
+      <div class="ledger" id="ledger"></div>
+    </div>
+    <div class="bot">
+      <p class="anim-fade" style="animation-delay:1.6s"><b>느린 건 사람이 아니라 구조입니다.</b></p>
+      <div class="eyebrow mono">FIG. 03</div>
+    </div>
+  </section>
+
+  <!-- ══ 04 / 정렬 ══ -->
+  <section class="stp" id="reg" data-chapter="04 — 정렬 / REGISTRATION"
+           data-edge="공통 축 2 — DATE · ITEM_ID" aria-label="정렬">
+    <div class="top">
+      <div>
+        <div class="eyebrow">04 — 같은 자에 올린다</div>
+        <h2>한 격자로 정렬</h2>
+      </div>
+      <div class="eyebrow mono" style="text-align:right;line-height:1.9">
+        GRID · 6 COL<br />ALIGN · SNAP
+      </div>
+    </div>
+    <div class="grid" id="regGrid"></div>
+    <div class="bot">
+      <p>날짜와 상품ID — 여섯 데이터가 공유하는 두 개의 축.</p>
+      <span class="keytag">KEY · DATE + ITEM_ID</span>
+    </div>
+  </section>
+
+  <!-- ══ 05 / 결합 ══ -->
+  <section class="stp" id="join" data-chapter="05 — 결합 / THE JOIN"
+           data-edge="8열 × 6행 · 단일 표" aria-label="결합">
+    <div class="top">
+      <div>
+        <div class="eyebrow">05 — 여섯 개가 한 줄이 된다</div>
+        <h2>하나의 표</h2>
+      </div>
+      <div class="eyebrow mono" style="text-align:right;line-height:1.9">JOIN ON DATE+ITEM<br />ROWS · 6 / SAMPLE</div>
+    </div>
+    <div class="tw">
+      <table id="joinTable">
+        <colgroup><col class="k1" /><col class="k2" /><col class="c" /><col class="c" /><col class="c" /><col class="c" /><col class="c" /><col class="c" /></colgroup>
+        <thead><tr id="joinHead"></tr></thead>
+        <tbody id="joinBody"></tbody>
+      </table>
+    </div>
+    <div class="bot">
+      <p><b>매출 옆에 검색이, 재고 옆에 리뷰가 놓입니다.</b><br />비교하려고 창을 옮길 필요가 없습니다.</p>
+      <div class="eyebrow mono">FIG. 05</div>
+    </div>
+  </section>
+
+  <!-- ══ 06 / 질의 ══ -->
+  <section class="stp" id="qry" data-chapter="06 — 질의 / QUERY"
+           data-edge="응답 8.0초" aria-label="질의">
+    <div class="top">
+      <div class="eyebrow">06 — 같은 질문, 다시</div>
+      <div class="eyebrow mono">RESPONSE · LIVE</div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="q"><span id="qtext"></span><span class="caret" id="qcaret"></span></div>
+        <div class="trace">
+          <div class="tr" style="animation-delay:1.15s"><u>JOIN</u><span>매출 × 검색 × 재고 × 리뷰 × 이벤트 × 고객 행동 &nbsp;ON&nbsp; <em>date + item_id</em></span></div>
+          <div class="tr" style="animation-delay:1.3s"><u>FILTER</u><span>분류 = <em>인문</em> · 기간 = <em>03-03 ~ 03-09</em></span></div>
+          <div class="tr" style="animation-delay:1.45s"><u>READ</u><span>원천 <em>6</em> · <em>8</em>열 × <em>6</em>행 · 창 <em>0</em>번 전환</span></div>
+        </div>
+      </div>
+      <div class="mid" style="margin-top:clamp(10px,2vh,20px)">
+        <div class="facts" id="facts"></div>
+        <div class="clockwrap">
+          <div class="before num">이전 · 214분</div>
+          <div class="arrow">▼</div>
+          <div class="after"><b class="num" id="secNum">0.0</b><i>초</i></div>
+          <div class="eyebrow" style="margin-top:10px">답이 나오기까지</div>
+        </div>
+      </div>
+    </div>
+    <div class="verdict">
+      <p>판단 — <span class="acid">재고 3종 즉시 보충 · 기획전 1주 연장</span></p>
+      <div class="eyebrow mono">FIG. 06</div>
+    </div>
+  </section>
+
+  <!-- ══ 07 / 입구 ══ -->
+  <section class="stp" id="ent" data-chapter="07 — 입구 / ENTRY"
+           data-edge="입구 6 · 바로가기" aria-label="제품 홈 입구">
+    <div class="hero">
+      <h1>흩어져 있던 6개가<br />한 곳에.<small>판단이 빨라집니다.</small></h1>
+      <div class="stat mono">
+        214분 &nbsp;→&nbsp; <b>8초</b><br />
+        6 SOURCES → 1 CONSOLE
+      </div>
+    </div>
+    <div class="eyebrow acid">여섯 개의 입구 — 어디로 들어가시겠습니까</div>
+    <!-- 온보딩의 목적지. JS·애니메이션과 무관하게 항상 존재해야 하므로 정적 마크업으로 둔다. -->
+    <nav class="idx" id="entryIdx" aria-label="데이터 영역 바로가기">
+      <a class="row" href="../sites/sales.html"><span class="n">01</span><span class="k"><b>매출</b><u>SALES</u></span><span class="d">일별 주문·매출·반품</span><span class="go">열기 →</span></a>
+      <a class="row" href="../sites/search.html"><span class="n">02</span><span class="k"><b>검색</b><u>SEARCH</u></span><span class="d">검색어·유입 질의·무결과</span><span class="go">열기 →</span></a>
+      <a class="row" href="../sites/stock.html"><span class="n">03</span><span class="k"><b>재고</b><u>STOCK</u></span><span class="d">창고·지점 재고·입고 예정</span><span class="go">열기 →</span></a>
+      <a class="row" href="../sites/review.html"><span class="n">04</span><span class="k"><b>리뷰</b><u>REVIEW</u></span><span class="d">리뷰·평점·감성 분류</span><span class="go">열기 →</span></a>
+      <a class="row" href="../sites/event.html"><span class="n">05</span><span class="k"><b>이벤트</b><u>EVENT</u></span><span class="d">기획전·쿠폰·노출 성과</span><span class="go">열기 →</span></a>
+      <a class="row" href="../sites/user.html"><span class="n">06</span><span class="k"><b>고객 행동</b><u>USER</u></span><span class="d">세션·클릭·전환 경로</span><span class="go">열기 →</span></a>
+    </nav>
+    <div class="foot">
+      <span class="note">※ 화면의 모든 수치는 설명용 샘플입니다</span>
+      <button class="replay" id="replay" type="button">↺ 처음부터</button>
+    </div>
+    <div id="summary">
+      <p><b>AX Datahub</b> — “어제 인문 매출이 왜 12% 빠졌지?” 같은 질문 하나에 답하려면 지금은 여섯 곳을 열어야 합니다. 매출·검색·재고·리뷰·이벤트·고객 행동을 날짜와 상품ID를 기준으로 하나의 표로 합칩니다. 창을 여섯 번 열고 엑셀을 병합하던 214분이 8초로 줄어듭니다. 아래 여섯 개의 입구에서 각 영역으로 바로 들어갈 수 있습니다. (수치는 설명용 샘플입니다.)</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="bar bot">
+  <span class="mono" id="tc">00:00.0</span>
+  <span class="hide-s">SAMPLE DATA · 실제 수치 아님</span>
+  <span class="sp"></span>
+  <span class="hide-s mono" id="edge">질문 1건 · 관련 원천 6</span>
+  <span class="sp"></span>
+  <span class="hide-s">← → SPACE ESC</span>
+  <span id="playstate">PLAYING</span>
+</footer>
+<div id="ticks" aria-hidden="true"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ─────────────────────────────────────────────
+   데이터 정의 — 6개 원천
+   ───────────────────────────────────────────── */
+var SRC = [
+  {id:"sales",  ko:"매출",      en:"SALES",  src:"ERP · 수기 엑셀",  cyc:"5분",   rows:"1.2M",  desc:"일별 주문·매출·반품",      col:"매출(원)",  vals:["12,480,000","9,120,000","20,340,000","7,860,000","15,730,000","11,050,000"]},
+  {id:"search", ko:"검색",      en:"SEARCH", src:"검색 로그 서버",   cyc:"10분",  rows:"8.4M",  desc:"검색어·유입 질의·무결과",  col:"검색수",    vals:["34,210","12,904","61,338","8,442","28,097","19,556"]},
+  {id:"stock",  ko:"재고",      en:"STOCK",  src:"물류 시스템",      cyc:"30분",  rows:"340K",  desc:"창고·지점 재고·입고 예정",  col:"재고",     vals:["12","240","3","118","41","76"]},
+  {id:"review", ko:"리뷰",      en:"REVIEW", src:"CMS 관리자",       cyc:"1시간", rows:"2.1M",  desc:"리뷰·평점·감성 분류",      col:"평점",     vals:["4.6","4.1","4.8","3.9","4.4","4.2"]},
+  {id:"event",  ko:"이벤트",    en:"EVENT",  src:"마케팅 공유 시트", cyc:"15분",  rows:"96K",   desc:"기획전·쿠폰·노출 성과",    col:"이벤트",   vals:["굿즈전","—","굿즈전","—","굿즈전","쿠폰"]},
+  {id:"user",   ko:"고객 행동", en:"USER",   src:"GA4 · 앱 로그",    cyc:"실시간",rows:"22M",   desc:"세션·클릭·전환 경로",      col:"방문",     vals:["9,840","3,210","17,402","1,988","7,613","5,044"]}
+];
+
+var LEDGER = [
+  {l:"시스템 접속",        c:"6회",  v:12},
+  {l:"로그인·권한 확인",   c:"4회",  v:18},
+  {l:"엑셀 내려받기·병합", c:"6개",  v:96},
+  {l:"기준 불일치 재확인", c:"2회",  v:64},
+  {l:"담당자 회신 대기",   c:"1건",  v:24}
+];
+
+var FACTS = [
+  {l:"인문 매출",   v:"−12.3%", n:"전주 동일 요일 대비"},
+  {l:"기획전 종료", v:"−7.1%",  n:"3/07 종료 · 노출 중단"},
+  {l:"품절",        v:"3종",    n:"베스트 재고 10 미만"},
+  {l:"검색 유입",   v:"−4.2%",  n:"‘인문’ 질의"}
+];
+
+/* 00 장의 질문과 06 장의 질의는 같은 문장이어야 한다 — 한 줄기로 읽히도록 */
+var QUERY = "어제 인문 매출이 왜 12% 빠졌지?";
+var DATES = ["03-04","03-05","03-06","03-07","03-08","03-09"];
+var ITEMS = ["G-1042","G-1043","G-2210","B-8871","G-1042","B-9004"];
+
+/* 스텝 길이(ms) — 00~06, 총 23.1초. 07(입구)은 종료 화면이라 길이가 없다 */
+var DUR = [4600, 2600, 3600, 3200, 2700, 3400, 3400];
+var LAST = 7;
+
+var $ = function(s){return document.querySelector(s);};
+var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var still = /(^|[?&])still/.test(location.search) || /still/.test(location.hash);
+/* #step=N 딥링크 — 해당 장으로 seek 한 뒤 완성 상태로 정지시킨다 (0–7) */
+var deepMatch = /step=(\d)/.exec(location.hash);
+var deep = !!deepMatch;
+/* frozen = 등장 모션 없이 종료 상태로 즉시 렌더 (딥링크 · 정지 캡처 · 모션 축소) */
+var frozen = reduced || still || deep;
+if(frozen) document.body.classList.add("freeze");
+/* 딥링크에서 재생을 재개하면 연출을 되살린다 (still·reduced 는 계속 정지) */
+function unfreeze(){
+  if(!frozen || reduced || still) return;
+  frozen=false; document.body.classList.remove("freeze");
+}
+
+/* ─────────────────────────────────────────────
+   그레인 1회 베이크 → dataURL 재사용
+   ───────────────────────────────────────────── */
+(function bakeGrain(){
+  try{
+    var n=180, c=document.createElement("canvas"); c.width=c.height=n;
+    var x=c.getContext("2d"), img=x.createImageData(n,n), d=img.data, s=1337;
+    function rnd(){ s^=s<<13; s^=s>>>17; s^=s<<5; return (s>>>0)/4294967296; }
+    for(var i=0;i<d.length;i+=4){
+      var v=(rnd()*255)|0;
+      d[i]=d[i+1]=d[i+2]=v; d[i+3]=255;
+    }
+    x.putImageData(img,0,0);
+    document.documentElement.style.setProperty("--grain","url("+c.toDataURL("image/png")+")");
+  }catch(e){}
+})();
+
+/* ─────────────────────────────────────────────
+   절차적 스파크라인 (결정적 시드)
+   ───────────────────────────────────────────── */
+function spark(seed){
+  var s=seed*2654435761%2147483647, pts=[], n=22;
+  function r(){ s=(s*1103515245+12345)%2147483648; return s/2147483648; }
+  for(var i=0;i<n;i++) pts.push(r());
+  var d="", w=100, h=22;
+  for(var j=0;j<n;j++){
+    var x=(j/(n-1))*w, y=h-2-pts[j]*(h-4);
+    d += (j?"L":"M")+x.toFixed(1)+" "+y.toFixed(1);
+  }
+  return '<svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true">'+
+    '<path d="'+d+'" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>';
+}
+
+/* ─────────────────────────────────────────────
+   00 — 취소선이 가리키는 '여섯 곳' (가장자리를 데이터로 채운다)
+   ───────────────────────────────────────────── */
+function buildOpens(){
+  var w=$("#opensGrid"); w.innerHTML="";
+  SRC.forEach(function(s,i){
+    var d=document.createElement("div");
+    d.className="op"; d.style.animationDelay=(2.35+i*0.07)+"s";
+    d.innerHTML='<div class="on">0'+(i+1)+'</div><div class="ok">'+s.ko+'</div>'+
+      '<div class="os">'+s.src+'<br />갱신 '+s.cyc+'</div>';
+    w.appendChild(d);
+  });
+}
+
+/* ─────────────────────────────────────────────
+   02 — 흩어진 플레이트 배치
+   ───────────────────────────────────────────── */
+var POS = [
+  {l:2,  t:22, r:-3.2},
+  {l:33, t:6,  r:2.1},
+  {l:66, t:26, r:-1.6},
+  {l:12, t:56, r:2.8},
+  {l:44, t:47, r:-2.3},
+  {l:73, t:62, r:1.4}
+];
+var POS_M = [
+  {l:2,t:16,r:-2},{l:52,t:12,r:1.6},{l:4,t:42,r:1.4},
+  {l:52,t:44,r:-1.8},{l:6,t:68,r:-1.2},{l:52,t:72,r:2}
+];
+function buildPlates(){
+  var narrow = window.innerWidth<=500, P = narrow?POS_M:POS;
+  var f=$("#plateField"); f.innerHTML="";
+  SRC.forEach(function(s,i){
+    var p=P[i], el=document.createElement("article");
+    el.className="plate";
+    el.style.left=p.l+"%"; el.style.top=p.t+"%";
+    el.style.setProperty("--dx",(i%2?-1:1)*(18+i*7)+"px");
+    el.style.setProperty("--dy",(i%3-1)*22+"px");
+    el.style.setProperty("--dr",p.r+"deg");
+    el.style.transform="rotate("+p.r+"deg)";
+    el.style.animationDelay=(0.1+i*0.075)+"s";
+    el.innerHTML =
+      '<div class="pi"><span>SRC</span><b>0'+(i+1)+'</b></div>'+
+      '<div class="pn">'+s.ko+'</div>'+
+      '<div class="pl">'+s.en+'</div>'+
+      '<div class="prule"></div>'+
+      '<div class="pm">'+
+        '<span><u>소재</u>'+s.src+'</span>'+
+        '<span><u>갱신</u>'+s.cyc+'</span>'+
+        '<span><u>행</u>'+s.rows+'</span>'+
+      '</div>'+ spark(i+7);
+    f.appendChild(el);
+  });
+  /* 스냅 애니메이션 종료 후 회전 유지 */
+  f.querySelectorAll(".plate").forEach(function(el,i){
+    el.addEventListener("animationend",function(){
+      el.style.transform="rotate("+(narrow?POS_M:POS)[i].r+"deg)";
+    });
+  });
+}
+
+/* ─────────────────────────────────────────────
+   03 — 원장
+   ───────────────────────────────────────────── */
+function buildLedger(){
+  var w=$("#ledger"); w.innerHTML="";
+  LEDGER.forEach(function(r,i){
+    var d=document.createElement("div");
+    d.className="row anim-fade"; d.style.animationDelay=(0.25+i*0.16)+"s";
+    d.innerHTML='<span class="l">'+r.l+'</span><span class="c">'+r.c+'</span><span class="d"></span><span class="v">'+r.v+'분</span>';
+    w.appendChild(d);
+  });
+  var sum=document.createElement("div");
+  sum.className="row sum anim-fade"; sum.style.animationDelay="1.15s";
+  sum.innerHTML='<span class="l">합계</span><span class="d"></span><span class="v">214분</span>';
+  w.appendChild(sum);
+
+  /* 같은 수치를 비율 띠로 한 번 더 — 214분의 어디가 무거운지 한눈에 */
+  var tot=LEDGER.reduce(function(a,r){return a+r.v;},0), mx=0;
+  LEDGER.forEach(function(r){ if(r.v>mx) mx=r.v; });
+  var sp=$("#split"); sp.innerHTML="";
+  LEDGER.forEach(function(r,i){
+    var b=document.createElement("i");
+    b.style.flex=r.v+" 0 0";
+    if(r.v===mx) b.className="max";
+    b.setAttribute("title", r.l+" · "+r.v+"분 ("+Math.round(r.v/tot*100)+"%)");
+    sp.appendChild(b);
+  });
+}
+
+/* ─────────────────────────────────────────────
+   04 — 정렬 격자
+   ───────────────────────────────────────────── */
+function buildGrid(){
+  var g=$("#regGrid"); g.innerHTML="";
+  SRC.forEach(function(s,i){
+    var c=document.createElement("div");
+    c.className="col";
+    c.style.setProperty("--dx",((i%2?-1:1)*(30+i*10))+"px");
+    c.style.setProperty("--dy",((i%3)-1)*34+"px");
+    c.style.setProperty("--dr",((i%2?-1:1)*2.4)+"deg");
+    c.style.animationDelay=(0.05+i*0.085)+"s";
+    var bars="", s2=(i+3)*7919;
+    for(var b=0;b<7;b++){ s2=(s2*1103515245+12345)%2147483648;
+      bars+='<i style="height:'+(22+(s2/2147483648)*78).toFixed(0)+'%;animation-delay:'+(0.32+i*0.085+b*0.03).toFixed(2)+'s"></i>'; }
+    c.innerHTML='<div class="cn">0'+(i+1)+'</div><div class="ck">'+s.ko+'</div><div class="cl">'+s.en+'</div>'+
+      '<div class="bars">'+bars+'</div>'+
+      '<div class="keys"><span>DATE<u>정렬됨</u></span><span>ITEM_ID<u>정렬됨</u></span></div>';
+    g.appendChild(c);
+  });
+}
+
+/* ─────────────────────────────────────────────
+   05 — 결합 표
+   ───────────────────────────────────────────── */
+function buildTable(){
+  var h=$("#joinHead"), b=$("#joinBody");
+  h.innerHTML='<th class="k k1">날짜</th><th class="k k2">상품ID</th>'+
+    SRC.map(function(s){return '<th>'+s.col+'</th>';}).join("");
+  b.innerHTML="";
+  for(var r=0;r<6;r++){
+    var tr=document.createElement("tr");
+    tr.style.animationDelay=(0.3+r*0.19)+"s";
+    tr.innerHTML='<td class="k k1">'+DATES[r]+'</td><td class="k k2">'+ITEMS[r]+'</td>'+
+      SRC.map(function(s){return '<td>'+s.vals[r]+'</td>';}).join("");
+    b.appendChild(tr);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   06 — 사실 카드
+   ───────────────────────────────────────────── */
+function buildFacts(){
+  var f=$("#facts"); f.innerHTML="";
+  FACTS.forEach(function(x,i){
+    var d=document.createElement("div");
+    d.className="fact"; d.style.animationDelay=(1.5+i*0.17)+"s";
+    d.innerHTML='<div class="fl">'+x.l+'</div><div class="fv">'+x.v+'</div><div class="fn">'+x.n+'</div>';
+    f.appendChild(d);
+  });
+}
+
+/* 07 입구 색인은 정적 마크업 — JS 없이도 목적지는 남는다 */
+
+/* ─────────────────────────────────────────────
+   진행 눈금 — 장 수만큼
+   ───────────────────────────────────────────── */
+function buildTicks(){
+  var t=$("#ticks");
+  for(var i=0;i<LAST;i++){ var s=document.createElement("span"); s.innerHTML="<i></i>"; t.appendChild(s); }
+}
+
+/* 하나가 던져도 나머지가 죽지 않도록 개별 격리 */
+[buildTicks,buildOpens,buildPlates,buildLedger,buildGrid,buildTable,buildFacts].forEach(function(fn){
+  try{ fn(); }catch(e){ if(window.console) console.error("[h2] "+fn.name+" 실패", e); }
+});
+
+/* ─────────────────────────────────────────────
+   숫자 카운터
+   ───────────────────────────────────────────── */
+var counters=[];
+function fmt(v, dec, el){
+  if(dec) return v.toFixed(dec);
+  var s = Math.round(v).toLocaleString("ko-KR");
+  var p = el.getAttribute("data-pad");
+  return p ? ("00"+s).slice(-p) : s;
+}
+function count(el, from, to, ms, dec, delay){
+  if(!el) return;
+  if(frozen){ el.textContent = fmt(to, dec, el); return; }
+  var t0=null, started=false, wait=delay||0, born=performance.now();
+  el.textContent = fmt(from, dec, el);
+  var rec={stop:false};
+  counters.push(rec);
+  function tick(now){
+    if(rec.stop) return;
+    if(!started){ if(now-born<wait){ requestAnimationFrame(tick); return; } started=true; t0=now; }
+    var p=Math.min(1,(now-t0)/ms), e=1-Math.pow(1-p,3);
+    el.textContent = fmt(from+(to-from)*e, dec, el);
+    if(p<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+function clearCounters(){ counters.forEach(function(c){c.stop=true;}); counters=[]; }
+
+/* ─────────────────────────────────────────────
+   타이핑
+   ───────────────────────────────────────────── */
+var typeTimer=null;
+function typeQuery(){
+  var el=$("#qtext"); if(!el) return;
+  clearInterval(typeTimer);
+  if(frozen){ el.textContent="> "+QUERY; $("#qcaret").style.animation="none"; return; }
+  var i=0; el.textContent="> ";
+  typeTimer=setInterval(function(){
+    if(i>=QUERY.length){ clearInterval(typeTimer); return; }
+    el.textContent = "> "+QUERY.slice(0,++i);
+  }, 42);
+}
+
+/* ─────────────────────────────────────────────
+   스텝 머신
+   ───────────────────────────────────────────── */
+var steps = [].slice.call(document.querySelectorAll(".stp"));
+var cur=-1, playing=true, stepStart=0, elapsedTotal=0, raf=null, timer=null, pausedAt=0;
+var SUM=DUR.reduce(function(a,b){return a+b;},0);
+
+function pad2(n){return (n<10?"0":"")+n;}
+
+function setChapter(i){
+  var s=steps[i];
+  $("#chapter").textContent = s.getAttribute("data-chapter");
+  $("#stepno").textContent = pad2(i);
+  var e=$("#edge"); if(e) e.textContent = s.getAttribute("data-edge")||"";
+}
+
+function paintTicks(i, frac){
+  var ts=$("#ticks").children;
+  for(var k=0;k<ts.length;k++){
+    var fill=ts[k].firstChild;
+    if(k<i){ fill.style.width="100%"; }
+    else if(k===i){ fill.style.width=(Math.min(1,frac)*100).toFixed(2)+"%"; }
+    else { fill.style.width="0%"; }
+  }
+}
+
+function paintClock(){
+  if(cur>=0 && cur<LAST){
+    var into = playing ? (performance.now()-stepStart) : (pausedAt||0);
+    into = Math.min(Math.max(0,into), DUR[cur]);
+    var tot = (elapsedTotal + into)/1000;
+    $("#tc").textContent = pad2(Math.floor(tot/60))+":"+pad2(Math.floor(tot%60))+"."+Math.floor((tot*10)%10);
+    paintTicks(cur, into/DUR[cur]);
+  }else if(cur===LAST){
+    $("#tc").textContent = pad2(Math.floor(SUM/1000/60))+":"+pad2(Math.floor(SUM/1000)%60)+".0";
+    paintTicks(LAST,1);
+  }
+}
+
+/* rAF 수명주기 — 마지막 장에 닿거나 탭이 가려지면 멈춘다 */
+function loop(){
+  raf=null;
+  paintClock();
+  if(cur<LAST && !document.hidden) raf=requestAnimationFrame(loop);
+}
+function startLoop(){
+  if(reduced || raf!==null || document.hidden || cur>=LAST) return;
+  raf=requestAnimationFrame(loop);
+}
+function stopLoop(){
+  if(raf!==null){ cancelAnimationFrame(raf); raf=null; }
+}
+
+function go(i, opts){
+  opts=opts||{};
+  i=Math.max(0,Math.min(LAST,i));
+  if(i===cur) return;
+  var prev=cur; cur=i;
+
+  clearTimeout(timer); clearCounters(); clearInterval(typeTimer);
+
+  /* 하드컷 플래시 */
+  if(prev>=0 && !reduced && !opts.silent){
+    var c=$("#cut"); c.classList.remove("fire"); void c.offsetWidth; c.classList.add("fire");
+  }
+
+  steps.forEach(function(s){ s.classList.remove("live"); });
+  var el=steps[i];
+  /* 애니메이션 리셋 */
+  el.style.display="none"; void el.offsetWidth; el.style.display="";
+  el.classList.add("live");
+
+  document.body.classList.toggle("invert", el.getAttribute("data-invert")==="1");
+  document.body.classList.toggle("on-last", i===LAST);
+  setChapter(i);
+
+  elapsedTotal = DUR.slice(0,i).reduce(function(a,b){return a+b;},0);
+  stepStart = performance.now();
+
+  /* 스텝별 진입 훅 */
+  if(i===0){ count($("#hookCount"),0,6,1000,0,3000); }
+  if(i===1){ count($("#mastCount"),0,6,900,0,600); }
+  if(i===2){ buildPlates(); }
+  if(i===3){ count($("#costNum"),0,214,1500,0,220); }
+  if(i===6){ typeQuery(); count($("#secNum"),0,8,1300,1,1400); }
+
+  if(i===LAST){
+    setPlay(false,true);
+    $("#playstate").textContent="END";
+    paintClock();
+    stopLoop();                       /* 끝났으면 rAF 를 놓아준다 */
+    var first=$("#entryIdx a"); if(first && opts.focus) first.focus();
+  }else{
+    startLoop();
+    if(playing) schedule();
+  }
+
+  if(location.hash!=="#step="+i) history.replaceState(null,"","#step="+i);
+}
+
+function schedule(){
+  clearTimeout(timer);
+  var left = DUR[cur] - (performance.now()-stepStart);
+  timer = setTimeout(function(){ go(cur+1); }, Math.max(30,left));
+}
+
+function setPlay(v, quiet){
+  playing=v;
+  if(!quiet) $("#playstate").textContent = v ? "PLAYING" : "PAUSED";
+  if(v && cur<LAST){ stepStart = performance.now() - (pausedAt||0); pausedAt=0; schedule(); startLoop(); }
+  else { clearTimeout(timer); }
+}
+
+/* ─────────────────────────────────────────────
+   조작
+   ───────────────────────────────────────────── */
+$("#skip").addEventListener("click",function(){ go(LAST,{focus:true}); });
+$("#replay").addEventListener("click",function(){ unfreeze(); cur=-1; playing=true; $("#playstate").textContent="PLAYING"; go(0); });
+
+document.addEventListener("keydown",function(e){
+  var k=e.key;
+  if(k==="ArrowRight"){ e.preventDefault(); pausedAt=0; go(Math.min(LAST,cur+1)); if(playing&&cur<LAST) schedule(); }
+  else if(k==="ArrowLeft"){ e.preventDefault(); pausedAt=0; var t=Math.max(0,cur-1); cur=-1; go(t); if(playing&&t<LAST) schedule(); }
+  else if(k===" "||k==="Spacebar"){
+    e.preventDefault();
+    if(cur>=LAST) return;
+    if(playing){ pausedAt = performance.now()-stepStart; setPlay(false); }
+    else { unfreeze(); setPlay(true); }
+  }
+  else if(k==="Escape"){ e.preventDefault(); go(LAST,{focus:true}); }
+});
+
+/* 탭이 가려지면 rAF 도 타이머도 세운다 — 보이지 않는 화면을 재생하지 않는다 */
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden){
+    stopLoop();
+    if(playing && cur>=0 && cur<LAST){
+      pausedAt = performance.now()-stepStart;
+      clearTimeout(timer);
+    }
+  }else{
+    if(playing && cur>=0 && cur<LAST){
+      stepStart = performance.now()-(pausedAt||0); pausedAt=0; schedule();
+    }
+    startLoop();
+  }
+});
+
+window.addEventListener("hashchange",function(){
+  var m=/step=(\d)/.exec(location.hash);
+  if(m){ var n=+m[1]; if(n!==cur) go(n); }
+});
+
+var rz=null;
+window.addEventListener("resize",function(){
+  clearTimeout(rz);
+  rz=setTimeout(function(){ if(cur===2) buildPlates(); },220);
+});
+
+/* ─────────────────────────────────────────────
+   기동
+   ───────────────────────────────────────────── */
+var start = deep ? Math.max(0,Math.min(LAST,+deepMatch[1])) : 0;
+
+if(reduced){
+  document.body.classList.add("rm");
+  go(LAST,{silent:true});
+  $("#playstate").textContent="STATIC";
+  $("#tc").textContent="--:--.-";
+  $("#edge").textContent="정적 요약 · 모션 최소화";
+  paintTicks(LAST,1);
+}else if(still||deep){
+  /* 그 장에 세워 둔다 — Space 로 이어서 재생 */
+  playing=false; pausedAt=0;
+  go(start,{silent:true});
+  clearTimeout(timer);
+  stopLoop(); paintClock();
+  $("#playstate").textContent = still ? "STILL" : "PAUSED";
+}else{
+  go(start);
+}
+})();
+</script>
+</body>
+</html>

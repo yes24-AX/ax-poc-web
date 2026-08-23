@@ -14,23 +14,19 @@
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
       <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
-      <span class="nav-logo-developers">Developers</span>
+      <span class="nav-logo-developers">개발자센터</span>
     </a>
     <div class="nav-divider"></div>
     <ul class="nav-links">
-      <li><a href="docs.html">Docs</a></li>
-      <li><a href="api-explorer.html">API Explorer</a></li>
-      <li><a href="my-applications.html" class="active">My Applications</a></li>
-      <li><a href="support.html">Support</a></li>
+      <li><a href="docs.html">문서</a></li>
+      <li><a href="api-explorer.html">API 테스트</a></li>
+      <li><a href="support.html">지원</a></li>
+
     </ul>
     <div class="nav-actions">
-      <span class="nav-version-badge">v1.0</span>
-      <button class="btn btn-ghost btn-sm" onclick="toggleLogin()" id="login-btn">로그인 (데모)</button>
-      <span id="user-info" style="display:none;font-size:13px;color:var(--color-text-secondary);align-items:center;gap:8px;">
-        <span style="width:28px;height:28px;background:var(--color-brand);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;">K</span>
-        <span>kim@example.com</span>
-        <button class="btn btn-ghost btn-sm" onclick="toggleLogin()">로그아웃</button>
-      </span>
+      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <span id="nav-user-info" style="display:none"></span>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
     </div>
   </div>
 </nav>
@@ -39,9 +35,9 @@
 <div id="login-gate" class="login-gate">
   <div class="login-gate-icon">🔐</div>
   <h2>로그인이 필요합니다</h2>
-  <p>My Applications는 로그인 후 이용할 수 있습니다.<br>YES24 계정으로 로그인하여 발급받은 API Key를 관리하세요.</p>
+  <p>내 애플리케이션은 로그인 후 이용할 수 있습니다.<br>YES24 계정으로 로그인하여 발급받은 API Key를 관리하세요.</p>
   <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-    <button class="btn btn-primary" onclick="toggleLogin()">로그인 (데모)</button>
+    <a class="btn btn-primary" href="login.html">로그인</a>
     <a href="api-key-apply.html" class="btn btn-secondary">API Key 신청하기</a>
   </div>
 </div>
@@ -50,10 +46,9 @@
 <div class="myapp-layout" id="myapp-main" style="display:none;">
 
   <aside class="myapp-sidebar" id="myapp-sidebar">
-    <div class="myapp-sidebar-title">My Applications</div>
+    <div class="myapp-sidebar-title">내 애플리케이션</div>
     <ul class="myapp-nav">
-      <li><a href="#" data-panel="panel-app-list" class="active" onclick="switchPanel(event,'panel-app-list')"><span class="nav-icon">📱</span> 앱 목록</a></li>
-      <li><a href="#" data-panel="panel-api-keys" onclick="switchPanel(event,'panel-api-keys')"><span class="nav-icon">🔑</span> API Keys</a></li>
+      <li><a href="#" data-panel="panel-api-keys" class="active" onclick="switchPanel(event,'panel-api-keys')"><span class="nav-icon">🔑</span> API Keys</a></li>
       <li><a href="#" data-panel="panel-usage" onclick="switchPanel(event,'panel-usage')"><span class="nav-icon">📊</span> Usage</a></li>
     </ul>
   </aside>
@@ -62,66 +57,33 @@
 
     <div id="logged-in-content">
 
-      <!-- 앱 목록 -->
-      <div id="panel-app-list" class="myapp-panel myapp-content">
-        <div class="myapp-content-header">
-          <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div><h1>앱 목록</h1><p>등록된 애플리케이션과 API Key를 관리합니다.</p></div>
-            <a href="api-key-apply.html" class="btn btn-primary btn-sm">+ 새 API Key 신청</a>
-          </div>
-        </div>
-
-        <div class="app-card">
-          <div class="app-card-header">
-            <div><div class="app-card-name">나의 독서 앱</div><div class="app-card-meta">신청일: 2026-05-01 · 마지막 호출: 2026-06-06</div></div>
-            <div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-success">활성</span><button class="btn btn-ghost btn-sm">설정</button></div>
-          </div>
-          <div class="app-card-keys">
-            <div class="key-field">
-              <label>API Key</label>
-              <div class="key-value">
-                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••4f2a" data-real="yk_live_a3f8c2d1e9b74f2acd81e9b7c2d14f2a" data-revealed="0">yk_live_••••••••••••••••••••••••••••4f2a</span>
-                <button class="key-reveal-btn">👁</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="app-card">
-          <div class="app-card-header">
-            <div><div class="app-card-name">도서 추천 서비스</div><div class="app-card-meta">신청일: 2026-04-12 · 마지막 호출: 2026-06-05</div></div>
-            <div style="display:flex;gap:8px;align-items:center;"><span class="badge badge-success">활성</span><button class="btn btn-ghost btn-sm">설정</button></div>
-          </div>
-          <div class="app-card-keys">
-            <div class="key-field">
-              <label>API Key</label>
-              <div class="key-value">
-                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••9c3b" data-real="yk_live_b1e4d7f2a8c59c3bd7f2a8c5b1e49c3b" data-revealed="0">yk_live_••••••••••••••••••••••••••••9c3b</span>
-                <button class="key-reveal-btn">👁</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- API Keys -->
-      <div id="panel-api-keys" class="myapp-panel myapp-content hidden">
+      <div id="panel-api-keys" class="myapp-panel myapp-content">
         <div class="myapp-content-header"><h1>API Keys</h1><p>앱별 API Key를 확인하고 관리합니다.</p></div>
         <div class="callout callout-warning">
           <span class="callout-icon">⚠️</span>
           <div class="callout-content"><p class="callout-title">API Key 보안 주의</p><p>API Key는 서버사이드에서만 사용하세요. 클라이언트 코드나 공개 저장소에 절대 노출되어서는 안 됩니다.</p></div>
         </div>
+        <div id="reissue-result" class="callout callout-info hidden">
+          <span class="callout-icon">🔑</span>
+          <div class="callout-content">
+            <p class="callout-title">새 API Key가 발급되었습니다</p>
+            <p>이 Key는 다시 확인할 수 없습니다. 안전한 곳에 보관하세요.</p>
+            <div class="key-value" style="margin-top:10px;">
+              <span class="key-text" id="reissued-key"></span>
+            </div>
+          </div>
+        </div>
         <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;margin-top:20px;">
           <div style="padding:16px 20px;background:var(--color-bg-subtle);border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;">
             <div><span style="font-size:15px;font-weight:600;color:var(--color-text);">나의 독서 앱</span><span class="badge badge-success" style="margin-left:8px;">활성</span></div>
-            <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);">Key 재발급</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);" onclick="reissueApiKey(this)">Key 재발급</button>
           </div>
           <div style="padding:20px;display:grid;gap:16px;">
             <div class="key-field">
               <label>API Key</label>
               <div class="key-value">
-                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••4f2a" data-real="yk_live_a3f8c2d1e9b74f2acd81e9b7c2d14f2a" data-revealed="0">yk_live_••••••••••••••••••••••••••••4f2a</span>
-                <button class="key-reveal-btn">👁</button>
+                <span class="key-text" data-suffix="4f2a">yk_live_************************4f2a</span>
               </div>
               <div style="font-size:12px;color:var(--color-text-muted);margin-top:6px;">헤더: <code>X-API-Key: yk_live_...</code></div>
             </div>
@@ -131,14 +93,13 @@
         <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;margin-top:16px;">
           <div style="padding:16px 20px;background:var(--color-bg-subtle);border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;">
             <div><span style="font-size:15px;font-weight:600;color:var(--color-text);">도서 추천 서비스</span><span class="badge badge-success" style="margin-left:8px;">활성</span></div>
-            <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);">Key 재발급</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--color-danger);" onclick="reissueApiKey(this)">Key 재발급</button>
           </div>
           <div style="padding:20px;display:grid;gap:16px;">
             <div class="key-field">
               <label>API Key</label>
               <div class="key-value">
-                <span class="key-text" data-masked="yk_live_••••••••••••••••••••••••••••9c3b" data-real="yk_live_b1e4d7f2a8c59c3bd7f2a8c5b1e49c3b" data-revealed="0">yk_live_••••••••••••••••••••••••••••9c3b</span>
-                <button class="key-reveal-btn">👁</button>
+                <span class="key-text" data-suffix="9c3b">yk_live_************************9c3b</span>
               </div>
               <div style="font-size:12px;color:var(--color-text-muted);margin-top:6px;">헤더: <code>X-API-Key: yk_live_...</code></div>
             </div>
@@ -184,9 +145,9 @@
           <table class="doc-table">
             <thead><tr><th>Endpoint</th><th>Method</th><th>호출 수</th><th>평균 응답시간</th><th>오류율</th></tr></thead>
             <tbody>
-              <tr><td><code>/v1/books</code></td><td><span class="method-badge method-get">GET</span></td><td>1,824</td><td>142ms</td><td style="color:var(--color-success);">0.1%</td></tr>
-              <tr><td><code>/v1/books/{id}</code></td><td><span class="method-badge method-get">GET</span></td><td>743</td><td>98ms</td><td style="color:var(--color-success);">0.0%</td></tr>
-              <tr><td><code>/v1/products</code></td><td><span class="method-badge method-get">GET</span></td><td>280</td><td>201ms</td><td style="color:var(--color-warning);">1.4%</td></tr>
+              <tr><td><code>/v1/goods/itemList</code></td><td><span class="method-badge method-get">GET</span></td><td>1,824</td><td>142ms</td><td style="color:var(--color-success);">0.1%</td></tr>
+              <tr><td><code>/v1/goods/itemDetail</code></td><td><span class="method-badge method-get">GET</span></td><td>743</td><td>98ms</td><td style="color:var(--color-success);">0.0%</td></tr>
+              <tr><td><code>/v1/category/list</code></td><td><span class="method-badge method-get">GET</span></td><td>280</td><td>201ms</td><td style="color:var(--color-warning);">1.4%</td></tr>
             </tbody>
           </table>
         </div>
@@ -195,17 +156,79 @@
     </div><!-- /logged-in-content -->
   </div><!-- /content col -->
 </div><!-- /myapp-layout -->
-
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-brand">
+        <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="28" style="display:block;">
+      </a>
+      <p class="footer-desc">YES24 Open API Developer Portal</p>
+      <p class="footer-copy">© 2026 YES24 Co., Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-link-group">
+        <h4>문서</h4>
+        <ul>
+          <li><a href="docs.html">시작하기</a></li>
+          <li><a href="api-catalog.html">API Catalog</a></li>
+          <li><a href="api-goods-item-list.html">API 문서</a></li>
+          <li><a href="docs-error-codes.html">오류 코드</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API 테스트</a></li>
+          <li><a href="my-applications.html">내 애플리케이션</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>지원</h4>
+        <ul>
+          <li><a href="support.html">공지사항</a></li>
+          <li><a href="support-faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
 <script src="assets/js/main.js"></script>
 <script>
-let isLoggedIn = false;
-function toggleLogin() {
-  isLoggedIn = !isLoggedIn;
+let isLoggedIn = Boolean(getSession());
+function renderMyApplications() {
   document.getElementById('login-gate').style.display = isLoggedIn ? 'none' : 'flex';
   document.getElementById('myapp-main').style.display = isLoggedIn ? 'grid' : 'none';
-  document.getElementById('login-btn').style.display = isLoggedIn ? 'none' : 'inline-flex';
-  document.getElementById('user-info').style.display = isLoggedIn ? 'flex' : 'none';
 }
+renderMyApplications();
+
+function generateApiKey() {
+  const bytes = new Uint8Array(20);
+  crypto.getRandomValues(bytes);
+  return 'yk_live_' + Array.from(bytes).map(value => value.toString(16).padStart(2, '0')).join('');
+}
+
+function reissueApiKey(button) {
+  const confirmed = confirm('API Key를 재발급하면 기존 Key는 더 이상 사용할 수 없습니다. 계속하시겠습니까?');
+  if (!confirmed) return;
+
+  const newKey = generateApiKey();
+  const suffix = newKey.slice(-4);
+  const card = button.closest('[style*="border:1px solid var(--color-border)"]');
+  const keyText = card?.querySelector('.key-text');
+  const resultPanel = document.getElementById('reissue-result');
+  const resultKey = document.getElementById('reissued-key');
+
+  if (keyText) {
+    keyText.dataset.suffix = suffix;
+    keyText.textContent = `yk_live_************************${suffix}`;
+  }
+  if (resultPanel && resultKey) {
+    resultKey.textContent = newKey;
+    resultPanel.classList.remove('hidden');
+    resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
 function switchPanel(e, id) {
   if (e) e.preventDefault();
   document.querySelectorAll('.myapp-panel').forEach(p => p.classList.add('hidden'));

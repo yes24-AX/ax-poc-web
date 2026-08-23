@@ -1,0 +1,30 @@
+function OAS_RICH(position) {
+if (position == 'x01') {
+document.write ('<input type=');
+document.write ("'");
+document.write ('hidden');
+document.write ("'");
+document.write (' id=');
+document.write ("'");
+document.write ('hdSearchBarText');
+document.write ("'");
+document.write (' value=');
+document.write ("'");
+document.write ('더스토리 착한책 프로젝트');
+document.write ("'");
+document.write (' />\n');
+document.write ('            <input type=');
+document.write ("'");
+document.write ('hidden');
+document.write ("'");
+document.write (' id=');
+document.write ("'");
+document.write ('hdSearchBarLink');
+document.write ("'");
+document.write (' value=');
+document.write ("'");
+document.write ('https://adgirl.yes24.com/RealMedia/ads/click_lx.ads/www.yes24.com/Header/SearchBar/815012773/x01/OasDefault/Scm_SearchBar260605151724982/Scm_SearchBar260605151724982C001.html/37393864363236393661323862343430');
+document.write ("'");
+document.write (' />');
+}
+}

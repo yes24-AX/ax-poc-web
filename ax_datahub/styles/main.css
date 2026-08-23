@@ -1,0 +1,622 @@
+/* ============================================================
+   AX DataHub — 데이터센터 여행 (CSS 3D / WebGL 미사용)
+
+   레이어
+     body 배경  <  #viewport(3D 월드)  <  #air(공기·포그)  <  고정 UI
+
+   GPU 가속이 꺼진 환경도 고려해 blur 필터는 쓰지 않는다.
+   빛은 전부 그라데이션과 box-shadow로 만든다.
+   ============================================================ */
+
+:root {
+  --c-entry: #38bdf8;  /* 입구 — 콜드 아일 */
+  --c-mstr:  #3b82f6;  /* MSTR 원천 */
+  --c-click: #a855f7;  /* 클릭스트림 */
+  --c-unify: #14b8a6;  /* 통합 */
+  --c-perf:  #f59e0b;  /* 성과 */
+  --c-alert: #f43f5e;  /* 이상 징후 */
+
+  --ink: #05080f;
+  --text: #e6edf9;
+
+  --accent: var(--c-entry);
+
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   1. 3D 스테이지
+   ============================================================ */
+#viewport {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  perspective: 900px;          /* 좁을수록 복도가 길고 깊게 보인다 */
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+body.is-ready #viewport { opacity: 1; }
+
+#world {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* 좌표 래퍼 — JS가 transform으로 월드 위치를 지정한다.
+   외형/상시 애니메이션은 자식이 담당해 transform 충돌을 피한다 */
+.place {
+  position: absolute;
+  left: 0; top: 0;
+  transform-style: preserve-3d;
+}
+.place > * { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+
+#air {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* ============================================================
+   2. 입체 박스 (필요한 면만)
+   면마다 명도를 달리해 조명 방향을 만든다.
+   filter는 preserve-3d를 평탄화시키므로 배경 오버레이로 처리한다.
+   ============================================================ */
+.box > i {
+  position: absolute;
+  left: 0; top: 0;
+  display: block;
+  background: var(--face, #10161f);
+  border: 1px solid var(--edge, rgba(255, 255, 255, 0.07));
+}
+.box > .fz { width: var(--w); height: var(--h); margin-left: calc(var(--w) / -2); margin-top: calc(var(--h) / -2); }
+.box > .fx { width: var(--d); height: var(--h); margin-left: calc(var(--d) / -2); margin-top: calc(var(--h) / -2); }
+.box > .fy { width: var(--w); height: var(--d); margin-left: calc(var(--w) / -2); margin-top: calc(var(--d) / -2); }
+
+.box > .front { transform: translateZ(calc(var(--d) / 2)); }
+.box > .back  { transform: translateZ(calc(var(--d) / -2)) rotateY(180deg); }
+.box > .right { transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); }
+.box > .left  { transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); }
+.box > .top   { transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); }
+
+.box > .left, .box > .right { background: linear-gradient(rgba(0,0,0,.42), rgba(0,0,0,.42)), var(--face, #10161f); }
+.box > .top { background: linear-gradient(rgba(255,255,255,.14), rgba(255,255,255,.14)), var(--face, #10161f); }
+
+/* ============================================================
+   3. 데이터센터 구성 요소
+   ============================================================ */
+
+/* ---- 서버 랙 ---- */
+.rack-face {
+  /* 랙 전면: 서버 슬롯이 층층이 쌓인 결 */
+  background-image:
+    repeating-linear-gradient(180deg,
+      rgba(255, 255, 255, 0.05) 0 1px,
+      rgba(0, 0, 0, 0.25) 1px 5px,
+      rgba(255, 255, 255, 0.02) 5px 7px,
+      transparent 7px 22px);
+}
+/* 슬롯마다 깜빡이는 상태등 */
+.rack-leds {
+  position: absolute;
+  top: 12px; bottom: 12px;
+  right: 9px;
+  width: 5px;
+  background-image: repeating-linear-gradient(180deg,
+    var(--led, #2dd4bf) 0 3px, transparent 3px 22px);
+  opacity: 0.55;
+  animation: led-flicker 3.2s steps(6) infinite;
+}
+/* 활성 랙 — 지금 스캔 중인 데이터가 들어 있는 랙 */
+.rack-glow {
+  position: absolute;
+  inset: -2px;
+  border: 1px solid var(--hot, transparent);
+  opacity: 0;
+  box-shadow: 0 0 22px var(--hot, transparent), inset 0 0 22px rgba(255, 255, 255, 0.05);
+  transition: opacity 0.5s ease;
+}
+.rack.is-hot .rack-glow { opacity: 0.9; }
+
+/* 랙에 붙은 라벨 */
+.rack-tag {
+  position: absolute;
+  left: 10px; top: 12px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
+  background: var(--hot, #334155);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.rack.is-hot .rack-tag { opacity: 1; }
+
+/* ---- 바닥 / 천장 ---- */
+.floor {
+  background-color: #070b12;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(120, 170, 230, 0.11) 0 1px, transparent 1px 120px),
+    repeating-linear-gradient(90deg, rgba(120, 170, 230, 0.11) 0 1px, transparent 1px 120px);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 12%, transparent 62%);
+  mask-image: radial-gradient(ellipse at center, #000 12%, transparent 62%);
+}
+/* 복도 중앙 유도선 */
+.aisle {
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.5;
+}
+/* 천장 조명 바 */
+.ceil-light {
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ffffff, #b9d8ff);
+  box-shadow: 0 0 26px rgba(150, 200, 255, 0.5);
+}
+
+/* ---- 구역 표지 (공간에 떠 있는 대형 타이포) ---- */
+.sign {
+  transform: translate(-50%, -50%);
+  text-align: center;
+  white-space: nowrap;
+}
+.sign-no {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  color: var(--sc);
+  margin-bottom: 14px;
+}
+.sign-word {
+  display: block;
+  /* 월드 크기라 원근으로 줄어든다. 화면에서 크게 읽히려면 크게 잡아야 한다 */
+  font-size: 178px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.42);
+}
+.sign-sub {
+  display: block;
+  margin-top: 14px;
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: rgba(230, 237, 249, 0.5);
+}
+
+/* ---- 게이트 (구역 입구 프레임) ---- */
+.gate {
+  border: 3px solid var(--gc);
+  border-radius: 14px;
+  box-shadow: 0 0 34px var(--gc), inset 0 0 34px rgba(255, 255, 255, 0.05);
+  opacity: 0.55;
+}
+.gate-label {
+  position: absolute;
+  left: 50%;
+  top: -34px;
+  transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--gc);
+  white-space: nowrap;
+}
+.gate-val {
+  position: absolute;
+  left: 50%;
+  bottom: -36px;
+  transform: translateX(-50%);
+  font-size: 21px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 떠다니는 데이터 큐브 ---- */
+.cube-spin { animation: spin-xy 9s linear infinite; }
+
+/* ---- 세션 경로 노드 (클릭스트림) ---- */
+.hop {
+  transform: translate(-50%, -50%);
+  padding: 9px 15px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #f3e8ff;
+  background: rgba(26, 12, 46, 0.86);
+  border: 1px solid var(--c-click);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.35);
+}
+.hop-link {
+  height: 2px;
+  background: repeating-linear-gradient(90deg,
+    var(--c-click) 0 12px, transparent 12px 30px);
+  animation: dash-flow 1.1s linear infinite;
+}
+
+/* ---- 통합 홀 중앙 코어 ---- */
+.pillar {
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(140, 245, 226, 0.8) 20%,
+    rgba(20, 184, 166, 0.9) 52%,
+    rgba(8, 60, 58, 0.98) 100%);
+  box-shadow: 0 0 70px rgba(20, 184, 166, 0.55);
+  animation: pulse 4s ease-in-out infinite;
+}
+.halo {
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--g1) 0%, var(--g2) 44%, transparent 70%);
+}
+.ring {
+  border-radius: 50%;
+  border: 1px solid var(--rc);
+  animation: ring-spin linear infinite;
+}
+
+/* ---- 대시보드 홀 패널 ---- */
+.board {
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(20, 40, 80, 0.08);
+  box-shadow: 0 26px 60px rgba(8, 20, 45, 0.3);
+  padding: 18px 20px;
+  color: #14203a;
+  animation: bob 6.5s ease-in-out infinite;
+}
+.board-h { display: flex; align-items: baseline; justify-content: space-between; }
+.board-h b { font-size: 15px; font-weight: 700; }
+.board-h span { font-size: 11px; color: #7b8aa3; }
+.board-v { margin-top: 8px; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.board-v em { font-style: normal; font-size: 13px; font-weight: 700; color: #0f9d68; margin-left: 7px; }
+.board-bars { margin-top: 12px; display: flex; align-items: flex-end; gap: 6px; height: 62px; }
+.board-bars i { flex: 1; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, #3b82f6, #7c3aed); }
+.board.is-alert { border-color: rgba(244, 63, 94, 0.4); }
+.board.is-alert .board-v { color: var(--c-alert); }
+.board-alert {
+  margin-top: 10px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 11px;
+  border-radius: 9px;
+  background: rgba(244, 63, 94, 0.09);
+}
+.board-alert s {
+  text-decoration: none;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.05em;
+  color: #fff; background: var(--c-alert);
+  padding: 3px 7px; border-radius: 5px;
+}
+.board-alert span { font-size: 11px; font-weight: 600; color: #9f1239; }
+
+/* ============================================================
+   4. 상시 애니메이션
+   ============================================================ */
+@keyframes led-flicker { 0%,100% { opacity: .55 } 20% { opacity: .28 } 45% { opacity: .72 } 70% { opacity: .4 } }
+@keyframes spin-xy { to { transform: rotateY(360deg) rotateX(180deg); } }
+@keyframes dash-flow { to { background-position-x: 30px; } }
+@keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.05) } }
+@keyframes ring-spin { from { transform: rotateX(var(--tilt)) rotateZ(0) } to { transform: rotateX(var(--tilt)) rotateZ(360deg) } }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-14px) } }
+@keyframes blink { 0%,100% { opacity: 1 } 50% { opacity: .2 } }
+
+/* ============================================================
+   5. 고정 UI
+   ============================================================ */
+.nav {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 20;
+  padding: 24px clamp(20px, 3.2vw, 44px);
+  color: var(--ui-fg, rgba(230, 237, 249, 0.92));
+  transition: color 0.5s ease;
+}
+.brand { display: flex; align-items: center; gap: 11px; }
+.brand-mark {
+  width: 15px; height: 15px;
+  border-radius: 4px;
+  background: var(--accent);
+  box-shadow: 0 0 14px var(--accent);
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+.brand-path { font-size: 14px; }
+.brand-path b { font-weight: 800; }
+.brand-path i { font-style: normal; margin: 0 7px; opacity: 0.45; }
+.brand-path em { font-style: normal; font-weight: 600; opacity: 0.75; }
+
+/* ---- 스캐너 HUD ---- */
+.hud {
+  position: fixed;
+  top: 74px;
+  right: clamp(20px, 3.2vw, 44px);
+  z-index: 20;
+  width: 232px;
+  padding: 14px 16px;
+  border-radius: 13px;
+  background: rgba(8, 14, 26, 0.7);
+  border: 1px solid rgba(140, 180, 240, 0.18);
+  color: var(--ui-fg, #e6edf9);
+  transition: color 0.5s ease, background 0.5s ease, border-color 0.5s ease;
+}
+body.is-bright .hud { background: rgba(255, 255, 255, 0.82); border-color: rgba(20, 40, 80, 0.12); }
+
+.hud-row { display: flex; align-items: center; gap: 8px; }
+.hud-led {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: blink 1.5s ease-in-out infinite;
+}
+.hud-mode {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  transition: color 0.6s ease;
+}
+.hud-target {
+  margin-top: 9px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-bar {
+  margin-top: 10px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(140, 180, 240, 0.18);
+  overflow: hidden;
+}
+.hud-bar i { display: block; height: 100%; width: 0%; background: var(--accent); border-radius: 2px; }
+.hud-foot {
+  margin-top: 10px;
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.hud-foot span { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; opacity: 0.5; }
+.hud-foot b { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* ---- 조준 리티클 ---- */
+.reticle {
+  position: fixed;
+  z-index: 15;
+  width: 168px; height: 168px;
+  margin: -84px 0 0 -84px;
+  left: 50%; top: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.reticle svg { width: 100%; height: 100%; display: block; }
+.reticle svg path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: square;
+}
+.reticle-tag {
+  position: absolute;
+  left: 50%; bottom: -26px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ---- 캡션 ---- */
+.overlay { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.caption {
+  position: absolute;
+  left: clamp(20px, 5vw, 76px);
+  bottom: clamp(88px, 15vh, 150px);
+  max-width: 520px;
+}
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 15px;
+  transition: color 0.6s ease;
+}
+.eyebrow.is-dark { color: #2563eb; }
+.caption h1 {
+  font-size: clamp(28px, 3.9vw, 50px);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.035em;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 26px rgba(0, 0, 0, 0.55);
+}
+.caption p {
+  font-size: clamp(13px, 1.2vw, 16px);
+  line-height: 1.76;
+  color: rgba(230, 237, 249, 0.66);
+  text-shadow: 0 1px 16px rgba(0, 0, 0, 0.5);
+}
+
+.finale {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  color: #14203a;
+  padding: 0 24px;
+}
+.finale h1 {
+  font-size: clamp(32px, 5.4vw, 68px);
+  font-weight: 200;
+  line-height: 1.16;
+  letter-spacing: -0.04em;
+}
+.finale h1 strong { font-weight: 800; }
+.finale p { margin-top: 20px; font-size: clamp(13px, 1.4vw, 17px); line-height: 1.8; color: rgba(20, 32, 58, 0.6); }
+
+/* ---- 챕터 ---- */
+.chapters {
+  position: fixed;
+  right: clamp(14px, 1.8vw, 30px);
+  bottom: 96px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-end;
+}
+.chapter {
+  display: flex; align-items: center; gap: 11px;
+  background: none; border: 0; padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ui-fg, #e6edf9);
+}
+.chapter i {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.28;
+  transition: opacity .3s ease, transform .3s ease, background .3s ease;
+}
+.chapter em {
+  order: -1;
+  font-style: normal;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  opacity: 0; transform: translateX(6px);
+  transition: opacity .3s ease, transform .3s ease;
+}
+.chapter:hover em { opacity: .55; transform: translateX(0); }
+.chapter.is-active i { opacity: 1; transform: scale(1.5); background: var(--accent); }
+.chapter.is-active em { opacity: 1; transform: translateX(0); }
+
+/* ---- 재생 컨트롤 ---- */
+.player {
+  position: fixed;
+  left: 50%; bottom: 26px;
+  z-index: 22;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 20px 8px 8px;
+  border-radius: 999px;
+  color: var(--ui-fg, #e6edf9);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: color .5s ease, background .5s ease, border-color .5s ease;
+}
+body.is-bright .player { background: rgba(20, 40, 80, 0.05); border-color: rgba(20, 40, 80, 0.12); }
+
+.play-btn {
+  width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  cursor: pointer;
+  color: #06101f;
+  background: var(--accent);
+  transition: background .6s ease, transform .2s ease;
+}
+.play-btn:hover { transform: scale(1.07); }
+.play-btn svg { width: 21px; height: 21px; fill: currentColor; }
+.play-btn path { display: none; }
+.play-btn[data-mode="play"] .i-play,
+.play-btn[data-mode="pause"] .i-pause,
+.play-btn[data-mode="replay"] .i-replay { display: block; }
+
+.player-time { font-size: 12px; font-weight: 600; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+.player-hint { font-size: 11px; opacity: .45; padding-left: 14px; border-left: 1px solid currentColor; }
+
+.speed { position: relative; flex: none; }
+.speed-btn {
+  padding: 5px 11px; border-radius: 999px;
+  border: 1px solid currentColor; background: none; color: inherit;
+  font-family: inherit; font-size: 12px; font-weight: 700;
+  font-variant-numeric: tabular-nums; cursor: pointer; opacity: .7;
+  transition: opacity .2s ease;
+}
+.speed-btn:hover, .speed-btn[aria-expanded="true"] { opacity: 1; }
+.speed-menu {
+  position: absolute; right: 0; bottom: calc(100% + 26px);
+  min-width: 152px; padding: 6px; border-radius: 14px;
+  background: rgba(9, 15, 28, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .4);
+  display: none; flex-direction: column; gap: 2px;
+}
+.speed-menu.is-open { display: flex; }
+body.is-bright .speed-menu { background: rgba(255,255,255,.97); border-color: rgba(20,40,80,.12); color: #14203a; }
+.speed-menu button {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 18px;
+  padding: 9px 12px; border: 0; border-radius: 9px; background: none; color: inherit;
+  font-family: inherit; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer;
+}
+.speed-menu button:hover { background: rgba(255,255,255,.08); }
+body.is-bright .speed-menu button:hover { background: rgba(20,40,80,.06); }
+.speed-menu button em { font-style: normal; font-size: 11px; font-weight: 500; opacity: .55; font-variant-numeric: tabular-nums; }
+.speed-menu button.is-on { color: var(--accent); }
+
+/* ---- 진행바 ---- */
+.progress-track {
+  position: fixed; top: 0; left: 0;
+  z-index: 21;
+  width: 100%; height: 3px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.09);
+  transition: height .2s ease;
+}
+body.is-bright .progress-track { background: rgba(20, 40, 80, 0.1); }
+.progress-track::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 14px; }
+.progress-track:hover { height: 6px; }
+.progress-fill { width: 0%; height: 100%; background: var(--accent); transition: background .6s ease; }
+
+/* ============================================================
+   6. 반응형 / 접근성
+   ============================================================ */
+@media (max-width: 900px) {
+  #viewport { perspective: 680px; }
+  .hud { width: 176px; padding: 11px 13px; top: 66px; }
+  .hud-target { font-size: 13px; }
+  .player-hint { display: none; }
+  .chapters { display: none; }
+  .reticle { width: 118px; height: 118px; margin: -59px 0 0 -59px; }
+  .sign-word { font-size: 60px; }
+  .sign-no { font-size: 13px; letter-spacing: .38em; }
+  .sign-sub { font-size: 13px; }
+  .caption { bottom: 92px; right: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .place * { animation: none !important; }
+}

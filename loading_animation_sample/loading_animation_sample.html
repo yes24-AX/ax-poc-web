@@ -1,0 +1,2160 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI &#xB3C4;&#xC11C; &#xC0C1;&#xD488; &#xBE44;&#xAD50; POC - AX Labs</title>
+    <link rel="icon" type="image/png" href="https://image.yes24.com/sysimage/renew/gnb/ax-logo.png" />
+    <link rel="stylesheet" href="./css/themes.css?v=-FSedF8na-DwWhiD4FSjv0Mc2sRQ_PKrpbnhw3qIVDs" />
+    <link rel="stylesheet" href="./css/paperlogy/paperlogy.css?v=W3zlwRvqPOUL6nTN-9uqD6D-t6eHBpCyTsN8C7KjYM8" />
+    <link rel="stylesheet" href="./css/suit/suit.css?v=W28iH3CIwBy9lB5oVbMmTCZtDEnhnITXfdZ31RntrnE" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="./css/spoqa/spoqa.css?v=OV3cvPbPzZ_C850ruuNbRsvRmR8-IkSdXVYqD13X5Fo" />
+    <link rel="stylesheet" href="./css/HappinessSans/happiness-sans.css?v=x--JkjMUuVGJHyM2GYHwPt-mjqynfg7hltioPNwPheQ" />
+    <link rel="stylesheet" href="./css/dashboard.css?v=ea-cbfwX1cG6TyCLXN7aQUXIuvdNwkBLIf-6dYd9Ptw" />
+    
+    <script>
+        // Apply saved theme + dark mode + font before paint to prevent flash
+        (function () {
+            var theme = localStorage.getItem('ax-theme') || 'vercel';
+            var dark  = localStorage.getItem('ax-dark') === 'true';
+            var font  = localStorage.getItem('ax-font') || 'paperlogy';
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-font', font);
+            if (dark) document.documentElement.classList.add('dark');
+        })();
+    </script>
+</head>
+<body>
+
+<!-- Mobile Sidebar Overlay -->
+<div b-7ip56yjyzr class="sidebar-backdrop" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+<div b-7ip56yjyzr class="app-layout">
+
+    <!-- ===================== SIDEBAR ===================== -->
+    <nav b-7ip56yjyzr class="sidebar" id="sidebar" role="navigation" aria-label="주 메뉴">
+        
+        <!-- Sidebar Header / Brand -->
+        <div b-7ip56yjyzr class="sidebar-header">
+            <a b-7ip56yjyzr href="/Home" class="sidebar-header-link">
+                    <div b-7ip56yjyzr class="sidebar-logo-img"><img b-7ip56yjyzr src="https://image.yes24.com/sysimage/renew/gnb/ax-logo.png" alt="AX" /></div>
+                <span b-7ip56yjyzr class="sidebar-brand">Labs</span>
+            </a>       
+        </div>
+
+        <!-- Sidebar Content / Navigation -->
+        <div b-7ip56yjyzr class="sidebar-content">
+
+            <!-- Group: 요구사항 관리 -->
+            <div b-7ip56yjyzr class="sidebar-group">
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Requirement"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline b-7ip56yjyzr points="14 2 14 8 20 8"/>
+                                <line b-7ip56yjyzr x1="16" y1="13" x2="8" y2="13"/>
+                                <line b-7ip56yjyzr x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline b-7ip56yjyzr points="10 9 9 9 8 9"/>
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">AX 요구사항 관리</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/AiLog"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.57-3.25 3.92L12 10v2"/>
+                                <circle b-7ip56yjyzr cx="12" cy="16" r="2"/>
+                                <path b-7ip56yjyzr d="M12 18v2"/>
+                                <path b-7ip56yjyzr d="M6 12H4a8 8 0 0 0 16 0h-2"/>
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">AI 호출 로그</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: Overview -->
+            <div b-7ip56yjyzr class="sidebar-group">
+
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Home"
+                           class="nav-item-btn ">
+                            <!-- Dashboard icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect b-7ip56yjyzr x="3" y="3" width="7" height="7"/><rect b-7ip56yjyzr x="14" y="3" width="7" height="7"/>
+                                <rect b-7ip56yjyzr x="14" y="14" width="7" height="7"/><rect b-7ip56yjyzr x="3" y="14" width="7" height="7"/>
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">자동화 현황</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/DummyData"
+                            class="nav-item-btn ">
+                            <!-- Database/table icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse b-7ip56yjyzr cx="12" cy="5" rx="9" ry="3" />
+                                <path b-7ip56yjyzr d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                <path b-7ip56yjyzr d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">더미 데이터 생성기</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: 앱스토어 관리 -->
+            <div b-7ip56yjyzr class="sidebar-group">
+                <div b-7ip56yjyzr class="sidebar-group-label">앱스토어 관리</div>
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/AppStore/Reviews"
+                           class="nav-item-btn ">
+                            <!-- Reviews icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z" />
+                                <path b-7ip56yjyzr d="M8 8h8" />
+                                <path b-7ip56yjyzr d="M8 12h6" />
+                                <path b-7ip56yjyzr d="m16 9 1 1 2-2" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">앱 리뷰관리</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/AppStore/Downloads"
+                           class="nav-item-btn ">
+                            <!-- Download icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M12 2v13" />
+                                <path b-7ip56yjyzr d="m8 11 4 4 4-4" />
+                                <path b-7ip56yjyzr d="M3 17v1a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">앱 다운로드 현황</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: 어드민 도구 -->
+            <div b-7ip56yjyzr class="sidebar-group">
+                <div b-7ip56yjyzr class="sidebar-group-label">어드민 도구</div>
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Admin/CryptoTool"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect b-7ip56yjyzr x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path b-7ip56yjyzr d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">암복호화 도구</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: GA4 데이터허브 -->
+            <div b-7ip56yjyzr class="sidebar-group">
+                <div b-7ip56yjyzr class="sidebar-group-label">GA4 데이터허브</div>
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Ga4/Reports"
+                           class="nav-item-btn ">
+                            <!-- Chart/analytics icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M3 3v18h18" />
+                                <path b-7ip56yjyzr d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">리포트 조회</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Ga4/Analysis"
+                           class="nav-item-btn ">
+                            <!-- Analysis/pie icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+                                <path b-7ip56yjyzr d="M22 12A10 10 0 0 0 12 2v10z" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">심층 분석</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Ga4/Operations"
+                           class="nav-item-btn ">
+                            <!-- Monitoring/activity icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">운영 모니터링</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: AI PoC -->
+            <div b-7ip56yjyzr class="sidebar-group">
+                <div b-7ip56yjyzr class="sidebar-group-label">AI PoC</div>
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                            <a b-7ip56yjyzr href="/Contents/ContentPackage"
+                          class="nav-item-btn ">
+                            <!-- Content package icon -->
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                <path b-7ip56yjyzr d="m3.3 7 8.7 5 8.7-5" />
+                                <path b-7ip56yjyzr d="M12 22V12" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">콘텐츠 패키지 생성</span>
+                       </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                       <a b-7ip56yjyzr href="/Contents/Compare"
+                          class="nav-item-btn active">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M18 20V10"/><path b-7ip56yjyzr d="M12 20V4"/><path b-7ip56yjyzr d="M6 20v-6"/>
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">AI 상품 비교</span>
+                       </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                       <a b-7ip56yjyzr href="/Contents/ReviewTagExtraction"
+                          class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+                                <line b-7ip56yjyzr x1="7" y1="7" x2="7.01" y2="7"/>
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">AI 리뷰 태그 추출</span>
+                       </a>
+                    </li>
+                </ul>
+            </div>
+      
+            <div b-7ip56yjyzr class="sidebar-group">
+                <div b-7ip56yjyzr class="sidebar-group-label">Prompt Hub</div>
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Prompt/Library"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle b-7ip56yjyzr cx="11" cy="11" r="7" />
+                                <path b-7ip56yjyzr d="m21 21-4.35-4.35" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">프롬프트 라이브러리</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/Prompt/MyPrompts"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2z" />
+                                <path b-7ip56yjyzr d="M9 14h6" />
+                                <path b-7ip56yjyzr d="M9 10h3" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">나의 프롬프트</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div b-7ip56yjyzr class="sidebar-group">
+                <div b-7ip56yjyzr class="sidebar-group-label">주간업무보고</div>
+                <ul b-7ip56yjyzr class="sidebar-menu">
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/WeeklyReport/Status"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M9 12l2 2 4-4" />
+                                <path b-7ip56yjyzr d="M8 3v4" />
+                                <path b-7ip56yjyzr d="M16 3v4" />
+                                <rect b-7ip56yjyzr x="3" y="5" width="18" height="16" rx="2" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">등록현황</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/WeeklyReport/Files"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M3 7a2 2 0 0 1 2-2h3l2 2h9a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                                <path b-7ip56yjyzr d="M9 13h6" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">파일관리</span>
+                        </a>
+                    </li>
+                    <li b-7ip56yjyzr class="nav-item">
+                        <a b-7ip56yjyzr href="/WeeklyReport/Tasks"
+                           class="nav-item-btn ">
+                            <svg b-7ip56yjyzr class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path b-7ip56yjyzr d="M8 2v4" />
+                                <path b-7ip56yjyzr d="M16 2v4" />
+                                <rect b-7ip56yjyzr x="3" y="4" width="18" height="18" rx="2" />
+                                <path b-7ip56yjyzr d="M3 10h18" />
+                                <path b-7ip56yjyzr d="M9 14h6" />
+                            </svg>
+                            <span b-7ip56yjyzr class="nav-item-text">주간업무조회</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Group: Account -->
+
+        </div><!-- /sidebar-content -->
+
+        <!-- Sidebar Footer / User -->
+        <div b-7ip56yjyzr class="sidebar-footer">
+            <div b-7ip56yjyzr class="user-btn">
+                <div b-7ip56yjyzr class="user-avatar">
+                    <img b-7ip56yjyzr src="https://image.yes24.com/sysimage/renew/gnb/ax-logo.png" alt="AX" />
+                </div>
+                <div b-7ip56yjyzr class="user-info">
+                    <div b-7ip56yjyzr class="user-name">&#xAD00;&#xB9AC;&#xC790;(&#xAC1C;&#xBC1C;&#xD658;&#xACBD;)</div>
+                        <div b-7ip56yjyzr class="text-xs text-muted">&#xAD00;&#xB9AC;&#xC790;</div>
+                    <div b-7ip56yjyzr class="user-email">admin</div>
+                </div>
+                <form method="post" action="/Login/Logout">
+                    
+                    <button b-7ip56yjyzr class="btn" type="submit" title="로그아웃" aria-label="로그아웃">
+                        <svg b-7ip56yjyzr width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path b-7ip56yjyzr d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline b-7ip56yjyzr points="16 17 21 12 16 7"/>
+                            <line b-7ip56yjyzr x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                    </button>
+                <input name="__RequestVerificationToken" type="hidden" value="CfDJ8JMWG2v1TbNAj19T9NZiLcP7QX3dN3UptaskVd5Dtbw5mHUAel9cpcIn8f_YFhzoU3TYMfrIsdw2dCmTLRp7D56qQlumQNkLP1pjxSaaPkeJBD0h3IqheFM09hkIeKDC_xzZX5KVFSkNWQsflAKIT5UvZ2EcNQfX6L7eGTdZgMg89nnzykfLciI3W9xzLeHGZA" /></form>
+            </div>
+        </div>
+    </nav><!-- /sidebar -->
+
+    <!-- ===================== MAIN AREA ===================== -->
+    <div b-7ip56yjyzr class="main-wrapper">
+
+        <!-- App Header -->
+        <header b-7ip56yjyzr class="top-header" id="top-header">
+            <!-- Sidebar Toggle: btn btn-icon btn-outline btn-sm (site1 기준) -->
+            <button b-7ip56yjyzr class="btn btn-icon btn-outline btn-sm" id="sidebar-toggle" onclick="App.toggleSidebar()" title="사이드바 토글" aria-label="사이드바 토글">
+                <svg b-7ip56yjyzr width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect b-7ip56yjyzr x="3" y="3" width="18" height="18" rx="2"/><path b-7ip56yjyzr d="M9 3v18"/>
+                </svg>
+            </button>
+            <div b-7ip56yjyzr class="header-separator"></div>
+            <!-- Breadcrumb: div + span 구조 (site1 기준) -->
+            <div b-7ip56yjyzr class="header-breadcrumb">
+                    <span b-7ip56yjyzr class="header-breadcrumb-group">AI PoC</span>
+                    <span b-7ip56yjyzr class="header-breadcrumb-sep">
+                        <svg b-7ip56yjyzr width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline b-7ip56yjyzr points="9 18 15 12 9 6"/>
+                        </svg>
+                    </span>
+                    <span b-7ip56yjyzr class="header-breadcrumb-current">AI &#xB3C4;&#xC11C; &#xC0C1;&#xD488; &#xBE44;&#xAD50; POC</span>
+            </div>
+
+            <!-- Spacer -->
+            <div b-7ip56yjyzr class="header-spacer"></div>
+
+            <!-- Header Actions: Theme / Font / Dark Mode -->
+            <div b-7ip56yjyzr class="header-actions">
+                <!-- Search -->
+
+                <!-- ===== THEME SELECTOR ===== -->
+                <div b-7ip56yjyzr class="theme-selector-wrap" id="themeSelectorWrap">
+                    <button b-7ip56yjyzr class="theme-selector-btn" id="themeSelectorBtn"
+                            onclick="toggleThemeMenu(event)" title="테마 선택" aria-label="테마 선택" aria-haspopup="listbox" aria-expanded="false">
+                        <!-- Palette icon -->
+                        <svg b-7ip56yjyzr width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle b-7ip56yjyzr cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+                            <circle b-7ip56yjyzr cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+                            <circle b-7ip56yjyzr cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+                            <circle b-7ip56yjyzr cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+                            <path b-7ip56yjyzr d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+                        </svg>
+                        <span b-7ip56yjyzr class="theme-selector-label" id="themeSelectorLabel">Vercel</span>
+                        <svg b-7ip56yjyzr width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline b-7ip56yjyzr points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+
+                    <div b-7ip56yjyzr class="theme-dropdown" id="themeDropdown" role="listbox" aria-label="테마 선택">
+                        <div b-7ip56yjyzr class="theme-dropdown-label">테마 선택</div>
+                        <div b-7ip56yjyzr class="theme-dropdown-items" id="themeDropdownItems">
+                            <!-- items injected by JS -->
+                        </div>
+                    </div>
+                </div>
+                <!-- ===== /THEME SELECTOR ===== -->
+
+                <!-- ===== FONT SELECTOR ===== -->
+                <div b-7ip56yjyzr class="font-selector-wrap" id="fontSelectorWrap">
+                    <button b-7ip56yjyzr class="font-selector-btn" id="fontSelectorBtn"
+                            onclick="toggleFontMenu(event)" title="폰트 선택" aria-label="폰트 선택" aria-haspopup="listbox" aria-expanded="false">
+                        <svg b-7ip56yjyzr width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path b-7ip56yjyzr d="M4 20h16"/>
+                            <path b-7ip56yjyzr d="M6 16l6-12 6 12"/>
+                            <path b-7ip56yjyzr d="M8.5 11h7"/>
+                        </svg>
+                        <span b-7ip56yjyzr class="font-selector-label" id="fontSelectorLabel">Paperlogy</span>
+                        <svg b-7ip56yjyzr width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline b-7ip56yjyzr points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+
+                    <div b-7ip56yjyzr class="font-dropdown" id="fontDropdown" role="listbox" aria-label="폰트 선택">
+                        <div b-7ip56yjyzr class="font-dropdown-label">폰트 선택</div>
+                        <div b-7ip56yjyzr class="font-dropdown-items" id="fontDropdownItems">
+                            <!-- items injected by JS -->
+                        </div>
+                    </div>
+                </div>
+                <!-- ===== /FONT SELECTOR ===== -->
+
+                <!-- Dark Mode Toggle -->
+                <button b-7ip56yjyzr class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+                    <svg b-7ip56yjyzr id="iconMoon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path b-7ip56yjyzr d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <svg b-7ip56yjyzr id="iconSun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                        <circle b-7ip56yjyzr cx="12" cy="12" r="5"/><line b-7ip56yjyzr x1="12" y1="1" x2="12" y2="3"/>
+                        <line b-7ip56yjyzr x1="12" y1="21" x2="12" y2="23"/><line b-7ip56yjyzr x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line b-7ip56yjyzr x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line b-7ip56yjyzr x1="1" y1="12" x2="3" y2="12"/>
+                        <line b-7ip56yjyzr x1="21" y1="12" x2="23" y2="12"/><line b-7ip56yjyzr x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line b-7ip56yjyzr x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </button>
+            </div>
+        </header><!-- /top-header -->
+
+        <!-- Page Body -->
+        <main b-7ip56yjyzr class="page-content" role="main">
+                <div b-7ip56yjyzr class="page-heading">
+                    <div b-7ip56yjyzr>
+                        <h1 b-7ip56yjyzr class="page-title">AI &#xB3C4;&#xC11C; &#xC0C1;&#xD488; &#xBE44;&#xAD50; POC</h1>
+                            <p b-7ip56yjyzr class="page-subtitle">&#xC0C1;&#xD488;&#xBC88;&#xD638; 2&#xAC1C;&#xB97C; &#xC785;&#xB825;&#xD558;&#xBA74; YES24 &#xC0C1;&#xD488; &#xC815;&#xBCF4;&#xB97C; &#xC870;&#xD68C;&#xD558;&#xACE0;, AI&#xAC00; &#xB3C5;&#xC790; &#xAD00;&#xC810;&#xC758; &#xBE44;&#xAD50; &#xC790;&#xB8CC;&#xB97C; &#xC0DD;&#xC131;&#xD569;&#xB2C8;&#xB2E4;.</p>
+                    </div>
+                    
+                </div>
+            
+<style>
+/* ─── Compare Page Styles ─── */
+.cmp-input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.cmp-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.cmp-input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.cmp-input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.cmp-btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 8px;
+}
+.cmp-error {
+    color: var(--color-destructive, #e53e3e);
+    font-size: 13px;
+    margin-top: 4px;
+    display: none;
+}
+/* Product card grid */
+.cmp-product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.cmp-product-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--card-bg, var(--bg-secondary));
+}
+.cmp-product-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary-subtle, rgba(var(--primary-rgb,59,130,246),.1));
+    color: var(--primary, #3b82f6);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    width: fit-content;
+}
+.cmp-product-cover {
+    width: 80px;
+    height: 108px;
+    background: var(--bg-muted, #f3f4f6);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.cmp-product-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.cmp-product-header {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+.cmp-product-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+}
+.cmp-product-author {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0 0 8px;
+}
+.cmp-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.cmp-tag {
+    background: var(--bg-muted, #f3f4f6);
+    color: var(--text-secondary);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+.cmp-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+}
+.cmp-pill {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--bg-muted, #f3f4f6);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+.cmp-pill.price {
+    background: var(--success-subtle, rgba(34,197,94,.1));
+    color: var(--success, #16a34a);
+    border-color: transparent;
+}
+.cmp-pill.rating {
+    background: var(--warning-subtle, rgba(234,179,8,.1));
+    color: var(--warning, #ca8a04);
+    border-color: transparent;
+}
+/* Compare table */
+.cmp-table-wrap {
+    overflow-x: auto;
+}
+.cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.cmp-table th, .cmp-table td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+}
+.cmp-table th {
+    background: var(--bg-muted, #f3f4f6);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: left;
+    white-space: nowrap;
+}
+.cmp-table td:first-child {
+    font-weight: 600;
+    color: var(--text-muted);
+    width: 120px;
+}
+.cmp-table tr:hover td {
+    background: var(--bg-hover, rgba(0,0,0,.02));
+}
+/* Section title */
+.cmp-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.cmp-section-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--primary-subtle, rgba(59,130,246,.1));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* One-line summaries */
+.cmp-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.cmp-summary-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 16px;
+    background: var(--bg-secondary);
+}
+.cmp-summary-card .book-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary, #3b82f6);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.cmp-summary-card .book-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+}
+.cmp-summary-card .book-summary {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+/* Key differences */
+.cmp-diff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.cmp-diff-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    overflow: hidden;
+}
+.cmp-diff-title {
+    background: var(--bg-muted, #f3f4f6);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+}
+.cmp-diff-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.cmp-diff-col {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+.cmp-diff-col:first-child {
+    border-right: 1px solid var(--border);
+}
+.cmp-diff-col .col-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary, #3b82f6);
+    margin-bottom: 4px;
+}
+/* Reader recommendations */
+.cmp-rec-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cmp-rec-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+    background: var(--bg-secondary);
+}
+.cmp-rec-reader {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+.cmp-rec-reason {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+.cmp-rec-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: var(--primary-subtle, rgba(59,130,246,.1));
+    color: var(--primary, #3b82f6);
+    white-space: nowrap;
+    text-align: right;
+}
+/* Purchase comment */
+.cmp-comment-box {
+    border-left: 3px solid var(--primary, #3b82f6);
+    padding: 14px 18px;
+    background: var(--bg-secondary);
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+/* JSON block */
+.cmp-json-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    padding: 10px 0;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+}
+.cmp-json-toggle:hover { color: var(--text-primary); }
+.cmp-json-toggle svg { transition: transform .2s; }
+.cmp-json-toggle.open svg { transform: rotate(180deg); }
+.cmp-json-pre {
+    background: var(--bg-muted, #f8f9fa);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 12px;
+    font-family: var(--font-mono, monospace);
+    color: var(--text-secondary);
+    overflow-x: auto;
+    white-space: pre;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+}
+/* Loading skeleton */
+.cmp-skeleton {
+    background: linear-gradient(90deg, var(--bg-muted,#f3f4f6) 25%, var(--border) 37%, var(--bg-muted,#f3f4f6) 63%);
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+    border-radius: 4px;
+    height: 14px;
+    margin-bottom: 8px;
+}
+@keyframes skeleton-shimmer {
+    0%   { background-position: 100% 50%; }
+    100% { background-position: 0%   50%; }
+}
+/* Loading overlay */
+.cmp-loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.cmp-loading-frame {
+    width: 100%;
+    max-width: 260px;
+    height: 180px;
+    border: 0 !important;
+    outline: none;
+    box-shadow: none;
+    display: block;
+    background: transparent;
+    overflow: hidden;
+}
+
+/* Button AI sparkle spinner */
+@keyframes ai-sparkle {
+    0%,100% { transform: scale(1)    rotate(0deg);   opacity: 1;    }
+    25%      { transform: scale(1.3)  rotate(22deg);  opacity: 0.75; }
+    50%      { transform: scale(0.85) rotate(0deg);   opacity: 1;    }
+    75%      { transform: scale(1.25) rotate(-18deg); opacity: 0.8;  }
+}
+@keyframes ai-dot-blink {
+    0%,100% { opacity: 0.7; transform: scale(1);   }
+    50%      { opacity: 0.2; transform: scale(0.5); }
+}
+.btn-spinner {
+    animation: ai-sparkle 1.5s ease-in-out infinite;
+    transform-origin: center;
+}
+.btn-spinner-dot {
+    animation: ai-dot-blink 1.5s ease-in-out infinite 0.75s;
+    transform-origin: 20px 5px;
+}
+.btn-loader-frame {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    border: 0 !important;
+    outline: none;
+    box-shadow: none;
+    display: block;
+    background: transparent;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Main diff summary banner */
+.cmp-main-diff {
+    background: var(--primary-subtle, rgba(59,130,246,.08));
+    border: 1px solid var(--primary-subtle, rgba(59,130,246,.2));
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary, #3b82f6);
+    line-height: 1.6;
+}
+
+/* ─── Review Comparison ─── */
+.rv-cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.rv-cmp-col { display: flex; flex-direction: column; gap: 10px; }
+.rv-cmp-col-header {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary, #3b82f6);
+    padding: 4px 10px;
+    background: var(--primary-subtle, rgba(59,130,246,.1));
+    border-radius: 12px;
+    width: fit-content;
+    margin-bottom: 4px;
+}
+.rv-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+}
+.rv-stat-item:last-child { border-bottom: none; }
+.rv-stat-label { color: var(--text-muted); }
+.rv-stat-value { font-weight: 700; color: var(--text-primary); }
+.rv-insufficient-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--warning-subtle, rgba(234,179,8,.1));
+    color: var(--warning, #ca8a04);
+}
+.rv-sentiment-block { margin-top: 12px; }
+.rv-sentiment-title { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+.rv-bar-row { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
+.rv-bar-label { width: 30px; color: var(--text-muted); font-weight: 600; }
+.rv-bar-bg { flex: 1; height: 8px; background: var(--bg-muted, #f3f4f6); border-radius: 4px; overflow: hidden; }
+.rv-bar-fill { height: 100%; border-radius: 4px; }
+.rv-bar-fill.positive { background: var(--success, #16a34a); }
+.rv-bar-fill.neutral  { background: var(--warning, #ca8a04); }
+.rv-bar-fill.negative { background: var(--color-destructive, #e53e3e); }
+.rv-bar-pct { width: 28px; text-align: right; color: var(--text-muted); font-weight: 600; }
+.rv-tags-list { display: flex; flex-direction: column; gap: 6px; }
+.rv-tag-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+}
+.rv-tag-score { font-size: 12px; font-weight: 800; color: var(--primary, #3b82f6); min-width: 24px; }
+.rv-tag-name { font-size: 12px; font-weight: 700; }
+.rv-tag-name.positive { color: var(--success, #16a34a); }
+.rv-tag-name.neutral  { color: var(--warning, #ca8a04); }
+.rv-tag-name.negative { color: var(--color-destructive, #e53e3e); }
+.rv-no-data {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 20px 0;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+}
+.rv-kw-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+}
+.rv-kw-row:last-child { border-bottom: none; }
+.rv-kw-word { width: 68px; font-weight: 600; color: var(--text-primary); }
+.rv-kw-bar-bg { flex: 1; height: 8px; background: var(--bg-muted, #f3f4f6); border-radius: 4px; overflow: hidden; }
+.rv-kw-bar-fill { height: 100%; border-radius: 4px; }
+.rv-kw-bar-fill.positive { background: var(--primary, #3b82f6); }
+.rv-kw-bar-fill.neutral  { background: var(--text-muted); }
+.rv-kw-bar-fill.negative { background: var(--color-destructive, #e53e3e); }
+.rv-kw-count { width: 36px; text-align: right; color: var(--text-muted); font-weight: 600; }
+.rv-ai-comment {
+    border-left: 3px solid var(--success, #16a34a);
+    padding: 14px 18px;
+    background: var(--bg-secondary);
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+.rv-sub-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.rv-sub-section:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.rv-sub-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+@media (max-width: 640px) {
+    .cmp-input-grid { grid-template-columns: 1fr; }
+    .cmp-product-grid { grid-template-columns: 1fr; }
+    .cmp-summary-grid { grid-template-columns: 1fr; }
+    .cmp-diff-cols { grid-template-columns: 1fr; }
+    .cmp-diff-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .cmp-rec-item { grid-template-columns: 1fr; }
+    .rv-cmp-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+
+<!-- ─── INPUT CARD ─── -->
+<div class="card mb-6" id="inputCard">
+    <div class="card-header">
+        <h3 class="card-title">상품 입력</h3>
+        <p class="card-description">비교할 상품번호 2개를 입력하세요.</p>
+    </div>
+    <div class="card-content" style="padding-top:0;">
+        <div class="cmp-input-grid">
+            <div class="cmp-input-group">
+                <label for="productNo1">상품번호 1</label>
+                <input type="text" id="productNo1" class="poc-input" placeholder="예: 164510819" maxlength="20"
+                       onkeydown="if(event.key==='Enter') startCompare()" />
+            </div>
+            <div class="cmp-input-group">
+                <label for="productNo2">상품번호 2</label>
+                <input type="text" id="productNo2" class="poc-input" placeholder="예: 187536745" maxlength="20"
+                       onkeydown="if(event.key==='Enter') startCompare()" />
+            </div>
+        </div>
+        <div class="cmp-btn-row">
+            <button class="btn btn-primary" id="compareBtn" onclick="startCompare('stream')">
+                <svg id="compareBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                    <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+                </svg>
+                <iframe id="compareBtnSpinner" class="btn-loader-frame" src="ai_button_loader.html" title="로딩 중" aria-hidden="true" scrolling="no" style="display:none;"></iframe>
+                비교하기
+            </button>
+            <button class="btn btn-ghost" onclick="loadSample()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                    <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                </svg>
+                샘플 불러오기
+            </button>
+            <button class="btn btn-ghost" id="resetBtn" style="display:none;" onclick="resetCompare()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                    <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                </svg>
+                초기화
+            </button>
+            <button class="btn btn-ghost" id="progressBtn" onclick="startCompare('progress')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                    <path d="M4 12h16"/><path d="M12 4v16"/>
+                </svg>
+                progress
+            </button>
+            <button class="btn btn-ghost" id="thinkingBtn" onclick="startCompare('thinking')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                    <path d="M12 4a8 8 0 100 16"/><path d="M12 8v4l3 2"/>
+                </svg>
+                thinking
+            </button>
+        </div>
+        <p id="inputError" class="cmp-error"></p>
+    </div>
+</div>
+
+<!-- ─── RESULTS ─── -->
+<div id="resultsSection" style="display:none;">
+
+    <!-- Loading -->
+    <div id="loadingSection" style="display:none;">
+        <div class="card mb-4">
+            <div class="card-content">
+                <div class="cmp-loading-overlay">
+                    <iframe class="cmp-loading-frame" id="loadingFrame" src="loading_stream.html" title="AI 분석 로딩" loading="eager" scrolling="no" frameborder="0"></iframe>
+                    <span id="loadingText">상품 정보를 조회하는 중...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorSection" style="display:none;">
+        <div class="card mb-4">
+            <div class="card-content" style="padding:32px 24px;">
+                <p id="errorMessage" style="color:var(--color-destructive,#e53e3e); font-size:14px; text-align:center;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div id="contentSection" style="display:none;">
+
+        <!-- 1. 상품 기본 정보 카드 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                        </svg>
+                    </div>
+                    상품 기본 정보
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <div class="cmp-product-grid" id="productCardsGrid"></div>
+            </div>
+        </div>
+
+        <!-- 2. 기본 정보 비교 테이블 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                        </svg>
+                    </div>
+                    기본 정보 비교
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <div class="cmp-table-wrap">
+                    <table class="cmp-table" id="compareTable">
+                        <thead>
+                            <tr>
+                                <th>항목</th>
+                                <th id="tableHeader1"></th>
+                                <th id="tableHeader2"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="compareTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. AI 한 줄 요약 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+                        </svg>
+                    </div>
+                    AI 한 줄 요약
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <div class="cmp-summary-grid" id="oneLineSummaryGrid"></div>
+            </div>
+        </div>
+
+        <!-- 4. 핵심 차이점 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <path d="M8 3H5a2 2 0 00-2 2v3"/><path d="M21 8V5a2 2 0 00-2-2h-3"/><path d="M3 16v3a2 2 0 002 2h3"/><path d="M16 21h3a2 2 0 002-2v-3"/>
+                        </svg>
+                    </div>
+                    핵심 차이점
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <div class="cmp-diff-list" id="keyDiffList"></div>
+            </div>
+        </div>
+
+        <!-- 5. 독자 성향별 추천 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+                        </svg>
+                    </div>
+                    독자 성향별 추천
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <div class="cmp-rec-list" id="readerRecList"></div>
+            </div>
+        </div>
+
+        <!-- 6. 구매 의사결정용 AI 코멘트 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                        </svg>
+                    </div>
+                    구매 의사결정용 AI 코멘트
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <div class="cmp-comment-box" id="purchaseCommentBox"></div>
+            </div>
+        </div>
+
+        <!-- 7. 리뷰 현황 비교 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                        </svg>
+                    </div>
+                    리뷰 현황 비교
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <!-- 리뷰 통계 + 감성 비율 -->
+                <div class="rv-sub-section">
+                    <div class="rv-sub-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                        리뷰 통계 및 감성 분포
+                    </div>
+                    <div class="rv-cmp-grid" id="reviewStatsCompareGrid"></div>
+                </div>
+                <!-- 자주 언급된 키워드 비교 -->
+                <div class="rv-sub-section">
+                    <div class="rv-sub-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        자주 언급된 키워드
+                    </div>
+                    <div class="rv-cmp-grid" id="reviewKeywordsCompareGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. 리뷰 태그 비교 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+                            <line x1="7" y1="7" x2="7.01" y2="7"/>
+                        </svg>
+                    </div>
+                    리뷰 태그 비교
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <div class="rv-cmp-grid" id="reviewTagsCompareGrid"></div>
+            </div>
+        </div>
+
+        <!-- 9. AI 리뷰 종합 비교 의견 -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="cmp-section-title">
+                    <div class="cmp-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--primary,#3b82f6);">
+                            <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+                        </svg>
+                    </div>
+                    AI 리뷰 종합 비교 의견
+                </div>
+            </div>
+            <div class="card-content" style="padding-top:0; display:flex; flex-direction:column; gap:14px;">
+                <div id="rvAiCountComment"></div>
+                <div id="rvAiSentimentComment"></div>
+                <div id="rvAiTagComment"></div>
+                <div class="rv-ai-comment" id="rvAiOverallComment"></div>
+            </div>
+        </div>
+
+        <!-- 10. JSON 결과 보기 -->
+        <div class="card mb-4">
+            <div class="card-header card-header-flush">
+                <button class="cmp-json-toggle" id="jsonToggleBtn" onclick="toggleJson()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                    JSON 결과 보기
+                </button>
+            </div>
+            <div class="card-content" style="padding-top:0;">
+                <pre class="cmp-json-pre" id="jsonResultPre"></pre>
+            </div>
+        </div>
+
+    </div><!-- /contentSection -->
+</div><!-- /resultsSection -->
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// Mock API functions — replace with real API calls when available
+// ════════════════════════════════════════════════════════════════════
+
+/**
+ * Fetches product info by product number.
+ * TODO: Replace with real YES24 product API call.
+ * @param {string} productNo
+ * @returns {Promise<Object>}
+ */
+async function fetchProductInfo(productNo) {
+    await delay(600);
+    return MOCK_PRODUCTS[productNo] ?? null;
+}
+
+/**
+ * Generates AI comparison result for two products.
+ * TODO: Replace with real AI comparison API call.
+ * @param {Object} product1
+ * @param {Object} product2
+ * @returns {Promise<Object>}
+ */
+async function generateAiComparison(product1, product2) {
+    await delay(900);
+    if (product1.id === '164510819' && product2.id === '187536745') {
+        return MOCK_AI_RESULT;
+    }
+    if (product2.id === '164510819' && product1.id === '187536745') {
+        return MOCK_AI_RESULT;
+    }
+    return buildGenericComparison(product1, product2);
+}
+
+/**
+ * Fetches review summary data for a product.
+ * TODO: Replace with real YES24 review API call.
+ * @param {string} productNo
+ * @returns {Promise<Object>}
+ */
+async function fetchReviewData(productNo) {
+    await delay(400);
+    return MOCK_REVIEW_DATA[productNo] ?? {
+        productId: productNo,
+        totalReviewCount: 0,
+        analyzedReviewCount: 0,
+        averageRating: null,
+        sufficientForAnalysis: false,
+        sentimentRatio: { positive: 0, neutral: 0, negative: 0 },
+        extractedTags: [],
+        frequentKeywords: []
+    };
+}
+
+/**
+ * Generates AI review comparison result for two products.
+ * TODO: Replace with real AI review comparison API call.
+ * @param {Object} review1
+ * @param {Object} review2
+ * @param {Object} product1
+ * @param {Object} product2
+ * @returns {Promise<Object>}
+ */
+async function generateAiReviewComparison(review1, review2, product1, product2) {
+    await delay(700);
+    const key = [product1.id, product2.id].sort().join('-');
+    return MOCK_AI_REVIEW_COMPARISON[key] ?? buildGenericReviewComparison(review1, review2, product1, product2);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Mock data
+// ════════════════════════════════════════════════════════════════════
+
+const MOCK_PRODUCTS = {
+    '164510819': {
+        id: '164510819',
+        title: '괴테는 모든 것을 말했다',
+        author: '스즈키 유이',
+        translator: '이지수',
+        publisher: '리프',
+        publishDate: '2025년 11월 18일',
+        originalTitle: 'ゲ-テはすべてを言った',
+        category: '일본 장편소설',
+        listPrice: 17000,
+        salePrice: 15300,
+        ebookPrice: 11900,
+        rating: 8.8,
+        reviewCount: 419,
+        salesIndex: 413622,
+        pageCount: 248,
+        weight: '336g',
+        size: '128×188×17mm',
+        isbn13: '9791194530701',
+        productUrl: 'https://www.yes24.com/product/goods/164510819',
+        coverImageUrl: '',
+        description: '괴테 연구자가 정체불명의 문장 하나의 출처를 추적하며 언어, 진실, 문학의 의미를 파고드는 지적 탐구형 일본소설',
+        tags: ['아쿠타가와상', '일본문학', '고전문학', '언어', '문장수집', '지적소설']
+    },
+    '187536745': {
+        id: '187536745',
+        title: '강물이 멈춘 날',
+        author: '월리 램',
+        translator: '박산호',
+        publisher: '리프',
+        publishDate: '2026년 04월 15일',
+        originalTitle: 'The River Is Waiting',
+        category: '영미 장편소설',
+        listPrice: 22000,
+        salePrice: 19800,
+        ebookPrice: 15400,
+        rating: 10.0,
+        reviewCount: 6,
+        salesIndex: 12966,
+        pageCount: 556,
+        weight: '808g',
+        size: '152×225×16mm',
+        isbn13: '9791194530985',
+        productUrl: 'https://www.yes24.com/product/goods/187536745',
+        coverImageUrl: '',
+        description: '아이를 잃게 만든 비극 이후 죄책감과 자기혐오에 빠진 인물이 교도소 안팎에서 용서와 회복의 가능성을 마주하는 영미 장편소설',
+        tags: ['영미소설', '죄책감', '상실', '교도소', '용서', '치유']
+    }
+};
+
+const MOCK_AI_RESULT = {
+    comparisonSummary: {
+        recommendedForQuickLiteraryRead: '괴테는 모든 것을 말했다',
+        recommendedForEmotionalLongNovel: '강물이 멈춘 날',
+        mainDifference: '괴테는 모든 것을 말했다는 언어와 문학적 탐구 중심, 강물이 멈춘 날은 죄책감과 치유 중심의 장편 서사'
+    },
+    oneLineSummaries: [
+        {
+            productId: '164510819',
+            title: '괴테는 모든 것을 말했다',
+            summary: '괴테 연구자가 정체불명의 문장 하나의 출처를 추적하며 언어, 진실, 문학의 의미를 파고드는 지적 탐구형 일본소설'
+        },
+        {
+            productId: '187536745',
+            title: '강물이 멈춘 날',
+            summary: '아이를 잃게 만든 비극 이후 죄책감과 자기혐오에 빠진 인물이 교도소 안팎에서 용서와 회복의 가능성을 마주하는 영미 장편소설'
+        }
+    ],
+    keyDifferences: [
+        {
+            title: '주제 차이',
+            product1: '문학, 고전, 인용, 언어의 진실성처럼 지적이고 메타문학적인 소재가 중심',
+            product2: '죄책감, 상실, 교도소, 용서, 치유가 중심'
+        },
+        {
+            title: '독서 경험 차이',
+            product1: '248쪽 분량의 짧고 밀도 있는 문학적 탐구',
+            product2: '556쪽 분량의 긴 호흡을 가진 감정 중심 장편 서사'
+        },
+        {
+            title: '독자 반응 차이',
+            product1: '리뷰 수와 판매지수가 높아 현재 독자 반응과 화제성이 큼',
+            product2: '리뷰 수는 적지만 평점이 높고 신간성 및 해외 화제성이 있음'
+        }
+    ],
+    readerRecommendations: [
+        {
+            readerType: '문학상 수상작, 일본 현대문학, 지적인 소설을 선호하는 독자',
+            recommendedTitle: '괴테는 모든 것을 말했다',
+            reason: '아쿠타가와상 수상작이며, 고전문학·언어·인용의 의미를 다루는 작품'
+        },
+        {
+            readerType: '묵직한 감정선, 죄책감과 회복의 서사, 미국 장편소설을 선호하는 독자',
+            recommendedTitle: '강물이 멈춘 날',
+            reason: '비극 이후의 죄책감, 교도소 생활, 용서와 치유를 다루는 장편'
+        },
+        {
+            readerType: '짧고 밀도 있는 소설을 원하는 독자',
+            recommendedTitle: '괴테는 모든 것을 말했다',
+            reason: '248쪽으로 상대적으로 짧고 지적 밀도가 높은 소설'
+        },
+        {
+            readerType: '긴 호흡의 몰입형 장편을 원하는 독자',
+            recommendedTitle: '강물이 멈춘 날',
+            reason: '556쪽 분량의 장편으로 인물의 죄책감과 회복 과정을 깊게 따라감'
+        },
+        {
+            readerType: '현재 YES24 반응과 판매지수를 중시하는 독자',
+            recommendedTitle: '괴테는 모든 것을 말했다',
+            reason: '리뷰 수와 판매지수가 상대적으로 높음'
+        }
+    ],
+    purchaseComment: '짧고 지적인 문학적 탐구를 원한다면 『괴테는 모든 것을 말했다』, 깊고 무거운 감정 서사의 장편을 원한다면 『강물이 멈춘 날』을 추천합니다. 전자는 괴테의 미확인 문장을 추적하는 일본 현대문학 수상작이고, 후자는 비극 이후 죄책감과 치유의 가능성을 다루는 영미 장편소설입니다. 판매지수와 리뷰 반응은 『괴테는 모든 것을 말했다』가 높고, 분량과 감정 서사의 깊이는 『강물이 멈춘 날』이 더 큽니다.'
+};
+
+const MOCK_REVIEW_DATA = {
+    '164510819': {
+        productId: '164510819',
+        totalReviewCount: 419,
+        analyzedReviewCount: 120,
+        averageRating: 8.8,
+        sufficientForAnalysis: true,
+        sentimentRatio: { positive: 72, neutral: 21, negative: 7 },
+        extractedTags: [
+            { tag: '지적소설',        score: 94, sentiment: 'positive' },
+            { tag: '문학적탐구',       score: 91, sentiment: 'positive' },
+            { tag: '짧지만밀도있는',    score: 88, sentiment: 'positive' },
+            { tag: '취향타는소설',      score: 76, sentiment: 'neutral'  },
+            { tag: '고전문학관심',      score: 72, sentiment: 'neutral'  }
+        ],
+        frequentKeywords: [
+            { keyword: '괴테',   count: 58, sentiment: 'neutral'  },
+            { keyword: '문장',   count: 44, sentiment: 'positive' },
+            { keyword: '문학',   count: 39, sentiment: 'positive' },
+            { keyword: '지적',   count: 31, sentiment: 'positive' },
+            { keyword: '어렵다', count: 12, sentiment: 'negative' }
+        ]
+    },
+    '187536745': {
+        productId: '187536745',
+        totalReviewCount: 6,
+        analyzedReviewCount: 6,
+        averageRating: 10.0,
+        sufficientForAnalysis: false,
+        sentimentRatio: { positive: 100, neutral: 0, negative: 0 },
+        extractedTags: [],
+        frequentKeywords: []
+    }
+};
+
+const MOCK_AI_REVIEW_COMPARISON = {
+    '164510819-187536745': {
+        reviewCountComment: '『괴테는 모든 것을 말했다』는 419건의 충분한 리뷰를 보유하여 신뢰성 있는 독자 반응 분석이 가능합니다. 반면 『강물이 멈춘 날』은 현재 6건에 불과해 통계적 분석에는 한계가 있습니다.',
+        sentimentComment: '리뷰 분석이 가능한 『괴테는 모든 것을 말했다』는 긍정 72% 우세 속 취향 분화(중립 21%, 부정 7%)가 나타납니다. 『강물이 멈춘 날』은 6건 기준 100% 긍정이지만 신뢰도 있는 비교를 위해서는 추가 리뷰 축적이 필요합니다.',
+        tagComment: '『괴테는 모든 것을 말했다』는 #지적소설, #문학적탐구, #짧지만밀도있는 등 5개 태그가 리뷰에서 추출됐습니다. 『강물이 멈춘 날』은 리뷰 수 부족으로 태그 추출이 어려우며, 리뷰가 50건 이상 축적된 후 재분석을 권장합니다.',
+        overallComment: '현 시점의 리뷰 데이터 기준으로 두 상품의 직접 비교는 다소 제한적입니다. 『괴테는 모든 것을 말했다』는 풍부한 리뷰를 바탕으로 구매자 관점의 태그와 감성 데이터를 마케팅에 즉시 활용할 수 있습니다. 『강물이 멈춘 날』은 신간으로서 높은 초기 평점이 고무적이지만, 독자 반응이 충분히 축적되는 시점에 리뷰 기반 태그 분석을 재수행하는 것을 권장합니다.'
+    }
+};
+
+// ════════════════════════════════════════════════════════════════════
+// Generic comparison fallback for non-sample products
+// ════════════════════════════════════════════════════════════════════
+function buildGenericComparison(p1, p2) {
+    return {
+        comparisonSummary: {
+            mainDifference: `${p1.title}와 ${p2.title}의 비교입니다.`
+        },
+        oneLineSummaries: [
+            { productId: p1.id, title: p1.title, summary: p1.description },
+            { productId: p2.id, title: p2.title, summary: p2.description }
+        ],
+        keyDifferences: [
+            {
+                title: '분량 차이',
+                product1: `${p1.pageCount}쪽`,
+                product2: `${p2.pageCount}쪽`
+            },
+            {
+                title: '가격 차이',
+                product1: `정가 ${p1.listPrice?.toLocaleString()}원 / 판매가 ${p1.salePrice?.toLocaleString()}원`,
+                product2: `정가 ${p2.listPrice?.toLocaleString()}원 / 판매가 ${p2.salePrice?.toLocaleString()}원`
+            },
+            {
+                title: '독자 반응',
+                product1: `평점 ${p1.rating} / 리뷰 ${p1.reviewCount}건`,
+                product2: `평점 ${p2.rating} / 리뷰 ${p2.reviewCount}건`
+            }
+        ],
+        readerRecommendations: [
+            { readerType: `${p1.category} 독자`, recommendedTitle: p1.title, reason: p1.description },
+            { readerType: `${p2.category} 독자`, recommendedTitle: p2.title, reason: p2.description }
+        ],
+        purchaseComment: `두 작품은 각각 다른 독자층을 위한 책입니다. ${p1.title}은 ${p1.category} 장르이며, ${p2.title}은 ${p2.category} 장르입니다.`
+    };
+}
+
+function buildGenericReviewComparison(r1, r2, p1, p2) {
+    return {
+        reviewCountComment: `${p1.title}은 ${r1.totalReviewCount}건, ${p2.title}은 ${r2.totalReviewCount}건의 리뷰를 보유하고 있습니다.`,
+        sentimentComment: `두 상품의 감성 비율을 비교합니다.`,
+        tagComment: r1.sufficientForAnalysis || r2.sufficientForAnalysis
+            ? '리뷰 기반 태그 분석 결과를 비교합니다.'
+            : '두 상품 모두 리뷰 기반 태그 분석을 위한 최소 리뷰 수(50건)에 미치지 않습니다.',
+        overallComment: `${p1.title}과 ${p2.title}의 리뷰 데이터 비교입니다. 실제 AI API 연동 시 더 상세한 분석이 제공됩니다.`
+    };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// State
+// ════════════════════════════════════════════════════════════════════
+let currentProduct1 = null;
+let currentProduct2 = null;
+let currentAiResult = null;
+
+// ════════════════════════════════════════════════════════════════════
+// Helpers
+// ════════════════════════════════════════════════════════════════════
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showError(msg) {
+    document.getElementById('inputError').textContent = msg;
+    document.getElementById('inputError').style.display = 'block';
+}
+function hideError() {
+    document.getElementById('inputError').style.display = 'none';
+}
+
+const loadingFrameUrls = {
+    stream: 'loading_stream.html',
+    progress: 'loading_progress.html',
+    thinking: 'loading_thinking.html'
+};
+
+let currentLoadingMode = 'stream';
+
+function setLoadingFrame(mode) {
+    const frame = document.getElementById('loadingFrame');
+    const nextSrc = loadingFrameUrls[mode] || loadingFrameUrls.stream;
+    if (frame && frame.getAttribute('src') !== nextSrc) {
+        frame.setAttribute('src', nextSrc);
+        frame.setAttribute('frameborder', '0');
+        frame.style.border = '0';
+        frame.style.outline = 'none';
+        frame.style.boxShadow = 'none';
+        frame.style.overflow = 'hidden';
+    }
+}
+
+function setLoading(show, text) {
+    setLoadingFrame(currentLoadingMode);
+    document.getElementById('resultsSection').style.display = show ? '' : 'none';
+    document.getElementById('loadingSection').style.display = show ? '' : 'none';
+    document.getElementById('errorSection').style.display = 'none';
+    document.getElementById('contentSection').style.display = 'none';
+    if (text) document.getElementById('loadingText').textContent = text;
+}
+function showResultError(msg) {
+    document.getElementById('resultsSection').style.display = '';
+    document.getElementById('loadingSection').style.display = 'none';
+    document.getElementById('errorSection').style.display = '';
+    document.getElementById('contentSection').style.display = 'none';
+    document.getElementById('errorMessage').textContent = msg;
+}
+function showContent() {
+    document.getElementById('resultsSection').style.display = '';
+    document.getElementById('loadingSection').style.display = 'none';
+    document.getElementById('errorSection').style.display = 'none';
+    document.getElementById('contentSection').style.display = '';
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Actions
+// ════════════════════════════════════════════════════════════════════
+function loadSample() {
+    document.getElementById('productNo1').value = '164510819';
+    document.getElementById('productNo2').value = '187536745';
+    hideError();
+}
+
+function resetCompare() {
+    document.getElementById('productNo1').value = '';
+    document.getElementById('productNo2').value = '';
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('resetBtn').style.display = 'none';
+    hideError();
+    currentProduct1 = null;
+    currentProduct2 = null;
+    currentAiResult = null;
+}
+
+async function startCompare(mode) {
+    currentLoadingMode = mode || 'stream';
+    const no1 = document.getElementById('productNo1').value.trim();
+    const no2 = document.getElementById('productNo2').value.trim();
+    hideError();
+
+    if (!no1 || !no2) { showError('상품번호 2개를 모두 입력해 주세요.'); return; }
+    if (no1 === no2) { showError('서로 다른 상품번호를 입력해 주세요.'); return; }
+
+    ['compareBtn', 'progressBtn', 'thinkingBtn'].forEach(function(id) {
+        document.getElementById(id).disabled = true;
+    });
+    document.getElementById('compareBtnIcon').style.display = 'none';
+    document.getElementById('compareBtnSpinner').style.display = '';
+    document.getElementById('resetBtn').style.display = '';
+
+    try {
+        // Step 1: Fetch product info
+        setLoading(true, '상품 정보를 조회하는 중...');
+        const [p1, p2] = await Promise.all([fetchProductInfo(no1), fetchProductInfo(no2)]);
+
+        if (!p1) { showResultError(`상품번호 ${no1}에 해당하는 상품을 찾을 수 없습니다.`); return; }
+        if (!p2) { showResultError(`상품번호 ${no2}에 해당하는 상품을 찾을 수 없습니다.`); return; }
+
+        currentProduct1 = p1;
+        currentProduct2 = p2;
+
+        // Step 2: AI comparison
+        setLoading(true, 'AI 비교 분석 중...');
+        const aiResult = await generateAiComparison(p1, p2);
+        currentAiResult = aiResult;
+
+        // Step 3: Fetch review data
+        setLoading(true, '리뷰 데이터를 조회하는 중...');
+        const [rv1, rv2] = await Promise.all([fetchReviewData(no1), fetchReviewData(no2)]);
+
+        // Step 4: AI review comparison
+        setLoading(true, 'AI 리뷰 비교 분석 중...');
+        const aiReviewResult = await generateAiReviewComparison(rv1, rv2, p1, p2);
+
+        // Step 5: Render
+        renderResults(p1, p2, aiResult, rv1, rv2, aiReviewResult);
+        showContent();
+    } catch (e) {
+        showResultError('오류가 발생했습니다: ' + e.message);
+    } finally {
+        ['compareBtn', 'progressBtn', 'thinkingBtn'].forEach(function(id) {
+            document.getElementById(id).disabled = false;
+        });
+        document.getElementById('compareBtnIcon').style.display = '';
+        document.getElementById('compareBtnSpinner').style.display = 'none';
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// Rendering
+// ════════════════════════════════════════════════════════════════════
+function renderResults(p1, p2, ai, rv1, rv2, aiReview) {
+    renderProductCards(p1, p2);
+    renderCompareTable(p1, p2);
+    renderOneLineSummaries(ai.oneLineSummaries, p1, p2);
+    renderKeyDifferences(ai.keyDifferences, p1, p2);
+    renderReaderRecommendations(ai.readerRecommendations);
+    renderPurchaseComment(ai.purchaseComment);
+    renderReviewComparison(rv1, rv2, p1, p2, aiReview);
+    renderJson({ product1: p1, product2: p2, aiComparison: ai, review1: rv1, review2: rv2, aiReviewComparison: aiReview });
+}
+
+function renderProductCards(p1, p2) {
+    const grid = document.getElementById('productCardsGrid');
+    grid.innerHTML = [p1, p2].map((p, i) => `
+        <div class="cmp-product-card">
+            <div class="cmp-product-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;">
+                    <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                </svg>
+                상품 ${i + 1}
+            </div>
+            <div class="cmp-product-header">
+                <div class="cmp-product-cover">
+                    ${p.coverImageUrl
+                        ? `<img src="${esc(p.coverImageUrl)}" alt="표지" />`
+                        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:28px;height:28px;opacity:.25;"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>`
+                    }
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <p class="cmp-product-title">${esc(p.title)}</p>
+                    <p class="cmp-product-author">${esc(p.author)}${p.translator ? ` · 옮김: ${esc(p.translator)}` : ''}</p>
+                    <div class="cmp-pill-row">
+                        <span class="cmp-pill">${esc(p.category)}</span>
+                        <span class="cmp-pill">${esc(p.publisher)}</span>
+                        <span class="cmp-pill price">${p.salePrice?.toLocaleString()}원</span>
+                        <span class="cmp-pill rating">★ ${p.rating}</span>
+                    </div>
+                </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0;">${esc(p.description)}</p>
+            <div class="cmp-tag-list">
+                ${(p.tags || []).map(t => `<span class="cmp-tag">#${esc(t)}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderCompareTable(p1, p2) {
+    document.getElementById('tableHeader1').textContent = p1.title;
+    document.getElementById('tableHeader2').textContent = p2.title;
+
+    const rows = [
+        ['카테고리', p1.category, p2.category],
+        ['저자', p1.author, p2.author],
+        ['역자', p1.translator || '—', p2.translator || '—'],
+        ['출판사', p1.publisher, p2.publisher],
+        ['출간일', p1.publishDate, p2.publishDate],
+        ['정가', `${p1.listPrice?.toLocaleString()}원`, `${p2.listPrice?.toLocaleString()}원`],
+        ['판매가', `${p1.salePrice?.toLocaleString()}원`, `${p2.salePrice?.toLocaleString()}원`],
+        ['e-Book', `${p1.ebookPrice?.toLocaleString()}원`, `${p2.ebookPrice?.toLocaleString()}원`],
+        ['평점', `★ ${p1.rating} (${p1.reviewCount?.toLocaleString()}건)`, `★ ${p2.rating} (${p2.reviewCount?.toLocaleString()}건)`],
+        ['판매지수', p1.salesIndex?.toLocaleString(), p2.salesIndex?.toLocaleString()],
+        ['쪽수', `${p1.pageCount}쪽`, `${p2.pageCount}쪽`],
+        ['무게', p1.weight, p2.weight],
+        ['크기', p1.size, p2.size],
+        ['ISBN13', p1.isbn13, p2.isbn13],
+        ['원제', p1.originalTitle || '—', p2.originalTitle || '—'],
+    ];
+
+    document.getElementById('compareTableBody').innerHTML = rows.map(([label, v1, v2]) => `
+        <tr>
+            <td>${esc(label)}</td>
+            <td>${esc(String(v1 ?? '—'))}</td>
+            <td>${esc(String(v2 ?? '—'))}</td>
+        </tr>
+    `).join('');
+}
+
+function renderOneLineSummaries(summaries, p1, p2) {
+    const grid = document.getElementById('oneLineSummaryGrid');
+    grid.innerHTML = summaries.map((s, i) => `
+        <div class="cmp-summary-card">
+            <div class="book-num">상품 ${i + 1}</div>
+            <div class="book-title">${esc(s.title)}</div>
+            <div class="book-summary">${esc(s.summary)}</div>
+        </div>
+    `).join('');
+}
+
+function renderKeyDifferences(diffs, p1, p2) {
+    const list = document.getElementById('keyDiffList');
+    list.innerHTML = diffs.map(d => `
+        <div class="cmp-diff-item">
+            <div class="cmp-diff-title">${esc(d.title)}</div>
+            <div class="cmp-diff-cols">
+                <div class="cmp-diff-col">
+                    <div class="col-label">${esc(p1.title)}</div>
+                    ${esc(d.product1)}
+                </div>
+                <div class="cmp-diff-col">
+                    <div class="col-label">${esc(p2.title)}</div>
+                    ${esc(d.product2)}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderReaderRecommendations(recs) {
+    const list = document.getElementById('readerRecList');
+    list.innerHTML = recs.map(r => `
+        <div class="cmp-rec-item">
+            <div>
+                <div class="cmp-rec-reader">${esc(r.readerType)}</div>
+                <div class="cmp-rec-reason">${esc(r.reason)}</div>
+            </div>
+            <div class="cmp-rec-badge">📖 ${esc(r.recommendedTitle)}</div>
+        </div>
+    `).join('');
+}
+
+function renderPurchaseComment(comment) {
+    document.getElementById('purchaseCommentBox').textContent = comment;
+}
+
+function renderReviewComparison(rv1, rv2, p1, p2, aiReview) {
+    // ── Stats + Sentiment ─────────────────────────────────────
+    document.getElementById('reviewStatsCompareGrid').innerHTML = [
+        { rv: rv1, p: p1, num: 1 },
+        { rv: rv2, p: p2, num: 2 }
+    ].map(({ rv, p, num }) => {
+        const sr = rv.sentimentRatio ?? {};
+        return `
+        <div class="rv-cmp-col">
+            <div class="rv-cmp-col-header">상품 ${num} · ${esc(p.title)}</div>
+            ${!rv.sufficientForAnalysis
+                ? `<div class="rv-insufficient-badge">
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;">
+                           <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                           <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                       </svg>
+                       리뷰 50건 미만 · 분석 제한
+                   </div>` : ''}
+            <div class="rv-stat-item"><span class="rv-stat-label">전체 리뷰 수</span><span class="rv-stat-value">${rv.totalReviewCount?.toLocaleString() ?? '—'}건</span></div>
+            <div class="rv-stat-item"><span class="rv-stat-label">분석 리뷰 수</span><span class="rv-stat-value">${rv.analyzedReviewCount?.toLocaleString() ?? '—'}건</span></div>
+            <div class="rv-stat-item"><span class="rv-stat-label">평균 평점</span><span class="rv-stat-value">${rv.averageRating != null ? `★ ${rv.averageRating}` : '—'}</span></div>
+            <div class="rv-sentiment-block">
+                <div class="rv-sentiment-title">감성 분포</div>
+                ${[['긍', 'positive', sr.positive ?? 0], ['중', 'neutral', sr.neutral ?? 0], ['부', 'negative', sr.negative ?? 0]].map(([label, cls, pct]) => `
+                    <div class="rv-bar-row">
+                        <span class="rv-bar-label">${label}</span>
+                        <div class="rv-bar-bg"><div class="rv-bar-fill ${cls}" style="width:${pct}%;"></div></div>
+                        <span class="rv-bar-pct">${pct}%</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }).join('');
+
+    // ── Keywords ──────────────────────────────────────────────
+    document.getElementById('reviewKeywordsCompareGrid').innerHTML = [
+        { rv: rv1, p: p1, num: 1 },
+        { rv: rv2, p: p2, num: 2 }
+    ].map(({ rv, p, num }) => {
+        const kws = rv.frequentKeywords ?? [];
+        const maxCount = Math.max(...kws.map(k => k.count), 1);
+        return `
+        <div class="rv-cmp-col">
+            <div class="rv-cmp-col-header">상품 ${num} · ${esc(p.title)}</div>
+            ${kws.length === 0
+                ? `<div class="rv-no-data">분석 데이터가 없습니다</div>`
+                : kws.map(k => `
+                    <div class="rv-kw-row">
+                        <span class="rv-kw-word">${esc(k.keyword)}</span>
+                        <div class="rv-kw-bar-bg"><div class="rv-kw-bar-fill ${esc(k.sentiment)}" style="width:${Math.round(k.count / maxCount * 100)}%;"></div></div>
+                        <span class="rv-kw-count">${k.count}회</span>
+                    </div>`).join('')
+            }
+        </div>`;
+    }).join('');
+
+    // ── Tags ──────────────────────────────────────────────────
+    document.getElementById('reviewTagsCompareGrid').innerHTML = [
+        { rv: rv1, p: p1, num: 1 },
+        { rv: rv2, p: p2, num: 2 }
+    ].map(({ rv, p, num }) => {
+        const tags = rv.extractedTags ?? [];
+        return `
+        <div class="rv-cmp-col">
+            <div class="rv-cmp-col-header">상품 ${num} · ${esc(p.title)}</div>
+            ${!rv.sufficientForAnalysis
+                ? `<div class="rv-no-data">
+                       리뷰 ${rv.totalReviewCount}건 · 분석 최소 50건 필요<br>
+                       <span style="font-size:11px;margin-top:4px;display:block;">리뷰 축적 후 재분석 권장</span>
+                   </div>`
+                : tags.length === 0
+                    ? `<div class="rv-no-data">추출된 태그가 없습니다</div>`
+                    : `<div class="rv-tags-list">${tags.map(t => `
+                        <div class="rv-tag-row">
+                            <span class="rv-tag-score">${t.score}</span>
+                            <span class="rv-tag-name ${esc(t.sentiment)}">#${esc(t.tag)}</span>
+                        </div>`).join('')}
+                       </div>`
+            }
+        </div>`;
+    }).join('');
+
+    // ── AI Review Comments ────────────────────────────────────
+    const commentStyle = 'font-size:13px; color:var(--text-secondary); line-height:1.7; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg-secondary);';
+    const labelStyle = 'font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px;';
+
+    document.getElementById('rvAiCountComment').innerHTML = `
+        <div style="${labelStyle}">📊 리뷰 수 비교</div>
+        <div style="${commentStyle}">${esc(aiReview.reviewCountComment ?? '')}</div>`;
+    document.getElementById('rvAiSentimentComment').innerHTML = `
+        <div style="${labelStyle}">😊 감성 비교</div>
+        <div style="${commentStyle}">${esc(aiReview.sentimentComment ?? '')}</div>`;
+    document.getElementById('rvAiTagComment').innerHTML = `
+        <div style="${labelStyle}">🏷️ 태그 비교</div>
+        <div style="${commentStyle}">${esc(aiReview.tagComment ?? '')}</div>`;
+    document.getElementById('rvAiOverallComment').textContent = aiReview.overallComment ?? '';
+}
+
+function renderJson(data) {
+    document.getElementById('jsonResultPre').textContent = JSON.stringify(data, null, 2);
+}
+
+function toggleJson() {
+    const pre = document.getElementById('jsonResultPre');
+    const btn = document.getElementById('jsonToggleBtn');
+    const isOpen = pre.style.display !== 'none';
+    pre.style.display = isOpen ? 'none' : 'block';
+    btn.classList.toggle('open', !isOpen);
+}
+
+function esc(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+</script>
+
+        </main>
+
+    </div><!-- /main-wrapper -->
+
+</div><!-- /app-layout -->
+
+
+
+<script>
+    // =====================================================
+    // Theme configuration (mirrors front_template)
+    // =====================================================
+    var THEMES = [
+        { name: 'Vercel',        value: 'vercel',        color: '#000000' },
+        { name: 'Claude',        value: 'claude',        color: '#b5651d' },
+        { name: 'Neobrutualism', value: 'neobrutualism', color: '#e05a2b' },
+        { name: 'Mono',          value: 'mono',          color: '#777777' },
+        { name: 'Zen',           value: 'zen',           color: '#a08060' },
+        { name: 'Astro Vista',   value: 'astro-vista',   color: '#e07430' },
+        { name: 'WhatsApp',      value: 'whatsapp',      color: '#25d366' }
+    ];
+
+    var FONTS = [
+        { name: 'Paperlogy',         value: 'paperlogy'  },
+        { name: 'Pretendard',        value: 'pretendard' },
+        { name: 'SUIT',              value: 'suit'       },
+        { name: 'Spoqa Han Sans Neo', value: 'spoqa'     },
+        { name: 'Happiness Sans',     value: 'happiness' }
+    ];
+
+    // ---- Init ----
+    (function () {
+        var collapsed = localStorage.getItem('ax-sidebar-collapsed') === 'true';
+        if (collapsed) document.getElementById('sidebar').classList.add('collapsed');
+
+        var dark = localStorage.getItem('ax-dark') === 'true';
+        updateDarkIcons(dark);
+
+        var theme = localStorage.getItem('ax-theme') || 'vercel';
+        buildThemeDropdown(theme);
+        updateThemeLabel(theme);
+
+        var font = localStorage.getItem('ax-font') || 'paperlogy';
+        buildFontDropdown(font);
+        updateFontLabel(font);
+        setFont(font, true);
+    })();
+
+    // ---- Sidebar ----
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        var isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('show');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('ax-sidebar-collapsed', sidebar.classList.contains('collapsed'));
+        }
+    }
+
+    function closeMobileSidebar() {
+        document.getElementById('sidebar').classList.remove('mobile-open');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+    }
+
+    // App namespace — site1 API 호환 (onclick="App.toggleSidebar()")
+    window.App = window.App || {};
+    App.toggleSidebar     = toggleSidebar;
+    App.closeMobileSidebar = closeMobileSidebar;
+
+    // ---- Submenu ----
+    function toggleSubmenu(id, btn) {
+        var submenu = document.getElementById(id);
+        var isOpen = submenu.classList.contains('open');
+        submenu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', !isOpen);
+    }
+
+    // ---- Dark mode ----
+    function toggleDarkMode() {
+        var isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('ax-dark', isDark);
+        updateDarkIcons(isDark);
+    }
+
+    function updateDarkIcons(isDark) {
+        var moon = document.getElementById('iconMoon');
+        var sun  = document.getElementById('iconSun');
+        if (!moon || !sun) return;
+        moon.style.display = isDark ? 'none' : '';
+        sun.style.display  = isDark ? ''     : 'none';
+    }
+
+    // ---- Color Theme ----
+    function setTheme(value) {
+        document.documentElement.setAttribute('data-theme', value);
+        localStorage.setItem('ax-theme', value);
+        updateThemeLabel(value);
+        updateActiveThemeItem(value);
+        closeThemeMenu();
+    }
+
+    function updateThemeLabel(value) {
+        var t = THEMES.find(function(t){ return t.value === value; });
+        var el = document.getElementById('themeSelectorLabel');
+        if (el && t) el.textContent = t.name;
+    }
+
+    function updateActiveThemeItem(value) {
+        document.querySelectorAll('.theme-item').forEach(function(el) {
+            el.classList.toggle('active', el.dataset.value === value);
+        });
+    }
+
+    function buildThemeDropdown(activeValue) {
+        var container = document.getElementById('themeDropdownItems');
+        if (!container) return;
+        container.innerHTML = '';
+        THEMES.forEach(function(t) {
+            var btn = document.createElement('button');
+            btn.className = 'theme-item' + (t.value === activeValue ? ' active' : '');
+            btn.dataset.value = t.value;
+            btn.setAttribute('role', 'option');
+            btn.setAttribute('aria-selected', t.value === activeValue);
+            btn.onclick = function() { setTheme(t.value); };
+            btn.innerHTML =
+                '<span class="theme-dot" style="background:' + t.color + '"></span>' +
+                '<span>' + t.name + '</span>' +
+                '<svg class="theme-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+                  '<polyline points="20 6 9 17 4 12"/></svg>';
+            container.appendChild(btn);
+        });
+    }
+
+    function toggleThemeMenu(e) {
+        e.stopPropagation();
+        var dropdown = document.getElementById('themeDropdown');
+        var btn      = document.getElementById('themeSelectorBtn');
+        var isOpen   = dropdown.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen);
+    }
+
+    function closeThemeMenu() {
+        var dropdown = document.getElementById('themeDropdown');
+        var btn      = document.getElementById('themeSelectorBtn');
+        if (dropdown) dropdown.classList.remove('open');
+        if (btn)      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    // ---- Font ----
+    function setFont(value, skipClose) {
+        document.documentElement.setAttribute('data-font', value);
+        localStorage.setItem('ax-font', value);
+        updateFontLabel(value);
+        updateActiveFontItem(value);
+        if (!skipClose) closeFontMenu();
+    }
+
+    function updateFontLabel(value) {
+        var f = FONTS.find(function(f){ return f.value === value; });
+        var el = document.getElementById('fontSelectorLabel');
+        if (el && f) el.textContent = f.name;
+    }
+
+    function updateActiveFontItem(value) {
+        document.querySelectorAll('.font-item').forEach(function(el) {
+            el.classList.toggle('active', el.dataset.value === value);
+        });
+    }
+
+    function buildFontDropdown(activeValue) {
+        var container = document.getElementById('fontDropdownItems');
+        if (!container) return;
+        container.innerHTML = '';
+        FONTS.forEach(function(f) {
+            var btn = document.createElement('button');
+            btn.className = 'font-item' + (f.value === activeValue ? ' active' : '');
+            btn.dataset.value = f.value;
+            btn.setAttribute('role', 'option');
+            btn.setAttribute('aria-selected', f.value === activeValue);
+            btn.onclick = function() { setFont(f.value); };
+            btn.innerHTML =
+                '<span>' + f.name + '</span>' +
+                '<svg class="font-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+                  '<polyline points="20 6 9 17 4 12"/></svg>';
+            container.appendChild(btn);
+        });
+    }
+
+    function toggleFontMenu(e) {
+        e.stopPropagation();
+        var dropdown = document.getElementById('fontDropdown');
+        var btn      = document.getElementById('fontSelectorBtn');
+        var isOpen   = dropdown.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen);
+    }
+
+    function closeFontMenu() {
+        var dropdown = document.getElementById('fontDropdown');
+        var btn      = document.getElementById('fontSelectorBtn');
+        if (dropdown) dropdown.classList.remove('open');
+        if (btn)      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        var themeWrap = document.getElementById('themeSelectorWrap');
+        var fontWrap = document.getElementById('fontSelectorWrap');
+        if (themeWrap && !themeWrap.contains(e.target)) closeThemeMenu();
+        if (fontWrap && !fontWrap.contains(e.target)) closeFontMenu();
+    });
+
+    // Keyboard: press T T to cycle theme (like front_template shortcut)
+    var lastKey = '';
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 't' || e.key === 'T') {
+            if (lastKey === 't' || lastKey === 'T') {
+                var cur = document.documentElement.getAttribute('data-theme') || 'vercel';
+                var idx = THEMES.findIndex(function(t){ return t.value === cur; });
+                var next = THEMES[(idx + 1) % THEMES.length];
+                setTheme(next.value);
+            }
+            lastKey = e.key;
+        } else {
+            lastKey = '';
+        }
+    });
+</script>
+
+<!-- Visual Studio Browser Link -->
+<script type="text/javascript" src="/_vs/browserLink" async="async" id="__browserLink_initializationData" data-requestId="10ba28937ee041938ac6d4121330d527" data-requestMappingFromServer="false" data-connectUrl="http://localhost:62033/8f865e5683a34e3d9481465259e82c96/browserLink"></script>
+<!-- End Browser Link -->
+<script src="/_framework/aspnetcore-browser-refresh.js"></script></body>
+</html>

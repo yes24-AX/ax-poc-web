@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f1ede5">
+  <meta name="description" content="분위기와 감각적인 연출로 경험하는 DataHub 온보딩">
+  <title>MOOD — DataHub Onboarding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/scene-0.css">
+  <link rel="stylesheet" href="css/scene-0-adjustments.css">
+</head>
+<body>
+  <main class="experience" aria-label="DataHub MOOD 온보딩">
+    <section class="scene" aria-labelledby="scene-message">
+      <div class="desk" aria-hidden="true"></div>
+      <div class="shade" aria-hidden="true"></div>
+
+      <div class="browser" aria-label="온라인서점 화면">
+        <div class="service-bar">
+          <nav aria-label="서비스 영역"><a href="#">국내도서</a><a href="#">외국도서</a><a href="#">중고샵</a><a href="#">eBook</a><a href="#">크레마클럽</a><a href="#">문구/GIFT</a><a href="#">티켓</a></nav>
+          <span>로그인　회원가입　마이페이지　주문/배송</span>
+        </div>
+        <header class="browser__header">
+          <a class="wordmark" href="#" aria-label="YES24 홈"><img src="assets/yes24-logo.png" alt="YES24"></a>
+          <div class="search">어떤 책을 찾고 있나요? <span>⌕</span></div>
+          <div class="header-pick"><i></i><span>오늘의 추천<br><b>에디터가 고른 책</b></span></div>
+        </header>
+        <nav class="main-nav" aria-label="주요 메뉴"><b>빠른분야찾기</b><a href="#">베스트</a><a href="#">신상품</a><a href="#">이벤트</a><a href="#">바이백</a><a href="#">채널예스</a><a href="#">사락</a><a href="#">예스펀딩</a><a href="#">클래스24</a><span></span><a href="#">추천도서</a><a href="#">특가할인</a></nav>
+
+        <div class="store-stage">
+          <aside class="category-list" aria-label="도서 분야">
+            <strong>YES NOW</strong><a href="#">국내도서</a><a href="#">외국도서</a><a href="#">중고샵</a><a href="#">eBook</a><a href="#">크레마클럽</a><a href="#">CD/LP</a><a href="#">문구/GIFT</a><a href="#">티켓</a>
+          </aside>
+
+          <div class="content-stage">
+            <article class="campaign">
+              <div class="campaign-copy"><small>이번 주, 책과 가까워지는 방법</small><h1>읽는 여름,<br><em>새로운 발견</em></h1><p>책과 콘텐츠, 그리고 독자의 목소리가<br>매일 새로운 장면을 만듭니다.</p></div>
+              <div class="campaign-art" aria-hidden="true"><i class="big-book"></i><i class="mini-book"></i><span>SUMMER<br>READING</span></div>
+              <span class="surface-note note--discovery"><i></i>상품이 선택됨</span>
+              <div class="campaign-tabs"><b>지금 주목할 책</b><span>에디터의 선택</span><span>이달의 기획전</span><span>독자 추천</span></div>
+            </article>
+
+            <div class="lower-grid">
+              <article class="today-book">
+                <small class="eyebrow">오늘의 책</small>
+                <div class="today-cover" aria-hidden="true"><span>IN THE<br>MOONLIGHT</span></div>
+                <div><h2>지금 우리에게<br>필요한 한 권</h2><p>매일 한 권, 에디터가 소개하는<br>새로운 책과 이야기</p><a href="#">오늘의 책 더보기 ›</a></div>
+                <span class="surface-note note--content"><i></i>콘텐츠가 선택됨</span>
+              </article>
+
+              <article class="review-summary">
+                <small class="eyebrow">회원리뷰</small>
+                <h2><b>38명</b>의 독자가 남긴 평점</h2>
+                <div class="score"><span>★★★★★</span><strong>9.6</strong><small>/ 10.0</small></div>
+                <div class="review-box">“책장을 덮은 뒤에도 오래 마음에 남는 이야기였습니다.”</div>
+                <div class="score-bars" aria-hidden="true"><i style="--w:92%"></i><i style="--w:18%"></i><i style="--w:8%"></i></div>
+                <span class="surface-note note--review"><i></i>리뷰가 등록됨</span>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <div class="more-signals" aria-hidden="true">
+          <i class="signal-dot" style="--x:15%;--y:25%"></i>
+          <i class="signal-underline" style="--x:34%;--y:14%"></i>
+          <i class="signal-bracket" style="--x:57%;--y:28%"></i>
+          <i class="signal-dot" style="--x:77%;--y:20%"></i>
+          <i class="signal-ghost" style="--x:91%;--y:36%"></i>
+          <i class="signal-bracket" style="--x:25%;--y:72%"></i>
+          <i class="signal-underline" style="--x:49%;--y:80%"></i>
+          <i class="signal-dot" style="--x:71%;--y:66%"></i>
+          <i class="signal-ghost" style="--x:90%;--y:83%"></i>
+        </div>
+      </div>
+
+      <div class="message" id="scene-message" aria-live="polite">
+        <p>온라인에서는 매 순간</p>
+        <strong>다양한 데이터가 만들어집니다.</strong>
+      </div>
+
+      <div class="next-hint" aria-hidden="true"><i></i><span></span></div>
+
+      <section class="signal-scene" aria-label="Scene 1 SIGNAL">
+        <div class="signal-reality">
+          <div class="monitor-device">
+            <div class="monitor-bezel">
+              <div class="device-screen">
+                <article class="screen-state screen-state--campaign">
+                  <div class="screen-top"><img src="assets/yes24-logo-scene1.png" alt="YES24"><span>국내도서　eBook　크레마클럽　채널예스</span><i>검색</i></div>
+                  <div class="campaign-screen-copy"><small>이번 주의 기획</small><h2>읽고 싶은 마음을<br>발견하는 시간</h2><p>책과 콘텐츠를 만나는 새로운 제안</p><button>기획전 보기</button></div>
+                  <div class="campaign-screen-image" aria-hidden="true"><i></i><b>WEEKEND<br>BOOK CLUB</b></div>
+                </article>
+
+                <article class="screen-state screen-state--content">
+                  <div class="screen-top"><img src="assets/yes24-logo-scene1.png" alt="YES24"><span>오늘의 책　채널예스　작가와의 만남</span><i>검색</i></div>
+                  <div class="content-screen-image" aria-hidden="true"></div>
+                  <div class="content-screen-copy"><small>오늘의 이야기</small><h2>문장이 머무는<br>여름의 책</h2><p>한 권의 책에서 시작해 일상과 사람으로 이어지는 이야기</p><p>오늘 발견한 문장과 오래 머물고 싶은 장면을 소개합니다.</p></div>
+                </article>
+
+                <article class="screen-state screen-state--product">
+                  <div class="screen-top"><img src="assets/yes24-logo-scene1.png" alt="YES24"><span>베스트　신상품　추천도서　리뷰</span><i>검색</i></div>
+                  <aside><strong>분야 찾기</strong><span>소설</span><span>에세이</span><span>인문</span><span>예술</span></aside>
+                  <div class="product-screen-list" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                  <div class="product-screen-detail"><div class="final-book" aria-hidden="true"></div><div><small>지금 주목할 책</small><h2>오늘을 위한<br>새로운 한 권</h2><p>책과 콘텐츠를 둘러보세요.</p><button>자세히 보기</button></div></div>
+                </article>
+              </div>
+
+              <div class="monitor-glass" aria-hidden="true"></div>
+              <div class="signal-residue-layer" aria-label="시간에 따라 남은 데이터 신호">
+                <span class="residue residue--cta"><i></i><b aria-hidden="true"></b><small>기획전이 선택됨</small></span>
+                <span class="residue residue--content"><i></i><b aria-hidden="true"></b><small>콘텐츠가 생성됨</small></span>
+                <span class="residue residue--product"><i></i><b aria-hidden="true"></b><small>상품이 선택됨</small></span>
+                <span class="residue residue--bezel" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="monitor-base" aria-hidden="true"><i></i></div>
+          </div>
+
+          <span class="desk-residue desk-residue--one" aria-hidden="true"></span>
+          <span class="desk-residue desk-residue--two" aria-hidden="true"></span>
+        </div>
+
+        <div class="signal-world">
+          <div class="service-canvas">
+            <article class="signal-surface signal-surface--campaign">
+              <header><span>기획전</span><small>책과 가까워지는 새로운 제안</small></header>
+              <div class="signal-campaign-art" aria-hidden="true"><b>WEEKEND<br>BOOK CLUB</b><i></i></div>
+              <div class="surface-copy"><small>이번 주의 기획</small><h2>읽고 싶은 마음을<br>발견하는 시간</h2><p>새로운 책과 콘텐츠를 만나는 온라인 기획전</p><button type="button">기획전 살펴보기</button></div>
+              <span class="behavior-note behavior-note--campaign"><i></i>기획전에서 반응이 발생함</span>
+              <span class="trace trace--campaign" aria-hidden="true"></span>
+            </article>
+
+            <article class="signal-surface signal-surface--content">
+              <header><span>채널예스 · 오늘의 책</span><small>책을 둘러싼 콘텐츠</small></header>
+              <div class="content-photo" aria-hidden="true"></div>
+              <div class="content-article"><small>오늘의 이야기</small><h2>문장이 머무는<br>여름의 책</h2><p>한 권의 책에서 시작해 일상과 사람으로 이어지는 이야기. 에디터가 고른 문장과 독자에게 전하고 싶은 새로운 관점을 소개합니다.</p><p>오늘 발견한 책과 오래 머물고 싶은 문장을 만나보세요.</p></div>
+              <span class="behavior-note behavior-note--content"><i></i>콘텐츠에 반응이 남음</span>
+              <span class="trace trace--content" aria-hidden="true"></span>
+            </article>
+
+            <article class="signal-surface signal-surface--product">
+              <header><span>상품 탐색</span><small>다양한 책과 상품을 발견하는 공간</small></header>
+              <div class="product-list" aria-hidden="true">
+                <i class="product-book p1"></i><i class="product-book p2"></i><i class="product-book p3"></i><i class="product-book p4"></i>
+              </div>
+              <div class="product-detail"><div class="detail-cover" aria-hidden="true"></div><div><small>지금 주목할 책</small><h2>오늘을 위한<br>새로운 한 권</h2><p>16,200원</p><button type="button">자세히 보기</button></div></div>
+              <span class="behavior-note behavior-note--product"><i></i>상품 탐색의 흔적이 남음</span>
+              <span class="trace trace--product" aria-hidden="true"></span>
+            </article>
+
+            <div class="time-echoes" aria-hidden="true">
+              <span class="time-echo time-echo--one"><i></i><b></b><em></em></span>
+              <span class="time-echo time-echo--two"><i></i><b></b><em></em></span>
+              <span class="time-echo time-echo--three"><i></i><b></b><em></em></span>
+              <span class="time-slice time-slice--one"></span>
+              <span class="time-slice time-slice--two"></span>
+              <span class="time-slice time-slice--three"></span>
+            </div>
+
+            <div class="service-signals" aria-hidden="true">
+              <i class="mark-dot" style="--x:4%;--y:19%"></i><i class="mark-line" style="--x:11%;--y:74%"></i><i class="mark-bracket" style="--x:19%;--y:42%"></i>
+              <i class="mark-echo" style="--x:29%;--y:12%"></i><i class="mark-dot" style="--x:38%;--y:81%"></i><i class="mark-line" style="--x:47%;--y:31%"></i>
+              <i class="mark-bracket" style="--x:58%;--y:68%"></i><i class="mark-dot" style="--x:69%;--y:17%"></i><i class="mark-echo" style="--x:79%;--y:77%"></i>
+              <i class="mark-line" style="--x:87%;--y:38%"></i><i class="mark-dot" style="--x:95%;--y:61%"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="signal-conclusion">
+          <p>화면은 사라져도,</p>
+          <strong>신호는 남습니다.</strong>
+          <small>서비스 곳곳의 반응은 서로 다른 데이터가 됩니다.</small>
+        </div>
+        <div class="signal-mark" aria-hidden="true"><span>01</span><i></i><small>SIGNAL</small></div>
+      </section>
+
+      <section class="people-scene" aria-label="Scene 2 READER CONTEXT">
+        <div class="people-table-wrap">
+          <div class="editorial-table">
+            <figure class="landscape-book landscape-book--primary">
+              <div class="landscape-cover"><small>문장이 머무는<br>여름의 책</small></div>
+              <i class="landscape-pages" aria-hidden="true"></i>
+            </figure>
+            <p class="landscape-response response--primary">“문장이 오래 기억에<br>남아 있었어요.”</p>
+            <figure class="landscape-image" aria-label="책과 함께 소개된 콘텐츠 이미지"><i></i></figure>
+            <p class="landscape-response response--scene">“이 장면을 다시 보고 싶어요.”</p>
+            <figure class="landscape-book landscape-book--secondary">
+              <div class="landscape-cover"><small>다른 계절의<br>이야기</small></div>
+              <i class="landscape-pages" aria-hidden="true"></i>
+            </figure>
+            <p class="landscape-response response--gift">“누군가에게 선물하고 싶어요.”</p>
+            <i class="landscape-peripheral peripheral--image" aria-hidden="true"></i>
+            <span class="landscape-peripheral peripheral--text" aria-hidden="true">다시 읽고 싶은…</span>
+            <i class="landscape-residue residue-land--line" aria-hidden="true"></i>
+            <i class="landscape-residue residue-land--dot" aria-hidden="true"></i>
+            <i class="landscape-residue residue-land--corner" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="people-conclusion">
+          <p>서로 다른 반응이 함께 쌓이면,</p>
+          <strong>책과 콘텐츠를 둘러싼 맥락이 데이터로 남습니다.</strong>
+        </div>
+        <div class="people-mark" aria-hidden="true"><span>02</span><i></i><small>READER CONTEXT</small></div>
+      </section>
+
+      <section class="business-scene" aria-label="Scene 3 BUSINESS FLOW">
+        <div class="business-world">
+          <article class="work-surface content-worktop" aria-label="콘텐츠 작업면">
+            <figure class="content-proof-image"><i></i></figure>
+            <div class="content-copy-sheet">
+              <small>이번 주 콘텐츠</small>
+              <strong>문장이 머무는<br>여름의 책</strong>
+              <span>메인 노출 · 반응 확인</span>
+              <time>08.16 · 오전 10:00 노출 시작</time>
+              <dl><div><dt>노출 위치</dt><dd>메인</dd></div><div><dt>콘텐츠 상태</dt><dd>노출 중</dd></div><div><dt>대상 도서</dt><dd>4권</dd></div></dl>
+              <i aria-hidden="true"></i>
+            </div>
+            <div class="content-book-mini" aria-hidden="true"></div>
+            <div class="crop-marks" aria-hidden="true"><i></i><i></i></div>
+          </article>
+
+          <article class="work-surface product-workstation" aria-label="상품 운영 작업면">
+            <div class="product-monitor">
+              <header><b>상품 정보</b><span>판매 상태 확인</span></header>
+              <div class="product-row product-row--head"><span>상품명</span><span>출판사</span><span>판매 상태</span><span>재고 정보</span><span>판매 현황</span></div>
+              <div class="product-row"><b>문장이 머무는 여름의 책</b><span>모은책</span><em>판매 중</em><strong>24권</strong><small>최근 7일 183권</small></div>
+              <div class="product-row"><b>오래된 정원</b><span>포레스트</span><em>정보 확인</em><strong>확인 중</strong><small>판매 현황</small></div>
+              <div class="product-row"><b>다른 계절의 이야기</b><span>느린서재</span><em>판매 예정</em><strong>입고 예정</strong><small>판매 현황</small></div>
+              <div class="product-row"><b>빛이 머문 자리</b><span>파란책</span><em>판매 중</em><strong>18권</strong><small>최근 7일 96권</small></div>
+              <div class="product-detail-strip"><i></i><span>책 소개와 판매 정보를 확인합니다.</span></div>
+            </div>
+            <div class="product-books" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="product-reference"><span>판형</span><b>128 × 188</b><span>형태</span><b>종이책</b></div>
+          </article>
+
+          <article class="work-surface order-worktop" aria-label="주문 운영 작업면">
+            <div class="order-list-sheet">
+              <header><b>주문 현황</b><span>처리 상태</span></header>
+              <div><strong>3권</strong><span>결제 확인</span><em>준비 중</em></div>
+              <div><strong>1권</strong><span>배송 정보 확인</span><em>확인 필요</em></div>
+              <div><strong>2권</strong><span>출고 요청</span><em>처리 완료</em></div>
+              <div><strong>4권</strong><span>주문 묶음</span><em>준비 중</em></div>
+              <div class="order-row-extra"><strong>1권</strong><span>수량 확인</span><em>확인 필요</em></div>
+              <div class="order-row-extra"><strong>5권</strong><span>배송 준비</span><em>처리 중</em></div>
+              <div class="order-row-extra"><strong>2권</strong><span>출고 확인</span><em>처리 완료</em></div>
+            </div>
+            <div class="order-book-stack" aria-hidden="true"><i></i><i></i></div>
+            <div class="dispatch-slip"><small>출고 메모</small><span>수량과 상태를 확인합니다.</span></div>
+          </article>
+
+          <aside class="business-peripheral peripheral-catalog" aria-hidden="true">
+            <i></i><span>검색어 · 클릭</span><b>유입 경로</b>
+          </aside>
+          <aside class="business-peripheral peripheral-schedule" aria-hidden="true">
+            <i></i><i></i><span>판매 현황 · 재고 정보 · 입고 상태</span>
+          </aside>
+        </div>
+        <div class="business-conclusion"><p>서로 다른 업무의 곁에서,</p><strong>서로 다른 데이터가 움직이고 있습니다.</strong></div>
+        <div class="business-mark" aria-hidden="true"><span>03</span><i></i><small>DATA AT WORK</small></div>
+      </section>
+
+      <section class="datahub-scene" aria-label="Scene 4 DATAHUB">
+        <div class="scene-four-question">
+          <p>이 다양한 데이터를,</p>
+          <strong>필요한 관점에서 바라본다면?</strong>
+        </div>
+
+        <div class="observation-layer" aria-hidden="true">
+          <i class="observation-focus focus--content"></i>
+          <i class="observation-focus focus--product"></i>
+          <i class="observation-focus focus--order"></i>
+        </div>
+
+        <div class="datahub-ui-shell">
+          <img
+            class="datahub-ui-capture"
+            alt="DataHub 화면"
+            src="assets/datahub_main.png"
+          >
+          <div class="datahub-placeholder" aria-hidden="true">
+            <div class="placeholder-bar"><i></i><span></span><span></span></div>
+            <div class="placeholder-surface">
+              <i class="placeholder-block block-a"></i>
+              <i class="placeholder-block block-b"></i>
+              <i class="placeholder-block block-c"></i>
+              <i class="placeholder-line line-a"></i>
+              <i class="placeholder-line line-b"></i>
+              <i class="placeholder-line line-c"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="datahub-conclusion">
+          <p>필요한 데이터를,</p>
+          <strong>필요한 관점으로.</strong>
+        </div>
+        <a class="datahub-enter" href="https://ax-datahub.yes24.com">DataHub 시작하기<span aria-hidden="true">↗</span></a>
+        <div class="datahub-mark" aria-hidden="true"><span>04</span><i></i><small>DATAHUB</small></div>
+      </section>
+
+      <div class="scene-mark" aria-hidden="true"><span>00</span><i></i><small>REAL WORLD</small></div>
+      <div class="scroll-cue" aria-hidden="true">천천히 스크롤해보세요<i></i></div>
+    </section>
+    <div class="scroll-space" aria-hidden="true"></div>
+  </main>
+  <script src="js/scene-0.js"></script>
+</body>
+</html>

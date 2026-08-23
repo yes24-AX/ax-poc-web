@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나의 인생책갈피 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700;900&family=Special+Elite&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --paper:#F1EAD8;
+    --paper-deep:#E7DCC2;
+    --ink:#241F16;
+    --green:#2F4538;
+    --green-deep:#22332A;
+    --red:#B3392B;
+    --gold:#B98A2E;
+    --card:#FFFCF5;
+    --line:#C9BC9C;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 10%, rgba(185,138,46,0.10), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(47,69,56,0.10), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1080px;margin:0 auto;
+    padding:50px 0px 50px 0px;
+  }
+
+  /* header */
+  header{
+    text-align:center;
+    margin-bottom:36px;
+  }
+  .eyebrow{
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    letter-spacing:0.35em;
+    color:var(--red);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Noto Serif KR', serif;
+    font-weight:900;
+    font-size:clamp(28px,5vw,44px);
+    margin:0 0 12px;
+    color:var(--green-deep);
+    letter-spacing:-0.01em;
+  }
+  header p{
+    font-size:15px;
+    color:#5b5342;
+    max-width:520px;
+    margin:0 auto;
+    line-height:1.6;
+  }
+  .counter{
+    display:inline-block;
+    margin-top:16px;
+    font-family:'Special Elite', monospace;
+    font-size:13px;
+    background:var(--green-deep);
+    color:var(--paper);
+    padding:6px 16px;
+    border-radius:999px;
+    letter-spacing:0.05em;
+  }
+
+  /* layout */
+  .layout{
+    display:grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width: 860px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  /* shelf */
+  .shelf-title{
+    font-family:'Noto Serif KR', serif;
+    font-weight:700;
+    font-size:15px;
+    color:var(--green-deep);
+    margin:0 0 14px;
+    border-bottom:2px solid var(--line);
+    padding-bottom:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  .shelf-title span{
+    font-family:'Special Elite', monospace;
+    font-size:11px;
+    color:#8a7f63;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+    gap:14px;
+  }
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+    user-select:none;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 16px rgba(34,51,42,0.15);
+  }
+  .card.selected{
+    outline:2px solid var(--red);
+    outline-offset:2px;
+  }
+  .card.disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+    transform:none !important;
+  }
+  .cover-box{
+    position:relative;
+    width:100%;
+    aspect-ratio:3/4.3;
+    overflow:hidden;
+    border-radius:3px;
+    background:#ddd3b8;
+  }
+  .cover-box img{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .stamp{
+    position:absolute;
+    top:8px; right:8px;
+    width:46px;height:46px;
+    border-radius:50%;
+    border:2.5px solid var(--red);
+    color:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Special Elite', monospace;
+    font-size:10px;
+    font-weight:700;
+    transform:rotate(-18deg);
+    background:rgba(255,255,255,0.85);
+    opacity:0;
+    transition:opacity .15s ease, transform .15s ease;
+    pointer-events:none;
+    line-height:1.1;
+    text-align:center;
+  }
+  .card.selected .stamp{
+    opacity:1;
+    transform:rotate(-14deg) scale(1);
+  }
+  .order-badge{
+    position:absolute;
+    top:8px; left:8px;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--green-deep);
+    color:var(--paper);
+    font-family:'Special Elite', monospace;
+    font-size:12px;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;
+    transition:opacity .15s ease;
+  }
+  .card.selected .order-badge{opacity:1;}
+  .meta{
+    margin-top:8px;
+    font-size:12px;
+    line-height:1.4;
+  }
+  .meta .t{font-weight:700;color:var(--ink);}
+  .meta .a{color:#7b7057;font-size:11px;}
+
+  /* strip panel */
+  .strip-panel{
+    position:sticky;
+    top:24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+  }
+  .strip-title{
+    font-family:'Noto Serif KR', serif;
+    font-weight:700;
+    font-size:15px;
+    color:var(--green-deep);
+    align-self:flex-start;
+    border-bottom:2px solid var(--line);
+    padding-bottom:8px;
+    width:100%;
+  }
+  #stripCapture{
+    background:#fffef9;
+    padding:14px 14px 18px;
+    width:260px;
+    box-shadow:0 12px 28px rgba(34,51,42,0.22);
+    border:1px solid #ddd2b0;
+    position:relative;
+  }
+  #stripCapture::before, #stripCapture::after{
+    content:"";
+    position:absolute;
+    left:0;right:0;
+    height:0;
+    border-top:2px dashed #cfc4a4;
+  }
+  #stripCapture::before{top:10px;}
+  #stripCapture::after{bottom:56px;}
+  .strip-slot{
+    width:100%;
+    aspect-ratio:3/2.35;
+    background:repeating-linear-gradient(45deg, #ece2c6, #ece2c6 6px, #e4d8b5 6px, #e4d8b5 12px);
+    margin-bottom:8px;
+    border-radius:2px;
+    overflow:hidden;
+    position:relative;
+  }
+  .strip-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+  .strip-slot .placeholder{
+    position:absolute; inset:0;
+    display:flex;align-items:center;justify-content:center;
+    color:#a89a72;
+    font-family:'Special Elite', monospace;
+    font-size:11px;
+  }
+  .strip-slot .cap{
+    position:absolute;bottom:0;left:0;right:0;
+    background:rgba(34,51,42,0.72);
+    color:#fff;
+    font-size:9.5px;
+    padding:3px 6px;
+    font-family:'Noto Sans KR', sans-serif;
+    line-height:1.3;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .strip-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:6px;
+    padding-top:8px;
+  }
+  .strip-brand{
+    font-family:'Noto Serif KR', serif;
+    font-weight:900;
+    font-size:13px;
+    color:var(--green-deep);
+    letter-spacing:0.02em;
+  }
+  .strip-date{
+    font-family:'Special Elite', monospace;
+    font-size:10px;
+    color:var(--red);
+  }
+  .strip-complete{
+    text-align:center;
+    font-family:'Special Elite', monospace;
+    font-size:10px;
+    color:#a89a72;
+    margin-top:4px;
+    letter-spacing:0.15em;
+  }
+  .strip-complete.on{color:var(--red);}
+
+  .actions{
+    display:flex;
+    gap:10px;
+    width:260px;
+  }
+  button.act{
+    flex:1;
+    font-family:'Noto Sans KR', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    padding:11px 10px;
+    border-radius:6px;
+    border:1.5px solid var(--green-deep);
+    background:transparent;
+    color:var(--green-deep);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  button.act.primary{
+    background:var(--green-deep);
+    color:var(--paper);
+  }
+  button.act:hover{opacity:0.85;}
+  button.act:disabled{opacity:0.35;cursor:not-allowed;}
+
+  .cta-box{
+    width:260px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+  }
+  .cta-box h4{
+    margin:0 0 10px;
+    font-family:'Noto Serif KR', serif;
+    font-size:13px;
+    color:var(--green-deep);
+  }
+  .cta-empty{
+    font-size:12px;
+    color:#a89a72;
+    font-family:'Special Elite', monospace;
+  }
+  .cta-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12px;
+    padding:7px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .cta-item:last-child{border-bottom:none;}
+  .cta-item a{
+    color:var(--red);
+    text-decoration:none;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .cta-item a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+    <object data="pc-header.html" type="text/html" style="display:block; width:100%; height:195px; border:0;" aria-label="YES24 header include"></object>
+    <div class="wrap">
+        <header>
+            <div class="eyebrow">NOBEL SEASON · READING RECORD CARD</div>
+            <h1>나의 인생책갈피 만들기</h1>
+            <p>노벨문학상 시즌, 열 권의 책 중 나에게 가장 오래 남은 네 권을 골라보세요.<br>인생네컷처럼, 도서관 대출카드처럼 — 나만의 독서 기록이 완성됩니다.</p>
+            <div class="counter" id="counter">0 / 4 권 선택됨</div>
+        </header>
+
+        <div class="layout">
+            <section>
+            <div class="shelf-title">이 책들 중에서 골라보세요 <span>TAP TO CHECK OUT</span></div>
+            <div class="grid" id="grid"></div>
+            </section>
+
+            <aside class="strip-panel">
+            <div class="strip-title">인생책갈피 미리보기</div>
+            <div id="stripCapture">
+                <div id="slots"></div>
+                <div class="strip-footer">
+                <div class="strip-brand">나의 서가</div>
+                <div class="strip-date" id="dateStamp"></div>
+                </div>
+            </div>
+            <div class="strip-complete" id="completeMsg">4 / 4 · COMPLETE</div>
+
+            <div class="actions">
+                <button class="act" id="resetBtn">다시 고르기</button>
+                <button class="act primary" id="downloadBtn" disabled>이미지로 저장</button>
+            </div>
+
+            <div class="cta-box">
+                <h4>선택한 책 바로 만나보기</h4>
+                <div id="ctaList"><div class="cta-empty">아직 고른 책이 없어요</div></div>
+            </div>
+            </aside>
+        </div>
+    </div>
+    <object data="pc-footer.html" type="text/html" style="display:block; width:100%; height:420px; border:0;" aria-label="YES24 footer include"></object>
+<script>
+const books = [
+  {id:1, title:"빌러비드", author:"토니 모리슨", cover:"https://image.yes24.com/goods/12531144/XL", url:"https://www.yes24.com/product/goods/12531144"},
+  {id:2, title:"단순한 열정", author:"아니 에르노", cover:"https://image.yes24.com/goods/7977274/XL", url:"https://www.yes24.com/product/goods/7977274"},
+  {id:3, title:"노인과 바다", author:"어니스트 헤밍웨이", cover:"https://image.yes24.com/goods/6179070/XL", url:"https://www.yes24.com/product/goods/6179070"},
+  {id:4, title:"작은 것들의 신", author:"아룬다티 로이", cover:"https://image.yes24.com/goods/24191259/XL", url:"https://www.yes24.com/product/goods/24191259"},
+  {id:5, title:"속죄", author:"이언 매큐언", cover:"https://image.yes24.com/goods/117663050/XL", url:"https://www.yes24.com/product/goods/117663050"},
+  {id:6, title:"데미안", author:"헤르만 헤세", cover:"https://image.yes24.com/goods/8156036/XL", url:"https://www.yes24.com/product/goods/8156036"},
+  {id:7, title:"숨그네", author:"헤르타 뮐러", cover:"https://image.yes24.com/goods/3849134/XL", url:"https://www.yes24.com/product/goods/3849134"},
+  {id:8, title:"어두운 상점들의 거리", author:"파트릭 모디아노", cover:"https://image.yes24.com/goods/3849110/XL", url:"https://www.yes24.com/product/goods/3849110"},
+  {id:9, title:"루시", author:"저메이카 킨케이드", cover:"https://image.yes24.com/goods/104804340/XL", url:"https://www.yes24.com/product/goods/104804340"},
+  {id:10, title:"디어 라이프", author:"앨리스 먼로", cover:"https://image.yes24.com/goods/11252909/XL", url:"https://www.yes24.com/product/goods/11252909"}
+];
+
+const MAX = 4;
+let selected = []; // array of book objects, in order chosen
+
+const grid = document.getElementById('grid');
+const slots = document.getElementById('slots');
+const counter = document.getElementById('counter');
+const ctaList = document.getElementById('ctaList');
+const downloadBtn = document.getElementById('downloadBtn');
+const completeMsg = document.getElementById('completeMsg');
+const dateStamp = document.getElementById('dateStamp');
+
+function fmtDate(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}.${m}.${day}`;
+}
+dateStamp.textContent = fmtDate();
+
+function renderGrid(){
+  grid.innerHTML = '';
+  books.forEach(book => {
+    const isSelected = selected.find(b => b.id === book.id);
+    const order = isSelected ? selected.findIndex(b => b.id === book.id) + 1 : null;
+    const disabled = !isSelected && selected.length >= MAX;
+
+    const card = document.createElement('div');
+    card.className = 'card' + (isSelected ? ' selected' : '') + (disabled ? ' disabled' : '');
+    card.innerHTML = `
+      <div class="cover-box">
+        <img src="${book.cover}" alt="${book.title}" loading="lazy">
+        <div class="stamp">대출<br>완료</div>
+        <div class="order-badge">${order || ''}</div>
+      </div>
+      <div class="meta">
+        <div class="t">${book.title}</div>
+        <div class="a">${book.author}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => toggleBook(book));
+    grid.appendChild(card);
+  });
+}
+
+function toggleBook(book){
+  const idx = selected.findIndex(b => b.id === book.id);
+  if(idx >= 0){
+    selected.splice(idx, 1);
+  } else {
+    if(selected.length >= MAX) return;
+    selected.push(book);
+  }
+  renderAll();
+}
+
+function renderStrip(){
+  slots.innerHTML = '';
+  for(let i=0;i<MAX;i++){
+    const b = selected[i];
+    const slot = document.createElement('div');
+    slot.className = 'strip-slot';
+    if(b){
+      slot.innerHTML = `<img src="${b.cover}" alt="${b.title}"><div class="cap">${b.title} · ${b.author}</div>`;
+    } else {
+      slot.innerHTML = `<div class="placeholder">0${i+1}</div>`;
+    }
+    slots.appendChild(slot);
+  }
+  const done = selected.length === MAX;
+  completeMsg.classList.toggle('on', done);
+  completeMsg.textContent = done ? '4 / 4 · COMPLETE' : `${selected.length} / 4 · IN PROGRESS`;
+  downloadBtn.disabled = !done;
+}
+
+function renderCounter(){
+  counter.textContent = `${selected.length} / ${MAX} 권 선택됨`;
+}
+
+function renderCta(){
+  if(selected.length === 0){
+    ctaList.innerHTML = '<div class="cta-empty">아직 고른 책이 없어요</div>';
+    return;
+  }
+  ctaList.innerHTML = selected.map(b => `
+    <div class="cta-item">
+      <span>${b.title}</span>
+      <a href="${b.url}" target="_blank" rel="noopener">보러가기 →</a>
+    </div>
+  `).join('');
+}
+
+function renderAll(){
+  renderGrid();
+  renderStrip();
+  renderCounter();
+  renderCta();
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  selected = [];
+  renderAll();
+});
+
+downloadBtn.addEventListener('click', () => {
+  if(downloadBtn.disabled) return;
+  html2canvas(document.getElementById('stripCapture'), {backgroundColor:'#fffef9', scale:2}).then(canvas => {
+    const link = document.createElement('a');
+    link.download = '나의_인생책갈피.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+});
+
+renderAll();
+</script>
+</body>
+</html>

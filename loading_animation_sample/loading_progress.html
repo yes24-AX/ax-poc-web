@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>YES24 AI Loader - 3안: 점선 궤도</title>
+<style>
+  :root {
+    --yes24-blue: #1967d2;
+    --yes24-blue-2: #0b84ff;
+    --yes24-red: #ff4b55;
+    --ai-loader-size: 72px;
+    --ai-character-size: 38px;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  }
+
+  .yes24-ai-loader {
+    width: var(--ai-loader-size);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .yes24-ai-loader__bar {
+    position: relative;
+    width: 34px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(25, 103, 210, .12);
+    overflow: hidden;
+  }
+
+  .yes24-ai-loader__bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -45%;
+    width: 45%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--yes24-blue), var(--yes24-blue-2), var(--yes24-red));
+    animation: yes24-loader-scan 1.15s ease-in-out infinite;
+  }
+
+  @keyframes yes24-loader-scan {
+    0% { left: -45%; }
+    100% { left: 100%; }
+  }
+
+  .yes24-ai-loader__mark {
+    position: relative;
+    width: var(--ai-loader-size);
+    height: var(--ai-loader-size);
+    display: grid;
+    place-items: center;
+  }
+
+  .yes24-ai-loader--option3 .yes24-ai-loader__mark::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(25, 103, 210, .12), rgba(25, 103, 210, 0) 70%);
+    animation: yes24-loader-pulse 1.8s ease-in-out infinite;
+  }
+
+  .yes24-ai-loader--option3 .yes24-ai-loader__orbit {
+    position: absolute;
+    inset: 9px;
+    border-radius: 999px;
+    border: 1px dashed rgba(25, 103, 210, .32);
+    animation: yes24-loader-spin-reverse 2.8s linear infinite;
+  }
+
+  .yes24-ai-loader__character {
+    position: relative;
+    z-index: 1;
+    width: var(--ai-character-size);
+    height: var(--ai-character-size);
+    display: block;
+    animation: yes24-loader-float 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 5px 8px rgba(25, 103, 210, .16));
+  }
+
+  @keyframes yes24-loader-pulse {
+    0%, 100% { transform: scale(.9); opacity: .65; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  @keyframes yes24-loader-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  @keyframes yes24-loader-spin-reverse {
+    to { transform: rotate(-360deg); }
+  }
+</style>
+</head>
+<body>
+
+  <div class="yes24-ai-loader yes24-ai-loader--option3" role="status" aria-label="YES24 AI가 생각하는 중입니다">
+    <div class="yes24-ai-loader__mark" aria-hidden="true">
+      <span class="yes24-ai-loader__orbit"></span>
+      <img class="yes24-ai-loader__character" src="ico_ai02.svg" alt="" />
+    </div>
+    <span class="yes24-ai-loader__bar" aria-hidden="true"></span>
+  </div>
+
+</body>
+</html>

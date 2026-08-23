@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Catalog — YES24 Developers</title>
+  <title>API 카탈로그 — YES24 Developers</title>
   <link rel="icon" href="assets/img/favicon_n.ico" type="image/x-icon">
   <link rel="stylesheet" href="assets/css/main.css">
 </head>
@@ -13,178 +13,141 @@
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
       <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
-      <span class="nav-logo-developers">Developers</span>
+      <span class="nav-logo-developers">개발자센터</span>
     </a>
     <div class="nav-divider"></div>
     <ul class="nav-links">
-      <li><a href="docs.html" class="active">Docs</a></li>
-      <li><a href="api-explorer.html">API Explorer</a></li>
-      <li><a href="my-applications.html">My Applications</a></li>
-      <li><a href="support.html">Support</a></li>
+      <li><a href="docs.html" class="active">문서</a></li>
+      <li><a href="api-explorer.html">API 테스트</a></li>
+      <li><a href="support.html">지원</a></li>
+
     </ul>
     <div class="nav-actions">
-      <div class="search-bar">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M10.68 11.74a6 6 0 01-7.922-8.982 6 6 0 018.982 7.922l3.04 3.04a.749.749 0 01-.326 1.275.749.749 0 01-.734-.215l-3.04-3.04zm-5.44-1.19a4.5 4.5 0 100-9 4.5 4.5 0 000 9z"/></svg>
-        <span>문서 검색...</span>
-        <span class="search-bar-kbd">⌘K</span>
-      </div>
-      <span class="nav-version-badge">v1.0</span>
-      <a href="my-applications.html" class="btn btn-ghost btn-sm">로그인</a>
-      <a href="api-key-apply.html" class="btn btn-primary btn-sm">API Key 신청</a>
+      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <span id="nav-user-info" style="display:none;align-items:center;gap:8px;"></span>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
     </div>
   </div>
 </nav>
 
-<div style="border-bottom: 1px solid var(--color-border); padding: 48px 0 40px; background: var(--color-bg);">
-  <div class="content-container">
-    <nav class="doc-breadcrumb" style="margin-bottom:16px;">
-      <a href="index.html">Home</a>
-      <span>/</span>
-      <a href="docs.html">Docs</a>
-      <span>/</span>
-      <span>API Catalog</span>
+<div class="page-docs" style="max-width:none;">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">시작하기</div>
+      <ul class="sidebar-nav">
+        <li><a href="docs.html">개요</a></li>
+        <li><a href="docs-apikey.html">API Key 발급</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">API 문서</div>
+      <ul class="sidebar-nav">
+        <li><a href="api-catalog.html" class="active">API 카탈로그</a></li>
+        <li>
+          <a href="api-category-list.html">Category API</a>
+          <ul class="sub-nav">
+            <li><a href="api-category-list.html">카테고리 목록 조회</a></li>
+            <li><a href="api-category-bestseller-realtime.html">실시간 베스트셀러 조회</a></li>
+            <li><a href="api-category-bestseller.html">종합 베스트셀러 조회</a></li>
+            <li><a href="api-category-bestseller-deal.html">특가 베스트셀러 조회</a></li>
+            <li><a href="api-category-bestseller-steady.html">스테디셀러 조회</a></li>
+            <li><a href="api-category-newproduct.html">신상품 조회</a></li>
+            <li><a href="api-category-newproduct-attention.html">주목할 신상품 조회</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="api-goods-item-list.html">Goods API</a>
+          <ul class="sub-nav">
+            <li><a href="api-goods-item-list.html">상품 검색</a></li>
+            <li><a href="api-goods-item-detail.html">상품 상세 조회</a></li>
+            <li><a href="api-goods-content.html">상품 목차 조회</a></li>
+            <li><a href="api-goods-author.html">작가 기본 정보 조회</a></li>
+          </ul>
+        </li>
+        <li><a href="docs-error-codes.html">오류 코드</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="doc-content">
+    <nav class="doc-breadcrumb">
+      <a href="index.html">홈</a>
+      <span>&gt;</span>
+      <a href="docs.html">문서</a>
+      <span>&gt;</span>
+      <span>API 카탈로그</span>
     </nav>
-    <h1 style="font-size:28px;font-weight:700;color:var(--color-text);letter-spacing:-0.02em;margin-bottom:8px;">API Catalog</h1>
-    <p style="font-size:16px;color:var(--color-text-secondary);margin:0;">YES24 Open API의 전체 카테고리입니다. 각 카테고리를 선택하면 상세 레퍼런스를 확인할 수 있습니다.</p>
-  </div>
-</div>
 
-<div style="padding: 48px 0; min-height: calc(100vh - 200px);">
-  <div class="content-container">
-
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:32px;">
-      <button class="btn btn-secondary btn-sm" style="border-color:var(--color-brand);color:var(--color-brand);background:var(--color-brand-muted);">전체</button>
-      <button class="btn btn-ghost btn-sm">Books</button>
-      <button class="btn btn-ghost btn-sm">Products</button>
-      <button class="btn btn-ghost btn-sm">Search</button>
-      <button class="btn btn-ghost btn-sm">Common</button>
+    <div class="doc-page-title">
+      <h1>API 카탈로그</h1>
+      <p>YES24 Open API의 전체 카테고리입니다. 각 카테고리를 선택하면 상세 레퍼런스를 확인할 수 있습니다.</p>
     </div>
 
-    <div class="catalog-grid">
+    <h2 id="category">Category API</h2>
+    <a href="api-category-list.html" class="catalog-card">
+      <div class="catalog-card-header">
+        <div class="catalog-card-icon icon-products">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+          </svg>
+        </div>
+        <span class="catalog-card-count">7개 Endpoint</span>
+      </div>
+      <h3>Category API</h3>
+      <p>YES24 카테고리 목록과 카테고리별 베스트셀러, 신상품, 주목할 신상품 목록을 조회합니다.</p>
+      <div class="catalog-card-endpoints">
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/category/list</span><span style="font-size:12px;color:var(--color-text-muted);">카테고리 목록</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/category/bestsellerRealtime</span><span style="font-size:12px;color:var(--color-text-muted);">실시간 베스트셀러</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/category/bestseller</span><span style="font-size:12px;color:var(--color-text-muted);">종합 베스트셀러</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/category/bestsellerDeal</span><span style="font-size:12px;color:var(--color-text-muted);">특가 베스트셀러</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/category/bestsellerSteady</span><span style="font-size:12px;color:var(--color-text-muted);">스테디셀러</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/category/newproduct</span><span style="font-size:12px;color:var(--color-text-muted);">신상품</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/category/newproductAttention</span><span style="font-size:12px;color:var(--color-text-muted);">주목할 신상품</span></div>
+      </div>
+    </a>
 
-      <a href="api-detail.html" class="catalog-card" id="books">
-        <div class="catalog-card-header">
-          <div class="catalog-card-icon icon-books">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          </div>
-          <span class="catalog-card-count">3개 Endpoint</span>
+    <h2 id="goods">Goods API</h2>
+    <a href="api-goods-item-list.html" class="catalog-card">
+      <div class="catalog-card-header">
+        <div class="catalog-card-icon icon-products">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16.5 9.4 7.55 4.24"/>
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.29 7 12 12 20.71 7"/>
+            <line x1="12" y1="22" x2="12" y2="12"/>
+          </svg>
         </div>
-        <h3>Books API</h3>
-        <p>도서 검색, 상세 정보 조회, 미리보기 기능을 제공합니다. ISBN, 저자, 출판사 등 다양한 조건으로 검색할 수 있습니다.</p>
-        <div class="catalog-card-endpoints">
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/books</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 도서 검색</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/books/{id}</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 도서 상세</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/books/{id}/preview</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 미리보기</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="#" class="catalog-card" id="products">
-        <div class="catalog-card-header">
-          <div class="catalog-card-icon icon-products">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
-          </div>
-          <span class="catalog-card-count">4개 Endpoint</span>
-        </div>
-        <h3>Products API</h3>
-        <p>YES24에서 판매하는 상품의 가격, 재고, 할인 정보를 실시간으로 조회합니다. 장바구니 연동에 활용할 수 있습니다.</p>
-        <div class="catalog-card-endpoints">
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/products</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 상품 목록</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/products/{id}</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 상품 상세</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/products/bestseller</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 베스트셀러</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/products/new</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 신상품</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="#" class="catalog-card" id="search">
-        <div class="catalog-card-header">
-          <div class="catalog-card-icon icon-search">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <span class="catalog-card-count">2개 Endpoint</span>
-        </div>
-        <h3>Search API</h3>
-        <p>YES24 통합 검색 기능을 API로 제공합니다. 자동완성, 연관 검색어, 오타 교정 기능이 포함됩니다.</p>
-        <div class="catalog-card-endpoints">
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/search</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 통합 검색</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/search/suggest</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 자동완성</span>
-          </div>
-        </div>
-      </a>
-
-      <a href="#" class="catalog-card" id="codes">
-        <div class="catalog-card-header">
-          <div class="catalog-card-icon icon-codes">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          </div>
-          <span class="catalog-card-count">3개 Endpoint</span>
-        </div>
-        <h3>Common Codes API</h3>
-        <p>카테고리 분류 체계, 출판사 코드, 공통 코드 정보를 제공합니다. 필터 UI 구현에 활용하세요.</p>
-        <div class="catalog-card-endpoints">
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/codes/categories</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 카테고리</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/codes/publishers</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 출판사 코드</span>
-          </div>
-          <div class="catalog-card-endpoint">
-            <span class="method-badge method-get">GET</span>
-            <span class="endpoint-path">/v1/codes/{type}</span>
-            <span style="font-size:12px;color:var(--color-text-muted);">— 공통 코드 조회</span>
-          </div>
-        </div>
-      </a>
-
-    </div>
+        <span class="catalog-card-count">4개 Endpoint</span>
+      </div>
+      <h3>Goods API</h3>
+      <p>검색어, 상품 번호, ISBN13을 기준으로 상품 목록, 상세 정보, 목차, 작가 기본 정보를 조회합니다.</p>
+      <div class="catalog-card-endpoints">
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/goods/itemList</span><span style="font-size:12px;color:var(--color-text-muted);">상품 검색</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/goods/itemDetail</span><span style="font-size:12px;color:var(--color-text-muted);">상품 상세</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/goods/content</span><span style="font-size:12px;color:var(--color-text-muted);">상품 목차</span></div>
+        <div class="catalog-card-endpoint"><span class="method-badge method-get">GET</span><span class="endpoint-path">/v1/goods/author</span><span style="font-size:12px;color:var(--color-text-muted);">작가 정보</span></div>
+      </div>
+    </a>
 
     <div style="margin-top:48px;padding:20px 24px;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:space-between;gap:16px;">
       <div>
         <div style="font-size:14px;font-weight:600;color:var(--color-text);margin-bottom:4px;">직접 테스트해보고 싶으신가요?</div>
-        <div style="font-size:13px;color:var(--color-text-muted);">API Explorer에서 실제 요청을 보내고 응답을 확인할 수 있습니다.</div>
+        <div style="font-size:13px;color:var(--color-text-muted);">API 테스트에서 실제 요청을 보내고 응답을 확인할 수 있습니다.</div>
       </div>
-      <a href="api-explorer.html" class="btn btn-primary">API Explorer 열기 →</a>
+      <a href="api-explorer.html" class="btn btn-primary">API 테스트 열기 →</a>
     </div>
+  </main>
 
-  </div>
+  <aside class="toc-panel">
+    <div class="toc-title">이 페이지에서</div>
+    <ul class="toc-nav">
+      <li><a href="#category">Category API</a></li>
+      <li><a href="#goods">Goods API</a></li>
+    </ul>
+  </aside>
 </div>
 
 <footer class="footer">
@@ -200,17 +163,25 @@
       <div class="footer-link-group">
         <h4>문서</h4>
         <ul>
-          <li><a href="docs.html">Getting Started</a></li>
-          <li><a href="api-catalog.html">API Catalog</a></li>
-          <li><a href="api-detail.html">API Reference</a></li>
+          <li><a href="docs.html">시작하기</a></li>
+          <li><a href="api-catalog.html">API 카탈로그</a></li>
+          <li><a href="api-goods-item-list.html">API 문서</a></li>
+          <li><a href="docs-error-codes.html">오류 코드</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API 테스트</a></li>
+          <li><a href="my-applications.html">내 애플리케이션</a></li>
         </ul>
       </div>
       <div class="footer-link-group">
         <h4>지원</h4>
         <ul>
           <li><a href="support.html">공지사항</a></li>
-          <li><a href="support.html#faq">FAQ</a></li>
-          <li><a href="support.html#error-codes">Error Codes</a></li>
+          <li><a href="support-faq.html">FAQ</a></li>
+
         </ul>
       </div>
     </div>

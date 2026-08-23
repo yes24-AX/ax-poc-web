@@ -1,0 +1,313 @@
+﻿
+$(document).ready(function () {
+
+    //GNB 메뉴 셋팅
+    MenuSetting();
+
+    //제휴 공지레어어 팝업
+    OpenPartnerInfomationPopup();
+
+    //스카이스크래퍼 Right
+    // PartnerWingAreaPopupTarget();
+});
+
+
+function ClickMenuCheck(CategoryNumber) {
+    /* 선택 탭 활성화 s*/
+
+    if (CategoryNumber != "") {
+        CategoryNumber = (CategoryNumber.length > 3) ? CategoryNumber.substring(0, CategoryNumber.length - (CategoryNumber.length - 3)) : CategoryNumber;
+
+        if (CategoryNumber == "001" ||
+            CategoryNumber == "002" ||
+            CategoryNumber == "017" ||
+            CategoryNumber == "EST" ||
+            CategoryNumber == "003" ||
+            CategoryNumber == "004" ||
+            CategoryNumber == "MOV" ||
+            CategoryNumber == "ENT" ||
+            CategoryNumber == "006" ||
+            CategoryNumber == "008" ||
+            CategoryNumber == "018" ||
+            CategoryNumber == "981") {
+
+            $("#ulCategoryList").removeClass();
+            $("#ulCategoryList").addClass("cateLi cate" + CategoryNumber + "On");
+        }
+        else {
+        }
+        set_default_search_category(CategoryNumber);
+    } else {
+    }
+
+    /* 선택 탭 활성화 e*/
+}
+
+/*
+//제휴사용 메뉴 셋팅
+ex) {
+GNB : GNB메뉴에서 미노출 목록
+MainEtcGNB : MainEtcGNB메뉴에서 미노출 목록
+SubEtcGNB : SubEtcGNB메뉴에서 미노출 목록
+PopupTarget : 제휴사 공통 팝업 관련 노출 여부
+SearchTextRemoveTarget : 검색창 삭제될 목록
+SearchEtcTextRemoveTarget : 채널yes, 블로그
+SkyScraperRemoveTarget : 스카이스크래퍼 노출여부
+ParetnerType : b2b , 마케팅
+*/
+function MenuSetting() {
+
+    if (YesData.PID() != "") {
+        //GNB
+        if (YesData.ParenerInfomagion().SearchTextRemoveTarget != "") {
+            var arr = YesData.ParenerInfomagion().SearchTextRemoveTarget[0].split(',');
+
+            //검색
+            for (var i = 0; i < arr.length; i++) {
+                $("#ulSerchCategory li").each(function (k) {
+
+                    if ($(this).find("a").attr("title") == arr[i]) {
+                        $("#ulSerchCategory li").eq(k).remove();
+                    }
+                });
+            }
+        }//gnb
+
+        //MainEtcGNB
+        if (YesData.ParenerInfomagion().MainEtcGNB != "") {
+            var arr = YesData.ParenerInfomagion().MainEtcGNB[0].split(',');
+
+            //검색
+            for (var i = 0; i < arr.length; i++) {
+                $("#ulSerchCategoryMainEtc li").each(function (k) {
+
+                    if ($(this).find("a").attr("title") == arr[i]) {
+                        $("#ulSerchCategoryMainEtc li").eq(k).remove();
+                    }
+                });
+            }
+
+            //채널예스 없을 경우 div 삭제
+            $("#yHeader #yHeaderWrap .yHeaderBot .yesCornerServ em.divi").remove();
+
+        } //if
+
+        //searchCaterogyEtc
+        if (YesData.ParenerInfomagion().SearchEtcTextRemoveTarget != "") {
+            var arr = YesData.ParenerInfomagion().SearchEtcTextRemoveTarget[0].split(',');
+            //검색
+            for (var i = 0; i < arr.length; i++) {
+                $("#ulSerchCategoryMainEtc li").each(function (k) {
+
+                    if ($(this).find("a").attr("title") == arr[i]) {
+                        $("#ulSerchCategoryMainEtc li").eq(k).remove();
+                    }
+                });
+            }
+        } //if
+
+        //SkyScraperRemoveTarget
+        if (YesData.ParenerInfomagion().SkyScraperRemoveTarget != "") {
+            var arr = YesData.ParenerInfomagion().SkyScraperRemoveTarget[0].split(',');
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] == "SkyScraperLeft") {
+                    $("#ySkyLft").remove();
+                }
+                if (arr[i] == "SkyScraperRight") {
+                    $("#ySkyRgt").remove();
+                }
+            }
+        }
+
+        if (YesData.ParenerInfomagion().ParetnerType != "") {
+            var ParetnerType = YesData.ParenerInfomagion().ParetnerType;
+
+            //1,2 b2b 제휴
+            // 공지사항
+            if (ParetnerType == "1") {
+                if (YesData.PID() == "100880" ||
+                    YesData.PID() == "102299" ||
+                    YesData.PID() == "109012" ||
+                    YesData.PID() == "130265" ||
+                    YesData.PID() == "191450" ||
+                    YesData.PID() == "196126" ||
+                    YesData.PID() == "200416") {
+                    if (getCookie("YES_150211B2BNotice_POP") == "" && $("#divB2BNotice") != "") {
+                        $("#divB2BNotice").load("https://image.yes24.com/static/p/event/b2b_pop_150211.html");                        
+                        $("#divPartnerInformation").css("display", "");
+                        $("#divB2BNotice").css("display", "block");
+                    }
+                }
+            }
+
+            if (ParetnerType == "2") {
+                //   ShowPartnerInformationPopup(YesData.PID());
+            }
+        }
+
+        var host = location.host.toLowerCase();
+        var url = location.href.toLowerCase();
+
+        //현대차
+        if (YesData.PID() == "109986") {
+            if (url.indexOf('24/category/bestseller') > -1 || url.indexOf('searchcorner/search') > -1) {
+                set_default_search_category("001");
+            }
+        }
+        //카카오_B2E, SM엔터_B2E
+        if (YesData.PID() == "258924" || YesData.PID() == "296555") {
+            if (host == "ssl.yes24.com") {
+                //set_default_search_category("001");
+                set_search_category($("#ulSerchCategory li:first-child a").eq(0).text());
+            }
+            else if ($("#search_category").val() == "통합검색") {
+                set_search_category($("#ulSerchCategory li:first-child a").eq(0).text());
+            }
+        }
+    }//pid
+}
+
+//제휴사에서 메인로고 클릭 시 무조건 안내 팝업이 표시되도록 한다.
+function ShowPartnerInformationPopup(pid) {
+    var flag = getCookie("PartnerInfoPopup_" + pid);
+
+    if (flag != "OK")
+        setCookie("YES24_PartnerInfomationPopop", "/_par_/Cooperate/" + pid + ".htm?v=20250103", 1);
+}
+
+// 제휴사용 안내 layer
+/*
+웰컴으로 바로 접속하는 PID관련 공지사항 적용
+154358 : 알피지팩토리
+152247 : 텐센트코리아
+190311 : 웹젠앤플레이
+190226 : 웹젠
+191450 : 한국전력공사
+196230 : 다음게임
+110456 : 한국가스공사
+201156 : 신용기금
+205629 : 통신협회
+206596 : 한국가스공사_B2M
+164811 : NSM
+172443 : 네이버문화재단
+217894 : 엔콕
+219371 : 웹젠온네트
+225877 : 홈앤쇼핑
+223945 : 포워드벤처스
+231822 : 썬데이토즈
+231624 : 이머니
+231626 : 웰게임즈
+233917 : 벅스
+240155 : 진로체험카드
+245380 : 유아바우처
+*/
+function OpenPartnerInfomationPopup() {
+    var url = location.href;
+    url = url.toLowerCase();
+
+    if (YesData.PID() == "154358"
+        || YesData.PID() == "152247"
+        || YesData.PID() == "190311"
+        || YesData.PID() == "190226"
+        || YesData.PID() == "191450"
+        || YesData.PID() == "196230"
+        || YesData.PID() == "201156"
+        || YesData.PID() == "205629"
+        || YesData.PID() == "206595"
+        || YesData.PID() == "206596"
+        || YesData.PID() == "164811"
+        || YesData.PID() == "172443"
+        || YesData.PID() == "215180"
+        || YesData.PID() == "217894"
+        || YesData.PID() == "219371"
+        || YesData.PID() == "223945"
+        || YesData.PID() == "225877"
+        || YesData.PID() == "231822"
+        || YesData.PID() == "231624"
+        || YesData.PID() == "231626"
+        || YesData.PID() == "233917"
+        || YesData.PID() == "249770"
+        || YesData.PID() == "245380"
+        ) {
+
+        var IsShowPop = false;
+        if (url == "https://www.yes24.com/" || url == "https://www.yes24.com/?pid=" + YesData.PID() || url.indexOf('main/default.aspx') > -1) {
+            IsShowPop = true;
+        }
+    }
+
+    switch (YesData.PID) {
+        case "110456":
+            if (url == "https://www.yes24.com/mall/main/music/003?categorynumber=003" || url.indexOf('mall/main/music/003') > -1) {
+                IsShowPop = true;
+            }
+            break;
+        case "240155":
+            if (url == "https://www.yes24.com/mall/main/book/001?categorynumber=001" || url.indexOf('mall/main/book/001') > -1) {
+                IsShowPop = true;
+            }
+            break;
+        case "215180":
+            if (url.indexOf('/24/category/display/001001013') > -1) {
+                IsShowPop = true;
+            }
+            break;
+        case "245380":
+            if (url.indexOf('/24/category/display/001001027') > -1) {
+                IsShowPop = true;
+            }
+            break;
+    }
+
+    //type2
+    if ((YesData.PID() == "219165"
+        || YesData.PID() == "108230"
+        || YesData.PID() == "128651"
+        || YesData.PID() == "164565"
+        || YesData.PID() == "123039"
+        || YesData.PID() == "111713"
+        || YesData.PID() == "212648"
+        || YesData.PID() == "125596"
+        || YesData.PID() == "110229"
+        || YesData.PID() == "109502"
+        || YesData.PID() == "115406"
+        || YesData.PID() == "131292")
+        && url.indexOf('main/book/001') > -1
+    ) {
+        IsShowPop = true;
+    }
+
+    if (IsShowPop) {
+        //ShowPartnerInformationPopup(YesData.PID());
+    }
+
+    if (getCookie("YES24_PartnerInfomationPopop") != null && getCookie("YES24_PartnerInfomationPopop") != "") {
+        var URL = getCookie("YES24_PartnerInfomationPopop");
+        var todayDate = new Date();
+        document.cookie = "YES24_PartnerInfomationPopop=" + escape("") + ";domain=yes24.com;Path=/;expires=" + todayDate.toGMTString();
+        setCookie("YES24_PartnerInfomationPopop", "", 1);
+
+        if ($("#divFamilyBest") != "" && $("#divPartnerInformation") != "") {
+            $("#divPartnerInformation").load(URL, function () {
+                $("#divFamilyBest").css("top", $("#divPartnerInformation").offset.top + $("#divPartnerInformation").height());
+            });
+            $("#divPartnerInformation").css("display", "");
+        }
+    }
+}
+
+//제휴사용 팝업
+function PartnerWingAreaPopupTarget() {
+    if (YesData.ParenerInfomagion().PopupTarget == "True") {
+        if (getCookie("PartnerWingArea") != "OK") {
+            $("#bnPartnerWingArea").css({ "display": "block" });
+        }
+    }
+}
+
+//제휴사 서브메뉴용 layer
+function ShowPartnerBuyBookPopup(pid) {
+    $("#divPartnerBuyBookPopup").load(YesData.HTTP_URL() + '/Partner/PartnerBuyBookPopup.aspx?PID=' + pid);
+    $("#divPartnerBuyBookPopup").css({ "display": "block" });
+}
+

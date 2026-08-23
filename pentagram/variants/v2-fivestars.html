@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PENTAGRAM · 다섯 별의 결사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#0a0a0d;         /* obsidian */
+    --bg2:#12121a;
+    --ink:#f4ecdb;        /* aged paper */
+    --ink-mute:#a8a091;
+    --gold:#c8a44a;       /* dulled gold */
+    --gold-hi:#e6c874;
+    --vermilion:#a02c22;  /* seal red */
+    --line:#2a2a35;
+    --serif:'Noto Serif KR', 'Nanum Myeongjo', serif;
+    --sans:'Pretendard', system-ui, sans-serif;
+    --latin:'Cormorant Garamond', serif;
+    --disp:'Cinzel', serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body{line-height:1.7;font-weight:400}
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  ::selection{background:var(--gold);color:var(--bg)}
+
+  /* film grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:200;opacity:.08;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:80;
+    padding:22px 42px;display:flex;justify-content:space-between;align-items:center;
+    transition:.4s;background:linear-gradient(to bottom, rgba(10,10,13,.85), transparent)}
+  .nav.scrolled{background:rgba(10,10,13,.92);backdrop-filter:blur(10px);padding:14px 42px;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand .sig{width:26px;height:26px}
+  .brand .wm{font-family:var(--disp);font-weight:500;letter-spacing:.42em;font-size:15px;color:var(--ink)}
+  .brand .kr{font-family:var(--serif);font-weight:500;font-size:12px;color:var(--ink-mute);letter-spacing:.25em;margin-left:6px;padding-left:14px;border-left:1px solid var(--line)}
+  .menu{display:flex;gap:36px;align-items:center;font-family:var(--serif);font-size:13px;letter-spacing:.15em;color:var(--ink-mute)}
+  .menu a{position:relative;padding:6px 0;transition:.2s}
+  .menu a:hover{color:var(--gold)}
+  .menu a .n{font-family:var(--latin);font-style:italic;font-size:11px;color:var(--gold);margin-right:8px;opacity:.7}
+  .menu .cta{padding:9px 20px;border:1px solid var(--gold);color:var(--gold);border-radius:0;font-size:12px;letter-spacing:.2em}
+  .menu .cta:hover{background:var(--gold);color:var(--bg)}
+
+  /* HERO */
+  .hero{position:relative;height:100vh;min-height:720px;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;text-align:center}
+  .hero .bg{position:absolute;inset:0;background:url("../assets/hero-fivestars.jpg") center/cover;
+    filter:brightness(.55) contrast(1.05)}
+  .hero .bg::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at center, transparent 30%, rgba(10,10,13,.85) 90%),
+      linear-gradient(to bottom, rgba(10,10,13,.4), transparent 20%, transparent 70%, rgba(10,10,13,1))}
+  .hero .inner{position:relative;z-index:2;padding:0 24px;max-width:960px}
+  .hero .kicker{font-family:var(--disp);letter-spacing:.55em;font-size:12px;color:var(--gold);
+    margin-bottom:32px;text-transform:uppercase}
+  .hero .kicker::before,.hero .kicker::after{content:"";display:inline-block;width:38px;height:1px;
+    background:var(--gold);vertical-align:middle;margin:0 18px 3px;opacity:.6}
+  .hero h1{font-family:var(--serif);font-weight:300;font-size:clamp(38px,7vw,86px);line-height:1.15;
+    letter-spacing:-.01em;margin:0 0 28px}
+  .hero h1 em{font-style:normal;font-weight:700;color:var(--gold);position:relative;display:inline-block}
+  .hero h1 em::after{content:"";position:absolute;left:-6px;right:-6px;bottom:6px;height:1px;background:var(--gold);opacity:.4}
+  .hero .sub{font-size:16px;color:var(--ink-mute);max-width:600px;margin:0 auto 44px;line-height:1.9}
+  .hero .marks{display:flex;justify-content:center;gap:44px;font-family:var(--disp);
+    letter-spacing:.35em;font-size:11px;color:var(--ink-mute);margin-bottom:52px}
+  .hero .marks span{position:relative}
+  .hero .marks span:not(:last-child)::after{content:"·";position:absolute;right:-24px;top:0;color:var(--gold)}
+  .hero .scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+    font-family:var(--disp);letter-spacing:.4em;font-size:10px;color:var(--ink-mute);z-index:2}
+  .hero .scroll-hint::after{content:"";display:block;width:1px;height:32px;background:var(--gold);
+    margin:12px auto 0;animation:drop 1.8s ease-in-out infinite}
+  @keyframes drop{0%,100%{transform:scaleY(1);opacity:.3;transform-origin:top}
+    50%{transform:scaleY(.4);opacity:1;transform-origin:top}}
+
+  /* pentagram overlay in hero (rotating slowly) */
+  .penta{position:absolute;top:50%;left:50%;width:560px;height:560px;transform:translate(-50%,-50%);
+    opacity:.15;pointer-events:none;animation:spin 120s linear infinite}
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  .penta svg{width:100%;height:100%}
+
+  /* SECTION FRAME */
+  section{position:relative}
+  .section-index{position:absolute;top:60px;left:42px;font-family:var(--disp);letter-spacing:.5em;
+    font-size:11px;color:var(--gold);opacity:.9}
+  .section-index b{font-family:var(--latin);font-style:italic;font-weight:400;color:var(--ink-mute);
+    margin-left:14px;padding-left:14px;border-left:1px solid var(--line);letter-spacing:.1em;font-size:12px}
+  .container{max-width:1200px;margin:0 auto;padding:0 42px}
+
+  /* ABOUT */
+  .about{padding:180px 0 160px;background:var(--bg);position:relative;overflow:hidden}
+  .about::before{content:"";position:absolute;top:-1px;left:0;right:0;height:80px;
+    background:linear-gradient(to bottom,var(--bg),transparent)}
+  .about h2{font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-.01em;
+    text-align:center;margin:0 auto 20px;max-width:900px;line-height:1.5}
+  .about h2 em{font-style:normal;color:var(--gold);font-weight:600}
+  .about .about-sub{text-align:center;color:var(--ink-mute);max-width:640px;margin:0 auto 100px;font-size:15px}
+  .about-quote{font-family:var(--latin);font-style:italic;font-size:22px;text-align:center;
+    color:var(--ink-mute);max-width:700px;margin:0 auto 20px;line-height:1.6}
+  .about-quote::before,.about-quote::after{content:"";display:inline-block;width:20px;height:1px;
+    background:var(--gold);vertical-align:middle;margin:0 14px 6px;opacity:.7}
+  .about-cite{text-align:center;font-family:var(--disp);letter-spacing:.4em;font-size:11px;
+    color:var(--gold);margin-bottom:88px}
+  .creed{display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .creed-item{padding:44px 32px;border-left:1px solid var(--line);text-align:center;position:relative}
+  .creed-item:first-child{border-left:none}
+  .creed-item .no{font-family:var(--latin);font-style:italic;font-size:14px;color:var(--gold);letter-spacing:.2em;margin-bottom:22px}
+  .creed-item h4{font-size:18px;font-weight:600;margin:0 0 14px;color:var(--ink)}
+  .creed-item p{font-size:14px;color:var(--ink-mute);margin:0;line-height:1.9}
+
+  /* FIVE STARS — main experimental interaction */
+  .stars{padding:180px 0 200px;background:radial-gradient(ellipse at 50% 40%, #14141d 0%, #08080c 70%);position:relative;overflow:hidden}
+  .stars .container{position:relative;z-index:2}
+  .stars .head{text-align:center;margin-bottom:70px}
+  .stars .head .kicker{font-family:var(--disp);letter-spacing:.5em;font-size:12px;color:var(--gold)}
+  .stars .head h2{font-size:clamp(32px,4.5vw,56px);font-weight:300;margin:16px 0 20px;letter-spacing:-.01em}
+  .stars .head h2 em{font-style:normal;font-weight:700;color:var(--gold)}
+  .stars .head p{color:var(--ink-mute);max-width:560px;margin:0 auto;font-size:14.5px}
+
+  .pentagram-stage{position:relative;width:min(720px, 95vw);aspect-ratio:1/1;margin:0 auto;
+    display:flex;align-items:center;justify-content:center}
+  .pentagram-stage .lines{position:absolute;inset:0;pointer-events:none;opacity:.5}
+  .pentagram-stage .lines line{stroke:var(--gold);stroke-width:.5;fill:none;
+    stroke-dasharray:2000;stroke-dashoffset:2000;animation:draw 3s ease forwards}
+  .pentagram-stage .lines line:nth-child(1){animation-delay:.1s}
+  .pentagram-stage .lines line:nth-child(2){animation-delay:.35s}
+  .pentagram-stage .lines line:nth-child(3){animation-delay:.6s}
+  .pentagram-stage .lines line:nth-child(4){animation-delay:.85s}
+  .pentagram-stage .lines line:nth-child(5){animation-delay:1.1s}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  .genre-node{position:absolute;width:180px;text-align:center;transform:translate(-50%,-50%);cursor:pointer}
+  .genre-node .star{width:30px;height:30px;margin:0 auto 14px;color:var(--gold);
+    filter:drop-shadow(0 0 12px rgba(200,164,74,.6));transition:.4s}
+  .genre-node:hover .star{transform:scale(1.4) rotate(72deg);filter:drop-shadow(0 0 20px rgba(230,200,116,1))}
+  .genre-node .kanji{font-family:var(--serif);font-weight:900;font-size:44px;color:var(--ink);
+    line-height:1;margin-bottom:8px;letter-spacing:.03em;transition:.3s}
+  .genre-node:hover .kanji{color:var(--gold);text-shadow:0 0 24px rgba(200,164,74,.5)}
+  .genre-node .en{font-family:var(--disp);letter-spacing:.35em;font-size:10px;color:var(--ink-mute);
+    text-transform:uppercase;transition:.3s}
+  .genre-node:hover .en{color:var(--gold-hi)}
+  .genre-node .count{font-family:var(--latin);font-style:italic;font-size:12px;color:var(--gold);margin-top:6px;opacity:.7}
+
+  .pentagram-stage .center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:180px;height:180px;border-radius:50%;
+    background:radial-gradient(circle, rgba(160,44,34,.15), transparent 65%);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;
+    pointer-events:none}
+  .pentagram-stage .center .sig{width:56px;height:56px;color:var(--vermilion);opacity:.85;margin-bottom:6px}
+  .pentagram-stage .center .lb{font-family:var(--disp);letter-spacing:.45em;font-size:10px;color:var(--gold);opacity:.7}
+
+  /* CONTENTS — tarot stack */
+  .contents{padding:180px 0 200px;background:var(--bg2);position:relative}
+  .contents::before,.contents::after{content:"";position:absolute;left:0;right:0;height:1px;background:var(--line)}
+  .contents::before{top:0}
+  .contents::after{bottom:0}
+  .contents .head{text-align:center;margin-bottom:80px}
+  .contents .head .kicker{font-family:var(--disp);letter-spacing:.5em;font-size:12px;color:var(--gold)}
+  .contents .head h2{font-size:clamp(32px,4.5vw,56px);font-weight:300;margin:16px 0 16px;letter-spacing:-.01em}
+  .contents .head p{color:var(--ink-mute);max-width:560px;margin:0 auto;font-size:14.5px}
+
+  .tarot-deck{position:relative;height:560px;display:flex;align-items:center;justify-content:center;
+    perspective:1600px}
+  .tarot-card{position:absolute;width:300px;height:450px;
+    background:#0e0e14;
+    border:1px solid var(--gold);border-radius:2px;
+    display:flex;flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.7), inset 0 0 60px rgba(200,164,74,.05);
+    transition:transform .6s cubic-bezier(.2,.9,.3,1), opacity .4s;cursor:grab;
+    transform-style:preserve-3d;overflow:hidden}
+  .tarot-card .art{position:absolute;inset:0;overflow:hidden}
+  .tarot-card .art img{width:100%;height:100%;object-fit:cover;display:block}
+  .tarot-card .art::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(to top, rgba(10,10,13,.95) 0%, rgba(10,10,13,.55) 40%, transparent 80%)}
+  .tarot-card .frame{position:absolute;top:14px;left:14px;right:14px;bottom:14px;
+    border:1px solid var(--gold);opacity:.5;pointer-events:none}
+  .tarot-card .corner{position:absolute;font-family:var(--latin);font-style:italic;font-size:14px;color:var(--gold);opacity:.9;z-index:2;
+    text-shadow:0 2px 8px rgba(0,0,0,.8)}
+  .tarot-card .corner.tl{top:22px;left:24px}
+  .tarot-card .corner.br{bottom:22px;right:24px;transform:rotate(180deg)}
+  .tarot-card .info{position:absolute;left:24px;right:24px;bottom:26px;z-index:2;text-align:center}
+  .tarot-card .genre{font-family:var(--disp);letter-spacing:.4em;font-size:10px;color:var(--gold);
+    text-transform:uppercase;margin-bottom:10px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+  .tarot-card h3{font-family:var(--serif);font-weight:700;font-size:19px;color:var(--ink);
+    margin:0 0 6px;letter-spacing:-.01em;line-height:1.3;text-shadow:0 2px 12px rgba(0,0,0,.9)}
+  .tarot-card .author{font-family:var(--serif);font-weight:400;font-size:13px;color:var(--gold-hi, #e6c874);letter-spacing:.05em;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+
+  .tarot-nav{display:flex;justify-content:center;gap:24px;margin-top:60px;align-items:center}
+  .tarot-nav button{background:none;border:1px solid var(--line);color:var(--ink-mute);
+    width:52px;height:52px;border-radius:50%;cursor:pointer;transition:.25s;
+    font-family:var(--serif);font-size:20px}
+  .tarot-nav button:hover{border-color:var(--gold);color:var(--gold)}
+  .tarot-nav .count{font-family:var(--latin);font-style:italic;font-size:16px;color:var(--ink-mute);min-width:80px;text-align:center;letter-spacing:.15em}
+  .tarot-nav .count b{color:var(--gold);font-style:italic;font-weight:400}
+
+  /* NOTICE — chronicle */
+  .notice{padding:180px 0;background:var(--bg);position:relative}
+  .notice .head{margin-bottom:60px;text-align:center}
+  .notice .head .kicker{font-family:var(--disp);letter-spacing:.5em;font-size:12px;color:var(--gold)}
+  .notice .head h2{font-size:clamp(32px,4.5vw,52px);font-weight:300;margin:16px 0 0;letter-spacing:-.01em}
+  .chronicle{max-width:900px;margin:0 auto;border-top:1px solid var(--line)}
+  .chronicle a{display:grid;grid-template-columns:130px 90px 1fr auto;gap:24px;
+    padding:24px 8px;border-bottom:1px solid var(--line);transition:.25s;align-items:center}
+  .chronicle a:hover{background:linear-gradient(to right,transparent,rgba(200,164,74,.05),transparent);padding-left:20px}
+  .chronicle .date{font-family:var(--latin);font-style:italic;font-size:15px;color:var(--gold);letter-spacing:.08em}
+  .chronicle .tag{font-family:var(--disp);letter-spacing:.25em;font-size:10px;padding:5px 10px;
+    border:1px solid var(--line);text-align:center;color:var(--ink-mute);text-transform:uppercase}
+  .chronicle .tag.launch{border-color:var(--gold);color:var(--gold)}
+  .chronicle .tag.deal{border-color:var(--vermilion);color:#d97a70}
+  .chronicle .title{font-size:15.5px;color:var(--ink);letter-spacing:-.005em}
+  .chronicle .arrow{font-family:var(--latin);font-style:italic;font-size:14px;color:var(--ink-mute);opacity:0;transition:.25s}
+  .chronicle a:hover .arrow{opacity:1;color:var(--gold);transform:translateX(4px)}
+
+  /* AUTHORS */
+  .authors{padding:180px 0;background:linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);position:relative}
+  .authors .head{text-align:center;margin-bottom:80px}
+  .authors .head .kicker{font-family:var(--disp);letter-spacing:.5em;font-size:12px;color:var(--gold)}
+  .authors .head h2{font-size:clamp(32px,4.5vw,52px);font-weight:300;margin:16px 0 16px;letter-spacing:-.01em}
+  .authors .head p{color:var(--ink-mute);max-width:560px;margin:0 auto;font-size:14.5px}
+  .author-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+    border:1px solid var(--line)}
+  .author-card{background:var(--bg);padding:40px 28px;text-align:center;transition:.3s;cursor:pointer;position:relative}
+  .author-card:hover{background:var(--bg2);transform:translateY(-4px)}
+  .author-card .sigil{width:80px;height:80px;margin:0 auto 20px;border:1px solid var(--gold);
+    border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-weight:900;font-size:32px;color:var(--gold);
+    transition:.3s;position:relative}
+  .author-card:hover .sigil{background:var(--gold);color:var(--bg);transform:rotate(360deg)}
+  .author-card .sigil::before{content:"";position:absolute;inset:-6px;border:1px solid var(--line);border-radius:50%}
+  .author-card .name{font-family:var(--serif);font-weight:600;font-size:17px;margin:0 0 4px;color:var(--ink)}
+  .author-card .pen{font-family:var(--latin);font-style:italic;font-size:12px;color:var(--gold);margin-bottom:14px}
+  .author-card .works{font-size:12.5px;color:var(--ink-mute);line-height:1.7}
+  .author-card .works b{color:var(--ink);font-weight:400}
+
+  /* CONTACT — oath scroll */
+  .contact{padding:180px 0 200px;background:var(--bg);position:relative;overflow:hidden}
+  .contact::before{content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at 50% 30%, rgba(160,44,34,.08), transparent 60%);pointer-events:none}
+  .contact .container{max-width:820px;position:relative;z-index:2}
+  .contact .head{text-align:center;margin-bottom:60px}
+  .contact .head .kicker{font-family:var(--disp);letter-spacing:.55em;font-size:12px;color:var(--vermilion)}
+  .contact .head h2{font-size:clamp(34px,5vw,60px);font-weight:300;margin:20px 0 24px;letter-spacing:-.01em;line-height:1.2}
+  .contact .head h2 em{font-style:normal;color:var(--gold);font-weight:700}
+  .contact .head p{color:var(--ink-mute);max-width:520px;margin:0 auto;font-size:15px;line-height:1.9}
+
+  .oath{border:1px solid var(--gold);padding:60px 48px 48px;position:relative;
+    background:linear-gradient(180deg, rgba(200,164,74,.03), transparent);margin-top:60px}
+  .oath::before,.oath::after{content:"";position:absolute;width:20px;height:20px;border:1px solid var(--gold)}
+  .oath::before{top:-10px;left:-10px;border-right:none;border-bottom:none}
+  .oath::after{bottom:-10px;right:-10px;border-left:none;border-top:none}
+  .oath .heading{font-family:var(--disp);letter-spacing:.5em;font-size:11px;color:var(--gold);text-align:center;margin-bottom:6px}
+  .oath h3{font-family:var(--serif);font-weight:500;font-size:22px;text-align:center;margin:0 0 40px;color:var(--ink)}
+  .oath .items{display:grid;grid-template-columns:1fr 1fr;gap:32px 40px;margin-bottom:44px}
+  .oath .items > div{border-top:1px solid var(--line);padding-top:18px}
+  .oath .items dt{font-family:var(--disp);letter-spacing:.3em;font-size:10px;color:var(--gold);margin-bottom:10px;text-transform:uppercase}
+  .oath .items dd{margin:0;font-size:16px;color:var(--ink);letter-spacing:-.005em;font-weight:500}
+  .oath .items dd small{display:block;font-size:12.5px;color:var(--ink-mute);margin-top:4px;font-weight:400}
+  .oath .submit{text-align:center;padding-top:36px;border-top:1px solid var(--line);position:relative}
+  .oath .submit .seal{position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    width:60px;height:60px;background:var(--vermilion);
+    border:2px solid var(--vermilion);display:flex;align-items:center;justify-content:center;
+    font-family:var(--serif);font-weight:900;color:var(--ink);font-size:22px;letter-spacing:-.05em;
+    box-shadow:0 4px 20px rgba(160,44,34,.4);transform:translateX(-50%) rotate(-6deg)}
+  .oath .submit a{display:inline-block;margin-top:12px;padding:18px 44px;
+    background:var(--gold);color:var(--bg);font-family:var(--serif);font-weight:600;
+    letter-spacing:.15em;font-size:14px;border:1px solid var(--gold);transition:.25s}
+  .oath .submit a:hover{background:transparent;color:var(--gold)}
+  .oath .foot-note{text-align:center;font-family:var(--latin);font-style:italic;font-size:13px;
+    color:var(--ink-mute);margin-top:24px;letter-spacing:.1em}
+
+  /* FOOTER */
+  footer{padding:60px 42px 40px;background:#050508;color:var(--ink-mute);font-size:12.5px;border-top:1px solid var(--line)}
+  footer .row{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+  footer .lg{font-family:var(--disp);letter-spacing:.4em;color:var(--ink)}
+  footer .copy{font-family:var(--latin);font-style:italic;letter-spacing:.1em;font-size:13px}
+
+  /* CURSOR */
+  .cursor-dot{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;
+    pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .12s;mix-blend-mode:screen}
+  .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;
+    pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s, height .3s, opacity .3s;opacity:.6}
+  .cursor-ring.hover{width:70px;height:70px;opacity:.9;border-color:var(--gold-hi)}
+
+  @media (max-width:900px){
+    .nav{padding:16px 22px}
+    .nav .menu{display:none}
+    .container{padding:0 22px}
+    .section-index{left:22px;top:40px}
+    .creed{grid-template-columns:1fr}
+    .creed-item{border-left:none;border-top:1px solid var(--line)}
+    .creed-item:first-child{border-top:none}
+    .author-grid{grid-template-columns:repeat(2,1fr)}
+    .oath .items{grid-template-columns:1fr}
+    .tarot-card{width:220px;height:340px}
+    .tarot-card .glyph{font-size:60px;margin:36px 0 10px}
+    .chronicle a{grid-template-columns:auto 1fr;gap:12px}
+    .chronicle .tag{grid-column:1;grid-row:1}
+    .chronicle .date{grid-column:2;grid-row:1;text-align:right}
+    .chronicle .title{grid-column:1/-1;grid-row:2}
+    .chronicle .arrow{display:none}
+    .pentagram-stage{width:95vw}
+    .genre-node{width:120px}
+    .genre-node .kanji{font-size:32px}
+    .cursor-dot,.cursor-ring{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor-dot" id="cd"></div>
+<div class="cursor-ring" id="cr"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="brand">
+    <svg class="sig" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.4" style="color:var(--gold)">
+      <polygon points="50,8 61,42 96,42 68,63 79,96 50,76 21,96 32,63 4,42 39,42" fill="none"/>
+    </svg>
+    <span class="wm">PENTAGRAM</span>
+    <span class="kr">펜타그램</span>
+  </div>
+  <div class="menu">
+    <a href="#about"><span class="n">i</span>About</a>
+    <a href="#stars"><span class="n">ii</span>Genres</a>
+    <a href="#contents"><span class="n">iii</span>Works</a>
+    <a href="#chronicle"><span class="n">iv</span>Chronicle</a>
+    <a href="#authors"><span class="n">v</span>Authors</a>
+    <a href="#contact" class="cta">SUBMIT</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" data-screen-label="01 Hero">
+  <div class="bg"></div>
+  <div class="penta">
+    <svg viewBox="0 0 200 200" fill="none" stroke="#c8a44a" stroke-width=".4">
+      <polygon points="100,10 190,75 155,180 45,180 10,75"/>
+      <polygon points="100,10 155,180 10,75 190,75 45,180" stroke-width=".3" opacity=".7"/>
+      <circle cx="100" cy="100" r="94"/>
+    </svg>
+  </div>
+  <div class="inner">
+    <div class="kicker">YNK MEDIA · Fantasy &amp; Wuxia Label</div>
+    <h1>다섯 개의 별이<br/>하나의 <em>이야기</em>가 될 때</h1>
+    <p class="sub">
+      판타지·무협·현대판타지·대체역사·SF —<br/>
+      다섯 장르의 결사(結社), 펜타그램이 새로운 세계를 새깁니다.
+    </p>
+    <div class="marks">
+      <span>MMXVI</span>
+      <span>YNK MEDIA</span>
+      <span>SEOUL</span>
+    </div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about" data-screen-label="02 About">
+  <div class="section-index">I · ABOUT <b>레이블 소개</b></div>
+  <div class="container">
+    <p class="about-quote">The world begins where a story is told.</p>
+    <div class="about-cite">— PENTAGRAM CREED —</div>
+
+    <h2>펜타그램은 <em>결사</em>입니다.<br/>이야기를 짓기 위해 모인 다섯 별의 서약.</h2>
+    <p class="about-sub">
+      YNK미디어 산하의 판타지·무협 전문 웹소설 레이블. 우리는 유행이 아닌 세계를,
+      독자가 아닌 동료를 원하는 작가들과 함께 합니다.
+    </p>
+
+    <div class="creed">
+      <div class="creed-item">
+        <div class="no">— I —</div>
+        <h4>세계는 진심에서 태어난다</h4>
+        <p>화려한 설정보다 흔들리지 않는 심지를. 작가의 세계관을 훼손하지 않는 편집을 지향합니다.</p>
+      </div>
+      <div class="creed-item">
+        <div class="no">— II —</div>
+        <h4>작가는 동료이다</h4>
+        <p>업계 상위권 요율, 정산 투명성, 마케팅·MG·IP 전개까지. 결과가 아닌 과정을 함께 씁니다.</p>
+      </div>
+      <div class="creed-item">
+        <div class="no">— III —</div>
+        <h4>장르는 서로를 비춘다</h4>
+        <p>판타지가 무협을, 무협이 SF를 비추도록. 우리는 한 장르가 아니라 다섯 별을 봅니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FIVE STARS — genre pentagram -->
+<section class="stars" id="stars" data-screen-label="03 Five Stars">
+  <div class="section-index">II · FIVE STARS <b>다섯 별의 결사</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">The Five Stars</div>
+      <h2>다섯 개의 <em>별자리</em></h2>
+      <p>펜타그램의 다섯 꼭짓점 — 각 장르는 서로 다른 별이지만, 한 하늘 아래 이어져 있습니다.</p>
+    </div>
+
+    <div class="pentagram-stage" id="pentaStage">
+      <svg class="lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <line x1="50" y1="6"  x2="90" y2="72"/>
+        <line x1="90" y1="72" x2="12" y2="36"/>
+        <line x1="12" y1="36" x2="88" y2="36"/>
+        <line x1="88" y1="36" x2="10" y2="72"/>
+        <line x1="10" y1="72" x2="50" y2="6"/>
+      </svg>
+
+      <!-- 5 nodes positioned at pentagram vertices -->
+      <div class="genre-node" style="top:6%;left:50%" data-genre="fantasy">
+        <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 16.5,13.5 18.5,21 12,17 5.5,21 7.5,13.5 2,9 9,9"/></svg>
+        <div class="kanji">幻</div>
+        <div class="en">Fantasy</div>
+        <div class="count">32 works</div>
+      </div>
+      <div class="genre-node" style="top:38%;left:94%" data-genre="wuxia">
+        <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 16.5,13.5 18.5,21 12,17 5.5,21 7.5,13.5 2,9 9,9"/></svg>
+        <div class="kanji">武</div>
+        <div class="en">Wuxia</div>
+        <div class="count">28 works</div>
+      </div>
+      <div class="genre-node" style="top:88%;left:74%" data-genre="modern">
+        <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 16.5,13.5 18.5,21 12,17 5.5,21 7.5,13.5 2,9 9,9"/></svg>
+        <div class="kanji">現</div>
+        <div class="en">Modern Fantasy</div>
+        <div class="count">24 works</div>
+      </div>
+      <div class="genre-node" style="top:88%;left:26%" data-genre="alt">
+        <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 16.5,13.5 18.5,21 12,17 5.5,21 7.5,13.5 2,9 9,9"/></svg>
+        <div class="kanji">史</div>
+        <div class="en">Alt History</div>
+        <div class="count">14 works</div>
+      </div>
+      <div class="genre-node" style="top:38%;left:6%" data-genre="sf">
+        <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 16.5,13.5 18.5,21 12,17 5.5,21 7.5,13.5 2,9 9,9"/></svg>
+        <div class="kanji">宙</div>
+        <div class="en">Science Fiction</div>
+        <div class="count">11 works</div>
+      </div>
+
+      <div class="center">
+        <svg class="sig" viewBox="0 0 100 100" fill="currentColor">
+          <rect x="10" y="10" width="80" height="80" fill="none" stroke="currentColor" stroke-width="4"/>
+          <text x="50" y="62" text-anchor="middle" font-family="Noto Serif KR" font-weight="900" font-size="42" fill="currentColor">五</text>
+        </svg>
+        <div class="lb">PENTAGRAM</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENTS — tarot -->
+<section class="contents" id="contents" data-screen-label="04 Works">
+  <div class="section-index">III · WORKS <b>연작·신작 목록</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">The Tarot of Works</div>
+      <h2>펼쳐지는 다섯 장의 카드</h2>
+      <p>지금 이 순간 펜타그램이 세상에 내놓은 작품들. 카드를 넘기며 만나보세요.</p>
+    </div>
+
+    <div class="tarot-deck" id="tarotDeck"></div>
+
+    <div class="tarot-nav">
+      <button id="prevCard" aria-label="prev">‹</button>
+      <div class="count"><b id="curCard">I</b> · <span id="totCard">V</span></div>
+      <button id="nextCard" aria-label="next">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- NOTICE — chronicle -->
+<section class="notice" id="chronicle" data-screen-label="05 Chronicle">
+  <div class="section-index">IV · CHRONICLE <b>공지·연대기</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">The Chronicle</div>
+      <h2>연대기</h2>
+    </div>
+    <div class="chronicle">
+      <a href="#">
+        <span class="date">MMXXVI · VII</span>
+        <span class="tag launch">LAUNCH</span>
+        <span class="title">신작 「검은 산의 노래」 6월 28일 카카오페이지 정식 연재 개시</span>
+        <span class="arrow">→ 더보기</span>
+      </a>
+      <a href="#">
+        <span class="date">MMXXVI · VI</span>
+        <span class="tag deal">DEAL</span>
+        <span class="title">「무협 고수의 회귀록」 웹툰화 계약 체결 · 2027년 상반기 공개 예정</span>
+        <span class="arrow">→ 더보기</span>
+      </a>
+      <a href="#">
+        <span class="date">MMXXVI · V</span>
+        <span class="tag">EVENT</span>
+        <span class="title">제3회 펜타그램 판타지 신인 공모전 접수 시작 (~2026.08.31)</span>
+        <span class="arrow">→ 더보기</span>
+      </a>
+      <a href="#">
+        <span class="date">MMXXVI · IV</span>
+        <span class="tag">NOTICE</span>
+        <span class="title">투고 요강 개정 안내 — 이메일 접수 채널 변경 및 응답 기간 단축</span>
+        <span class="arrow">→ 더보기</span>
+      </a>
+      <a href="#">
+        <span class="date">MMXXVI · III</span>
+        <span class="tag launch">LAUNCH</span>
+        <span class="title">「별을 삼킨 검객」 시리즈 완결 · 총 320화 독자 성원에 감사드립니다</span>
+        <span class="arrow">→ 더보기</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- AUTHORS -->
+<section class="authors" id="authors" data-screen-label="06 Authors">
+  <div class="section-index">V · AUTHORS <b>작가 소개</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">The Fellows</div>
+      <h2>이야기를 짓는 사람들</h2>
+      <p>펜타그램과 함께 세계를 짓고 있는 작가님들. 이들의 손끝에서 다섯 별이 태어납니다.</p>
+    </div>
+    <div class="author-grid" id="authorGrid"></div>
+  </div>
+</section>
+
+<!-- CONTACT — oath -->
+<section class="contact" id="contact" data-screen-label="07 Contact">
+  <div class="section-index">VI · OATH <b>결사 서약 · 투고</b></div>
+  <div class="container">
+    <div class="head">
+      <div class="kicker">— JOIN THE PENTAGRAM —</div>
+      <h2>당신의 세계에<br/>이름을 <em>새기다</em></h2>
+      <p>
+        원고를 보내주시는 것은 곧 결사(結社)에 이름을 올리는 일.<br/>
+        펜타그램은 모든 원고를 성심으로 읽고, 14일 안에 답을 드립니다.
+      </p>
+    </div>
+
+    <div class="oath">
+      <div class="heading">— MMXXVI · 投稿 案內 —</div>
+      <h3>펜타그램 투고 요강</h3>
+
+      <div class="items">
+        <div>
+          <dt>Genre · 장르</dt>
+          <dd>판타지 · 무협 · 현대판타지 · 대체역사 · SF<small>완결·연재 무관, 국내 유통 목적</small></dd>
+        </div>
+        <div>
+          <dt>Volume · 분량</dt>
+          <dd>최소 20편 이상<small>회당 5,000자 내외, 시놉시스 필수</small></dd>
+        </div>
+        <div>
+          <dt>Address · 수신</dt>
+          <dd>submit@pentagram.co.kr<small>제목: [투고]_필명_작품명</small></dd>
+        </div>
+        <div>
+          <dt>Reply · 답신</dt>
+          <dd>영업일 기준 14일 이내<small>회신 이메일로 후속 절차 안내</small></dd>
+        </div>
+      </div>
+
+      <div class="submit">
+        <div class="seal">印</div>
+        <a href="mailto:submit@pentagram.co.kr">서약서를 보내다 · SUBMIT</a>
+        <div class="foot-note">— pentagram.co.kr —</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="row">
+    <div class="lg">PENTAGRAM</div>
+    <div class="copy">© MMXXVI · YNK Media · All stories reserved.</div>
+  </div>
+</footer>
+
+<script>
+// NAV scroll
+const nav = document.getElementById('nav');
+addEventListener('scroll', ()=>{ nav.classList.toggle('scrolled', scrollY > 60); });
+
+// CURSOR (desktop only)
+if (matchMedia('(hover:hover)').matches){
+  const cd = document.getElementById('cd'), cr = document.getElementById('cr');
+  let tx=0,ty=0,cx=0,cy=0;
+  addEventListener('mousemove', e=>{ tx=e.clientX; ty=e.clientY; cd.style.left=tx+'px'; cd.style.top=ty+'px'; });
+  function tick(){ cx+=(tx-cx)*.18; cy+=(ty-cy)*.18; cr.style.left=cx+'px'; cr.style.top=cy+'px'; requestAnimationFrame(tick); }
+  tick();
+  document.querySelectorAll('a, button, .genre-node, .author-card, .tarot-card').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>cr.classList.add('hover'));
+    el.addEventListener('mouseleave', ()=>cr.classList.remove('hover'));
+  });
+}
+
+// TAROT DECK (loads real works.json)
+const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX'];
+const deck = document.getElementById('tarotDeck');
+let cur = 0;
+let works = [];
+
+function renderDeck(){
+  deck.innerHTML = '';
+  const n = works.length;
+  if (!n) return;
+  for (let i=0;i<n;i++){
+    const rel = ((i - cur) + n) % n;
+    const w = works[i];
+    const rn = romans[i] || String(i+1);
+    const c = document.createElement('div');
+    c.className = 'tarot-card';
+    c.innerHTML = `
+      <div class="art"><img src="../assets/covers/${w.file}" alt="${w.title}" loading="lazy"></div>
+      <div class="frame"></div>
+      <span class="corner tl">${rn}</span>
+      <span class="corner br">${rn}</span>
+      <div class="info">
+        <div class="genre">${w.genreEn} · ${w.genreKo}</div>
+        <h3>${w.title}</h3>
+        <div class="author">— ${w.author} —</div>
+      </div>`;
+    let x=0,y=0,rot=0,scale=1,z=100,op=1;
+    if (rel === 0){ x=0; y=0; rot=0; scale=1; z=100; op=1; }
+    else if (rel === 1){ x=190; y=20; rot=8; scale=.9; z=90; op=.85; }
+    else if (rel === 2){ x=340; y=50; rot=14; scale=.8; z=80; op=.55; }
+    else if (rel === n-1){ x=-190; y=20; rot=-8; scale=.9; z=90; op=.85; }
+    else if (rel === n-2){ x=-340; y=50; rot=-14; scale=.8; z=80; op=.55; }
+    else { x=0; y=80; rot=0; scale=.75; z=10; op=0; }
+    c.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${rot}deg) scale(${scale})`;
+    c.style.top = '50%'; c.style.left = '50%';
+    c.style.zIndex = z; c.style.opacity = op;
+    c.addEventListener('click', ()=>{
+      if (rel === 0) return;
+      if (rel === 1 || rel === 2) next();
+      else prev();
+    });
+    deck.appendChild(c);
+  }
+  document.getElementById('curCard').textContent = romans[cur] || String(cur+1);
+  document.getElementById('totCard').textContent = romans[n-1] || String(n);
+}
+function next(){ if (!works.length) return; cur = (cur+1)%works.length; renderDeck(); }
+function prev(){ if (!works.length) return; cur = (cur-1+works.length)%works.length; renderDeck(); }
+document.getElementById('nextCard').addEventListener('click', next);
+document.getElementById('prevCard').addEventListener('click', prev);
+
+function renderAuthors(){
+  const g = document.getElementById('authorGrid');
+  if (!g) return;
+  const map = new Map();
+  works.forEach(w=>{
+    if (!map.has(w.author)) map.set(w.author, []);
+    map.get(w.author).push(w);
+  });
+  const list = [...map.entries()].map(([name, ws])=>({name, ws, genre: ws[0].genreEn, initial: name.charAt(0)}));
+  g.innerHTML = list.map(a=>`
+    <div class="author-card">
+      <div class="sigil">${a.initial}</div>
+      <div class="name">${a.name}</div>
+      <div class="pen">${a.genre}</div>
+      <div class="works">${a.ws.slice(0,2).map((w,i)=> i===0 ? `<b>『${w.title}』</b>` : `『${w.title}』`).join('<br/>')}</div>
+    </div>
+  `).join('');
+}
+
+fetch('../assets/works.json').then(r=>r.json()).then(data=>{
+  works = data;
+  // update genre-node counts
+  const counts = works.reduce((m,w)=>{ m[w.genre]=(m[w.genre]||0)+1; return m; },{});
+  document.querySelectorAll('.genre-node').forEach(n=>{
+    const g = n.dataset.genre;
+    const cEl = n.querySelector('.count');
+    if (cEl) cEl.textContent = `${counts[g]||0} works`;
+  });
+  renderDeck();
+  renderAuthors();
+}).catch(err=>{ console.warn('works.json load failed', err); });
+
+// Drag support on deck
+let dragStart = null;
+deck.addEventListener('pointerdown', e=>{ dragStart = e.clientX; });
+addEventListener('pointerup', e=>{
+  if (dragStart === null) return;
+  const dx = e.clientX - dragStart;
+  if (dx > 40) prev();
+  else if (dx < -40) next();
+  dragStart = null;
+});
+
+// Keyboard on tarot section
+addEventListener('keydown', e=>{
+  const r = document.querySelector('#contents').getBoundingClientRect();
+  if (r.top < innerHeight && r.bottom > 0){
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft')  prev();
+  }
+});
+
+// Pentagram parallax on mouse move
+const stage = document.getElementById('pentaStage');
+if (stage){
+  stage.addEventListener('mousemove', e=>{
+    const r = stage.getBoundingClientRect();
+    const mx = ((e.clientX - r.left)/r.width - .5);
+    const my = ((e.clientY - r.top)/r.height - .5);
+    stage.querySelectorAll('.genre-node').forEach((n,i)=>{
+      const depth = 8 + (i%3)*4;
+      n.style.transform = `translate(calc(-50% + ${mx*depth}px), calc(-50% + ${my*depth}px))`;
+    });
+  });
+  stage.addEventListener('mouseleave', ()=>{
+    stage.querySelectorAll('.genre-node').forEach(n=> n.style.transform = 'translate(-50%,-50%)');
+  });
+}
+
+// Reveal on scroll
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if (e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:.12});
+document.querySelectorAll('section').forEach(s=>io.observe(s));
+</script>
+</body>
+</html>

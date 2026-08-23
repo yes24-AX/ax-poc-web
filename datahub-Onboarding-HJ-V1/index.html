@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#050a13" />
+  <meta name="description" content="실제 업무 데이터가 정렬·연결·분석되어 DataHub 업무 화면으로 정착하는 스크롤 기반 브랜드 경험" />
+  <title>DataHub · The Data Instrument</title>
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./css/instrument.css?v=1.0.3" />
+</head>
+<body>
+<main class="instrument-page" data-instrument id="top">
+  <a class="skip-link" href="#datahub-dashboard">DataHub 화면으로 이동</a>
+  <div class="progress-line" aria-hidden="true"><i data-progress></i></div>
+
+  <header class="instrument-header">
+    <a class="brand-mark" href="#top" aria-label="DataHub 처음으로">
+      <span class="brand-symbol"><i></i><i></i></span>
+      <b>DATAHUB</b>
+      <em>THE DATA INSTRUMENT</em>
+    </a>
+    <div class="instrument-readout">
+      <span data-coordinate>000.0</span>
+      <i></i>
+      <b data-phase>UNALIGNED INPUT</b>
+    </div>
+  </header>
+
+  <div class="instrument-pin" data-pin>
+    <div class="instrument-viewport" data-viewport>
+      <canvas class="precision-field" data-field aria-hidden="true"></canvas>
+      <div class="ambient-light" aria-hidden="true"></div>
+
+      <svg class="trajectory-field" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="trajectoryBlue" x1="0" y1="0" x2="1" y2="0">
+            <stop stop-color="#72839c" stop-opacity="0" />
+            <stop offset=".45" stop-color="#4f88ff" />
+            <stop offset=".68" stop-color="#77c8ff" />
+            <stop offset="1" stop-color="#72839c" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="trajectoryGold" x1="0" y1="0" x2="1" y2="0">
+            <stop stop-color="#9f7a42" stop-opacity="0" />
+            <stop offset=".5" stop-color="#d7b77e" />
+            <stop offset="1" stop-color="#9f7a42" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <g class="trajectory-lines" data-trajectory-lines></g>
+        <g class="trajectory-pulses" data-trajectory-pulses></g>
+      </svg>
+
+      <div class="stage-perspective" aria-hidden="false">
+        <div class="camera-rig" data-camera>
+          <div class="world-stage" data-world>
+            <section class="record-field" data-record-field aria-label="DataHub가 연결하는 업무 데이터">
+              <article class="data-specimen" data-record><span class="specimen-no">01</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">02</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">03</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">04</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">05</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">06</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">07</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">08</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+              <article class="data-specimen" data-record><span class="specimen-no">09</span><div class="specimen-kind"><i></i><small></small><b></b></div><div class="specimen-value"><strong></strong><span></span></div><div class="specimen-signal"><i></i><i></i><i></i><i></i><i></i><i></i></div><em></em></article>
+            </section>
+
+            <section class="calibration-gate" data-gate aria-label="데이터 관계 교정 장치">
+              <div class="gate-aura"></div>
+              <div class="measurement-ring ring-outer" data-ring><i></i><span></span></div>
+              <div class="measurement-ring ring-middle" data-ring><i></i><span></span></div>
+              <div class="measurement-ring ring-inner" data-ring><i></i><span></span></div>
+              <svg class="relation-map" viewBox="0 0 1000 1000" aria-hidden="true"><g data-relation-paths></g></svg>
+              <div class="gate-crosshair"><i></i><i></i><i></i><i></i></div>
+              <div class="gate-core" data-core>
+                <small>REFERENCE SYSTEM</small>
+                <strong>DATAHUB</strong>
+                <span><b data-connected-count>09</b> CONNECTED SOURCES</span>
+              </div>
+              <div class="gate-index index-a">IDENTITY</div><div class="gate-index index-b">RELATION</div><div class="gate-index index-c">TIME</div><div class="gate-index index-d">MEASURE</div>
+            </section>
+
+            <section class="schema-plane" data-schema aria-label="통합 데이터 스키마">
+              <header><div><small>CONNECTED SCHEMA / 09 SOURCES</small><h2>ONE REFERENCE FRAME</h2></div><span>DATAHUB · RELATION MODEL</span></header>
+              <div class="schema-columns" data-schema-columns></div>
+              <svg class="schema-relations" viewBox="0 0 1260 540" preserveAspectRatio="none" aria-hidden="true"><g data-schema-lines></g></svg>
+              <footer><span>IDENTITY VERIFIED</span><span>TIME ALIGNED</span><span>RELATIONS RESOLVED</span></footer>
+            </section>
+
+            <section class="analysis-bench" data-analysis aria-label="업무 데이터 분석 결과">
+              <header><small>ANALYTIC ASSEMBLY</small><strong>CONNECTED DATA → OPERATING SIGNAL</strong></header>
+              <div class="metric-instruments" data-metrics></div>
+              <article class="trend-instrument">
+                <header><div><small>ORDER FLOW · 14 DAYS</small><b data-trend-value></b></div><span>ALIGNED SERIES</span></header>
+                <svg viewBox="0 0 920 330" preserveAspectRatio="none">
+                  <g class="trend-grid"><path d="M20 60H900M20 125H900M20 190H900M20 255H900"/><path d="M120 24V294M300 24V294M480 24V294M660 24V294M840 24V294"/></g>
+                  <path class="trend-area" data-trend-area></path>
+                  <path class="trend-line" data-trend-line></path>
+                  <g class="trend-points" data-trend-points></g>
+                </svg>
+              </article>
+              <div class="report-index" data-reports></div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <aside class="kimi-note" data-kimi aria-label="Kimi 분석 보조 메모">
+        <header><i></i><b>KIMI</b><small>EVIDENCE NOTE</small></header>
+        <p data-kimi-copy></p>
+        <footer data-kimi-sources></footer>
+      </aside>
+
+      <div class="dock-reticle" data-dock-reticle aria-hidden="true"><i></i><i></i><i></i><i></i><span>DATAHUB / WORKSPACE RESOLVE</span><b>DATAHUB</b></div>
+
+      <section id="datahub-dashboard" class="dashboard-plane" data-dashboard aria-label="DataHub 운영 화면">
+        <div class="dashboard-blueprint" data-dashboard-blueprint>
+          <aside><b>Datahub.ax</b><i></i><i></i><i></i><i></i><i></i><i></i></aside>
+          <div class="blueprint-workspace">
+            <header><span>운영 대시보드</span><i></i></header>
+            <div class="blueprint-metrics" data-blueprint-metrics></div>
+            <div class="blueprint-charts"><article><b>수급 흐름</b><i></i><i></i><i></i><i></i><i></i></article><article><b>고객 흐름</b><svg viewBox="0 0 320 120"><path data-blueprint-line></path></svg></article></div>
+          </div>
+        </div>
+        <a class="dashboard-capture" data-dashboard-capture href="#datahub-dashboard" aria-label="실제 DataHub 화면 보기">
+          <img src="./assets/datahub-dashboard.png?v=1.0.3" width="1918" height="968" alt="실제 DataHub 운영 대시보드 화면" decoding="async" loading="eager" fetchpriority="high" />
+          <span class="capture-grid" aria-hidden="true"></span>
+          <i class="capture-scan" data-capture-scan aria-hidden="true"></i>
+        </a>
+        <div class="dashboard-cta" data-dashboard-cta>
+          <div><small>DATAHUB · LIVE WORKSPACE</small><strong>연결된 데이터에서 바로 업무를 시작하세요.</strong></div>
+          <a data-datahub-link href="#datahub-dashboard">DataHub로 이동 <span>↗</span></a>
+        </div>
+      </section>
+
+      <section class="copy-layer" aria-live="polite">
+        <article class="journey-copy" data-copy="0"><small>01 / UNALIGNED INPUT</small><h1>데이터는<br>각자의 좌표에 있습니다.</h1><p>상품 · 주문 · 매출 · 재고 · 회원</p></article>
+        <article class="journey-copy align-right" data-copy="1"><small>02 / CALIBRATION</small><h2>DataHub가<br>기준을 맞춥니다.</h2><p>식별자와 시간, 관계를 하나의 기준으로.</p></article>
+        <article class="journey-copy" data-copy="2"><small>03 / CONNECTED SCHEMA</small><h2>관계가<br>하나의 구조가 됩니다.</h2><p>아홉 개의 업무 데이터, 하나의 참조 체계.</p></article>
+        <article class="journey-copy align-right" data-copy="3"><small>04 / OPERATING SIGNAL</small><h2>연결된 데이터가<br>판단의 근거가 됩니다.</h2><p>순위 · 추이 · 공급률 · 재고 · 리포트</p></article>
+        <article class="journey-copy" data-copy="4"><small>05 / DATAHUB</small><h2>이제,<br>한 화면에서 판단합니다.</h2><p>찾는 시간을 줄이고 업무에 집중하세요.</p></article>
+      </section>
+
+      <nav class="journey-rail" aria-label="DataHub 온보딩 진행 단계">
+        <span data-rail-step class="active">INPUT</span><i></i><span data-rail-step>ALIGN</span><i></i><span data-rail-step>RELATE</span><i></i><span data-rail-step>ANALYZE</span><i></i><span data-rail-step>WORK</span>
+      </nav>
+      <div class="scroll-cue" data-scroll-cue>SCROLL = CAMERA <i></i></div>
+    </div>
+  </div>
+</main>
+
+<script src="./vendor/gsap.min.js?v=1.0.3"></script>
+<script src="./vendor/ScrollTrigger.min.js?v=1.0.3"></script>
+<script type="module">
+  const root = document.querySelector('[data-instrument]');
+  const [{ bindInstrumentContent }, world] = await Promise.all([
+    import('./js/instrument-bindings.js?v=1.0.3'),
+    import('./js/instrument-world.js?v=1.0.3')
+  ]);
+  bindInstrumentContent(root);
+  await world.initialize(root);
+</script>
+</body>
+</html>

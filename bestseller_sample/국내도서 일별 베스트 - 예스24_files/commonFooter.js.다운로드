@@ -1,0 +1,348 @@
+﻿var checkGoodsNo = (typeof (goodsNo) == "undefined") ? "" : goodsNo;
+var checkUrl = "/Product/Goods/" + checkGoodsNo;
+var recentGoods = (recentViewGoods != undefined) ? recentViewGoods.list.sort() : new Array();
+var RecentViewGoodsRun = "N";
+var mobileDevices = /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile/i;
+
+var _frontApiUrl = (function () {
+    var url = "";
+
+    if (typeof YesData !== "undefined"
+        && YesData
+        && typeof YesData.FRONT_API_URL === "function") {
+        url = YesData.FRONT_API_URL();
+
+        if (url) {
+            return url;
+        }
+    }
+
+    if (typeof FRONT_API_URL !== "undefined" && FRONT_API_URL) {
+        return FRONT_API_URL;
+    }
+
+    return "https://frontapi.yes24.com";
+})();
+var serviceCookies = getCookie("ServiceCookies");
+var _isAdultAuth = getCookie("AdultAuthYN") === "Y";
+var _isServiceCookies = serviceCookies != null && String(serviceCookies).trim() !== "";
+
+//ISMS 팝업
+function ismsPopupE() {
+    var sw = screen.availWidth;
+    var sh = screen.availHeight;
+    px = Math.floor((sw - 500) / 2);
+    py = Math.floor((sh - 726) / 2);
+
+    var ismsPop = window.open("https://www.yes24.com/notice/pop_isms.html", 'evePop01', ',scrollbars=no,top=' + py + ',left=' + px + ',status=no,resizable=no,menubar=no,width=500,height=726');
+    ismsPop.focus();
+}
+
+//서울보증보험 팝업
+function openUsafe() {
+    window.open("http://www.usafe.co.kr/usafeShopCheck.asp?com_no=2298137000", "usSafe", "toolbars=no, scrollbars=no, width=500, height=404");
+}
+
+//인증마크
+function markPopupE(code) {
+    return dcPopup('https://www.eprivacy.or.kr/front/certifiedSiteMark/certifiedSiteMarkPopup.do?certCmd=EP&certNum=' + code, 'seal', 527, 720);
+}
+
+function markPopupI(code) {
+    return dcPopup('https://www.eprivacy.or.kr:40018/seal/mark.jsp?mark=i&code=' + code, 'seal', 527, 720);
+}
+
+function dcPopup(url, name, w, h) {
+    var x = (screen.availWidth / 2) - (w / 2);
+    var y = (screen.availHeight / 2) - (h / 2);
+    return window.open(url, name, "toolbar=no,resizable=yes,scrollbars=yes,status=no,location=no,left=" + x + ",top=" + y + ",width=" + w + ",height=" + h);
+}
+
+function showRecent() {
+    var tarBtn = $("#yRGoodsBtn");
+    var tarBox = $("#yRGoodsBox");
+    tarBtn.hide();
+    tarBox.show();
+}
+
+function hideRecent() {
+    var tarBtn = $("#yRGoodsBtn");
+    var tarBox = $("#yRGoodsBox");
+    if (Number($("#yRecentCnt").html()) > 0) {
+        tarBtn.show();
+    }
+    tarBox.hide();
+}
+
+function ajaxNoCache() {
+    $.ajaxSetup({ cache: false, headers: { "cache-control": "no-cache", "pragma": "no-cache" } });
+}
+
+//최근 본 상품 삭제
+function RemoveRecentViewGoods(goodsNo) {
+    $("#yRGoodsList_" + goodsNo).remove();
+    var params = { "goodsNo": goodsNo, "isLogin": _IS_LOGIN, "useCache": true };
+    recentViewGoods.delRecentViewGoods(params);
+    recentGoods = (recentViewGoods != undefined) ? recentViewGoods.list.sort() : new Array();
+
+    // 최근 본 상품 이미지 설정 1개 까지만
+    var imagehtml = "";
+    if (recentGoods.length > 0) {
+        for (var i = recentGoods.length - 1; i >= recentGoods.length - 1; i--) {
+            var recentGoodsImage = 'https://image.yes24.com/goods/' + recentGoods[i].item + '/M';
+            var recentGoodsLimitAgeYn = $("#yRGoodsList_" + recentGoods[i].item).data("limit-age-yn");
+            if (recentGoodsLimitAgeYn == "Y" && (!_isAdultAuth || !_isServiceCookies)) {
+                recentGoodsImage = 'https://image.yes24.com/momo/PD_19_M.gif';
+            }
+            if (i < 0) {
+                imagehtml = "<span class=\"rImg\" style=\"background-image: url('https://image.yes24.com/momo/Noimg_M.gif')\"></span>";
+                break;
+            }
+            imagehtml += "<span class=\"rImg\" goodsNo=\"" + recentGoods[i].item + "\" style=\"background-image: url('" + recentGoodsImage + "')\"></span>";
+        }
+    }
+    $("#yRecentImage").html(imagehtml);
+    $("#yRBoxRecentCnt").html('최근 본 상품 (' + recentGoods.length + ')');
+    $("#yRecentCnt").html(recentGoods.length);
+    if (recentGoods.length == 0) {
+        $("#yRGoodsNoData").show();
+    } else {
+        $("#yRGoodsNoData").hide();
+    }
+    var myYRLen = Math.ceil($("#yRGoodsScl li").length / 3);
+    $("#yRGoodsBody").css("height", (myYRLen * 110) + "px");
+}
+
+//최근 본 상품 조회
+function GetRecentViewGoodsXhr(useCache) {
+    if (recentGoods.length > 0 || (_IS_LOGIN.toLowerCase() == "true" && notCookie == "Y")) {
+        var url = _frontApiUrl + "/api/goods/recentGoods";
+        var params = { "isLogin": _IS_LOGIN, "useCache": useCache };
+        var callbackmethod = RecentViewGoodsDisplay;
+        var responseType = "JSON";
+        try {
+            new newXhrUtil(url, params, callbackmethod, responseType);
+        } catch (e) {
+        }
+    }
+    else {
+        $("#yRGoodsNoData").show();
+        $("#yRGoodsList").empty();
+        $("#yRBoxRecentCnt").html('최근 본 상품 (' + recentGoods.length + ')');
+        $("#yRecentCnt").html(recentGoods.length);
+        $("#yRGoodsBtn").hide();
+    }
+}
+
+//최근 본 상품 조회 결과 화면 출력
+function RecentViewGoodsDisplay(rtn) {
+    var data = null;
+    try {
+        data = eval("(" + rtn + ")");
+    } catch (e) {
+        data = rtn;
+    }
+    if (data.recentGoodsCount > 0) {
+        //data.recentGoodsCount 와 쿠키값의 상품개수가 다를 경우 useCache 를 false 로 재호출
+        var chkGoods = getCookie("RecentViewGoods") != "" ? getCookie("RecentViewGoods").split("`") : "";
+        if (data.recentGoodsCount != chkGoods.length && RecentViewGoodsRun == "N") {
+            RecentViewGoodsRun = "Y";
+            GetRecentViewGoodsXhr(false);
+            return false;
+        }
+        var shtml = "";
+        var imagehtml = "";
+        var idx = 0;
+        for (var i = data.recentGoodsCount - 1; i >= 0; i--) {
+            var recentGoodsImage = 'https://image.yes24.com/goods/' + data.recentGoods[i].goodsNo + '/M';
+            if (data.recentGoods[i].LimitAgeYn == "Y" && (!_isAdultAuth || !_isServiceCookies)) {
+                recentGoodsImage = 'https://image.yes24.com/momo/PD_19_M.gif';
+            }
+            // 최근 본 상품 이미지 설정 1개 까지만
+            if (idx < 1) {
+                imagehtml += "<span class=\"rImg\" goodsNo=\"" + data.recentGoods[i].goodsNo + "\" style=\"background-image: url('" + recentGoodsImage + "')\"></span>";
+            }
+            // 최근 본 상품 상품 목록 설정
+            shtml += "<li id='yRGoodsList_" + data.recentGoods[i].goodsNo + "' data-limit-age-yn='" + data.recentGoods[i].LimitAgeYn + "'>";
+            shtml += "	<div class=\"itemUnit\">";
+            shtml += "		<div class=\"item_img\">";
+            shtml += "			<div class=\"img_canvas\">";
+            shtml += "				<span class=\"img_item\">";
+            shtml += "					<span class=\"img_grp\">";
+            if (data.recentGoods[i].LimitAgeYn == "Y" && _isAdultAuth && _isServiceCookies) {
+                shtml += "<span class=\"band\">19세 이상 상품</span>";
+            }
+            if (data.recentGoods[i].IsAudioBook) {
+                shtml += "<em class=\"ico audio\"></em>";
+            }
+            else if (data.recentGoods[i].IsEBook) { // eBook이고 오디오북인 경우 오디오북 노출
+                shtml += "<em class=\"ico eBook\"></em>";
+            }
+            shtml += "						<a href=\"https://www.yes24.com/Product/Goods/" + data.recentGoods[i].goodsNo + "\" class=\"lnk_img\"><em class=\"img_bdr\"><img class=\"lazy\" data-original=\"" + recentGoodsImage + "\" src=\"https://image.yes24.com/momo/Noimg_M.jpg\" border=\"0\" alt=\"" + data.recentGoods[i].goodsName + "\"></em></a>";
+            shtml += "					</span>";
+            shtml += "				</span>";
+            shtml += "			</div>";
+            shtml += "		</div>";
+            shtml += "		<a href=\"javascript:void(0);\" onclick=\"RemoveRecentViewGoods(" + data.recentGoods[i].goodsNo + ");\" class=\"lnk_del\"><span class=\"ico\"><em class=\"bgYUI ico_del\">" + data.recentGoods[i].goodsName + "삭제</em></span></a>";
+            shtml += "	</div >";
+            shtml += "</li >";
+
+            idx++;
+        }
+        $("#yRecentImage").html(imagehtml);
+        $("#yRGoodsList").html(shtml);
+
+        var myYRLen = Math.ceil($("#yRGoodsScl li").length / 3);
+        $("#yRGoodsBody").css("height", (myYRLen * 110) + "px");
+
+        setRecentGoodsLazyLoadImage();
+    }
+    else {
+        imagehtml = "<span class=\"rImg\" style=\"background-image: url('https://image.yes24.com/momo/Noimg_M.gif')\"></span>";
+        $("#yRecentImage").html(imagehtml);
+        $("#yRGoodsNoData").show();
+        $("#yRGoodsList").empty();
+    }
+    $("#yRecentCnt").html(data.recentGoodsCount);
+    $("#yRBoxRecentCnt").html('최근 본 상품 (' + data.recentGoodsCount + ')');
+
+    //최근 본 상품이 없을 경우, 버튼 영역 숨김 처리
+    if (Number($("#yRecentCnt").html()) < 1) {
+        $("#yRGoodsBtn").hide();
+    }
+}
+
+//최근 본 상품 레이지로드 설정
+function setRecentGoodsLazyLoadImage() {
+    var lazyImages = [].slice.call(document.querySelectorAll("#yRGoodsList .itemUnit img.lazy"));
+
+    if ("IntersectionObserver" in window) {
+        let lazyImageObserver = new IntersectionObserver(function (entries, observer) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    let targetImage = entry.target;
+
+                    targetImage.src = targetImage.getAttribute("data-original");
+                    lazyImageObserver.unobserve(targetImage);
+                }
+            });
+        });
+
+        lazyImages.forEach(function (lazyImages) {
+            lazyImageObserver.observe(lazyImages);
+        });
+    }
+}
+
+function setCookie(name, value) {
+    document.cookie = name + "=" + escape(value) + "; path=/;domain=.yes24.com;";
+}
+
+function pgGoTop() {
+    var $doc = $("html, body");
+    $doc.stop().animate({ scrollTop: 0 }, 450, 'easeInOutQuart');
+}
+
+function scrollRecentCount() {
+    var yesTScl = $(window).scrollTop();
+    var yesWH = $(window).height();
+    var yesFPos = $("#yesFooter").offset().top;
+    if ($("#yHeader").length > 0) {
+        var yHScope = $("#yHeader").offset().top + 195;
+        if (yesTScl > yHScope) {
+            $("#toolBtn").addClass("recentMaxH");
+        } else {
+            $("#toolBtn").removeClass("recentMaxH");
+        }
+    } else {
+        $("#toolBtn").addClass("recentMaxH");
+    }
+    if (yesTScl > 100) {
+        if ((yesTScl + yesWH) >= yesFPos) {
+            $("#toolBtn").removeClass("fixed");
+            $("#toolBtn").addClass("absBot");
+        } else {
+            $("#toolBtn").addClass("fixed");
+            $("#toolBtn").removeClass("absBot");
+        }
+    } else {
+        $("#toolBtn").removeClass("fixed", "absBot");
+    }
+}
+
+function goOepnChat() {
+    if (_isLogin == "False") {
+        if (confirm('로그인 후 이용할 수 있습니다.\n로그인 하시겠습니까?')) {
+            loginPage();
+        }
+    } else {
+        window.open('https://chat.yes24.com/', "yes24Chat");
+    }
+}
+
+(function () {
+    if ((mobileDevices).test(navigator.userAgent)) {
+        document.write('<div class="mobileGoBtn"><a id="mobileLink" href="javascript:void(0)"><img src="https://image.yes24.com/sysimage/renew/welcome/btn_goMobile.png" width="960" height="150" border="0" alt="모바일버전 보기"></a></div>');
+    }
+})();
+
+$(document).ready(function () {
+    /* 계열사 s */
+    $('#yFamDl dt').bind('click', function (event) {
+        if ($('#yFamDl dt').attr("class") == "on") {
+            $('#yFamDl dt').attr("class", "");
+            $('#yFamDl dd').hide();
+        } else {
+            $('#yFamDl dt').attr("class", "on");
+            $('#yFamDl dd').show();
+        }
+        event.stopPropagation();
+    });
+
+    $('body').bind('click', function (event) {
+        $('#footerCsInfoPop').hide();
+        $('#yFamDl dd').hide();
+        $('#yFamDl dt').attr("class", "");
+    });
+
+    $('#corpNumLnk, #yMnuLi li a').bind('focus', function (event) {
+        $('#yFamDl dd').hide();
+        $('#yFamDl dt').attr("class", "");
+    });
+
+    /* 상담시간 안내 s */
+    $('#footerWrap .csFaq .btnCs3').bind('click', function (event) {
+        $('#footerCsInfoPop').show();
+        event.stopPropagation();
+    });
+    $('#footerCsInfoPop .btnCloseCsInfo').bind('click', function (event) {
+        $('#footerCsInfoPop').hide();
+    });
+
+    //리다이렉트
+    if (_IS_DEVICE_REDIRECT != null && _IS_DEVICE_REDIRECT != "") {
+        setCookie('USEPC', 'Y');
+    }
+    $("#mobileLink").click(function () {
+        setCookie('USEPC', 'N');
+        redirect_state.redirectPage();
+    })
+
+    var myYRGoodsBox = document.getElementById('yRGoodsScl');
+    new SimpleBar(myYRGoodsBox, { autoHide: false });
+
+    var myYRLen = Math.ceil($("#yRGoodsScl li").length / 3);
+    $("#yRGoodsBody").css("height", (myYRLen * 110) + "px");
+
+    // 상품상세 페이지가 아닌 경우에만 조회 (중복조회 방지)
+    if (location.href.toLowerCase().indexOf(checkUrl.toLowerCase()) == -1) {
+        GetRecentViewGoodsXhr(true);
+    }
+
+    $(window).scroll(function () {
+        scrollRecentCount();
+    });
+
+    //최근본상품 조회
+    scrollRecentCount();
+});

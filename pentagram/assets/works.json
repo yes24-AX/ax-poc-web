@@ -1,0 +1,19 @@
+[
+  { "id": 1,  "file": "hert1.jpg",   "title": "강심장 PD의 겁 없는 방송 생활",       "author": "담하이데", "genre": "modern",  "genreKo": "현대판타지", "genreEn": "Modern Fantasy", "tag": "NEW" },
+  { "id": 2,  "file": "yo1.jpg",     "title": "요리사가 제삿밥으로 극락보냄",         "author": "규환",     "genre": "modern",  "genreKo": "현대판타지", "genreEn": "Modern Fantasy", "tag": "" },
+  { "id": 3,  "file": "lege1.jpg",   "title": "전설급 사령술사는 헌터관리청 공무원", "author": "니매",     "genre": "fantasy", "genreKo": "판타지",     "genreEn": "Fantasy",         "tag": "HIT" },
+  { "id": 4,  "file": "swo1.jpg",    "title": "종남광검",                             "author": "탄마",     "genre": "wuxia",   "genreKo": "무협",       "genreEn": "Wuxia",           "tag": "NEW" },
+  { "id": 5,  "file": "robot1.jpg",  "title": "21세기 로봇공학자가 출신을 숨김",     "author": "천지불이", "genre": "sf",      "genreKo": "SF",        "genreEn": "Science Fiction", "tag": "" },
+  { "id": 6,  "file": "gidam1.jpg",  "title": "괴담 속 재앙급 유물들이 집착함",       "author": "무명",     "genre": "modern",  "genreKo": "현대판타지", "genreEn": "Modern Fantasy", "tag": "" },
+  { "id": 7,  "file": "do1.jpg",     "title": "독식하는 회귀무신",                     "author": "청담향",   "genre": "wuxia",   "genreKo": "무협",       "genreEn": "Wuxia",           "tag": "HIT" },
+  { "id": 8,  "file": "han1.jpg",    "title": "항공모함 훔쳐서 강대국 합니다",       "author": "박태우",   "genre": "alt",     "genreKo": "대체역사",   "genreEn": "Alt History",     "tag": "" },
+  { "id": 9,  "file": "ch1.jpg",     "title": "초월급 대장장이의 회귀",               "author": "야운화",   "genre": "fantasy", "genreKo": "판타지",     "genreEn": "Fantasy",         "tag": "" },
+  { "id": 10, "file": "gang1.jpg",   "title": "강탈수선전",                           "author": "오행자",   "genre": "wuxia",   "genreKo": "무협",       "genreEn": "Wuxia",           "tag": "" },
+  { "id": 11, "file": "un1.jpg",     "title": "귀환한 삼촌에게 신물들이 집착함",     "author": "야설록",   "genre": "modern",  "genreKo": "현대판타지", "genreEn": "Modern Fantasy", "tag": "NEW" },
+  { "id": 12, "file": "enter1.jpg",  "title": "역대급 얼굴천재가 연예계를 씹어먹음", "author": "달빛하늘", "genre": "modern",  "genreKo": "현대판타지", "genreEn": "Modern Fantasy", "tag": "HIT" },
+  { "id": 13, "file": "kni1.jpg",    "title": "성기사인데 악신이랑 계약함",           "author": "매화가지", "genre": "fantasy", "genreKo": "판타지",     "genreEn": "Fantasy",         "tag": "" },
+  { "id": 14, "file": "chowol.jpg",  "title": "초월자들에게 애호받는 갤러리 뉴비가 되었다", "author": "은하수", "genre": "fantasy", "genreKo": "판타지", "genreEn": "Fantasy", "tag": "" },
+  { "id": 15, "file": "meth1.jpg",   "title": "백악관이 집착하는 수학 천재가 되었다","author": "정도전",   "genre": "modern",  "genreKo": "현대판타지", "genreEn": "Modern Fantasy", "tag": "" },
+  { "id": 16, "file": "song1.jpg",   "title": "송시열이 끌려 죽음",                   "author": "장평",     "genre": "alt",     "genreKo": "대체역사",   "genreEn": "Alt History",     "tag": "" },
+  { "id": 17, "file": "top1.jpg",    "title": "탑 여배우 집에서 베이비시터로 일합니다","author": "필봉",    "genre": "modern",  "genreKo": "현대판타지", "genreEn": "Modern Fantasy", "tag": "" }
+]

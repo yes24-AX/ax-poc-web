@@ -347,6 +347,31 @@
       gap: 8px;
       align-items: flex-start;
     }
+
+    .json-display-wrap {
+      margin-top: 20px;
+      text-align: left;
+    }
+    .json-display-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .json-display {
+      max-height: 220px;
+      overflow: auto;
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: var(--radius-md);
+      color: #F9FAFB;
+      padding: 14px 16px;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre;
+    }
   </style>
 </head>
 <body>
@@ -355,17 +380,19 @@
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
       <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
-      <span class="nav-logo-developers">Developers</span>
+      <span class="nav-logo-developers">개발자센터</span>
     </a>
     <div class="nav-divider"></div>
     <ul class="nav-links">
-      <li><a href="docs.html">Docs</a></li>
-      <li><a href="api-explorer.html">API Explorer</a></li>
-      <li><a href="my-applications.html">My Applications</a></li>
-      <li><a href="support.html">Support</a></li>
+      <li><a href="docs.html">문서</a></li>
+      <li><a href="api-explorer.html">API 테스트</a></li>
+      <li><a href="support.html">지원</a></li>
+
     </ul>
     <div class="nav-actions">
-      <span class="nav-version-badge">v1.0</span>
+      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <span id="nav-user-info" style="display:none;align-items:center;gap:8px;"></span>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
     </div>
   </div>
 </nav>
@@ -395,16 +422,31 @@
   <!-- Form -->
   <form id="apply-form" onsubmit="submitApply(event)">
 
-    <!-- YES24 계정 정보 -->
+    <!-- 담당자 정보 -->
     <div class="form-section">
-      <div class="form-section-title">YES24 계정 정보</div>
-      <div class="form-section-desc">YES24 계정이 있으신 경우 입력해주세요. 계정 연동으로 추후 포털 로그인이 가능합니다.</div>
+      <div class="form-section-title">담당자 정보</div>
+      <div class="form-section-desc">API Key 발급 정보 저장 및 담당자 확인에 사용됩니다.</div>
+
       <div class="form-field">
-        <label class="form-label" for="yes24-id">
-          YES24 아이디 <span class="optional">선택</span>
+        <label class="form-label" for="contact-name">
+          담당자명 <span class="required">*</span>
         </label>
-        <input type="text" id="yes24-id" name="yes24_id" class="form-input" placeholder="YES24 로그인 아이디 입력">
-        <span class="form-hint">입력하시면 YES24 계정과 연동하여 관리할 수 있습니다.</span>
+        <input type="text" id="contact-name" name="contact_name" class="form-input" placeholder="홍길동" required>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="contact-email">
+          이메일 <span class="required">*</span>
+        </label>
+        <input type="email" id="contact-email" name="contact_email" class="form-input" placeholder="contact@example.com" required>
+        <span class="form-hint">담당자 식별과 포털 관리용으로 저장됩니다.</span>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="use-purpose">
+          API 사용 목적 <span class="optional">선택</span>
+        </label>
+        <textarea id="use-purpose" name="use_purpose" class="form-textarea" placeholder="YES24 Open API를 어떤 용도로 활용할 계획인지 설명해주세요."></textarea>
       </div>
     </div>
 
@@ -415,59 +457,36 @@
 
       <div class="form-field">
         <label class="form-label" for="service-name">
-          서비스명 <span class="required">*</span>
+          서비스명 <span class="optional">선택</span>
         </label>
-        <input type="text" id="service-name" name="service_name" class="form-input" placeholder="예: 독서 추천 앱" required>
+        <input type="text" id="service-name" name="service_name" class="form-input" placeholder="예: 독서 추천 앱">
       </div>
 
       <div class="form-field">
         <label class="form-label" for="service-domain">
-          서비스 URL <span class="required">*</span>
+          서비스 URL <span class="optional">선택</span>
         </label>
-        <input type="url" id="service-domain" name="domain" class="form-input" placeholder="예: https://myapp.example.com" required>
+        <input type="url" id="service-domain" name="domain" class="form-input" placeholder="예: https://myapp.example.com">
       </div>
 
       <div class="form-field">
         <label class="form-label" for="service-desc">
-          서비스 설명 <span class="required">*</span>
+          서비스 설명 <span class="optional">선택</span>
         </label>
-        <textarea id="service-desc" name="description" class="form-textarea" placeholder="서비스의 주요 기능과 목적을 간략히 설명해주세요." required></textarea>
-      </div>
-
-      <div class="form-field">
-        <label class="form-label" for="use-purpose">
-          API 사용 목적 <span class="required">*</span>
-        </label>
-        <textarea id="use-purpose" name="use_purpose" class="form-textarea" placeholder="YES24 Open API를 어떤 용도로 활용할 계획인지 설명해주세요." required></textarea>
+        <textarea id="service-desc" name="description" class="form-textarea" placeholder="서비스의 주요 기능과 목적을 간략히 설명해주세요."></textarea>
       </div>
     </div>
 
-    <!-- 담당자 정보 -->
+    <!-- YES24 계정 정보 -->
     <div class="form-section">
-      <div class="form-section-title">담당자 정보</div>
-      <div class="form-section-desc">API Key 발급 결과 및 공지 수신에 사용됩니다.</div>
-
-      <div class="form-row">
-        <div class="form-field">
-          <label class="form-label" for="contact-name">
-            담당자명 <span class="required">*</span>
-          </label>
-          <input type="text" id="contact-name" name="contact_name" class="form-input" placeholder="홍길동" required>
-        </div>
-        <div class="form-field">
-          <label class="form-label" for="contact-phone">
-            연락처 <span class="optional">선택</span>
-          </label>
-          <input type="tel" id="contact-phone" name="contact_phone" class="form-input" placeholder="010-0000-0000">
-        </div>
-      </div>
-
+      <div class="form-section-title">YES24 계정 정보</div>
+      <div class="form-section-desc">YES24 계정이 있으신 경우 입력해주세요. 계정 연동으로 추후 포털 로그인이 가능합니다.</div>
       <div class="form-field">
-        <label class="form-label" for="contact-email">
-          이메일 <span class="required">*</span>
+        <label class="form-label" for="yes24-id">
+          YES24 아이디 <span class="optional">선택</span>
         </label>
-        <input type="email" id="contact-email" name="contact_email" class="form-input" placeholder="contact@example.com" required>
-        <span class="form-hint">발급된 API Key는 이 이메일로도 전송됩니다.</span>
+        <input type="text" id="yes24-id" name="yes24_id" class="form-input" placeholder="YES24 로그인 아이디 입력">
+        <span class="form-hint">입력하시면 YES24 계정과 연동하여 관리할 수 있습니다.</span>
       </div>
     </div>
 
@@ -509,7 +528,7 @@
               <span class="badge-required-agree">[필수]</span> 개인정보 수집·이용 동의
             </label>
             <div class="agree-item-desc">
-              수집 항목: 이름, 이메일, 연락처, YES24 아이디<br>
+              수집 항목: 이름, 이메일, YES24 아이디<br>
               수집 목적: API Key 발급 및 서비스 운영<br>
               보유 기간: 서비스 탈퇴 시까지
             </div>
@@ -540,7 +559,7 @@
             <label class="agree-item-label" for="agree-marketing">
               <span class="badge-optional-agree">[선택]</span> 마케팅 정보 수신 동의
             </label>
-            <div class="agree-item-desc">API 업데이트, 새로운 서비스, 이벤트 안내 등 마케팅 정보를 이메일로 받습니다.</div>
+            <div class="agree-item-desc">API 업데이트, 새로운 서비스, 이벤트 안내 등 마케팅 정보를 받습니다.</div>
           </div>
         </div>
 
@@ -550,7 +569,7 @@
     <!-- Submit -->
     <div class="form-submit-area">
       <button type="submit" class="btn btn-primary">API Key 즉시 발급받기</button>
-      <p class="submit-note">신청 즉시 API Key가 발급됩니다. 발급된 Key는 이메일로도 전송됩니다.</p>
+      <p class="submit-note">신청 즉시 API Key가 발급되고 신청 정보는 JSON으로 저장됩니다.</p>
     </div>
 
   </form>
@@ -559,7 +578,7 @@
   <div class="result-panel" id="result-panel">
     <div class="result-icon">✅</div>
     <div class="result-title">API Key 발급 완료</div>
-    <div class="result-desc">아래 API Key를 복사하여 안전한 곳에 보관하세요.<br>보안을 위해 이 화면에서만 원문이 표시됩니다.</div>
+    <div class="result-desc">아래 API Key를 복사하여 안전한 곳에 보관하세요.<br>신청 정보는 JSON으로 저장되었습니다.</div>
 
     <div class="key-display-wrap">
       <div style="flex:1;">
@@ -576,9 +595,14 @@
       </div>
     </div>
 
+    <div class="json-display-wrap">
+      <div class="json-display-label">저장된 JSON</div>
+      <pre class="json-display" id="saved-json">{}</pre>
+    </div>
+
     <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
       <a href="docs-apikey.html" class="btn btn-outline">API 사용 가이드 보기</a>
-      <a href="api-explorer.html" class="btn btn-primary">API Explorer에서 테스트</a>
+      <a href="api-explorer.html" class="btn btn-primary">API 테스트에서 테스트</a>
     </div>
   </div>
 
@@ -599,7 +623,42 @@
     </div>
   </div>
 </div>
-
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-brand">
+        <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="28" style="display:block;">
+      </a>
+      <p class="footer-desc">YES24 Open API Developer Portal</p>
+      <p class="footer-copy">© 2026 YES24 Co., Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-link-group">
+        <h4>문서</h4>
+        <ul>
+          <li><a href="docs.html">시작하기</a></li>
+          <li><a href="api-catalog.html">API 카탈로그</a></li>
+          <li><a href="api-goods-item-list.html">API 문서</a></li>
+          <li><a href="docs-error-codes.html">오류 코드</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API 테스트</a></li>
+          <li><a href="my-applications.html">내 애플리케이션</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>지원</h4>
+        <ul>
+          <li><a href="support.html">공지사항</a></li>
+          <li><a href="support-faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
 <script src="assets/js/main.js"></script>
 <script>
   // 전체 동의 토글
@@ -615,6 +674,22 @@
     document.getElementById('agree-all').checked = allChecked;
   }
 
+  const APPLICATION_STORAGE_KEY = 'yes24_api_key_applications';
+
+  function getStoredApplications() {
+    try {
+      return JSON.parse(localStorage.getItem(APPLICATION_STORAGE_KEY)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveApplicationRecord(record) {
+    const applications = getStoredApplications();
+    applications.unshift(record);
+    localStorage.setItem(APPLICATION_STORAGE_KEY, JSON.stringify(applications, null, 2));
+  }
+
   // 폼 제출 (Mock)
   function submitApply(e) {
     e.preventDefault();
@@ -628,11 +703,38 @@
       return;
     }
 
-    // Mock: API Key 생성
     const key = 'yk_live_' + Array.from(crypto.getRandomValues(new Uint8Array(20)))
       .map(b => b.toString(16).padStart(2, '0')).join('');
+    const issuedAt = new Date().toISOString();
+    const application = {
+      id: `app_${Date.now()}`,
+      status: 'active',
+      issuedAt,
+      apiKey: key,
+      service: {
+        name: document.getElementById('service-name').value.trim(),
+        url: document.getElementById('service-domain').value.trim(),
+        description: document.getElementById('service-desc').value.trim(),
+        purpose: document.getElementById('use-purpose').value.trim()
+      },
+      contact: {
+        yes24Id: document.getElementById('yes24-id').value.trim(),
+        name: document.getElementById('contact-name').value.trim(),
+        email: document.getElementById('contact-email').value.trim()
+      },
+      agreements: {
+        terms,
+        privacy,
+        thirdParty,
+        marketing: document.getElementById('agree-marketing').checked
+      },
+      permissions: ['category', 'goods']
+    };
+
+    saveApplicationRecord(application);
 
     document.getElementById('issued-key').textContent = key;
+    document.getElementById('saved-json').textContent = JSON.stringify(application, null, 2);
 
     // 폼 숨기기
     document.getElementById('apply-form').style.display = 'none';
@@ -671,7 +773,7 @@
     },
     privacy: {
       title: '개인정보 수집·이용 동의',
-      body: `<strong>수집하는 개인정보 항목</strong><br>필수: 이름, 이메일, YES24 아이디(선택 입력 시)<br>선택: 연락처<br><br>
+      body: `<strong>수집하는 개인정보 항목</strong><br>필수: 이름, 이메일, YES24 아이디(선택 입력 시)<br><br>
       <strong>개인정보 수집·이용 목적</strong><br>- API Key 발급 및 본인 확인<br>- 서비스 운영 및 기술 지원<br>- 서비스 이용 관련 공지사항 발송<br><br>
       <strong>개인정보 보유 및 이용기간</strong><br>서비스 탈퇴 또는 API Key 폐기 요청 시까지. 단, 관계 법령에 따라 일정 기간 보관이 필요한 경우 해당 기간 동안 보관합니다.<br><br>
       <strong>동의 거부권</strong><br>개인정보 수집·이용 동의를 거부할 수 있으나, 거부 시 API Key 발급 서비스를 이용할 수 없습니다.`

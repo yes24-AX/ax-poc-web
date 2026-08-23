@@ -13,121 +13,63 @@
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
       <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="34" style="display:block;">
-      <span class="nav-logo-developers">Developers</span>
+      <span class="nav-logo-developers">개발자센터</span>
     </a>
     <div class="nav-divider"></div>
     <ul class="nav-links">
-      <li><a href="docs.html">Docs</a></li>
-      <li><a href="api-explorer.html">API Explorer</a></li>
-      <li><a href="my-applications.html">My Applications</a></li>
-      <li><a href="support.html" class="active">Support</a></li>
+      <li><a href="docs.html">문서</a></li>
+      <li><a href="api-explorer.html">API 테스트</a></li>
+      <li><a href="support.html" class="active">지원</a></li>
+
     </ul>
     <div class="nav-actions">
-      <span class="nav-version-badge">v1.0</span>
-      <a href="my-applications.html" class="btn btn-ghost btn-sm">로그인</a>
-      <a href="api-key-apply.html" class="btn btn-primary btn-sm">API Key 신청</a>
+      <a href="login.html" class="btn btn-ghost btn-sm" id="nav-login-btn">로그인</a>
+      <span id="nav-user-info" style="display:none"></span>
+      <a href="api-key-apply.html" class="btn btn-primary btn-sm" id="nav-apply-btn">API Key 신청</a>
     </div>
   </div>
 </nav>
 
-<div class="page-docs" style="max-width:none;">
+<div class="page-docs" style="max-width:none;grid-template-columns:var(--sidebar-width) minmax(0,1fr);">
 
   <aside class="sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-section-title">Support</div>
+      <div class="sidebar-section-title">지원</div>
       <ul class="sidebar-nav">
-        <li><a href="support.html#error-codes" class="active">Error Codes</a></li>
-        <li><a href="support.html#announcements">공지사항</a></li>
-        <li><a href="support.html#faq">FAQ</a></li>
-      </ul>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-section-title">빠른 링크</div>
-      <ul class="sidebar-nav">
-        <li><a href="docs.html">Getting Started</a></li>
-        <li><a href="api-catalog.html">API Catalog</a></li>
-        <li><a href="api-explorer.html">API Explorer</a></li>
+        <li><a href="support.html" class="active">공지사항</a></li>
+        <li><a href="support-faq.html">FAQ</a></li>
       </ul>
     </div>
   </aside>
 
   <main class="doc-content">
     <nav class="doc-breadcrumb">
-      <a href="index.html">Home</a>
-      <span>/</span>
-      <span>Support</span>
+      <a href="index.html">홈</a>
+      <span>&gt;</span>
+      <span>지원</span>
     </nav>
 
-    <div class="doc-page-title" id="error-codes">
-      <h1>Error Codes</h1>
-      <p>YES24 Open API에서 반환하는 오류 코드 목록입니다.</p>
+    <div class="doc-page-title" id="announcements">
+      <h1>공지사항</h1>
+      <p>YES24 Open API Developer Portal의 변경 사항과 운영 안내입니다.</p>
     </div>
-
-    <h2 id="auth-errors">인증 오류 (AUTH)</h2>
-    <div class="param-table-wrap">
-      <table class="doc-table">
-        <thead><tr><th>코드</th><th>HTTP</th><th>메시지</th><th>해결 방법</th></tr></thead>
-        <tbody>
-          <tr><td><code>AUTH_001</code></td><td><span class="badge badge-danger">401</span></td><td>Invalid or expired access token</td><td>Token을 재발급받으세요. Access Token 유효기간은 1시간입니다.</td></tr>
-          <tr><td><code>AUTH_002</code></td><td><span class="badge badge-danger">401</span></td><td>Missing Authorization header</td><td><code>Authorization: Bearer {token}</code> 헤더를 포함하세요.</td></tr>
-          <tr><td><code>AUTH_003</code></td><td><span class="badge badge-danger">403</span></td><td>Insufficient permissions</td><td>해당 API에 대한 권한을 신청하세요. My Applications &gt; 권한 신청.</td></tr>
-          <tr><td><code>AUTH_004</code></td><td><span class="badge badge-danger">403</span></td><td>Application is inactive</td><td>앱이 비활성화 상태입니다. My Applications에서 앱 상태를 확인하세요.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h2 id="request-errors">요청 오류 (4xx)</h2>
-    <div class="param-table-wrap">
-      <table class="doc-table">
-        <thead><tr><th>코드</th><th>HTTP</th><th>메시지</th><th>해결 방법</th></tr></thead>
-        <tbody>
-          <tr><td><code>BOOKS_001</code></td><td><span class="badge badge-warning">400</span></td><td>query parameter is required</td><td><code>query</code> 파라미터를 포함하세요.</td></tr>
-          <tr><td><code>BOOKS_002</code></td><td><span class="badge badge-warning">400</span></td><td>size must be between 1 and 100</td><td><code>size</code> 값을 1~100 범위로 조정하세요.</td></tr>
-          <tr><td><code>BOOKS_003</code></td><td><span class="badge badge-warning">404</span></td><td>Book not found</td><td>요청한 도서 ID가 존재하지 않습니다.</td></tr>
-          <tr><td><code>RATE_001</code></td><td><span class="badge badge-warning">429</span></td><td>Rate limit exceeded</td><td>요청 빈도를 줄이세요. <code>X-RateLimit-Reset</code> 헤더에서 초기화 시간 확인.</td></tr>
-          <tr><td><code>PARAM_001</code></td><td><span class="badge badge-warning">400</span></td><td>Invalid parameter value</td><td>파라미터 값 형식을 확인하세요.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h2 id="server-errors">서버 오류 (5xx)</h2>
-    <div class="param-table-wrap">
-      <table class="doc-table">
-        <thead><tr><th>코드</th><th>HTTP</th><th>메시지</th><th>해결 방법</th></tr></thead>
-        <tbody>
-          <tr><td><code>SERVER_001</code></td><td><span class="badge badge-danger">500</span></td><td>Internal server error</td><td>재시도 후 지속 시 지원팀에 문의하세요.</td></tr>
-          <tr><td><code>SERVER_002</code></td><td><span class="badge badge-danger">503</span></td><td>Service temporarily unavailable</td><td>점검 중입니다. 공지사항을 확인하세요.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="callout callout-info">
-      <span class="callout-icon">ℹ️</span>
-      <div class="callout-content">
-        <p>오류 응답 본문의 <code>error.docs</code> 필드에는 해당 오류에 대한 문서 URL이 포함됩니다.</p>
-      </div>
-    </div>
-
-    <hr class="divider" id="announcements">
-
-    <h1>공지사항</h1>
     <div style="margin-top:24px;">
 
       <div style="border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow-sm);">
         <div style="padding:16px 20px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;background:var(--color-bg-subtle);">
           <div style="display:flex;align-items:center;gap:10px;">
             <span class="badge badge-success">신규</span>
-            <span style="font-size:15px;font-weight:600;color:var(--color-text);">Books API v2.1 업데이트 — 미리보기 기능 추가</span>
+            <span style="font-size:15px;font-weight:600;color:var(--color-text);">Public API 문서 반영 — Category, Goods API 구성</span>
           </div>
           <span style="font-size:13px;color:var(--color-text-muted);">2026-06-01</span>
         </div>
         <div style="padding:16px 20px;background:var(--color-bg);">
-          <p>Books API v2.1에서 <code>GET /v1/books/{id}/preview</code> Endpoint가 추가되었습니다.</p>
+          <p>Category API와 Goods API 문서가 개별 페이지 기준으로 정리되었습니다.</p>
           <ul>
             <li>도서 본문 미리보기 최대 10페이지 제공</li>
-            <li>기존 <code>/v1/books</code>, <code>/v1/books/{id}</code>와 완전 하위 호환</li>
+            <li><code>/v1/category</code>, <code>/v1/goods</code> API 기준 문서 제공</li>
           </ul>
-          <p style="margin-top:12px;"><a href="api-detail.html">→ Books API 문서 보기</a></p>
+          <p style="margin-top:12px;"><a href="api-goods-item-list.html">→ Goods API 문서 보기</a></p>
         </div>
       </div>
 
@@ -170,77 +112,45 @@
 
     </div>
 
-    <hr class="divider" id="faq">
-
-    <h1>FAQ</h1>
-    <div style="margin-top:24px;border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);background:var(--color-bg);">
-
-      <details style="border-bottom:1px solid var(--color-border);">
-        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
-          API Key는 어디서 발급받나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
-        </summary>
-        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
-          <p><a href="api-key-apply.html">API Key 신청 페이지</a>에서 서비스 정보와 약관 동의 후 즉시 발급받을 수 있습니다.</p>
-          <p style="margin-top:8px;"><a href="docs-apikey.html">→ API Key 발급 가이드 상세 보기</a></p>
-        </div>
-      </details>
-
-      <details style="border-bottom:1px solid var(--color-border);">
-        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
-          Access Token 유효기간은 얼마나 되나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
-        </summary>
-        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
-          <p>Access Token의 유효기간은 <strong>1시간(3600초)</strong>입니다. 만료 후 Client Credentials로 재발급받으세요.</p>
-        </div>
-      </details>
-
-      <details style="border-bottom:1px solid var(--color-border);">
-        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
-          Rate Limit을 초과하면 어떻게 되나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
-        </summary>
-        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
-          <p><code>HTTP 429 Too Many Requests</code>가 반환됩니다. 응답 헤더의 <code>Retry-After</code> 값만큼 대기 후 재시도하세요.</p>
-        </div>
-      </details>
-
-      <details style="border-bottom:1px solid var(--color-border);">
-        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
-          상업적 목적으로 사용할 수 있나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
-        </summary>
-        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
-          <p>네, 상업적 목적으로도 사용 가능합니다. 단, 이용 약관을 반드시 준수해야 합니다.</p>
-        </div>
-      </details>
-
-      <details>
-        <summary style="padding:16px 20px;cursor:pointer;font-size:15px;font-weight:500;color:var(--color-text);list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none;">
-          API 오류가 지속될 때 어떻게 문의하나요? <span style="font-size:20px;color:var(--color-text-muted);font-weight:300;">+</span>
-        </summary>
-        <div style="padding:0 20px 16px;font-size:14px;color:var(--color-text-secondary);">
-          <p><strong>support@developers.yes24.com</strong>으로 Client ID, 오류 발생 Endpoint, 오류 응답 전문, 발생 시각을 포함하여 문의해주세요.</p>
-        </div>
-      </details>
-
-    </div>
-
   </main>
 
-  <aside class="toc-panel">
-    <div class="toc-title">이 페이지에서</div>
-    <ul class="toc-nav">
-      <li><a href="#error-codes">Error Codes</a></li>
-      <ul class="toc-sub">
-        <li><a href="#auth-errors">인증 오류</a></li>
-        <li><a href="#request-errors">요청 오류 (4xx)</a></li>
-        <li><a href="#server-errors">서버 오류 (5xx)</a></li>
-      </ul>
-      <li><a href="#announcements">공지사항</a></li>
-      <li><a href="#faq">FAQ</a></li>
-    </ul>
-  </aside>
-
 </div>
-
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <a href="index.html" class="footer-brand">
+        <img src="assets/img/logoN4.svg" alt="YES24 Developers" height="28" style="display:block;">
+      </a>
+      <p class="footer-desc">YES24 Open API Developer Portal</p>
+      <p class="footer-copy">© 2026 YES24 Co., Ltd. All rights reserved.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-link-group">
+        <h4>문서</h4>
+        <ul>
+          <li><a href="docs.html">시작하기</a></li>
+          <li><a href="api-catalog.html">API 카탈로그</a></li>
+          <li><a href="api-goods-item-list.html">API 문서</a></li>
+          <li><a href="docs-error-codes.html">오류 코드</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>도구</h4>
+        <ul>
+          <li><a href="api-explorer.html">API 테스트</a></li>
+          <li><a href="my-applications.html">내 애플리케이션</a></li>
+        </ul>
+      </div>
+      <div class="footer-link-group">
+        <h4>지원</h4>
+        <ul>
+          <li><a href="support.html">공지사항</a></li>
+          <li><a href="support-faq.html">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
 <script src="assets/js/main.js"></script>
 </body>
 </html>

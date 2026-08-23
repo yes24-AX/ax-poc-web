@@ -1,0 +1,72 @@
+@charset "utf-8";
+
+/* image repleace main */
+.bgLoca { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;text-indent:-999em;vertical-align:top;background:url('https://image.yes24.com/sysimage/renew/location/bgLoca.png?v=170310a') no-repeat left top;} /* 기본 이미지 태체 태그 */
+* html .bgLoca {text-indent:0 !important; line-height:0 !important; font-size:0 !important; overflow:hidden !important;}/*ie6 hack */  
+*:first-child+html .bgLoca { text-indent:0 !important; line-height:0 !important; font-size:0 !important; overflow:hidden !important;}/*ie7 hack */
+
+#yHeader { margin-bottom:0 !important; }
+#yLocation { padding:12px 0 0 0;height:28px;_height:40px;border-bottom:solid 1px #e5e5e5;background-color:#f8f8f8; }
+#yLocation * { font-family:'맑은 고딕','Malgun Gothic','Apple SD Gothic Neo',AppleGothic,'돋움',Dotum,'굴림',Gulim,Helvetica,sans-serif; }
+#yLocation .yLocationCont { position:relative;margin:0 auto;width:960px;text-align:left;cursor:default; }
+#yLocation .yLocationCont:after{ content:'';display:table;clear:both; }
+#yLocation .yLocationCont a.yLocaHome { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top; }
+#yLocation .yLocationCont a.yLocaHome { float:left;padding-left:9px;color:#666; }
+#yLocation .yLocationCont a.yLocaHome:hover { text-decoration:underline; }
+#yLocation .yLocationCont .yLocaSet { float:left;position:relative;z-index:15;padding-left:16px; }
+#yLocation .yLocationCont .yLocaSet .bgLoca.ico_arr { position:absolute;left:9px;top:3px;*top:2px;width:8px;height:13px;background-position:0 0; }
+
+#yLocation .yLocationCont .yLocaSet button.yLocaDepthOnly { position:relative;margin-top:-5px;padding:0 0 0 8px;width:auto;height:26px;line-height:26px;overflow:visible;border:none;color:#666;text-align:left;outline:none;text-decoration:none;vertical-align:top;background:#f8f8f8; }
+#yLocation .yLocationCont .yLocaSet button.yLocaDepth { position:relative;margin-top:-5px;padding:0 21px 0 8px;width:auto;height:26px;line-height:26px;overflow:visible;border:none;color:#666;text-align:left;outline:none;text-decoration:none;vertical-align:top;background:#f8f8f8; }
+#yLocation .yLocationCont .yLocaSet button.yLocaDepth .bgLoca.ico_squareArr { display:block;position:absolute;top:6px;right:0;width:17px;height:16px;background-position:-20px 0; }
+#yLocation .yLocationCont .yLocaSet.on button.yLocaDepth .bgLoca.ico_squareArr { background-position:-40px 0; }
+
+#yLocation .yLocationCont .yLocaSet a.yLocaDepthOnly { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top; }
+#yLocation .yLocationCont .yLocaSet a.yLocaDepth { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top; }
+#yLocation .yLocationCont .yLocaSet a.yLocaDepthOnly { position:relative;margin-top:-5px;padding:0 0 0 8px;width:auto;height:26px;line-height:26px;overflow:visible;border:none;color:#666;text-align:left;outline:none;text-decoration:none;vertical-align:top;background:#f8f8f8; }
+#yLocation .yLocationCont .yLocaSet a.yLocaDepth { position:relative;margin-top:-5px;padding:0 21px 0 8px;width:auto;height:26px;line-height:26px;overflow:visible;border:none;color:#666;text-align:left;outline:none;text-decoration:none;vertical-align:top;background:#f8f8f8; }
+#yLocation .yLocationCont .yLocaSet a.yLocaDepth .bgLoca.ico_squareArr { display:block;position:absolute;top:6px;right:0;width:17px;height:16px;background-position:-20px 0; }
+#yLocation .yLocationCont .yLocaSet .yLocaTxt { display:-moz-inline-stack;display:inline-block;zoom:1;*display:inline;overflow:hidden;text-align:left;vertical-align:top; }
+#yLocation .yLocationCont .yLocaSet .yLocaTxt { padding:0 0 0 8px; }
+#yLocation .yLocationCont .yLocaSet.on a.yLocaDepth .bgLoca.ico_squareArr { background-position:-40px 0; }
+
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth { display:none;position:absolute;left:16px;top:21px;padding:10px 0 12px;border:solid 1px #196ab3;background-color:#fff; }
+#yLocation .yLocationCont .yLocaSet.on .yLocaSubDepth { display:block; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth.yLocaLi_1col { width:140px;*width:140px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth.yLocaLi_2col { width:280px;*width:281px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth.yLocaLi_3col { width:420px;*width:422px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth.yLocaLi_4col { width:560px;*width:563px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth.yLocaLi_5col { width:700px;*width:704px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth.yLocaLi_6col { width:840px;*width:845px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth .yLocaLi { display:block; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth .yLocaLi ul { float:left;width:140px;background:#fff url('https://image.yes24.com/sysimage/renew/location/bgSubDepthLn.gif') no-repeat left 5px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth .yLocaLi ul.lastCol { background:none; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth .yLocaLi:after{ content:'';display:table;clear:both; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth .yLocaLi li { padding:2px 0 2px 14px;line-height:16px; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth .yLocaLi li a { display:block;width:120px;height:16px;overflow:hidden;line-height:16px;color:#666;white-space:nowrap;text-overflow:ellipsis; }
+#yLocation .yLocationCont .yLocaSet .yLocaSubDepth .yLocaLi li.on a { font-weight:bold;color:#333; }
+
+#yLocation .yLocationCont .yLocaShare { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yLocation .yLocationCont .yLocaShare { flex-direction: row;flex-wrap: nowrap;align-items: center; }
+#yLocation .yLocationCont .yLocaShare { box-sizing:border-box;position:absolute;right:0;top:-7px;border:solid 1px #ebebeb;border-radius:15px;background-color:#fff; }
+#yLocation .yLocationCont .yLocaShare .lnk_share { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yLocation .yLocationCont .yLocaShare .lnk_share { flex-direction: column;flex-wrap: nowrap;justify-content: center;align-items: center; }
+#yLocation .yLocationCont .yLocaShare .lnk_share { width:28px;height:28px; }
+#yLocation .yLocationCont .yLocaShare .lnk_share .ico { width:20px;height:20px;overflow:hidden;line-height:0;font-size:0;color:transparent;background:url('https://image.yes24.com/sysimage/renew/common/ico_share_s.svg') no-repeat left top; } /* https://image.yes24.com/sysimage/renew/common/ico_share_s.svg */
+#yLocation .yLocationCont .yLocaShare .shareRow { display:none; }
+#yLocation .yLocationCont .yLocaShare.contOn .lnk_share { display:none; }
+#yLocation .yLocationCont .yLocaShare.contOn .shareRow { display:block; }
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn { display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex; }
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn { flex-direction: row;flex-wrap: nowrap;align-items: center; }
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn { display:block;padding:4px 5px;line-height:0;font-size:0; }
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a.ico_copy { display:inline-block;width:20px;height:20px;line-height:0;font-size:0;color:transparent;background:url('https://image.yes24.com/sysimage/renew/common/ico_copy.svg') no-repeat left top; }
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a.ico_sns { display:inline-block;width:20px;height:20px;border-radius:50%;line-height:0;font-size:0;color:transparent; }
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a.ico_sns.ico_ka { background:url('https://image.yes24.com/sysimage/renew/common/ico_sns_ka.svg') no-repeat left top; } /* https://image.yes24.com/sysimage/renew/common/ico_sns_ka.svg */
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a.ico_sns.ico_fb { background:url('https://image.yes24.com/sysimage/renew/common/ico_sns_fb.svg') no-repeat left top; } /* https://image.yes24.com/sysimage/renew/common/ico_sns_fb.svg */
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a.ico_sns.ico_x { background:url('https://image.yes24.com/sysimage/mv3/com/share_x.svg') no-repeat left top;background-size:auto 100%; } /* https://image.yes24.com/sysimage/mv3/com/share_x.svg */
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a.ico_sns.ico_line { background:url('https://image.yes24.com/sysimage/mv3/com/share_ln.svg') no-repeat left top;background-size:auto 100%; } /* https://image.yes24.com/sysimage/mv3/com/share_ln.svg */ 
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a.ico_close { display:inline-block;width:20px;height:20px;line-height:0;font-size:0;color:transparent;background:url('https://image.yes24.com/sysimage/renew/common/ico_del_s.svg') no-repeat left top; } /* https://image.yes24.com/sysimage/renew/common/ico_del_s.svg */
+#yLocation .yLocationCont .yLocaShare .shareRow .shareBtn a+a { margin-left:5px; }
+
+/* 전시 */
+#wrapperContent { margin:20px auto 0; }
