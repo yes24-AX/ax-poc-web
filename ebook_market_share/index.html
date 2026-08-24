@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eBook 3사 경쟁 비교 리포트 — AX Labs</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+<div class="app-layout">
+  <nav class="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="#"><span class="sidebar-logo">AX</span><span class="sidebar-brand">Labs</span></a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">eBook 사업분석</span>
+        <ul class="sidebar-menu">
+          <li><a class="nav-item-btn active" href="index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span class="nav-item-text">3사 경쟁 비교 리포트</span></a></li>
+          <li><a class="nav-item-btn" href="input.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            <span class="nav-item-text">경쟁사 매출 입력</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn"><span class="user-avatar">Y</span><div><div class="user-name">YES24 AX</div><div class="user-dept">eBook사업팀</div></div></div>
+    </div>
+  </nav>
+
+  <div class="main-wrapper">
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">eBook 사업분석</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current">3사 경쟁 비교 리포트</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <span class="model-pill">POC</span>
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title">eBook 3사 경쟁 비교 리포트</h1>
+            <p class="page-subtitle">예스24 · 교보문고 · 알라딘 월별/분야별 매출 비교 — 시장 대비 상대 성과 모니터링 (POC)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <span class="fl">기준월</span>
+        <select id="selMonth"></select>
+        <span class="fl">조회기간</span>
+        <div class="seg" id="segRange">
+          <button data-r="1" class="active">당월</button>
+          <button data-r="3">최근 3개월</button>
+          <button data-r="6">최근 6개월</button>
+          <button data-r="12">최근 12개월</button>
+          <button data-r="Y">연도별</button>
+        </div>
+        <div class="filter-spacer"></div>
+        <span class="range-note" id="rangeNote"></span>
+      </div>
+
+      <div class="grid grid-3" id="kpiRow" style="margin-bottom:12px"></div>
+      <div class="guide guide-top"><span class="lbl">읽는 법</span><span>
+        <b>①은 시장 전체의 흐름, ②는 그 안에서 당사의 위치, ③은 둘의 차이</b>입니다.
+        ③ 성장 Gap이 음수면 매출이 늘었더라도 시장이 더 많이 늘어난 것이므로 <b>상대적 부진</b>,
+        양수면 시장이 역성장하는 중이라도 <b>선방</b>으로 판단합니다. 아래 탭은 이 세 숫자를 분야별로 쪼개 본 것입니다.
+      </span></div>
+
+      <div class="tabs" id="tabs">
+        <button class="active" data-t="t1">① 3사 전체 시장 현황</button>
+        <button data-t="t2">② 월별 추이</button>
+        <button data-t="t3">③ 분야별 경쟁력 비교</button>
+        <button data-t="t4">④ 분야별 증감 기여도</button>
+        <button data-t="t5">⑤ 분야별 상세</button>
+      </div>
+
+      <section class="tab-panel active" id="t1"></section>
+      <section class="tab-panel" id="t2"></section>
+      <section class="tab-panel" id="t3"></section>
+      <section class="tab-panel" id="t4"></section>
+      <section class="tab-panel" id="t5"></section>
+
+      <p class="foot-note">POC 프로토타입 · 데이터: 「경쟁사 비교.xlsx」 2023.01~2026.07 (단위: 백만원) · 예스24 MSTR 연동 / 교보·알라딘 수기 입력 가정</p>
+    </main>
+  </div>
+</div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
