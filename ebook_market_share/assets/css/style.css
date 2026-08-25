@@ -32,6 +32,11 @@
   --sidebar-accent-foreground: oklch(0 0 0);
   --sidebar-border: oklch(0.94 0 0);
 
+  /* 3사 브랜드 컬러 */
+  --c-yes: #0080FF;
+  --c-kyobo: rgb(77, 172, 39);
+  --c-aladin: #FB2888;
+
   /* semantic */
   --success: oklch(0.52 0.15 145);
   --warning: oklch(0.55 0.14 60);
@@ -505,15 +510,15 @@ table.dt td.num { font-weight: 600; }
 .gap-badge.even { color: var(--muted-foreground); background: var(--muted); border-color: var(--border); }
 
 /* store color tokens */
-.c-yes { color: oklch(0.55 0.19 258); }
-.c-kyobo { color: oklch(0.58 0.16 150); }
-.c-aladin { color: oklch(0.66 0.16 60); }
-.line-yes { stroke: oklch(0.55 0.19 258); } .line-yes.chart-area { fill: oklch(0.55 0.19 258); } .line-yes.dot-fill { fill: oklch(0.55 0.19 258); }
-.line-kyobo { stroke: oklch(0.58 0.16 150); } .line-kyobo.dot-fill { fill: oklch(0.58 0.16 150); }
-.line-aladin { stroke: oklch(0.66 0.16 60); } .line-aladin.dot-fill { fill: oklch(0.66 0.16 60); }
+.c-yes { color: var(--c-yes); }
+.c-kyobo { color: var(--c-kyobo); }
+.c-aladin { color: var(--c-aladin); }
+.line-yes { stroke: var(--c-yes); } .line-yes.chart-area { fill: var(--c-yes); } .line-yes.dot-fill { fill: var(--c-yes); }
+.line-kyobo { stroke: var(--c-kyobo); } .line-kyobo.dot-fill { fill: var(--c-kyobo); }
+.line-aladin { stroke: var(--c-aladin); } .line-aladin.dot-fill { fill: var(--c-aladin); }
 .line-market { stroke: var(--muted-foreground); stroke-dasharray: 5 4; }
-.sw-yes { background: oklch(0.55 0.19 258); } .sw-kyobo { background: oklch(0.58 0.16 150); } .sw-aladin { background: oklch(0.66 0.16 60); } .sw-market { background: var(--muted-foreground); }
-.bar-yes { fill: oklch(0.55 0.19 258); } .bar-market { fill: var(--muted-foreground); opacity: 0.45; }
+.sw-yes { background: var(--c-yes); } .sw-kyobo { background: var(--c-kyobo); } .sw-aladin { background: var(--c-aladin); } .sw-market { background: var(--muted-foreground); }
+.bar-yes { fill: var(--c-yes); } .bar-market { fill: var(--muted-foreground); opacity: 0.45; }
 .bar-up { fill: var(--success); } .bar-down { fill: var(--destructive); }
 .grid-line { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
 .zero-line { stroke: var(--muted-foreground); stroke-width: 1; opacity: 0.5; }
@@ -559,13 +564,45 @@ table.dt td.num { font-weight: 600; }
 .guide-top { margin: 0 0 16px; }
 
 /* ---- 100% 누적 막대 · 경쟁 격차 ---- */
-.bar-kyobo { fill: oklch(0.58 0.16 150); }
-.bar-aladin { fill: oklch(0.66 0.16 60); }
+.bar-kyobo { fill: var(--c-kyobo); }
+.bar-aladin { fill: var(--c-aladin); }
 .stack-lbl { font-size: 10.5px; font-weight: 800; fill: oklch(1 0 0); }
 .stack-cat { fill: var(--muted-foreground); font-size: 10.5px; }
-.line-gap-kyobo { stroke: oklch(0.58 0.16 150); }
-.line-gap-kyobo.dot-fill { fill: oklch(0.58 0.16 150); }
-.line-gap-aladin { stroke: oklch(0.66 0.16 60); }
-.line-gap-aladin.dot-fill { fill: oklch(0.66 0.16 60); }
-.sw-gap-kyobo { background: oklch(0.58 0.16 150); }
-.sw-gap-aladin { background: oklch(0.66 0.16 60); }
+.line-gap-kyobo { stroke: var(--c-kyobo); }
+.line-gap-kyobo.dot-fill { fill: var(--c-kyobo); }
+.line-gap-aladin { stroke: var(--c-aladin); }
+.line-gap-aladin.dot-fill { fill: var(--c-aladin); }
+.sw-gap-kyobo { background: var(--c-kyobo); }
+.sw-gap-aladin { background: var(--c-aladin); }
+
+/* ---- 차트 툴팁 ---- */
+.chart-wrap { position: relative; }
+.chart-tip { position: absolute; z-index: 20; pointer-events: none; opacity: 0; transform: translateX(-50%); transition: opacity 0.13s ease; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px); box-shadow: var(--shadow-md); padding: 13px 15px 11px; width: 296px; --tip-caret: 50%; }
+.chart-tip.on { opacity: 1; }
+
+/* 커서를 가리키는 화살표 (::before = 테두리, ::after = 카드 배경) */
+.chart-tip::before, .chart-tip::after { content: ''; position: absolute; left: var(--tip-caret); transform: translateX(-50%); border: 7px solid transparent; width: 0; height: 0; }
+.chart-tip::before { top: 100%; border-top-color: var(--border); }
+.chart-tip::after { top: calc(100% - 1.5px); border-top-color: var(--card); }
+.chart-tip.below::before { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--border); }
+.chart-tip.below::after { top: auto; bottom: calc(100% - 1.5px); border-top-color: transparent; border-bottom-color: var(--card); }
+
+.tt-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 14.5px; font-weight: 800; color: var(--foreground); letter-spacing: -0.01em; }
+.tt-head .tt-total { font-size: 12px; font-weight: 700; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.tt-sub { font-size: 11px; color: var(--muted-foreground); margin-top: 3px; padding-bottom: 9px; border-bottom: 1px solid var(--border); }
+
+.tt-store { padding: 9px 0 8px; border-bottom: 1px dashed var(--border); }
+.tt-store:last-of-type { border-bottom: 0; padding-bottom: 2px; }
+.tt-l1 { display: flex; align-items: center; gap: 8px; }
+.tt-l1 i { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.tt-name { flex: 1; font-size: 12.5px; font-weight: 700; color: var(--foreground); display: flex; align-items: center; gap: 5px; }
+.tt-rank { font-size: 9.5px; font-weight: 800; color: var(--muted-foreground); background: var(--muted); border-radius: 999px; padding: 1px 6px; letter-spacing: 0; }
+.tt-share { font-size: 16px; font-weight: 800; color: var(--foreground); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.tt-dpp { font-size: 11.5px; font-weight: 700; min-width: 54px; text-align: right; font-variant-numeric: tabular-nums; }
+.tt-bar { height: 5px; border-radius: 3px; background: var(--muted); margin: 7px 0 6px; overflow: hidden; }
+.tt-bar i { display: block; height: 100%; border-radius: 3px; }
+.tt-l2 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 11.5px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.tt-l2 b { color: var(--foreground); font-weight: 700; }
+
+.hit-col { fill: transparent; cursor: zoom-in; }
+.hit-col:hover { fill: var(--foreground); fill-opacity: 0.05; }

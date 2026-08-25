@@ -172,6 +172,9 @@
     return '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg></div>' + (legend ? '<div class="chart-legend">' + legend + '</div>' : '');
   }
 
+  const TIPS = {};      // 차트 id -> 항목별 툴팁 HTML
+  let TIP_SEQ = 0;
+
   /* 100% 누적 막대 — 각 항목의 3사 구성비 */
   function stack100(opts) {
     const labels = opts.labels, series = opts.series;   // series: [{name, cls, values}]
@@ -200,9 +203,45 @@
       const t = String(l).split(' ');
       g += '<text class="stack-cat" x="' + cx.toFixed(1) + '" y="' + (H - 22) + '" text-anchor="middle">' + t[0] + '</text>';
       if (t[1]) g += '<text class="stack-cat" x="' + cx.toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle">' + t[1] + '</text>';
+      if (opts.tips) g += '<rect class="hit-col" data-i="' + i + '" x="' + (PADL + bw * i).toFixed(1) + '" y="' + PADTT + '" width="' + bw.toFixed(1) + '" height="' + (H - PADTT - PADB + 24).toFixed(1) + '" rx="4"/>';
     });
     const legend = series.map(sr => '<span><i class="sw-' + sr.cls.replace('bar-', '') + '"></i>' + sr.name + '</span>').join('');
-    return '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg></div><div class="chart-legend">' + legend + '</div>';
+    let tipId = '';
+    if (opts.tips) { tipId = 'tip' + (++TIP_SEQ); TIPS[tipId] = opts.tips; }
+    return '<div class="chart-wrap' + (opts.tips ? ' has-tip" data-tip="' + tipId : '') + '"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg>' +
+      (opts.tips ? '<div class="chart-tip"></div>' : '') + '</div><div class="chart-legend">' + legend + '</div>';
+  }
+
+  /* 100% 누적 막대 툴팁 바인딩 */
+  const cy = (e, r) => e.clientY - r.top;
+  function bindTips(root) {
+    root.querySelectorAll('.chart-wrap.has-tip').forEach(wrap => {
+      const tipEl = wrap.querySelector('.chart-tip');
+      const tips = TIPS[wrap.getAttribute('data-tip')];
+      if (!tipEl || !tips) return;
+      const svg = wrap.querySelector('svg');
+      svg.addEventListener('mousemove', e => {
+        const hit = e.target.closest('[data-i]');
+        if (!hit) { tipEl.classList.remove('on'); return; }
+        const i = Number(hit.getAttribute('data-i'));
+        if (tipEl.dataset.i !== String(i)) { tipEl.innerHTML = tips[i]; tipEl.dataset.i = String(i); }
+        const r = wrap.getBoundingClientRect();
+        const hw = tipEl.offsetWidth / 2, th = tipEl.offsetHeight;
+        const GAP = 14;
+        // 가로: 커서를 따라가되 차트 폭을 벗어나지 않게 (벗어난 만큼은 화살표를 옮겨 커서를 가리킨다)
+        const cx = e.clientX - r.left;
+        const x = Math.min(Math.max(cx, hw + 2), Math.max(r.width - hw - 2, hw + 2));
+        // 세로: 기본은 커서 위. 화면 위쪽 공간이 모자라면 커서 아래로 뒤집는다
+        const below = e.clientY - GAP - th < 8;
+        tipEl.classList.toggle('below', below);
+        tipEl.style.left = x + 'px';
+        tipEl.style.top = (below ? cy(e, r) + GAP : cy(e, r) - GAP - th) + 'px';
+        const caret = Math.min(Math.max(cx - (x - hw), 16), tipEl.offsetWidth - 16);
+        tipEl.style.setProperty('--tip-caret', caret.toFixed(0) + 'px');
+        tipEl.classList.add('on');
+      });
+      svg.addEventListener('mouseleave', () => tipEl.classList.remove('on'));
+    });
   }
 
   /* ---------- 공통 ---------- */
@@ -276,6 +315,27 @@
       '<th class="bl">매출</th><th>YoY</th><th class="bl">점유율</th><th>전년비</th></tr>' +
       '</thead><tbody>' + rows + '</tbody></table></div>';
 
+    const tipFor = (name, a, b) => {
+      const ranked = STORES.slice().sort((x, y) => a[y.k] - a[x.k]);
+      const rows = STORES.map(sr => {
+        const sh = share(a[sr.k], a.market), shp = share(b[sr.k], b.market);
+        const d = sub(sh, shp);
+        const rank = ranked.indexOf(sr) + 1;
+        return '<div class="tt-store">' +
+          '<div class="tt-l1"><i class="sw-' + sr.cls + '"></i>' +
+          '<span class="tt-name">' + sr.name + (rank === 1 ? '<span class="tt-rank">1위</span>' : '') + '</span>' +
+          '<span class="tt-share">' + pct(sh) + '</span>' +
+          '<span class="tt-dpp ' + cls(d) + '">' + pp(d) + '</span></div>' +
+          '<div class="tt-bar"><i class="sw-' + sr.cls + '" style="width:' + ((sh || 0) * 100).toFixed(1) + '%"></i></div>' +
+          '<div class="tt-l2"><span>매출 <b>' + nf(a[sr.k]) + '</b> 백만</span>' +
+          '<span>YoY <b class="' + cls(yoy(a[sr.k], b[sr.k])) + '">' + sgn(yoy(a[sr.k], b[sr.k])) + '</b></span></div>' +
+          '</div>';
+      }).join('');
+      return '<div class="tt-head">' + name + '<span class="tt-total">' + nf(a.market) + ' 백만</span></div>' +
+        '<div class="tt-sub">3사 합산 시장 · YoY <b class="' + cls(yoy(a.market, b.market)) + '">' + sgn(yoy(a.market, b.market)) + '</b>' +
+        ' · 막대는 점유율, 우측은 전년 대비 증감</div>' + rows;
+    };
+
     const shareBar = stack100({
       labels: CATS.map(x => x.replace('·', ' ')).concat(['전체']),
       height: 310,
@@ -283,6 +343,7 @@
         name: sr.name, cls: 'bar-' + sr.cls,
         values: CATS.map(cat => c.cur.cats[cat][sr.k]).concat([c.cur.total[sr.k]]),
       })),
+      tips: CATS.map(cat => tipFor(cat, c.cur.cats[cat], c.prv.cats[cat])).concat([tipFor('전체', c.cur.total, c.prv.total)]),
     });
 
     let notice = '';
@@ -296,7 +357,7 @@
         '한 행에서 3사를 가로로 비교합니다. 매출 크기보다 <b>맨 오른쪽 「점유율 전년비(%p)」</b>가 핵심 — 이 값이 +면 당사 매출이 줄었더라도 경쟁 3사 안에서는 비중을 키운 달입니다. 반대로 매출이 늘어도 이 값이 −면 시장이 더 빨리 커진 것입니다.') +
       '<div style="height:14px"></div>' +
       card('분야별 점유율', shareBar, '각 분야의 3사 합산 매출을 100%로 둔 서점별 구성비 (숫자 단위: %)',
-        '막대 하나가 <b>그 분야의 3사 시장 전체(100%)</b>이고, 색 구간이 각 사의 몫입니다. 파란 구간(예스24)이 다른 두 구간보다 두꺼운 분야가 <b>당사가 1위인 분야</b>이며, 맨 오른쪽 「전체」와 비교해 <b>전체 평균보다 두꺼운지 얇은지</b>로 상대적 강·약 분야를 가릅니다. 다만 이 그래프는 「현재 위치」이므로, 오르는 중인지 내리는 중인지는 ③탭의 점유율 증감으로 확인하세요.');
+        '막대 하나가 <b>그 분야의 3사 시장 전체(100%)</b>이고, 색 구간이 각 사의 몫입니다. 파란 구간(예스24)이 다른 두 구간보다 두꺼운 분야가 <b>당사가 1위인 분야</b>이며, 맨 오른쪽 「전체」와 비교해 <b>전체 평균보다 두꺼운지 얇은지</b>로 상대적 강·약 분야를 가릅니다. 다만 이 그래프는 「현재 위치」이므로, 오르는 중인지 내리는 중인지는 ③탭의 점유율 증감으로 확인하세요. <b>막대에 마우스를 올리면</b> 3사 점유율·매출과 각각의 전년 대비 증감을 함께 볼 수 있습니다.');
   }
 
   /* ---------- ② 기간별 추이 ---------- */
@@ -559,6 +620,7 @@
 
   /* ---------- render ---------- */
   function render() {
+    Object.keys(TIPS).forEach(k => delete TIPS[k]);   // 재렌더 시 이전 툴팁 데이터 정리
     const c = ctx();
     const bs = buckets(c.keys);
     document.getElementById('rangeNote').innerHTML =
@@ -572,6 +634,7 @@
     document.getElementById('t3').innerHTML = tab3(c);
     document.getElementById('t4').innerHTML = tab4(c);
     document.getElementById('t5').innerHTML = tab5(c);
+    bindTips(document.getElementById('t1'));
     const chips = document.getElementById('catChips');
     if (chips) chips.addEventListener('click', e => {
       const b = e.target.closest('.cat-chip');
