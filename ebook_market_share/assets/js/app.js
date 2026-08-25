@@ -14,7 +14,7 @@
   const KEYS = DATA.months.map(r => r.month);
   const LAST = KEYS[KEYS.length - 1];
 
-  const state = { month: LAST, range: '1', cat: CATS[0] };
+  const state = { from: '', to: LAST, unit: 'M', cat: CATS[0] };
 
   /* ---------- utils ---------- */
   const shift = (key, n) => {
@@ -24,17 +24,29 @@
   };
   const label = k => k.split('-')[0] + '.' + k.split('-')[1];
 
-  function rangeKeys(end, range) {
-    if (range === 'Y') {
-      const y = end.split('-')[0];
-      return KEYS.filter(k => k.indexOf(y + '-') === 0 && k <= end);
-    }
-    const n = Number(range);
-    const out = [];
-    for (let i = n - 1; i >= 0; i--) out.push(shift(end, -i));
-    return out.filter(k => M[k]);
+  function rangeKeys() {
+    return KEYS.filter(k => k >= state.from && k <= state.to);
   }
   const prevKeys = keys => keys.map(k => shift(k, -12));
+
+  /* 집계단위(월/분기/반기/연도)로 선택 구간을 잘라 버킷 목록을 만든다 */
+  const UNIT_NAME = { M: '월', Q: '분기', H: '반기', Y: '연도' };
+  function bucketId(key) {
+    const p = key.split('-'), y = p[0], m = Number(p[1]);
+    if (state.unit === 'Q') return y + ' ' + Math.ceil(m / 3) + 'Q';
+    if (state.unit === 'H') return y + ' ' + (m <= 6 ? 'H1' : 'H2');
+    if (state.unit === 'Y') return y + '년';
+    return y.slice(2) + '.' + p[1];
+  }
+  function buckets(keys) {
+    const order = [], map = {};
+    keys.forEach(k => {
+      const id = bucketId(k);
+      if (!map[id]) { map[id] = []; order.push(id); }
+      map[id].push(k);
+    });
+    return order.map(id => ({ id: id, months: map[id] }));
+  }
 
   function agg(keys) {
     const res = { cats: {}, total: { yes: 0, kyobo: 0, aladin: 0, market: 0 }, missing: false, n: 0 };
@@ -160,11 +172,46 @@
     return '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg></div>' + (legend ? '<div class="chart-legend">' + legend + '</div>' : '');
   }
 
+  /* 100% 누적 막대 — 각 항목의 3사 구성비 */
+  function stack100(opts) {
+    const labels = opts.labels, series = opts.series;   // series: [{name, cls, values}]
+    const H = opts.height || 300, PADB = 40, PADTT = 10;
+    const bw = (W - PADL - PADR) / labels.length;
+    const inner = Math.min(bw * 0.62, 64);
+    let g = '';
+    for (let p = 0; p <= 100; p += 25) {
+      const yy = PADTT + (1 - p / 100) * (H - PADTT - PADB);
+      g += '<line class="grid-line" x1="' + PADL + '" y1="' + yy.toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + yy.toFixed(1) + '"/>';
+      g += '<text class="chart-label" x="' + (PADL - 7) + '" y="' + (yy + 3.5).toFixed(1) + '" text-anchor="end">' + p + '%</text>';
+    }
+    labels.forEach((l, i) => {
+      const cx = PADL + bw * i + bw / 2;
+      const tot = series.reduce((a, sr) => a + (Number(sr.values[i]) || 0), 0);
+      let acc = 0;
+      if (tot > 0) series.forEach(sr => {
+        const ratio = (Number(sr.values[i]) || 0) / tot;
+        const y0 = PADTT + (1 - (acc + ratio)) * (H - PADTT - PADB);
+        const h = ratio * (H - PADTT - PADB);
+        g += '<rect class="' + sr.cls + '" x="' + (cx - inner / 2).toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + inner.toFixed(1) + '" height="' + Math.max(h, 0).toFixed(1) + '"/>';
+        if (ratio >= 0.07)
+          g += '<text class="stack-lbl" x="' + cx.toFixed(1) + '" y="' + (y0 + h / 2 + 3.5).toFixed(1) + '" text-anchor="middle">' + (ratio * 100).toFixed(1) + '</text>';
+        acc += ratio;
+      });
+      const t = String(l).split(' ');
+      g += '<text class="stack-cat" x="' + cx.toFixed(1) + '" y="' + (H - 22) + '" text-anchor="middle">' + t[0] + '</text>';
+      if (t[1]) g += '<text class="stack-cat" x="' + cx.toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle">' + t[1] + '</text>';
+    });
+    const legend = series.map(sr => '<span><i class="sw-' + sr.cls.replace('bar-', '') + '"></i>' + sr.name + '</span>').join('');
+    return '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg></div><div class="chart-legend">' + legend + '</div>';
+  }
+
   /* ---------- 공통 ---------- */
   function ctx() {
-    const keys = rangeKeys(state.month, state.range);
+    const keys = rangeKeys();
     const pk = prevKeys(keys).filter(k => M[k]);
-    return { keys: keys, pk: pk, cur: agg(keys), prv: agg(pk) };
+    // 전년 동기가 부분만 존재하면 기간 길이가 달라 YoY가 왜곡되므로 비교를 끈다
+    const comparable = pk.length > 0 && pk.length === keys.length;
+    return { keys: keys, pk: pk, comparable: comparable, cur: agg(keys), prv: agg(comparable ? pk : []) };
   }
 
   function guide(text) {
@@ -229,14 +276,17 @@
       '<th class="bl">매출</th><th>YoY</th><th class="bl">점유율</th><th>전년비</th></tr>' +
       '</thead><tbody>' + rows + '</tbody></table></div>';
 
-    const shareBar = barChart({
-      labels: CATS.map(x => x.replace('·', ' ')),
-      series: [{ name: '예스24 점유율(%)', cls: 'bar-yes', values: CATS.map(cat => share(c.cur.cats[cat].yes, c.cur.cats[cat].market) * 100) }],
-      fmt: v => v.toFixed(0) + '%', height: 230,
+    const shareBar = stack100({
+      labels: CATS.map(x => x.replace('·', ' ')).concat(['전체']),
+      height: 310,
+      series: STORES.map(sr => ({
+        name: sr.name, cls: 'bar-' + sr.cls,
+        values: CATS.map(cat => c.cur.cats[cat][sr.k]).concat([c.cur.total[sr.k]]),
+      })),
     });
 
     let notice = '';
-    if (c.pk.length < c.keys.length)
+    if (!c.comparable)
       notice += '<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><div>선택 기간의 <b>전년동기 데이터가 없어</b> YoY·점유율 증감을 계산할 수 없습니다. (데이터 시작 시점: 2023.01)</div></div>';
     if (c.keys.some(k => k.indexOf('2023-') === 0) || c.pk.some(k => k.indexOf('2023-') === 0))
       notice += '<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><div>2023년 원본에는 <b>「기타」 분야 행이 없어</b> 전체−분야합 잔여값으로 산출했고, <b>2023.01~10 수험서의 교보·알라딘 값이 미제공</b>이라 해당 분야 YoY는 참고용입니다.</div></div>';
@@ -245,33 +295,60 @@
       card('서점별 · 분야별 매출과 YoY', table, '단위: 백만원 · 점유율은 3사 합산 기준',
         '한 행에서 3사를 가로로 비교합니다. 매출 크기보다 <b>맨 오른쪽 「점유율 전년비(%p)」</b>가 핵심 — 이 값이 +면 당사 매출이 줄었더라도 경쟁 3사 안에서는 비중을 키운 달입니다. 반대로 매출이 늘어도 이 값이 −면 시장이 더 빨리 커진 것입니다.') +
       '<div style="height:14px"></div>' +
-      card('분야별 예스24 점유율', shareBar, '3사 합산 매출 대비 예스24 비중',
-        '막대가 높은 분야가 현재 당사가 강한 영역입니다. 다만 <b>이 그래프는 「현재 위치」일 뿐 「변화」가 아닙니다</b> — 경쟁력이 오르는지 내리는지는 ③탭의 점유율 증감으로 판단하세요.');
+      card('분야별 점유율', shareBar, '각 분야의 3사 합산 매출을 100%로 둔 서점별 구성비 (숫자 단위: %)',
+        '막대 하나가 <b>그 분야의 3사 시장 전체(100%)</b>이고, 색 구간이 각 사의 몫입니다. 파란 구간(예스24)이 다른 두 구간보다 두꺼운 분야가 <b>당사가 1위인 분야</b>이며, 맨 오른쪽 「전체」와 비교해 <b>전체 평균보다 두꺼운지 얇은지</b>로 상대적 강·약 분야를 가릅니다. 다만 이 그래프는 「현재 위치」이므로, 오르는 중인지 내리는 중인지는 ③탭의 점유율 증감으로 확인하세요.');
   }
 
-  /* ---------- ② 월별 추이 ---------- */
+  /* ---------- ② 기간별 추이 ---------- */
   function tab2() {
-    const n = state.range === 'Y' ? 24 : Math.max(Number(state.range) || 12, 12);
-    const keys = [];
-    for (let i = n - 1; i >= 0; i--) { const k = shift(state.month, -i); if (M[k]) keys.push(k); }
-    const labels = keys.map(label);
-    const tot = (m, k) => (k === 'market' ? M[m].total.yes + M[m].total.kyobo + M[m].total.aladin : M[m].total[k]);
-    const S = k => keys.map(m => tot(m, k));
-    const Y = k => keys.map(m => {
-      const pm = shift(m, -12);
-      if (!M[pm]) return null;
-      const pv = k === 'market' ? M[pm].total.yes + M[pm].total.kyobo + M[pm].total.aladin : M[pm].total[k];
-      return pv ? ((tot(m, k) - pv) / pv) * 100 : null;
+    const bs = buckets(rangeKeys());
+    if (!bs.length) return '<div class="empty"><h2>조회 기간에 데이터가 없습니다</h2></div>';
+    const labels = bs.map(b => b.id);
+    const sum = (b, k) => b.months.reduce((acc, m) => acc + (k === 'market'
+      ? M[m].total.yes + M[m].total.kyobo + M[m].total.aladin : M[m].total[k]), 0);
+    const prevSum = (b, k) => {
+      let t = 0, ok = false;
+      b.months.forEach(m => {
+        const p = M[shift(m, -12)];
+        if (!p) return;
+        ok = true;
+        t += k === 'market' ? p.total.yes + p.total.kyobo + p.total.aladin : p.total[k];
+      });
+      return ok ? t : null;
+    };
+    const S = k => bs.map(b => sum(b, k));
+    const Y = k => bs.map(b => { const p = prevSum(b, k); return p ? ((sum(b, k) - p) / p) * 100 : null; });
+    const SH = bs.map(b => (sum(b, 'market') ? (sum(b, 'yes') / sum(b, 'market')) * 100 : null));
+    const GAP = k => bs.map(b => sum(b, 'yes') - sum(b, k));
+    const u = UNIT_NAME[state.unit];
+
+    // 역전 시점 탐지 (예스24 vs 교보/알라딘)
+    const cross = [];
+    ['kyobo', 'aladin'].forEach(k => {
+      const g = GAP(k);
+      for (let i = 1; i < g.length; i++)
+        if ((g[i - 1] >= 0) !== (g[i] >= 0))
+          cross.push((k === 'kyobo' ? '교보문고' : '알라딘') + ' ' + labels[i] + (g[i] < 0 ? ' 역전당함' : ' 재역전'));
     });
-    const SH = keys.map(m => (tot(m, 'market') ? (M[m].total.yes / tot(m, 'market')) * 100 : null));
+    const crossNote = cross.length
+      ? '이 구간의 순위 역전: <b>' + cross.join('</b>, <b>') + '</b>'
+      : '이 구간에서는 순위 역전이 없었습니다';
 
     return '<div class="grid grid-2" style="gap:14px">' +
-      card('3사 월별 매출 추이', lineChart({ labels: labels, series: STORES.map(s => ({ name: s.name, cls: 'line-' + s.cls, values: S(s.k) })) }), '단위: 백만원',
-        '선의 높낮이(규모)보다 <b>선 사이 간격의 변화</b>를 보세요. 간격이 벌어지면 격차 확대, 좁아지면 추격 중입니다. 3사가 동시에 오르내리는 구간은 계절성·시장 요인입니다.') +
-      card('서점별 월별 YoY 추이', lineChart({ labels: labels, zero: true, fmt: v => v.toFixed(0) + '%', series: STORES.map(s => ({ name: s.name, cls: 'line-' + s.cls, values: Y(s.k) })) }), '전년동월 대비',
+      card('3사 ' + u + '별 매출 추이', lineChart({ labels: labels, series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: S(sr.k) })) }), '단위: 백만원 · 집계단위: ' + u,
+        '선의 높낮이(규모)보다 <b>선 사이 간격의 변화</b>를 보세요. 간격이 벌어지면 격차 확대, 좁아지면 추격 중입니다. 3사가 동시에 오르내리는 구간은 계절성·시장 요인이므로, <b>집계단위를 분기·반기·연도로 올리면</b> 계절성이 걷히고 장기 추세가 드러납니다.') +
+      card('예스24 대비 경쟁사 격차', lineChart({
+        labels: labels, zero: true,
+        series: [
+          { name: '예스24 − 교보문고', cls: 'line-gap-kyobo', values: GAP('kyobo') },
+          { name: '예스24 − 알라딘', cls: 'line-gap-aladin', values: GAP('aladin') },
+        ],
+      }), '단위: 백만원 · 0선 = 매출 동률',
+        '<b>0선을 아래로 통과한 지점이 해당 경쟁사에 매출을 추월당한 시점</b>입니다. 이후 선이 계속 내려가면 격차 확대, 0선 쪽으로 올라오면 축소입니다. ' + crossNote + '.') +
+      card('서점별 YoY 추이', lineChart({ labels: labels, zero: true, fmt: v => v.toFixed(0) + '%', series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: Y(sr.k) })) }), '전년 동일 ' + u + ' 대비',
         '<b>0% 기준선 위/아래</b>가 성장/역성장입니다. 세 선이 함께 내려가면 시장 전체 축소(외부 요인), <b>파란 선만 따로 내려가면 당사 요인</b>이므로 상품·프로모션을 점검할 신호입니다.') +
       card('예스24 3사 내 점유율 추이', lineChart({ labels: labels, fmt: v => v.toFixed(0) + '%', series: [{ name: '예스24 점유율', cls: 'line-yes', values: SH }] }), '3사 합산 매출 대비',
-        '<b>기울기</b>가 곧 경쟁력 방향입니다. 우하향이면 시장에서 밀리는 중. 월별 등락에는 계절성이 섞이므로 전년 같은 달과 비교해서 보세요.') +
+        '<b>기울기</b>가 곧 경쟁력 방향입니다. 우하향이면 시장에서 밀리는 중. 월 단위에는 계절성이 섞이므로 장기 흐름은 분기·반기 단위로 보는 편이 정확합니다.') +
       card('시장 성장률 vs 예스24 성장률', lineChart({
         labels: labels, zero: true, fmt: v => v.toFixed(0) + '%',
         series: [{ name: '3사 시장 YoY', cls: 'line-market', values: Y('market') }, { name: '예스24 YoY', cls: 'line-yes', values: Y('yes') }],
@@ -355,6 +432,9 @@
 
   /* ---------- ④ 기여도 ---------- */
   function tab4(c) {
+    if (!c.comparable)
+      return '<div class="card"><div class="card-content"><div class="empty"><h2>전년 동기 데이터가 없어 기여도를 계산할 수 없습니다</h2>' +
+        '<p>증감 기여도는 전년 동기와 1:1로 비교해야 하므로, 조회 시작월을 <b>2024.01 이후</b>로 조정해 주세요. (데이터 시작: 2023.01)</p></div></div></div>';
     const dYes = c.cur.total.yes - c.prv.total.yes;
     const dMkt = c.cur.total.market - c.prv.total.market;
     const rows = CATS.map(cat => {
@@ -406,37 +486,41 @@
   /* ---------- ⑤ 분야별 상세 ---------- */
   function tab5(c) {
     const chips = CATS.map(x => '<button class="cat-chip ' + (x === state.cat ? 'active' : '') + '" data-c="' + x + '">' + x + '</button>').join('');
-    const keys = [];
-    for (let i = 11; i >= 0; i--) { const k = shift(state.month, -i); if (M[k]) keys.push(k); }
-    const labels = keys.map(label);
+    const bs = buckets(rangeKeys());
+    const labels = bs.map(b => b.id);
     const cat = state.cat;
-    const v = (m, s) => (M[m].cats[cat] || {})[s];
-    const mk = m => (v(m, 'yes') || 0) + (v(m, 'kyobo') || 0) + (v(m, 'aladin') || 0);
+    const u = UNIT_NAME[state.unit];
+    const bv = (b, s) => b.months.reduce((acc, m) => acc + (((M[m].cats[cat] || {})[s]) || 0), 0);
+    const bmk = b => bv(b, 'yes') + bv(b, 'kyobo') + bv(b, 'aladin');
+    const bprev = (b, s) => {
+      let t = 0, ok = false;
+      b.months.forEach(m => {
+        const p = M[shift(m, -12)];
+        if (!p || !p.cats[cat]) return;
+        ok = true;
+        t += p.cats[cat][s] || 0;
+      });
+      return ok ? t : null;
+    };
 
-    const c1 = lineChart({ labels: labels, series: STORES.map(s => ({ name: s.name, cls: 'line-' + s.cls, values: keys.map(m => v(m, s.k)) })) });
+    const c1 = lineChart({ labels: labels, series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: bs.map(b => bv(b, sr.k)) })) });
     const c2 = lineChart({
       labels: labels, zero: true, fmt: x => x.toFixed(0) + '%',
-      series: STORES.map(s => ({
-        name: s.name, cls: 'line-' + s.cls,
-        values: keys.map(m => {
-          const p = M[shift(m, -12)];
-          if (!p || !p.cats[cat]) return null;
-          const pv = p.cats[cat][s.k];
-          return pv ? ((v(m, s.k) - pv) / pv) * 100 : null;
-        }),
+      series: STORES.map(sr => ({
+        name: sr.name, cls: 'line-' + sr.cls,
+        values: bs.map(b => { const pv = bprev(b, sr.k); return pv ? ((bv(b, sr.k) - pv) / pv) * 100 : null; }),
       })),
     });
-    const c3 = lineChart({ labels: labels, fmt: x => x.toFixed(0) + '%', series: [{ name: '예스24 점유율', cls: 'line-yes', values: keys.map(m => (mk(m) ? (v(m, 'yes') / mk(m)) * 100 : null)) }] });
+    const c3 = lineChart({ labels: labels, fmt: x => x.toFixed(0) + '%', series: [{ name: '예스24 점유율', cls: 'line-yes', values: bs.map(b => (bmk(b) ? (bv(b, 'yes') / bmk(b)) * 100 : null)) }] });
     const c4 = barChart({
       labels: labels, fmt: x => x.toFixed(1), height: 230,
       series: [{
         name: '점유율 전년비(%p)', cls: 'auto',
-        values: keys.map(m => {
-          const p = M[shift(m, -12)];
-          if (!p || !p.cats[cat]) return null;
-          const pm = p.cats[cat].yes + p.cats[cat].kyobo + p.cats[cat].aladin;
-          if (!pm || !mk(m)) return null;
-          return (v(m, 'yes') / mk(m) - p.cats[cat].yes / pm) * 100;
+        values: bs.map(b => {
+          const py = bprev(b, 'yes'), pk = bprev(b, 'kyobo'), pa = bprev(b, 'aladin');
+          const pm = (py || 0) + (pk || 0) + (pa || 0);
+          if (py == null || !pm || !bmk(b)) return null;
+          return (bv(b, 'yes') / bmk(b) - py / pm) * 100;
         }),
       }],
     });
@@ -453,23 +537,35 @@
 
     return '<div class="cat-chips" id="catChips">' + chips + '</div>' + stats +
       '<div class="grid grid-2" style="gap:14px">' +
-      card(cat + ' — 3사 월별 매출', c1, '최근 12개월 · 단위: 백만원',
+      card(cat + ' — 3사 ' + u + '별 매출', c1, '조회 기간 · 단위: 백만원',
       '이 분야에서의 <b>3사 절대 규모 차이</b>와 최근 흐름을 봅니다. 특정 월의 급등은 신간·프로모션 영향일 수 있어 다음 차트(YoY)와 함께 보세요.') +
-      card(cat + ' — 3사 YoY', c2, '전년동월 대비',
+      card(cat + ' — 3사 YoY', c2, '전년 동일 ' + u + ' 대비',
       '<b>3사가 함께 하락하면 분야 자체가 축소</b>되는 중이고, <b>당사만 하락하면 당사 요인</b>입니다. 대응 방향(시장 방어 vs 내부 개선)이 갈리는 지점입니다.') +
       card(cat + ' — 예스24 점유율', c3, '3사 합산 대비',
       '이 분야 안에서 <b>당사 위치의 변화</b>입니다. 매출이 줄어도 이 선이 유지되면 시장 축소를 함께 겪은 것이고, 이 선이 꺾이면 경쟁에서 밀린 것입니다.') +
-      card(cat + ' — 점유율 증감(%p)', c4, '전년동월 대비 점유율 변화 (단위: %p)',
+      card(cat + ' — 점유율 증감(%p)', c4, '전년 동일 ' + u + ' 대비 점유율 변화 (단위: %p)',
       '<b>초록 막대는 전년보다 점유율이 오른 달, 붉은 막대는 내린 달</b>입니다. 붉은 막대가 연속되면 일시적 부진이 아니라 구조적 이탈 신호로 봅니다.') +
       '</div>';
+  }
+
+  /* 분기·반기·연도 단위에서 마지막 구간이 아직 다 안 찬 경우 알림 */
+  function partialNote(bs) {
+    const need = { M: 1, Q: 3, H: 6, Y: 12 }[state.unit];
+    if (!bs.length || need === 1) return '';
+    const last = bs[bs.length - 1];
+    if (last.months.length >= need) return '';
+    return ' · <b class="est">' + last.id + '은 ' + last.months.length + '/' + need + '개월만 집계된 미완결 구간</b>';
   }
 
   /* ---------- render ---------- */
   function render() {
     const c = ctx();
-    document.getElementById('rangeNote').textContent =
-      label(c.keys[0]) + ' ~ ' + label(c.keys[c.keys.length - 1]) + ' (' + c.keys.length + '개월) vs 전년동기 ' +
-      (c.pk.length ? label(c.pk[0]) + ' ~ ' + label(c.pk[c.pk.length - 1]) : '데이터 없음');
+    const bs = buckets(c.keys);
+    document.getElementById('rangeNote').innerHTML =
+      '조회 <b>' + label(c.keys[0]) + ' ~ ' + label(c.keys[c.keys.length - 1]) + '</b> (' + c.keys.length + '개월, ' +
+      UNIT_NAME[state.unit] + ' 단위 ' + bs.length + '구간) · 전년 동기 비교 <b>' +
+      (c.pk.length ? label(c.pk[0]) + ' ~ ' + label(c.pk[c.pk.length - 1]) + (c.comparable ? '' : ' (기간 불일치 — YoY 계산 제외)') : '데이터 없음') + '</b>' +
+      partialNote(bs);
     renderKPI(c);
     document.getElementById('t1').innerHTML = tab1(c);
     document.getElementById('t2').innerHTML = tab2();
@@ -494,18 +590,40 @@
   }
 
   /* ---------- init ---------- */
-  const sel = document.getElementById('selMonth');
-  sel.innerHTML = KEYS.slice().reverse().map(k => '<option value="' + k + '">' + k.replace('-', '년 ') + '월</option>').join('');
-  sel.value = state.month;
-  sel.addEventListener('change', () => { state.month = sel.value; render(); });
+  const selFrom = document.getElementById('selFrom');
+  const selTo = document.getElementById('selTo');
+  const opts = k => KEYS.slice().reverse().map(x => '<option value="' + x + '">' + x.replace('-', '.') + '</option>').join('');
+  selFrom.innerHTML = opts();
+  selTo.innerHTML = opts();
 
-  document.getElementById('segRange').addEventListener('click', e => {
+  function setRange(from, to) {
+    state.from = from < KEYS[0] ? KEYS[0] : from;
+    state.to = to > LAST ? LAST : to;
+    if (state.from > state.to) state.from = state.to;
+    selFrom.value = state.from;
+    selTo.value = state.to;
+    render();
+  }
+  setRange(shift(LAST, -11), LAST);           // 기본: 최근 12개월 · 월 단위
+
+  selFrom.addEventListener('change', () => setRange(selFrom.value, state.to));
+  selTo.addEventListener('change', () => setRange(state.from, selTo.value));
+
+  document.getElementById('segUnit').addEventListener('click', e => {
     const b = e.target.closest('button');
     if (!b) return;
-    state.range = b.getAttribute('data-r');
-    const all = document.querySelectorAll('#segRange button');
+    state.unit = b.getAttribute('data-u');
+    const all = document.querySelectorAll('#segUnit button');
     for (let i = 0; i < all.length; i++) all[i].classList.toggle('active', all[i] === b);
     render();
+  });
+
+  document.getElementById('segQuick').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const q = b.getAttribute('data-q');
+    if (q === 'all') setRange(KEYS[0], LAST);
+    else setRange(shift(LAST, -(Number(q) - 1)), LAST);
   });
 
   document.getElementById('tabs').addEventListener('click', e => {
@@ -518,6 +636,4 @@
     document.getElementById('iconMoon').classList.toggle('hidden', dark);
     document.getElementById('iconSun').classList.toggle('hidden', !dark);
   });
-
-  render();
 })();

@@ -64,19 +64,25 @@
       </div>
 
       <div class="filter-bar">
-        <span class="fl">기준월</span>
-        <select id="selMonth"></select>
         <span class="fl">조회기간</span>
-        <div class="seg" id="segRange">
-          <button data-r="1" class="active">당월</button>
-          <button data-r="3">최근 3개월</button>
-          <button data-r="6">최근 6개월</button>
-          <button data-r="12">최근 12개월</button>
-          <button data-r="Y">연도별</button>
+        <select id="selFrom"></select>
+        <span class="fl">~</span>
+        <select id="selTo"></select>
+        <span class="fl" style="margin-left:6px">집계단위</span>
+        <div class="seg" id="segUnit">
+          <button data-u="M" class="active">월</button>
+          <button data-u="Q">분기</button>
+          <button data-u="H">반기</button>
+          <button data-u="Y">연도</button>
         </div>
         <div class="filter-spacer"></div>
-        <span class="range-note" id="rangeNote"></span>
+        <div class="seg" id="segQuick">
+          <button data-q="12">최근 12개월</button>
+          <button data-q="24">최근 24개월</button>
+          <button data-q="all">전체</button>
+        </div>
       </div>
+      <div class="range-note" id="rangeNote" style="margin:-6px 0 14px 2px"></div>
 
       <div class="grid grid-3" id="kpiRow" style="margin-bottom:12px"></div>
       <div class="guide guide-top"><span class="lbl">읽는 법</span><span>
