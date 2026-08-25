@@ -398,7 +398,7 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .line-amber.chart-area { fill: oklch(0.72 0.16 85); }
 .line-amber.chart-val { fill: oklch(0.6 0.16 85); }
 .line-amber.dot-fill { fill: oklch(0.72 0.16 85); }
-.chart-legend { display: flex; gap: 14px; margin-top: 8px; font-size: 12px; color: var(--muted-foreground); flex-wrap: wrap; }
+.chart-legend { display: flex; gap: 14px; margin-top: 8px; font-size: 12.5px; color: var(--muted-foreground); flex-wrap: wrap; }
 .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .chart-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .chart-legend b { color: var(--foreground); }
@@ -577,7 +577,7 @@ table.dt td.num { font-weight: 600; }
 
 /* ---- 차트 툴팁 ---- */
 .chart-wrap { position: relative; }
-.chart-tip { position: absolute; z-index: 20; pointer-events: none; opacity: 0; transform: translateX(-50%); transition: opacity 0.13s ease; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px); box-shadow: var(--shadow-md); padding: 13px 15px 11px; width: 296px; --tip-caret: 50%; }
+.chart-tip { position: absolute; z-index: 20; pointer-events: none; opacity: 0; transform: translateX(-50%); transition: opacity 0.13s ease; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px); box-shadow: var(--shadow-md); padding: 13px 15px 11px; width: max-content; min-width: 208px; max-width: 330px; --tip-caret: 50%; }
 .chart-tip.on { opacity: 1; }
 
 /* 커서를 가리키는 화살표 (::before = 테두리, ::after = 카드 배경) */
@@ -606,3 +606,19 @@ table.dt td.num { font-weight: 600; }
 
 .hit-col { fill: transparent; cursor: zoom-in; }
 .hit-col:hover { fill: var(--foreground); fill-opacity: 0.05; }
+
+/* ---- 2단 배치 차트(축소 렌더링) 글씨 확대 ---- */
+.chart-big .chart-label { font-size: 17px; font-weight: 500; }
+.chart-big .chart-val { font-size: 15px; }
+.chart-big .quad-label { font-size: 15px; }
+
+/* ---- 선/막대 차트 공용 툴팁 본문 ---- */
+.tt-stack { width: 268px; }
+.tt-body { border-top: 1px solid var(--border); margin-top: 9px; padding-top: 6px; }
+.tt-line { display: flex; align-items: center; gap: 9px; padding: 4px 0; font-size: 12.5px; }
+.tt-line i { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.tt-line .nm { flex: 1; color: var(--muted-foreground); font-weight: 600; white-space: nowrap; }
+.tt-line b { color: var(--foreground); font-weight: 800; font-variant-numeric: tabular-nums; }
+.tt-foot2 { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: 11.5px; color: var(--muted-foreground); display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+.tt-foot2 b { color: var(--foreground); font-weight: 700; }
+.sw-auto { background: var(--muted-foreground); }

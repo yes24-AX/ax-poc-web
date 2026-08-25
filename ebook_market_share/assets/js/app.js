@@ -99,27 +99,57 @@
     return { lo: Math.floor(min / s) * s, hi: Math.ceil(max / s) * s, step: s };
   }
 
+  const swOf = cls => (cls === 'auto' ? 'auto' : cls.replace('line-', '').replace('bar-', ''));
+
+  /* 항목별 툴팁 HTML 자동 생성 (선/막대 차트 공용) */
+  function autoTips(labels, series, vfmt, extra) {
+    return labels.map((l, i) => {
+      const rows = series.filter(sr => sr.name).map(sr => {
+        const v = sr.values[i];
+        return '<div class="tt-line"><i class="sw-' + swOf(sr.cls) + '"></i><span class="nm">' + sr.name + '</span>' +
+          '<b>' + (v == null || !isFinite(v) ? '-' : vfmt(v)) + '</b></div>';
+      }).join('');
+      return '<div class="tt-head">' + l + '</div><div class="tt-body">' + rows + '</div>' + (extra ? extra(i) : '');
+    });
+  }
+
+  /* 차트 껍데기 — 툴팁 등록 + 히트영역 포함 */
+  function chartShell(g, H, opts, hits) {
+    let tipId = '';
+    if (opts.tips) { tipId = 'tip' + (++TIP_SEQ); TIPS[tipId] = opts.tips; g += hits; }
+    return '<div class="chart-wrap' + (opts.tips ? ' has-tip" data-tip="' + tipId : '') + '">' +
+      '<svg class="' + (opts.big ? 'chart-big' : '') + '" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg>' +
+      (opts.tips ? '<div class="chart-tip"></div>' : '') + '</div>';
+  }
+
   function lineChart(opts) {
     const labels = opts.labels, series = opts.series;
-    const fmt = opts.fmt || nf, H = opts.height || 240, zero = !!opts.zero, PADB = 26;
+    const fmt = opts.fmt || nf, H = opts.height || 240, zero = !!opts.zero;
+    const PADB = opts.big ? 38 : 26;
+    const PL = opts.big ? 64 : PADL;
     const vals = series.reduce((a, s) => a.concat(s.values.filter(v => v != null && isFinite(v))), []);
     if (!vals.length) return '<div class="empty"><p>표시할 데이터가 없습니다</p></div>';
     let min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
     if (zero) { min = Math.min(min, 0); max = Math.max(max, 0); }
     const sc = niceScale(min, max);
-    const x = i => PADL + (i * (W - PADL - PADR)) / Math.max(labels.length - 1, 1);
+    const x = i => PL + (i * (W - PL - PADR)) / Math.max(labels.length - 1, 1);
     const y = v => PADT + (1 - (v - sc.lo) / (sc.hi - sc.lo)) * (H - PADT - PADB);
     let g = '';
     for (let v = sc.lo; v <= sc.hi + 1e-9; v += sc.step) {
-      g += '<line class="grid-line" x1="' + PADL + '" y1="' + y(v).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(v).toFixed(1) + '"/>';
-      g += '<text class="chart-label" x="' + (PADL - 7) + '" y="' + (y(v) + 3.5).toFixed(1) + '" text-anchor="end">' + fmt(v) + '</text>';
+      g += '<line class="grid-line" x1="' + PL + '" y1="' + y(v).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(v).toFixed(1) + '"/>';
+      g += '<text class="chart-label" x="' + (PL - 8) + '" y="' + (y(v) + 4).toFixed(1) + '" text-anchor="end">' + fmt(v) + '</text>';
     }
     if (zero && sc.lo < 0 && sc.hi > 0)
-      g += '<line class="zero-line" x1="' + PADL + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(0).toFixed(1) + '"/>';
-    const every = Math.ceil(labels.length / 14);
+      g += '<line class="zero-line" x1="' + PL + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(0).toFixed(1) + '"/>';
+    const every = Math.ceil(labels.length / (opts.big ? 9 : 14));
+    const minGap = opts.big ? 52 : 38;
+    let lastX = -999;
     labels.forEach((l, i) => {
-      if (i % every === 0 || i === labels.length - 1)
-        g += '<text class="chart-label" x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + l + '</text>';
+      const isLast = i === labels.length - 1;
+      if (!(i % every === 0 || isLast)) return;
+      if (x(i) - lastX < minGap) return;          // 직전 라벨과 겹치면 생략
+      lastX = x(i);
+      g += '<text class="chart-label" x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + l + '</text>';
     });
     series.forEach(s => {
       let d = '', pen = false;
@@ -135,27 +165,40 @@
           g += '<circle class="chart-dot ' + s.cls + ' dot-fill" cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="3"/>';
         });
     });
-    const legend = series.map(s => '<span><i class="sw-' + s.cls.replace('line-', '') + '"></i>' + s.name + '</span>').join('');
-    return '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg></div><div class="chart-legend">' + legend + '</div>';
+    if (opts.tip !== false) opts.tips = autoTips(labels, series, opts.tipFmt || fmt, opts.tipExtra);
+    const step = (W - PL - PADR) / Math.max(labels.length - 1, 1);
+    let hits = '';
+    labels.forEach((l, i) => {
+      const left = Math.max(x(i) - step / 2, PL);
+      const wdt = Math.min(x(i) + step / 2, W - PADR) - left;
+      hits += '<rect class="hit-col" data-i="' + i + '" x="' + left.toFixed(1) + '" y="' + PADT + '" width="' + wdt.toFixed(1) + '" height="' + (H - PADT - PADB + 10).toFixed(1) + '" rx="3"/>';
+    });
+    const legend = series.map(s => '<span><i class="sw-' + swOf(s.cls) + '"></i>' + s.name + '</span>').join('');
+    return chartShell(g, H, opts, hits) + '<div class="chart-legend">' + legend + '</div>';
   }
 
   function barChart(opts) {
     const labels = opts.labels, series = opts.series;
-    const fmt = opts.fmt || nf, H = opts.height || 260, PADB = 42;
+    const fmt = opts.fmt || nf, H = opts.height || 260;
+    const PADB = opts.big ? 56 : 42;
+    const PL = opts.big ? 64 : PADL;
     const vals = series.reduce((a, s) => a.concat(s.values.filter(v => v != null && isFinite(v))), []);
     if (!vals.length) return '<div class="empty"><p>표시할 데이터가 없습니다</p></div>';
     const sc = niceScale(Math.min(0, Math.min.apply(null, vals)), Math.max(0, Math.max.apply(null, vals)));
     const y = v => PADT + (1 - (v - sc.lo) / (sc.hi - sc.lo)) * (H - PADT - PADB);
-    const bw = (W - PADL - PADR) / labels.length;
+    const bw = (W - PL - PADR) / labels.length;
     const inner = bw * 0.72, each = inner / series.length;
+    const every = Math.ceil(labels.length / (opts.big ? 9 : 14));
+    const minGap = opts.big ? 52 : 38;
+    let lastX = -999;
     let g = '';
     for (let v = sc.lo; v <= sc.hi + 1e-9; v += sc.step) {
-      g += '<line class="grid-line" x1="' + PADL + '" y1="' + y(v).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(v).toFixed(1) + '"/>';
-      g += '<text class="chart-label" x="' + (PADL - 7) + '" y="' + (y(v) + 3.5).toFixed(1) + '" text-anchor="end">' + fmt(v) + '</text>';
+      g += '<line class="grid-line" x1="' + PL + '" y1="' + y(v).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(v).toFixed(1) + '"/>';
+      g += '<text class="chart-label" x="' + (PL - 8) + '" y="' + (y(v) + 4).toFixed(1) + '" text-anchor="end">' + fmt(v) + '</text>';
     }
-    g += '<line class="zero-line" x1="' + PADL + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(0).toFixed(1) + '"/>';
+    g += '<line class="zero-line" x1="' + PL + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - PADR) + '" y2="' + y(0).toFixed(1) + '"/>';
     labels.forEach((l, i) => {
-      const cx = PADL + bw * i + bw / 2;
+      const cx = PL + bw * i + bw / 2;
       series.forEach((s, si) => {
         const v = s.values[i];
         if (v == null || !isFinite(v)) return;
@@ -164,12 +207,21 @@
         const c = s.cls === 'auto' ? (v >= 0 ? 'bar-up' : 'bar-down') : s.cls;
         g += '<rect class="' + c + '" x="' + bx.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + Math.max(each - 2, 1).toFixed(1) + '" height="' + Math.max(h, 1).toFixed(1) + '" rx="2"/>';
       });
-      const t = String(l).split(' ');
-      g += '<text class="chart-label" x="' + cx.toFixed(1) + '" y="' + (H - 24) + '" text-anchor="middle">' + t[0] + '</text>';
-      if (t[1]) g += '<text class="chart-label" x="' + cx.toFixed(1) + '" y="' + (H - 12) + '" text-anchor="middle">' + t[1] + '</text>';
+      if ((i % every === 0 || i === labels.length - 1) && cx - lastX >= minGap) {
+        lastX = cx;
+        const t = String(l).split(' ');
+        const y1 = opts.big ? H - 30 : H - 24, y2 = opts.big ? H - 12 : H - 12;
+        g += '<text class="chart-label" x="' + cx.toFixed(1) + '" y="' + y1 + '" text-anchor="middle">' + t[0] + '</text>';
+        if (t[1]) g += '<text class="chart-label" x="' + cx.toFixed(1) + '" y="' + y2 + '" text-anchor="middle">' + t[1] + '</text>';
+      }
     });
-    const legend = series.filter(s => s.name).map(s => '<span><i class="sw-' + s.cls.replace('bar-', '') + '"></i>' + s.name + '</span>').join('');
-    return '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' + g + '</svg></div>' + (legend ? '<div class="chart-legend">' + legend + '</div>' : '');
+    if (opts.tip !== false) opts.tips = autoTips(labels, series, opts.tipFmt || fmt, opts.tipExtra);
+    let hits = '';
+    labels.forEach((l, i) => {
+      hits += '<rect class="hit-col" data-i="' + i + '" x="' + (PL + bw * i).toFixed(1) + '" y="' + PADT + '" width="' + bw.toFixed(1) + '" height="' + (H - PADT - PADB + 16).toFixed(1) + '" rx="3"/>';
+    });
+    const legend = series.filter(s => s.name).map(s => '<span><i class="sw-' + swOf(s.cls) + '"></i>' + s.name + '</span>').join('');
+    return chartShell(g, H, opts, hits) + (legend ? '<div class="chart-legend">' + legend + '</div>' : '');
   }
 
   const TIPS = {};      // 차트 id -> 항목별 툴팁 HTML
@@ -331,9 +383,9 @@
           '<span>YoY <b class="' + cls(yoy(a[sr.k], b[sr.k])) + '">' + sgn(yoy(a[sr.k], b[sr.k])) + '</b></span></div>' +
           '</div>';
       }).join('');
-      return '<div class="tt-head">' + name + '<span class="tt-total">' + nf(a.market) + ' 백만</span></div>' +
+      return '<div class="tt-stack"><div class="tt-head">' + name + '<span class="tt-total">' + nf(a.market) + ' 백만</span></div>' +
         '<div class="tt-sub">3사 합산 시장 · YoY <b class="' + cls(yoy(a.market, b.market)) + '">' + sgn(yoy(a.market, b.market)) + '</b>' +
-        ' · 막대는 점유율, 우측은 전년 대비 증감</div>' + rows;
+        ' · 막대는 점유율, 우측은 전년 대비 증감</div>' + rows + '</div>';
     };
 
     const shareBar = stack100({
@@ -396,23 +448,46 @@
       : '이 구간에서는 순위 역전이 없었습니다';
 
     return '<div class="grid grid-2" style="gap:14px">' +
-      card('3사 ' + u + '별 매출 추이', lineChart({ labels: labels, series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: S(sr.k) })) }), '단위: 백만원 · 집계단위: ' + u,
+      card('3사 ' + u + '별 매출 추이', lineChart({
+        labels: labels, big: true, series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: S(sr.k) })),
+        tipFmt: v => nf(v) + ' 백만',
+        tipExtra: i => {
+          const mk = sum(bs[i], 'market');
+          return '<div class="tt-foot2"><span>3사 합산 <b>' + nf(mk) + '</b> 백만</span><span>예스24 점유율 <b>' + pct(share(sum(bs[i], 'yes'), mk)) + '</b></span></div>';
+        },
+      }), '단위: 백만원 · 집계단위: ' + u,
         '선의 높낮이(규모)보다 <b>선 사이 간격의 변화</b>를 보세요. 간격이 벌어지면 격차 확대, 좁아지면 추격 중입니다. 3사가 동시에 오르내리는 구간은 계절성·시장 요인이므로, <b>집계단위를 분기·반기·연도로 올리면</b> 계절성이 걷히고 장기 추세가 드러납니다.') +
       card('예스24 대비 경쟁사 격차', lineChart({
-        labels: labels, zero: true,
+        labels: labels, zero: true, big: true,
         series: [
           { name: '예스24 − 교보문고', cls: 'line-gap-kyobo', values: GAP('kyobo') },
           { name: '예스24 − 알라딘', cls: 'line-gap-aladin', values: GAP('aladin') },
         ],
+        tipFmt: v => signed(v) + ' 백만',
+        tipExtra: i => '<div class="tt-foot2"><span>예스24 <b>' + nf(sum(bs[i], 'yes')) + '</b></span><span>교보 <b>' + nf(sum(bs[i], 'kyobo')) + '</b> · 알라딘 <b>' + nf(sum(bs[i], 'aladin')) + '</b></span></div>',
       }), '단위: 백만원 · 0선 = 매출 동률',
         '<b>0선을 아래로 통과한 지점이 해당 경쟁사에 매출을 추월당한 시점</b>입니다. 이후 선이 계속 내려가면 격차 확대, 0선 쪽으로 올라오면 축소입니다. ' + crossNote + '.') +
-      card('서점별 YoY 추이', lineChart({ labels: labels, zero: true, fmt: v => v.toFixed(0) + '%', series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: Y(sr.k) })) }), '전년 동일 ' + u + ' 대비',
+      card('서점별 YoY 추이', lineChart({
+        labels: labels, zero: true, big: true, fmt: v => v.toFixed(0) + '%',
+        series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: Y(sr.k) })),
+        tipFmt: v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%',
+      }), '전년 동일 ' + u + ' 대비',
         '<b>0% 기준선 위/아래</b>가 성장/역성장입니다. 세 선이 함께 내려가면 시장 전체 축소(외부 요인), <b>파란 선만 따로 내려가면 당사 요인</b>이므로 상품·프로모션을 점검할 신호입니다.') +
-      card('예스24 3사 내 점유율 추이', lineChart({ labels: labels, fmt: v => v.toFixed(0) + '%', series: [{ name: '예스24 점유율', cls: 'line-yes', values: SH }] }), '3사 합산 매출 대비',
+      card('예스24 3사 내 점유율 추이', lineChart({
+        labels: labels, big: true, fmt: v => v.toFixed(0) + '%',
+        series: [{ name: '예스24 점유율', cls: 'line-yes', values: SH }],
+        tipFmt: v => v.toFixed(1) + '%',
+        tipExtra: i => '<div class="tt-foot2"><span>예스24 <b>' + nf(sum(bs[i], 'yes')) + '</b> 백만</span><span>3사 합산 <b>' + nf(sum(bs[i], 'market')) + '</b> 백만</span></div>',
+      }), '3사 합산 매출 대비',
         '<b>기울기</b>가 곧 경쟁력 방향입니다. 우하향이면 시장에서 밀리는 중. 월 단위에는 계절성이 섞이므로 장기 흐름은 분기·반기 단위로 보는 편이 정확합니다.') +
       card('시장 성장률 vs 예스24 성장률', lineChart({
-        labels: labels, zero: true, fmt: v => v.toFixed(0) + '%',
+        labels: labels, zero: true, big: true, fmt: v => v.toFixed(0) + '%',
         series: [{ name: '3사 시장 YoY', cls: 'line-market', values: Y('market') }, { name: '예스24 YoY', cls: 'line-yes', values: Y('yes') }],
+        tipFmt: v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%',
+        tipExtra: i => {
+          const g = sub(Y('yes')[i], Y('market')[i]);
+          return '<div class="tt-foot2"><span>성장 Gap</span><span class="' + (g == null ? 'zero' : g >= 0 ? 'pos' : 'neg') + '"><b>' + (g == null ? '-' : (g >= 0 ? '+' : '') + g.toFixed(1) + '%p') + '</b></span></div>';
+        },
       }), '두 선의 간격이 곧 성장 Gap',
         '<b>회색 점선(시장) 위에 파란 선(예스24)이 있으면 초과 성장</b>, 아래면 부진입니다. 시장이 −10%인데 당사가 −5%면 파란 선이 위 → 역성장 구간에서도 선방한 것으로 읽습니다.') +
       '</div>';
@@ -564,17 +639,29 @@
       return ok ? t : null;
     };
 
-    const c1 = lineChart({ labels: labels, series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: bs.map(b => bv(b, sr.k)) })) });
+    const c1 = lineChart({
+      labels: labels, big: true,
+      series: STORES.map(sr => ({ name: sr.name, cls: 'line-' + sr.cls, values: bs.map(b => bv(b, sr.k)) })),
+      tipFmt: v => nf(v) + ' 백만',
+      tipExtra: i => '<div class="tt-foot2"><span>3사 합산 <b>' + nf(bmk(bs[i])) + '</b> 백만</span><span>예스24 점유율 <b>' + pct(share(bv(bs[i], 'yes'), bmk(bs[i]))) + '</b></span></div>',
+    });
     const c2 = lineChart({
-      labels: labels, zero: true, fmt: x => x.toFixed(0) + '%',
+      labels: labels, zero: true, big: true, fmt: x => x.toFixed(0) + '%',
+      tipFmt: v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%',
       series: STORES.map(sr => ({
         name: sr.name, cls: 'line-' + sr.cls,
         values: bs.map(b => { const pv = bprev(b, sr.k); return pv ? ((bv(b, sr.k) - pv) / pv) * 100 : null; }),
       })),
     });
-    const c3 = lineChart({ labels: labels, fmt: x => x.toFixed(0) + '%', series: [{ name: '예스24 점유율', cls: 'line-yes', values: bs.map(b => (bmk(b) ? (bv(b, 'yes') / bmk(b)) * 100 : null)) }] });
+    const c3 = lineChart({
+      labels: labels, big: true, fmt: x => x.toFixed(0) + '%',
+      series: [{ name: '예스24 점유율', cls: 'line-yes', values: bs.map(b => (bmk(b) ? (bv(b, 'yes') / bmk(b)) * 100 : null)) }],
+      tipFmt: v => v.toFixed(1) + '%',
+      tipExtra: i => '<div class="tt-foot2"><span>예스24 <b>' + nf(bv(bs[i], 'yes')) + '</b> 백만</span><span>3사 합산 <b>' + nf(bmk(bs[i])) + '</b> 백만</span></div>',
+    });
     const c4 = barChart({
-      labels: labels, fmt: x => x.toFixed(1), height: 230,
+      labels: labels, big: true, fmt: x => x.toFixed(1), height: 230,
+      tipFmt: v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%p',
       series: [{
         name: '점유율 전년비(%p)', cls: 'auto',
         values: bs.map(b => {
@@ -634,7 +721,7 @@
     document.getElementById('t3').innerHTML = tab3(c);
     document.getElementById('t4').innerHTML = tab4(c);
     document.getElementById('t5').innerHTML = tab5(c);
-    bindTips(document.getElementById('t1'));
+    ['t1', 't2', 't3', 't4', 't5'].forEach(id => bindTips(document.getElementById(id)));
     const chips = document.getElementById('catChips');
     if (chips) chips.addEventListener('click', e => {
       const b = e.target.closest('.cat-chip');
