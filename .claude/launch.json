@@ -4,8 +4,26 @@
     {
       "name": "static",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8940", "--directory", "."],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8940",
+        "--directory",
+        "."
+      ],
       "port": 8940
+    },
+    {
+      "name": "static-8941",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8941",
+        "--directory",
+        "."
+      ],
+      "port": 8941
     }
   ]
 }
