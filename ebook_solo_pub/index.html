@@ -48,6 +48,12 @@
               <span class="nav-item-text">추천 성과 리포트</span>
             </a>
           </li>
+          <li>
+            <a class="nav-item-btn" href="#" data-view="mdmap">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span class="nav-item-text">담당 MD 매핑</span>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
@@ -55,7 +61,7 @@
       <div class="user-btn">
         <span class="user-avatar">김</span>
         <div>
-          <div class="user-name">김도현</div>
+          <div class="user-name">김효인</div>
           <div class="user-dept">eBook팀 · MD</div>
         </div>
       </div>
@@ -122,8 +128,24 @@
                 <span class="gr-v">한 번 추천된 상품번호는 다른 조건을 새로 충족해도 재추천·재발송되지 않습니다. <b>제외</b> 판단 건은 영구 제외, <b>보류</b> 건은 30일 후 이 화면에만 재노출됩니다(메일 재발송 없음).</span>
               </div>
               <div class="guide-rule">
+                <span class="gr-k">우선순위</span>
+                <span class="gr-v">여러 조건을 동시에 충족하거나 발주·판매 반응이 큰 상품일수록 위로 올라옵니다.
+                  조건 가중치는 <b>초도 발주량 &gt; 당일 발주량 &gt; 최근 7일 판매량 &gt; 주목할 신상품 &gt; 베스트셀러·셀럽 작가 &gt; 예약판매</b> 순입니다.</span>
+              </div>
+              <div class="guide-rule">
+                <span class="gr-k">1일 상한</span>
+                <span class="gr-v">MD 1인당 하루 <b>최대 10종</b>(우선순위 TOP 10)까지만 추천합니다.
+                  상한을 넘은 상품은 누락되지 않고 <b>우선순위를 유지한 채 다음 영업일로 이월</b>됩니다.</span>
+              </div>
+              <div class="guide-rule">
                 <span class="gr-k">발송</span>
                 <span class="gr-v">영업일 오전 10:00 · eBook팀 메일 그룹. 주말·공휴일 발생분은 다음 영업일에 합산 발송됩니다. 추천 후 3영업일간 판단이 없으면 담당 MD에게 리마인드가 나갑니다.</span>
+              </div>
+              <div class="guide-rule">
+                <span class="gr-k">담당 MD</span>
+                <span class="gr-v">종이책 <b>관리분류</b>를 기준으로 eBook 담당 MD가 자동 배정됩니다.
+                  조직개편·업무분장 변경에 대비해 코드에 고정하지 않고 <b>운영자가 수정할 수 있는 매핑 테이블</b>로 관리합니다.
+                  <button class="link-btn" id="btnMdMap" type="button">매핑 관리 화면 열기</button></span>
               </div>
               <div class="guide-rule">
                 <span class="gr-k">판단 입력</span>
@@ -133,9 +155,9 @@
           </div>
         </div>
 
-        <div class="grid grid-4" style="margin-bottom:16px">
+        <div class="grid grid-5" style="margin-bottom:16px">
           <div class="stat-card">
-            <div class="stat-head"><h4>오늘 신규 추천</h4><span class="badge badge-primary">신규</span></div>
+            <div class="stat-head"><h4>오늘 발송 추천</h4><span class="badge badge-primary">신규</span></div>
             <div class="stat-num" id="kpiTotal">0<span class="unit">종</span></div>
             <div class="stat-sub">중복 제외 후 최초 추천 기준</div>
           </div>
@@ -150,10 +172,20 @@
             <div class="stat-sub">출판사 컨택 대상</div>
           </div>
           <div class="stat-card">
+            <div class="stat-head"><h4>다음 영업일 이월</h4><span class="badge badge-warning">대기</span></div>
+            <div class="stat-num" id="kpiCarry">0<span class="unit">종</span></div>
+            <div class="stat-sub">MD별 1일 상한 초과분</div>
+          </div>
+          <div class="stat-card">
             <div class="stat-head"><h4>중복 차단</h4></div>
             <div class="stat-num" id="kpiDup">31<span class="unit">종</span></div>
             <div class="stat-sub">기추천 이력 있어 발송 제외</div>
           </div>
+        </div>
+
+        <div class="quota-bar">
+          <span class="quota-label">MD별 배분 (1일 상한 10종)</span>
+          <div class="quota-list" id="mdQuota"></div>
         </div>
 
         <div class="toolbar">
@@ -163,6 +195,7 @@
             <button data-f="go">섭외 <span class="cnt" id="fcGo">0</span></button>
             <button data-f="hold">보류 <span class="cnt" id="fcHold">0</span></button>
             <button data-f="drop">제외 <span class="cnt" id="fcDrop">0</span></button>
+            <button data-f="carry">이월 대기 <span class="cnt" id="fcCarry">0</span></button>
           </div>
           <select class="select-mini" id="filterReason">
             <option value="">추천 사유 전체</option>
@@ -222,15 +255,18 @@
                 <div class="mail-body">
                   <p class="mail-lead">
                     어제까지 신규로 추천 조건을 충족한 <b>eBook 미등록 종이책 <span id="mailCount">12</span>종</b>입니다.<br />
+                    <b>우선순위 순</b>으로 정렬되어 있으며, 위쪽 상품부터 검토하시면 됩니다.
                     상품별 추천 사유를 확인하시고, 검토 화면에서 <b>섭외 / 보류 / 제외</b>를 입력해 주세요.
                   </p>
                   <div class="tbl-wrap">
                     <table class="tbl" style="min-width:640px">
                       <thead>
                         <tr>
+                          <th style="width:52px">순위</th>
                           <th style="width:88px">상품번호</th>
-                          <th>도서명 / 저자 · 출판사</th>
-                          <th style="width:230px">추천 사유</th>
+                          <th>도서명 / 저자 · 출판사 · 관리분류</th>
+                          <th style="width:200px">추천 사유</th>
+                          <th style="width:78px">담당 MD</th>
                         </tr>
                       </thead>
                       <tbody id="mailRows"></tbody>
@@ -239,6 +275,7 @@
                   <a class="mail-cta" href="#" id="mailCta">검토 화면에서 섭외 여부 입력하기 →</a>
                   <div class="mail-foot">
                     · 동일 상품은 최초 1회만 추천되며, 이후 다른 조건을 충족해도 재발송되지 않습니다.<br />
+                    · MD 1인당 하루 최대 10종까지 발송합니다. 오늘 상한을 넘은 <b id="mailCarry">0</b>종은 우선순위를 유지한 채 다음 영업일로 이월됩니다.<br />
                     · 제외 선택 시 사유 입력이 필수입니다. 입력된 판단은 추천 기준 고도화에 활용됩니다.<br />
                     · 본 메일은 AX Datahub 배치에서 자동 발송되었습니다.
                   </div>
@@ -272,6 +309,9 @@
             <option value="hold">보류</option>
             <option value="drop">제외</option>
             <option value="none">미검토</option>
+          </select>
+          <select class="select-mini" id="hMd">
+            <option value="">담당 MD 전체</option>
           </select>
           <select class="select-mini" id="hReason">
             <option value="">추천 사유 전체</option>
@@ -391,7 +431,7 @@
               </div>
             </div>
             <div class="hint-text" style="margin-top:14px">
-              제외 사유 1위 — <b>판권 이슈(전자책 계약 불가)</b> 38건, 2위 <b>이미 타사 선출간</b> 24건.
+              제외 사유 1위 — <b>제작 불가 (판권 이슈)</b> 38건, 2위 <b>경쟁사 단독 선출간</b> 24건.
               판권 이슈는 추출 단계에서 걸러낼 수 있는지 검토 필요.
             </div>
           </div>
@@ -447,7 +487,7 @@
                 </div>
                 <ul class="ai-list">
                   <li>④ 예약판매 단독 발동 건의 적중률 6.5% <span class="sev high">HIGH</span><br /><span class="owner">재고소진 전환분과 신규 예판 분리 필요</span></li>
-                  <li>제외 사유 1위가 판권 이슈(38건) <span class="sev mid">MID</span><br /><span class="owner">계약 정보 연동으로 사전 필터링 검토</span></li>
+                  <li>제외 사유 1위가 제작 불가·판권 이슈(38건) <span class="sev mid">MID</span><br /><span class="owner">계약 정보 연동으로 사전 필터링 검토</span></li>
                   <li>미검토 31종 · 평균 검토 소요 4.2일 <span class="sev mid">MID</span><br /><span class="owner">3영업일 초과 시 리마인드 메일</span></li>
                 </ul>
               </div>
@@ -464,6 +504,63 @@
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW 5: 담당 MD 매핑 관리 ============ -->
+      <section class="view" id="view-mdmap">
+        <div class="note-box" style="margin-bottom:14px">
+          <b>운영자 관리 화면</b> — 종이책 <b>관리분류</b>를 기준으로 eBook 담당 MD가 자동 배정됩니다.
+          조직개편·업무분장 변경에 대비해 담당자를 코드에 고정하지 않고 이 화면에서 수정합니다.
+          변경 내용은 <b>다음 배치부터</b> 반영되며, 이미 추천된 건의 담당은 추천 당시 값으로 보존됩니다.
+        </div>
+
+        <div class="grid grid-4" style="margin-bottom:16px" id="mapStats"></div>
+
+        <div class="toolbar">
+          <div class="poc-input-wrap">
+            <svg class="poc-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="poc-input" id="mapSearch" placeholder="분류코드 · 관리분류명 검색" />
+          </div>
+          <select class="select-mini" id="mapFilterMd">
+            <option value="">담당 MD 전체</option>
+          </select>
+          <label class="chk">
+            <input type="checkbox" id="mapOnlyHit" />
+            <span>오늘 추천이 있는 분류만</span>
+          </label>
+          <div class="spacer"></div>
+          <span class="pill" id="mapDirty">변경 없음</span>
+          <button class="btn btn-outline btn-sm" id="mapReset">되돌리기</button>
+          <button class="btn btn-primary btn-sm" id="mapSave">매핑 저장</button>
+        </div>
+
+        <div class="card">
+          <div class="card-content" style="padding:0">
+            <div class="tbl-wrap">
+              <table class="tbl mapping-tbl">
+                <thead>
+                  <tr>
+                    <th style="width:104px">분류코드</th>
+                    <th style="width:200px">관리분류</th>
+                    <th style="width:200px">eBook 담당 MD</th>
+                    <th style="width:90px">사용</th>
+                    <th style="width:96px">오늘 추천</th>
+                    <th>최종 수정</th>
+                  </tr>
+                </thead>
+                <tbody id="mapRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn btn-outline btn-sm" id="mapAdd">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            분류 추가
+          </button>
+          <span class="hint-text" style="margin:0">매핑이 없거나 사용하지 않는 분류의 상품은 <b>미배정</b>으로 추천되며, 검토 화면에서 팀 공용으로 노출됩니다.</span>
         </div>
       </section>
 

@@ -772,3 +772,161 @@ textarea.poc-input { font-size: 13.5px; font-family: var(--font-selected); }
 /* 이력 테이블 — 날짜·지표는 줄바꿈 없이 한 줄로 */
 table.tbl td.nowrap { white-space: nowrap; }
 table.tbl td.mono.nowrap { font-size: 12.5px; }
+
+/* ===================================================
+   우선순위 노출 · MD별 1일 상한
+   =================================================== */
+
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
+
+/* MD별 배분 현황 바 */
+.quota-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px);
+  box-shadow: var(--shadow-sm); padding: 10px 16px; margin-bottom: 14px;
+}
+.quota-label { font-size: 12.5px; font-weight: 600; color: var(--muted-foreground); }
+.quota-list { display: flex; gap: 7px; flex-wrap: wrap; }
+.quota {
+  font-size: 12.5px; color: var(--muted-foreground); border: 1px solid var(--border);
+  background: var(--background); border-radius: 999px; padding: 3px 11px;
+}
+.quota b { color: var(--foreground); font-weight: 700; margin-right: 3px; }
+.quota i { font-style: normal; color: var(--warning); font-weight: 700; }
+.quota.full { border-color: color-mix(in oklch, var(--warning) 34%, transparent); background: color-mix(in oklch, var(--warning) 10%, transparent); }
+
+/* 후보 카드 좌측 — 표지 위에 우선순위 칩 */
+.cand-lead { width: 84px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+
+a.cand-cover {
+  width: 84px; height: 118px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--muted); position: relative; overflow: hidden; display: block;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.10); transition: var(--transition);
+}
+a.cand-cover:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.18); transform: translateY(-2px); }
+
+.prio-chip {
+  position: absolute; top: 0; left: 0; z-index: 2;
+  min-width: 30px; padding: 3px 7px; border-radius: 0 0 7px 0;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 800; line-height: 1.1;
+  text-align: center; color: var(--primary-foreground); background: var(--foreground);
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.25);
+}
+.prio-grade {
+  display: block; text-align: center; font-size: 10.5px; font-weight: 700;
+  border-radius: 999px; padding: 2px 0; border: 1px solid var(--border);
+  background: var(--muted); color: var(--muted-foreground);
+}
+
+/* 등급별 색 (칩 + 라벨) */
+.prio-high .prio-chip { background: var(--primary); }
+.prio-high .prio-grade {
+  color: var(--primary); background: color-mix(in oklch, var(--primary) 12%, transparent);
+  border-color: color-mix(in oklch, var(--primary) 30%, transparent);
+}
+.prio-mid .prio-chip { background: var(--info); color: oklch(1 0 0); }
+.prio-mid .prio-grade {
+  color: var(--info); background: color-mix(in oklch, var(--info) 11%, transparent);
+  border-color: color-mix(in oklch, var(--info) 26%, transparent);
+}
+.prio-carry .prio-chip { background: var(--warning); color: oklch(1 0 0); font-size: 10.5px; }
+.prio-carry .prio-grade {
+  color: var(--warning); background: color-mix(in oklch, var(--warning) 12%, transparent);
+  border-color: color-mix(in oklch, var(--warning) 30%, transparent);
+}
+
+.prio-note { font-size: 11.5px; color: var(--muted-foreground); margin-left: auto; white-space: nowrap; }
+
+/* 이월 대기 카드 */
+.cand.carry { border-style: dashed; background: color-mix(in oklch, var(--warning) 4%, var(--card)); }
+.cand.carry a.cand-cover { opacity: 0.85; }
+
+@media (max-width: 1180px) {
+  .grid-5 { grid-template-columns: repeat(3, 1fr); }
+  .prio-note { display: none; }
+}
+@media (max-width: 720px) {
+  .grid-5 { grid-template-columns: repeat(2, 1fr); }
+  .cand-lead { flex-direction: row; width: auto; align-items: center; gap: 10px; }
+  .prio-grade { padding: 2px 10px; }
+}
+
+/* ===================================================
+   실제 상품 이미지 · 상세 링크 · 담당 MD 매핑표
+   =================================================== */
+
+/* 표지 (링크) */
+a.cand-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+a.cand-cover img.no-img { display: none; }
+a.cand-cover::after {
+  content: "📕"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 26px; opacity: 0.35; z-index: 0;
+}
+a.cand-cover img { position: relative; z-index: 1; }
+
+/* 도서명 링크 */
+a.cand-title { display: block; color: var(--foreground); transition: var(--transition); }
+a.cand-title:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+.mail-paper .td-title a { color: var(--foreground); }
+.mail-paper .td-title a:hover { text-decoration: underline; }
+table.tbl td.mono a { color: var(--muted-foreground); }
+table.tbl td.mono a:hover { color: var(--primary); text-decoration: underline; }
+
+/* 가이드 안의 인라인 버튼 */
+.link-btn {
+  background: none; border: none; padding: 0 0 0 2px; font-family: inherit; font-size: inherit;
+  color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link-btn:hover { opacity: 0.75; }
+
+/* ===================================================
+   담당 MD 매핑 관리 화면
+   =================================================== */
+table.mapping-tbl { min-width: 780px; }
+table.mapping-tbl td { padding: 7px 10px; }
+table.mapping-tbl tr.hit td { background: color-mix(in oklch, var(--primary) 5%, transparent); }
+table.mapping-tbl tr.off { opacity: 0.5; }
+table.mapping-tbl tr.off .cell-input { text-decoration: line-through; }
+table.mapping-tbl td.upd { font-size: 11.5px; color: var(--muted-foreground); white-space: nowrap; }
+
+.cell-input {
+  width: 100%; padding: 5px 9px; font-size: 13px; font-family: var(--font-selected);
+  color: var(--foreground); background: var(--background);
+  border: 1px solid transparent; border-radius: var(--radius); outline: none; transition: var(--transition);
+}
+.cell-input:hover { border-color: var(--border); }
+.cell-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 14%, transparent); }
+select.cell-input { cursor: pointer; font-weight: 600; }
+.cell-input.mono { font-family: var(--font-mono); }
+.cell-warn { font-size: 10.5px; color: var(--warning); font-weight: 700; margin-top: 3px; padding-left: 9px; }
+
+.hit-cnt {
+  display: inline-block; min-width: 22px; padding: 1px 7px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 800;
+  background: color-mix(in oklch, var(--primary) 12%, transparent); color: var(--primary);
+  border: 1px solid color-mix(in oklch, var(--primary) 26%, transparent);
+}
+table.mapping-tbl td .dim { color: var(--muted-foreground); opacity: 0.5; }
+
+/* 체크박스 라벨 */
+.chk { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted-foreground); cursor: pointer; user-select: none; }
+.chk input { width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; }
+.chk:hover { color: var(--foreground); }
+
+/* 변경 상태 pill */
+#mapDirty.dirty {
+  background: color-mix(in oklch, var(--warning) 13%, transparent); color: var(--warning);
+  border-color: color-mix(in oklch, var(--warning) 30%, transparent); font-weight: 700;
+}
+
+/* 사용 여부 토글 (조건 설정 화면에서 쓰던 스위치 재사용) */
+.switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; display: inline-block; }
+.switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.switch .track { position: absolute; inset: 0; background: var(--border); border-radius: 999px; cursor: pointer; transition: var(--transition); }
+.switch .track::before {
+  content: ""; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px;
+  background: var(--card); border-radius: 50%; transition: var(--transition); box-shadow: var(--shadow-sm);
+}
+.switch input:checked + .track { background: var(--primary); }
+.switch input:checked + .track::before { transform: translateX(16px); }
