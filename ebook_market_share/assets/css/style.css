@@ -622,3 +622,16 @@ table.dt td.num { font-weight: 600; }
 .tt-foot2 { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: 11.5px; color: var(--muted-foreground); display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
 .tt-foot2 b { color: var(--foreground); font-weight: 700; }
 .sw-auto { background: var(--muted-foreground); }
+
+/* ===================================================
+   컨텐츠 영역: 화면 폭 전체 사용
+   표·차트가 많은 리포트라 플랫폼 기본값(1180px)을 해제한다.
+   =================================================== */
+.page-content { max-width: none; }
+
+/* 차트 SVG는 viewBox 스케일이라 폭이 커질수록 글씨도 함께 커진다.
+   과대 확대를 막기 위해 상한을 두고, 화면 폭 구간별로 글씨를 보정한다. */
+.chart-wrap svg { max-width: 980px; margin: 0 auto; }
+@media (min-width: 1600px) { .chart-big .chart-label { font-size: 13px; } .chart-big .quad-label { font-size: 12px; } }
+@media (min-width: 2000px) { .chart-big .chart-label { font-size: 11px; } }
+@media (min-width: 2400px) { .chart-big .chart-label { font-size: 9.5px; } }
