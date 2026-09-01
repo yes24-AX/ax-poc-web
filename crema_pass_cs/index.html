@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>크레마클럽 이용권 상태 조회 — AX Datahub</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <nav class="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="#">
+        <span class="sidebar-logo">AX</span>
+        <span class="sidebar-brand">Datahub</span>
+      </a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">CS 지원</span>
+        <ul class="sidebar-menu">
+          <li>
+            <a class="nav-item-btn active" href="#" data-view="lookup">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span class="nav-item-text">이용권 상태 조회</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#" data-view="queue">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span class="nav-item-text">문의 접수 큐</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#" data-view="rules">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span class="nav-item-text">자동 판정 기준</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">다른 화면</span>
+        <ul class="sidebar-menu">
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <span class="nav-item-text">eBook 단독 선출간 후보</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span class="nav-item-text">상품 브리핑 for MD</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn">
+        <span class="user-avatar">서</span>
+        <div>
+          <div class="user-name">서한슬</div>
+          <div class="user-dept">CS팀 · eBook 담당</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main-wrapper">
+
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">CS 지원</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current" id="crumb">이용권 상태 조회</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <span class="model-pill">읽기 전용 · 조회만</span>
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title" id="pageTitle">이용권 상태 조회</h1>
+            <p class="page-subtitle" id="pageSubtitle">크레마클럽 이용권 폐기·환불 문의 접수 시, 담당자 판단에 필요한 이용권 상태와 다운로드 이력을 한 화면에서 확인합니다.</p>
+          </div>
+        </div>
+        <div class="page-header-actions" id="pageActions"></div>
+      </div>
+
+      <!-- ============ VIEW 1: 이용권 상태 조회 ============ -->
+      <section class="view active" id="view-lookup">
+
+        <!-- 검색 -->
+        <div class="card mb12">
+          <div class="card-header card-header-col">
+            <div class="card-title">조회 조건</div>
+            <div class="card-description">회원 · 이용권 번호 · CS 접수번호 중 하나로 조회합니다. 조회만 수행하며 데이터는 변경되지 않습니다.</div>
+          </div>
+          <div class="card-content">
+            <div class="poc-search-row">
+              <div class="seg" id="seg">
+                <button type="button" class="on" data-key="member">회원 ID/번호</button>
+                <button type="button" data-key="pass">이용권 번호</button>
+                <button type="button" data-key="cs">CS 접수번호</button>
+              </div>
+              <div class="poc-input-wrap">
+                <svg class="poc-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="poc-input" id="q" placeholder="회원 ID 또는 회원번호" autocomplete="off" />
+              </div>
+              <button class="btn btn-primary" id="btnSearch">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                조회
+              </button>
+              <button class="btn btn-outline" id="btnReset">초기화</button>
+            </div>
+            <div class="poc-chips" id="chips"><span class="label">샘플</span></div>
+            <div class="poc-error hidden" id="err"></div>
+          </div>
+        </div>
+
+        <!-- 조회 전 -->
+        <div class="card" id="emptyBox">
+          <div class="empty">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h5"/></svg>
+            <h2>조회할 회원 또는 이용권을 입력하세요</h2>
+            <p>위 샘플 칩을 누르면 대표 케이스 5건을 바로 확인할 수 있습니다.</p>
+          </div>
+        </div>
+
+        <!-- 조회 중 -->
+        <div class="card hidden" id="loadingBox">
+          <div class="card-content">
+            <div class="ai-thinking"><span class="spin"></span><span id="loadMsg">크레마클럽 이용권 정보를 조회하는 중…</span></div>
+            <div class="shimmer sk" style="width:72%"></div>
+            <div class="shimmer sk" style="width:88%"></div>
+            <div class="shimmer sk" style="width:54%"></div>
+          </div>
+        </div>
+
+        <!-- 결과 -->
+        <div id="resultBox" class="hidden"></div>
+      </section>
+
+      <!-- ============ VIEW 2: 문의 접수 큐 ============ -->
+      <section class="view" id="view-queue">
+        <div class="grid grid-4 mb12" id="queueKpi"></div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">크레마클럽 이용권 폐기·환불 문의</div>
+              <div class="card-description">AI 문의 분류로 자동 선별된 건이며, 접수 즉시 이용권 상태가 자동 조회됩니다. 행을 클릭하면 조회 결과로 이동합니다.</div>
+            </div>
+            <span class="badge badge-secondary">2026-09-01 기준</span>
+          </div>
+          <div class="card-content">
+            <div class="tbl-wrap"><table class="tbl" id="queueTbl"></table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW 3: 자동 판정 기준 ============ -->
+      <section class="view" id="view-rules">
+        <div class="card mb12">
+          <div class="card-header card-header-col">
+            <div class="card-title">자동 판정 기준</div>
+            <div class="card-description">시스템은 아래 규칙으로 <b>참고 판정</b>만 제시하며, 폐기·환불 실행 여부는 담당자가 최종 결정합니다.</div>
+          </div>
+          <div class="card-content">
+            <div class="tbl-wrap"><table class="tbl" id="rulesTbl"></table></div>
+            <div class="notice">이 화면은 조회 전용입니다. 이용권 삭제·복구·환불 등 데이터 변경과 CS 자동 처리는 범위에 포함하지 않습니다.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header card-header-col">
+            <div class="card-title">연동 필요 데이터</div>
+            <div class="card-description">화면 구성에 필요한 항목과 예상 소스입니다. 실제 적용 시 소스·연동 방식 확정이 필요합니다.</div>
+          </div>
+          <div class="card-content">
+            <div class="tbl-wrap"><table class="tbl" id="srcTbl"></table></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
