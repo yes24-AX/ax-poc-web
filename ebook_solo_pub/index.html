@@ -106,8 +106,65 @@
       <!-- ============ VIEW 1: 오늘의 추천 후보 ============ -->
       <section class="view active" id="view-today">
 
+        <div class="grid grid-3" style="margin-bottom:16px">
+          <div class="stat-card">
+            <div class="stat-head"><h4>오늘 발송 추천</h4><span class="badge badge-primary">신규</span></div>
+            <div class="stat-num" id="kpiTotal">0<span class="unit">종</span></div>
+            <div class="stat-sub">중복 제외 후 최초 추천 기준</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head"><h4>검토 완료</h4></div>
+            <div class="stat-num" id="kpiDone">0<span class="unit">종</span></div>
+            <div class="bar-track"><div class="bar-fill pos" id="kpiDoneBar" style="width:0%"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head"><h4>섭외 결정</h4></div>
+            <div class="stat-num" id="kpiGo">0<span class="unit">종</span></div>
+            <div class="stat-sub">출판사 컨택 대상</div>
+          </div>
+        </div>
+
+        <div class="quota-bar">
+          <span class="quota-label">MD별 배분 (1일 상한 10종)</span>
+          <div class="quota-list" id="mdQuota"></div>
+        </div>
+
+        <div class="toolbar">
+          <div class="seg" id="filterSeg">
+            <button class="on" data-f="all">전체 <span class="cnt" id="fcAll">0</span></button>
+            <button data-f="todo">미검토 <span class="cnt" id="fcTodo">0</span></button>
+            <button data-f="go">섭외 <span class="cnt" id="fcGo">0</span></button>
+            <button data-f="hold">보류 <span class="cnt" id="fcHold">0</span></button>
+            <button data-f="drop">제외 <span class="cnt" id="fcDrop">0</span></button>
+            <button data-f="carry">이월 대기 <span class="cnt" id="fcCarry">0</span></button>
+          </div>
+          <select class="select-mini" id="filterReason">
+            <option value="">추천 사유 전체</option>
+            <option value="R1">① 초도 발주량 상위</option>
+            <option value="R2">② 당일 발주량 급증</option>
+            <option value="R3">③ 최근 7일 판매 TOP 50</option>
+            <option value="R4">④ 예약판매</option>
+            <option value="R5">⑤ 주목할 신상품 TOP 120</option>
+            <option value="R6">⑥ 베스트셀러·셀럽 작가</option>
+          </select>
+          <select class="select-mini" id="filterMd">
+            <option value="">담당 MD 전체</option>
+          </select>
+          <div class="spacer"></div>
+          <button class="btn btn-outline btn-sm" id="btnXlsx">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            엑셀 내려받기
+          </button>
+        </div>
+
+        <div class="cand-list" id="candList"></div>
+        <div class="empty hidden" id="candEmpty">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <h2>해당 조건의 후보가 없습니다</h2>
+          <p>필터를 변경해 보세요.</p>
+        </div>
         <!-- ---------- 추천 조건 가이드 ---------- -->
-        <div class="card guide-card collapsed" id="guideCard" style="margin-bottom:16px">
+        <div class="card guide-card collapsed" id="guideCard" style="margin:20px 0 0">
           <div class="card-header guide-head" id="guideToggle" role="button" tabindex="0" aria-expanded="true" aria-controls="guideBody">
             <div>
               <div class="card-title">
@@ -155,73 +212,6 @@
           </div>
         </div>
 
-        <div class="grid grid-5" style="margin-bottom:16px">
-          <div class="stat-card">
-            <div class="stat-head"><h4>오늘 발송 추천</h4><span class="badge badge-primary">신규</span></div>
-            <div class="stat-num" id="kpiTotal">0<span class="unit">종</span></div>
-            <div class="stat-sub">중복 제외 후 최초 추천 기준</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-head"><h4>검토 완료</h4></div>
-            <div class="stat-num" id="kpiDone">0<span class="unit">종</span></div>
-            <div class="bar-track"><div class="bar-fill pos" id="kpiDoneBar" style="width:0%"></div></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-head"><h4>섭외 결정</h4></div>
-            <div class="stat-num" id="kpiGo">0<span class="unit">종</span></div>
-            <div class="stat-sub">출판사 컨택 대상</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-head"><h4>다음 영업일 이월</h4><span class="badge badge-warning">대기</span></div>
-            <div class="stat-num" id="kpiCarry">0<span class="unit">종</span></div>
-            <div class="stat-sub">MD별 1일 상한 초과분</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-head"><h4>중복 차단</h4></div>
-            <div class="stat-num" id="kpiDup">31<span class="unit">종</span></div>
-            <div class="stat-sub">기추천 이력 있어 발송 제외</div>
-          </div>
-        </div>
-
-        <div class="quota-bar">
-          <span class="quota-label">MD별 배분 (1일 상한 10종)</span>
-          <div class="quota-list" id="mdQuota"></div>
-        </div>
-
-        <div class="toolbar">
-          <div class="seg" id="filterSeg">
-            <button class="on" data-f="all">전체 <span class="cnt" id="fcAll">0</span></button>
-            <button data-f="todo">미검토 <span class="cnt" id="fcTodo">0</span></button>
-            <button data-f="go">섭외 <span class="cnt" id="fcGo">0</span></button>
-            <button data-f="hold">보류 <span class="cnt" id="fcHold">0</span></button>
-            <button data-f="drop">제외 <span class="cnt" id="fcDrop">0</span></button>
-            <button data-f="carry">이월 대기 <span class="cnt" id="fcCarry">0</span></button>
-          </div>
-          <select class="select-mini" id="filterReason">
-            <option value="">추천 사유 전체</option>
-            <option value="R1">① 초도 발주량 상위</option>
-            <option value="R2">② 당일 발주량 급증</option>
-            <option value="R3">③ 최근 7일 판매 TOP 50</option>
-            <option value="R4">④ 예약판매</option>
-            <option value="R5">⑤ 주목할 신상품 TOP 120</option>
-            <option value="R6">⑥ 베스트셀러·셀럽 작가</option>
-          </select>
-          <select class="select-mini" id="filterMd">
-            <option value="">담당 MD 전체</option>
-          </select>
-          <div class="spacer"></div>
-          <button class="btn btn-outline btn-sm" id="btnXlsx">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            엑셀 내려받기
-          </button>
-        </div>
-
-        <div class="cand-list" id="candList"></div>
-        <div class="empty hidden" id="candEmpty">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <h2>해당 조건의 후보가 없습니다</h2>
-          <p>필터를 변경해 보세요.</p>
-        </div>
       </section>
 
       <!-- ============ VIEW 2: 일일 추천 메일 ============ -->

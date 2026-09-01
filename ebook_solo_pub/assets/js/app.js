@@ -342,18 +342,10 @@ function renderCandidates() {
           <span class="pill" title="관리분류 ${c.catCd}">${c.cat}</span>
           ${c.metrics.state === '예약판매' ? '<span class="status-badge status-low">예약판매</span>' : '<span class="status-badge status-selling">판매중</span>'}
           ${c.carry ? '<span class="badge badge-warning">다음 영업일 이월</span>' : ''}
-          <span class="prio-note">우선순위 ${c.score}점 · ${REASONS[c.topRule].no} ${REASONS[c.topRule].label}${c.reasons.length > 1 ? ` 외 ${c.reasons.length - 1}개 조건` : ''}</span>
         </div>
         <a class="cand-title" href="${GOODS_URL(c.no)}" target="_blank" rel="noopener">${c.title}</a>
         <div class="cand-sub">${c.author} · ${c.pub}</div>
         <div class="cand-reasons">${c.reasons.map(r => reasonHtml(r.c, r.v)).join('')}</div>
-        <div class="cand-metrics">
-          <span class="metric"><span class="mk">초도 발주</span><span class="mv">${c.metrics.init}</span></span>
-          <span class="metric"><span class="mk">당일 발주</span><span class="mv">${c.metrics.today}</span></span>
-          <span class="metric"><span class="mk">7일 판매</span><span class="mv">${c.metrics.w7}</span></span>
-          <span class="metric"><span class="mk">순위</span><span class="mv">${c.metrics.rank}</span></span>
-          <span class="metric"><span class="mk">작가 이력</span><span class="mv">${c.metrics.prev}</span></span>
-        </div>
       </div>
       <div class="cand-act">
         <div class="act-row">
@@ -363,8 +355,7 @@ function renderCandidates() {
         </div>
         ${noteHtml}
         <div class="act-links">
-          <a href="${GOODS_URL(c.no)}" target="_blank" rel="noopener">상품 상세</a>
-          <a href="#" onclick="return false">발주 현황</a>
+          <a href="${GOODS_URL(c.no)}" target="_blank" rel="noopener">상품 상세에서 세부 지표 보기</a>
         </div>
       </div>
     </article>`;
@@ -387,7 +378,6 @@ function updateKpi() {
   $('#kpiDone').innerHTML = done + '<span class="unit">종</span>';
   $('#kpiDoneBar').style.width = (total ? (done / total * 100) : 0) + '%';
   $('#kpiGo').innerHTML = go + '<span class="unit">종</span>';
-  $('#kpiCarry').innerHTML = carry.length + '<span class="unit">종</span>';
   $('#fcAll').textContent = total;
   $('#fcTodo').textContent = total - done;
   $('#fcGo').textContent = go;
