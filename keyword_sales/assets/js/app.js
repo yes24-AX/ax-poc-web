@@ -128,7 +128,6 @@
     judging: false,
     filterOn: true,
     sortKey: 'qty',
-    unit: 'month',
     from: TODAY.slice(0, 4) + '-01-01',
     to: TODAY,
     tab: 'relevant',
@@ -145,28 +144,6 @@
   const isManual = id => !!S.overrides[id];
 
   /* ===================== 집계 ===================== */
-
-  const UNIT_NAME = { day: '일', month: '월', year: '연' };
-
-  /* 단위를 바꾸면 기간을 그 단위 경계에 맞춘다.
-     맞추지 않으면 8/9~9/7 범위에서 '2026-08' 버킷이 23일치인데도 8월 전체처럼 읽힌다.
-     끝은 오늘을 넘지 않게 자르므로, 마지막 구간은 여전히 진행 중일 수 있다(partial 표시). */
-  function snapRange(unit) {
-    if (unit === 'day') return false;
-    const before = S.from + S.to;
-    if (unit === 'year') {
-      S.from = S.from.slice(0, 4) + '-01-01';
-      S.to = S.to.slice(0, 4) + '-12-31';
-    } else {
-      S.from = S.from.slice(0, 8) + '01';
-      const d = toDate(S.to);
-      S.to = fmtDate(new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)));
-    }
-    if (S.to > TODAY) S.to = TODAY;
-    $('#dFrom').value = S.from;
-    $('#dTo').value = S.to;
-    return before !== S.from + S.to;
-  }
 
   /* 비교 구간 — 1년 이하면 전년 동기, 그보다 길면 직전 동일 길이 기간.
      언론 데이터의 절반은 "전년 대비 몇 %"이므로 이 값이 화면 전면에 나와야 한다. */
@@ -364,7 +341,6 @@
     const rows = [
       ['키워드', S.query],
       ['조회 기간', S.from + ' ~ ' + S.to],
-      ['집계 단위', UNIT_NAME[S.unit] + ' 단위'],
       ['대상', groupDesc()],
       ['검색 결과', S.items.length + '종'],
       ['상세 조건', filterDesc()],
@@ -625,24 +601,12 @@
     $('#dFrom').addEventListener('change', e => { S.from = e.target.value; S.page = 1; render(); });
     $('#dTo').addEventListener('change', e => { S.to = e.target.value; S.page = 1; render(); });
 
-    $('#unitSeg').addEventListener('click', e => {
-      const b = e.target.closest('[data-unit]');
-      if (!b) return;
-      S.unit = b.dataset.unit;
-      $$('#unitSeg button').forEach(x => x.classList.toggle('active', x === b));
-      const moved = snapRange(S.unit);
-      S.page = 1;
-      render();
-      if (moved) toast(UNIT_NAME[S.unit] + ' 단위에 맞춰 기간을 ' + S.from + ' ~ ' + S.to + ' 로 조정했습니다.');
-    });
-
     $('#quick').addEventListener('click', e => {
       const b = e.target.closest('[data-preset]');
       if (!b) return;
       const p = b.dataset.preset;
       S.to = TODAY;
       S.from = p === 'ytd' ? TODAY.slice(0, 4) + '-01-01' : shiftYear(TODAY, -Number(p.replace('y', '')));
-      snapRange(S.unit);
       $('#dFrom').value = S.from;
       $('#dTo').value = S.to;
       S.page = 1;
