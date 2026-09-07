@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>발송 메일 레이아웃 관리 — AX Labs</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <nav class="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="#">
+        <span class="sidebar-logo">AX</span>
+        <span class="sidebar-brand">Labs</span>
+      </a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">어드민 도구</span>
+        <ul class="sidebar-menu">
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span class="nav-item-text">리포트 스케줄 관리</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn active" href="#" data-view="list">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span class="nav-item-text">발송 메일 레이아웃</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#" data-view="library">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <span class="nav-item-text">레이아웃 라이브러리</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              <span class="nav-item-text">발송 이력</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>
+              <span class="nav-item-text">수신자 관리</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn">
+        <span class="user-avatar">서</span>
+        <div>
+          <div class="user-name">서희승</div>
+          <div class="user-dept">AX개발팀</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main-wrapper">
+
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">어드민 도구</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current" id="crumb">발송 메일 레이아웃</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <span class="model-pill">POC · 목업 데이터</span>
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title" id="pageTitle">발송 메일 레이아웃</h1>
+            <p class="page-subtitle" id="pageSubtitle">리포트 메일의 제목·헤더·안내문구·푸터를 발송 전에 관리하고 미리봅니다.</p>
+          </div>
+        </div>
+        <div class="page-header-actions" id="pageActions"></div>
+      </div>
+
+      <!-- ============================================================
+           VIEW ① 발송 메일 목록
+           ============================================================ -->
+      <section class="view active" id="view-list">
+
+        <div class="grid grid-4">
+          <div class="stat-card">
+            <div class="stat-head">전체 발송 메일</div>
+            <div class="stat-num" id="stTotal">–</div>
+            <div class="stat-sub">리포트 스케줄 기준</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head">활성</div>
+            <div class="stat-num" id="stActive">–</div>
+            <div class="stat-sub">cron 스케줄 동작 중</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head">공용 레이아웃</div>
+            <div class="stat-num" id="stLayouts">–</div>
+            <div class="stat-sub">라이브러리에 등록된 종류</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head">개별 오버라이드</div>
+            <div class="stat-num" id="stOverride">–</div>
+            <div class="stat-sub">공용값을 덮어쓴 메일</div>
+          </div>
+        </div>
+
+        <div class="card mt14">
+          <div class="card-header card-header-col">
+            <div class="card-title">발송 메일 목록</div>
+            <div class="card-description">
+              각 메일이 어떤 레이아웃을 쓰는지 보여줍니다. <b>레이아웃</b> 버튼으로 껍데기(제목·헤더·문구·푸터)를 편집합니다.
+              실행·수정·삭제·수신자 관리는 기존 <span class="src-tag">리포트 스케줄 관리</span> 화면 기능이라 이 POC에서는 다루지 않습니다.
+            </div>
+          </div>
+          <div class="card-content">
+
+            <div class="poc-search-row">
+              <div class="poc-input-wrap">
+                <svg class="poc-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="poc-input" id="q" type="text" placeholder="작업명 · 엔드포인트로 검색" />
+              </div>
+              <div class="seg seg-sm" id="segFilter">
+                <button class="on" data-f="all">전체</button>
+                <button data-f="active">활성만</button>
+                <button data-f="override">개별 수정만</button>
+              </div>
+            </div>
+            <div class="poc-chips mt10" id="layChips"></div>
+
+            <div class="tbl-wrap mt14">
+              <table class="tbl" id="schedTbl">
+                <thead>
+                  <tr>
+                    <th>ID</th><th>작업명</th><th>Cron</th><th>포맷</th><th>활성</th>
+                    <th>엔드포인트</th><th>레이아웃</th><th>최근 실행</th><th>관리</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="empty hidden" id="listEmpty">
+              <div class="ico">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <h2>조건에 맞는 메일이 없습니다</h2>
+              <p>검색어나 필터를 바꿔 보세요.</p>
+            </div>
+
+            <p class="foot-note mt14">
+              모든 데이터는 목업입니다. 실제 화면은 <span class="src-tag">report.report_schedule</span> 조회 결과에
+              <span class="src-tag">layout_id</span> · <span class="src-tag">layout_override</span> 두 컬럼을 더해 렌더합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           VIEW ② 레이아웃 편집기
+           ============================================================ -->
+      <section class="view" id="view-editor">
+
+        <div class="ed-target">
+          <div>
+            <div class="ed-target-name" id="edName">—</div>
+            <div class="ed-target-meta" id="edMeta">—</div>
+          </div>
+          <div class="spacer"></div>
+          <div>
+            <div class="fld-hint" style="margin-bottom:4px;">공용 레이아웃</div>
+            <select class="fld" id="edLayoutSel" style="width:auto;min-width:180px;"></select>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btnBackList">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            목록
+          </button>
+        </div>
+
+        <div class="ed-grid">
+
+          <!-- ---------- 좌: 편집 ---------- -->
+          <div>
+            <div class="card">
+              <div class="card-header card-header-col">
+                <div class="card-title">치환 변수</div>
+                <div class="card-description">입력란을 클릭한 뒤 칩을 누르면 커서 위치에 삽입됩니다.</div>
+              </div>
+              <div class="card-content">
+                <div class="varbar" id="varBar"></div>
+              </div>
+            </div>
+
+            <div class="mt10" id="accWrap"></div>
+
+            <div class="submit-bar">
+              <div class="fld-hint" id="edDirty">변경 사항 없음</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" id="btnResetAll">공용 값으로 초기화</button>
+                <button class="btn btn-outline btn-sm" id="btnTestMail">테스트 발송</button>
+                <button class="btn btn-primary btn-sm" id="btnSave">저장</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ---------- 우: 미리보기 ---------- -->
+          <div class="ed-preview-sticky">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">미리보기</div>
+                  <div class="card-description">편집과 동시에 실제 발송될 메일이 그대로 합성됩니다.</div>
+                </div>
+              </div>
+              <div class="card-content">
+
+                <div class="mail-toolbar">
+                  <div class="seg seg-sm" id="segBody">
+                    <button class="on" data-src="sample">샘플 본문</button>
+                    <button data-src="live">실데이터 미리보기</button>
+                    <button data-src="snapshot">발송본</button>
+                  </div>
+                  <select class="fld" id="snapSel" style="width:auto;min-width:150px;display:none;"></select>
+                  <div class="spacer"></div>
+                  <div class="seg seg-sm" id="segVp">
+                    <button class="on" data-vp="desktop">데스크톱</button>
+                    <button data-vp="mobile">모바일</button>
+                  </div>
+                  <button class="btn btn-outline btn-sm" id="btnCompare">공용과 비교</button>
+                </div>
+
+                <div class="diff-list mt10 hidden" id="diffList"></div>
+
+                <div class="mail-shell mt10" id="mailShell">
+                  <div class="mail-bar">
+                    <div class="mail-subject" id="mailSubject">—</div>
+                    <div class="mail-from">
+                      <span id="mailFrom">—</span>
+                      <span class="mono" id="mailTo">받는사람 14명</span>
+                      <span class="mono" id="mailWhen">—</span>
+                    </div>
+                  </div>
+                  <div class="mail-frame-wrap" id="frameWrap">
+                    <iframe class="mail-frame" id="mailFrame" sandbox="allow-same-origin" title="메일 미리보기"></iframe>
+                  </div>
+                  <div class="mail-note">
+                    <b>메일 본문은 라이트 고정</b>입니다 — 실제 메일 클라이언트는 CSS 변수·다크모드를 지원하지 않아
+                    인라인 스타일로만 렌더합니다. 앱 화면의 다크모드 토글은 미리보기 프레임 안쪽에 영향을 주지 않습니다.
+                  </div>
+                </div>
+
+                <!-- 비교 모드 -->
+                <div class="cmp-grid mt10 hidden" id="cmpGrid">
+                  <div class="mail-shell">
+                    <div class="cmp-col-title">공용 레이아웃 그대로</div>
+                    <div class="mail-bar"><div class="mail-subject" id="cmpSubjA">—</div></div>
+                    <div class="mail-frame-wrap"><iframe class="mail-frame" id="cmpFrameA" sandbox="allow-same-origin" title="공용 레이아웃 미리보기"></iframe></div>
+                  </div>
+                  <div class="mail-shell">
+                    <div class="cmp-col-title">이 메일 (개별 오버라이드 적용)</div>
+                    <div class="mail-bar"><div class="mail-subject" id="cmpSubjB">—</div></div>
+                    <div class="mail-frame-wrap"><iframe class="mail-frame" id="cmpFrameB" sandbox="allow-same-origin" title="오버라이드 적용 미리보기"></iframe></div>
+                  </div>
+                </div>
+
+                <div class="mail-toolbar mt10">
+                  <button class="btn btn-ghost btn-sm" id="btnOpenTab">새 탭에서 열기</button>
+                  <button class="btn btn-ghost btn-sm" id="btnViewHtml">HTML 소스 보기</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================================================
+           VIEW ③ 레이아웃 라이브러리
+           ============================================================ -->
+      <section class="view" id="view-library">
+        <div class="card">
+          <div class="card-header card-header-col">
+            <div class="card-title">공용 레이아웃</div>
+            <div class="card-description">
+              메일이 참조하는 껍데기 묶음입니다. 여기서 문구를 고치면 <b>개별 오버라이드를 걸지 않은 모든 메일</b>에 즉시 반영됩니다.
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="grid grid-3" id="layGrid"></div>
+          </div>
+        </div>
+
+        <div class="card mt14">
+          <div class="card-header card-header-col">
+            <div class="card-title">레이아웃별 사용 현황</div>
+            <div class="card-description">어떤 메일이 어떤 레이아웃을 쓰고, 무엇을 덮어썼는지 한눈에 봅니다.</div>
+          </div>
+          <div class="card-content">
+            <div class="tbl-wrap">
+              <table class="tbl" id="usageTbl">
+                <thead><tr><th>레이아웃</th><th>사용 메일 수</th><th>개별 오버라이드</th><th>덮어쓴 항목</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- HTML 소스 모달 -->
+<div class="modal-back" id="htmlModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>합성된 메일 HTML</h3>
+      <p>서버 <span class="src-tag">IReportMailComposer.Compose()</span> 가 만들어 SMTP 릴레이로 보내는 본문과 동일합니다.</p>
+    </div>
+    <div class="modal-body">
+      <div class="copy-box">
+        <pre id="htmlSrc"></pre>
+        <button class="btn btn-outline btn-sm" id="btnCopyHtml">복사</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" id="btnCloseHtml">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

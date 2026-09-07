@@ -1,0 +1,10 @@
+/* Paperlogy 웹폰트 (woff2 only) — ax-labs-platform 이식 */
+@font-face { font-family:"Paperlogy"; font-weight:100; font-display:swap; src:url(Paperlogy-1Thin.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:200; font-display:swap; src:url(Paperlogy-2ExtraLight.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:300; font-display:swap; src:url(Paperlogy-3Light.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:400; font-display:swap; src:url(Paperlogy-4Regular.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:500; font-display:swap; src:url(Paperlogy-5Medium.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:600; font-display:swap; src:url(Paperlogy-6SemiBold.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:700; font-display:swap; src:url(Paperlogy-7Bold.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:800; font-display:swap; src:url(Paperlogy-8ExtraBold.woff2) format("woff2"); }
+@font-face { font-family:"Paperlogy"; font-weight:900; font-display:swap; src:url(Paperlogy-9Black.woff2) format("woff2"); }
