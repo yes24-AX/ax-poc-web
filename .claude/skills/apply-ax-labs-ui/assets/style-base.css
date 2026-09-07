@@ -186,7 +186,7 @@ img { max-width: 100%; }
 .theme-toggle svg { width: 17px; height: 17px; }
 
 /* page body */
-.page-content { padding: 1rem 1.5rem 2rem; max-width: 1180px; width: 100%; }
+.page-content { padding: 1rem 1.5rem 2rem; width: 100%; }
 .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 1.1rem; }
 .page-heading-left { display: flex; align-items: center; gap: 0.6rem; }
 h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }

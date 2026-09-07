@@ -186,7 +186,8 @@ img { max-width: 100%; }
 .theme-toggle svg { width: 17px; height: 17px; }
 
 /* page body */
-.page-content { padding: 1rem 1.5rem 2rem; max-width: 1180px; width: 100%; }
+/* 콘텐츠는 화면 폭을 100% 채운다 — 표 컬럼이 많아 1180px 상한에서는 가로 스크롤이 생긴다 */
+.page-content { padding: 1rem 1.5rem 2rem; width: 100%; }
 .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 1.1rem; }
 .page-heading-left { display: flex; align-items: center; gap: 0.6rem; }
 h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
@@ -538,8 +539,8 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 
 /* 컬럼 폭 — 도서명/부제/해시태그를 나눠 담으면 표가 넓어지므로 상한을 준다 */
 .ks-col-id { width: 82px; }
-.ks-col-title { min-width: 196px; max-width: 320px; }
-.ks-col-sub { min-width: 150px; max-width: 220px; }
+.ks-col-title { min-width: 178px; max-width: 340px; }
+.ks-col-sub { min-width: 136px; max-width: 240px; }
 .ks-col-tags { min-width: 132px; max-width: 190px; }
 .ks-idlink { color: var(--muted-foreground); text-decoration: none; font-size: 12px; }
 .ks-idlink:hover { color: var(--primary); text-decoration: underline; }
