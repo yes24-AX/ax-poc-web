@@ -1,10 +1,8 @@
 /* =====================================================
    상품 브리핑 for MD — POC
    ax-labs-platform (Contents/ContentPackage) UI 이식
-   · vercel theme (shadcn/ui) · Paperlogy · oklch tokens
+   · vercel theme (shadcn/ui) · Pretendard · oklch tokens
    ===================================================== */
-
-@import url("../fonts/paperlogy/paperlogy.css");
 
 /* ---- Theme tokens: vercel (light) ---- */
 :root {
@@ -39,7 +37,7 @@
   --violet: oklch(0.45 0.2 280);
 
   /* fonts */
-  --font-selected: "Paperlogy", "Pretendard", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-selected: "Pretendard", "Pretendard Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* layout */
@@ -446,7 +444,8 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .aux-grid { grid-template-columns: repeat(3, 1fr); }
 }
-@media (max-width: 860px) {
+/* 사이드바(244px)를 유지한 채로는 1000px 이하에서 표가 잘린다 — 그 아래에서는 접는다 */
+@media (max-width: 1000px) {
   .sidebar { transform: translateX(-100%); transition: transform var(--transition); }
   .main-wrapper { margin-left: 0; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
@@ -463,9 +462,30 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
    색·반경·그림자는 전부 기존 토큰만 참조한다
    ===================================================== */
 
-/* --- 검색/기간 컨트롤 --- */
-.ks-ctrl-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.ks-ctrl-row + .ks-ctrl-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+/* --- 검색/기간 컨트롤 — 키워드와 기간은 한 줄에 둔다.
+       둘을 정하면 곧바로 결과가 나와야 하는 화면이라 두 줄로 끊으면 흐름이 끊긴다. --- */
+.ks-search-card .card-content { padding: 14px 18px; }
+.ks-search-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+.ks-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.ks-field-label {
+  font-size: 11.5px; font-weight: 700; color: var(--muted-foreground);
+  letter-spacing: 0.01em; padding-left: 1px;
+}
+.ks-field-kw { flex: 0 1 320px; min-width: 220px; }
+.ks-field-kw .poc-input-wrap { max-width: none; width: 100%; }
+.ks-field-kw .poc-input { padding-top: 0; padding-bottom: 0; height: 36px; font-size: 14px; }
+.ks-field-sep { width: 1px; align-self: stretch; margin: 2px 2px 4px; background: var(--border); }
+.ks-field-period { flex: 1 1 auto; }
+.ks-period { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.ks-quick { display: flex; gap: 5px; margin-left: 5px; }
+.ks-quick .chip { height: 36px; display: inline-flex; align-items: center; padding: 0 13px; }
+.ks-search-btn { height: 36px; margin-left: auto; flex: none; }
+@media (max-width: 900px) {
+  .ks-field-sep { display: none; }
+  .ks-field-kw { flex: 1 1 100%; }
+  .ks-search-btn { margin-left: 0; }
+}
+
 .ks-ctrl-label { font-size: 12.5px; font-weight: 600; color: var(--muted-foreground); }
 .ks-select, .ks-date {
   height: 36px; padding: 0 10px; font-size: 13px; font-family: var(--font-selected);
@@ -483,16 +503,62 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .ks-seg button:hover { background: var(--accent); }
 .ks-seg button.active { background: var(--primary); color: var(--primary-foreground); font-weight: 600; }
 .ks-sep { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
-/* 공용 .poc-chips 는 margin-top:0.75rem 을 갖고 있어 컨트롤 행에서 중심이 6px 내려간다.
-   이 행에서는 높이를 다른 컨트롤(32px 버튼)에 맞춰 한 줄로 정렬한다. */
-.ks-ctrl-row .poc-chips { margin-top: 0; }
-.ks-ctrl-row .chip { height: 32px; display: inline-flex; align-items: center; padding: 0 13px; }
+/* --- 결과 카드 헤더 · 정렬 --- */
+.ks-result-head { padding-bottom: 14px; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+.ks-count {
+  margin-left: 4px; font-size: 12.5px; font-weight: 700; font-family: var(--font-mono);
+  color: var(--primary); background: color-mix(in oklch, var(--primary) 10%, transparent);
+  border: 1px solid color-mix(in oklch, var(--primary) 24%, transparent);
+  border-radius: 999px; padding: 1px 9px; vertical-align: 1px;
+}
+.ks-inline-field { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.ks-inline-field > span { font-size: 12.5px; font-weight: 600; color: var(--muted-foreground); white-space: nowrap; }
+.ks-inline-field .ks-select { height: 34px; }
 
-/* --- AI 필터 배너 --- */
-.ks-ai-bar { display: flex; align-items: center; gap: 12px; padding: 12px 22px 16px; flex-wrap: wrap; }
-.ks-ai-summary { font-size: 13.5px; color: var(--foreground); }
+/* --- 내보내기 바 — 이 화면의 결과물이 나가는 지점이라 시각적으로 분리한다 --- */
+.ks-export-bar {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 12px 22px; margin: 0 22px 4px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: color-mix(in oklch, var(--primary) 3.5%, var(--muted));
+}
+.ks-export-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.ks-export-actions .ks-select { height: 32px; font-size: 12.5px; }
+.ks-export-actions .btn { height: 32px; }
+
+/* 커스텀 체크박스 — 기본 체크 상태가 한눈에 보여야 한다 */
+.ks-check { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; min-width: 260px; flex: 1 1 340px; }
+.ks-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ks-check-box {
+  width: 17px; height: 17px; flex: none; margin-top: 1px; border-radius: 5px;
+  border: 1.5px solid var(--input); background: var(--card);
+  display: flex; align-items: center; justify-content: center; transition: var(--transition);
+}
+.ks-check-box svg { width: 11px; height: 11px; color: var(--primary-foreground); opacity: 0; transition: var(--transition); }
+.ks-check input:checked + .ks-check-box { background: var(--primary); border-color: var(--primary); }
+.ks-check input:checked + .ks-check-box svg { opacity: 1; }
+.ks-check input:focus-visible + .ks-check-box { box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 15%, transparent); }
+.ks-check-text { display: block; min-width: 0; }
+.ks-check-text b { display: block; font-size: 13px; font-weight: 700; color: var(--foreground); }
+.ks-check-text em { display: block; margin-top: 3px; font-size: 11.5px; font-style: normal; color: var(--muted-foreground); line-height: 1.55; }
+
+/* --- AI 판별 결과 --- */
+.ks-ai-result {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 12px 22px 0; padding: 10px 14px;
+  border: 1px solid color-mix(in oklch, var(--violet) 26%, var(--border));
+  border-radius: var(--radius);
+  background: color-mix(in oklch, var(--violet) 5%, transparent);
+}
+.ks-ai-summary { font-size: 13px; color: var(--foreground); }
 .ks-ai-summary b { font-weight: 700; }
-.ks-ai-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.ks-ai-summary b.ok { color: var(--success); }
+.ks-ai-summary b.no { color: var(--destructive); }
+.ks-ai-note { font-size: 11.5px; color: var(--muted-foreground); }
+.ks-ai-meta { font-size: 11px; color: var(--muted-foreground); font-family: var(--font-mono); }
+.ks-ai-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.ks-judging { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.ks-judging .spin { width: 14px; height: 14px; border-width: 2px; }
 .ks-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--foreground); }
 .ks-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .ks-track { width: 38px; height: 21px; border-radius: 999px; background: var(--secondary); border: 1px solid var(--border); position: relative; transition: var(--transition); flex: none; }
@@ -501,20 +567,12 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .ks-switch input:checked + .ks-track::after { transform: translateX(17px); }
 .ks-switch input:focus-visible + .ks-track { box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 15%, transparent); }
 
-/* --- 탭 --- */
-.ks-tabs { display: flex; gap: 4px; }
-.ks-tab {
-  padding: 6px 14px; font-size: 13px; font-family: var(--font-selected); font-weight: 600;
-  color: var(--muted-foreground); background: transparent; border: none;
-  border-radius: var(--radius); cursor: pointer; transition: var(--transition);
-}
-.ks-tab:hover { background: var(--accent); }
-.ks-tab.active { background: var(--secondary); color: var(--foreground); }
-
 /* --- 테이블 --- */
-.ks-table-wrap { overflow-x: auto; }
+.ks-table-wrap { overflow-x: auto; margin-top: 12px; }
 .ks-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.ks-table th, .ks-table td { padding: 9px 10px; text-align: left; vertical-align: middle; }
+.ks-table th, .ks-table td { padding: 9px 8px; text-align: left; vertical-align: middle; }
+.ks-table th:first-child, .ks-table td:first-child { padding-left: 18px; }
+.ks-table th:last-child, .ks-table td:last-child { padding-right: 18px; }
 .ks-table thead th {
   font-size: 12px; font-weight: 600; color: var(--muted-foreground);
   background: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap;
@@ -537,16 +595,26 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .ks-title { font-weight: 600; color: var(--foreground); line-height: 1.4; }
 .ks-sub { font-size: 11.5px; color: var(--muted-foreground); margin-top: 2px; }
 
-/* 컬럼 폭 — 도서명/부제/해시태그를 나눠 담으면 표가 넓어지므로 상한을 준다 */
-.ks-col-id { width: 82px; }
-.ks-col-title { min-width: 178px; max-width: 340px; }
-.ks-col-sub { min-width: 136px; max-width: 240px; }
-.ks-col-tags { min-width: 132px; max-width: 190px; }
+/* 컬럼 폭 — 고정 폭 컬럼의 합을 좁혀 표가 카드 안에 그대로 들어오게 한다.
+   가로 스크롤이 생기면 매출·판매량이 화면 밖으로 밀려 확인이 안 된다.
+   도서명/부제만 가변으로 두고 나머지는 내용에 맞춘 고정 폭이다. */
+.ks-col-no { width: 52px; }
+.ks-col-id { width: 84px; }
+.ks-col-title { min-width: 160px; }
+.ks-col-tags { width: 250px; }
+.ks-col-date { width: 90px; }
+.ks-col-price { width: 68px; }
+/* 판매량과 매출은 자릿수가 달라 폭을 따로 준다 — 같이 묶으면 매출에 맞춘 폭이
+   판매량에도 붙어 표가 그만큼 넓어진다 */
+.ks-col-qty { width: 72px; }
+.ks-col-amt { width: 96px; }
+.ks-col-rel { width: 74px; }
+.ks-table td.ks-col-date { font-size: 12px; }
 .ks-idlink { color: var(--muted-foreground); text-decoration: none; font-size: 12px; }
 .ks-idlink:hover { color: var(--primary); text-decoration: underline; }
 .ks-subtitle {
-  font-size: 12px; color: var(--muted-foreground); line-height: 1.45;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 12px; color: var(--muted-foreground); line-height: 1.45; margin-top: 2px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .ks-tags { display: flex; flex-wrap: wrap; gap: 3px; }
 .ks-tag {
@@ -561,17 +629,25 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 }
 .ks-no-tag { font-size: 11.5px; color: var(--muted-foreground); opacity: 0.7; }
 .ks-cover { width: 30px; height: 43px; border-radius: 3px; object-fit: cover; background: var(--muted); border: 1px solid var(--border); display: block; }
-.ks-excluded td { opacity: 0.62; }
-.ks-excluded .ks-title { text-decoration: line-through; }
+/* 무관 판정 행 — 숨기지 않고 흐리게 남긴다. 판정이 맞는지 검증할 수 있어야 한다 */
+.ks-irrel td { opacity: 0.62; }
+.ks-irrel .ks-title { text-decoration: line-through; }
 .ks-reason { font-size: 11.5px; color: var(--muted-foreground); margin-top: 3px; line-height: 1.45; }
 .ks-linkish { color: var(--foreground); text-decoration: none; }
 .ks-linkish:hover { text-decoration: underline; }
-.ks-rowbtn {
-  border: 1px solid var(--input); background: var(--card); color: var(--muted-foreground);
-  border-radius: var(--radius); font-size: 11.5px; font-family: var(--font-selected);
-  padding: 3px 9px; cursor: pointer; white-space: nowrap; transition: var(--transition);
+.ks-empty-row { text-align: center; padding: 34px; color: var(--muted-foreground); }
+
+/* 관련성 열 — 판정 / 검토 필요 / 신뢰도를 한 칸에 쌓는다 */
+.ks-col-rel { line-height: 1.35; }
+.ks-rel {
+  display: inline-block; font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px;
+  border: 1px solid transparent;
 }
-.ks-rowbtn:hover { border-color: var(--primary); color: var(--foreground); background: var(--accent); }
+.ks-rel.ok { background: color-mix(in oklch, var(--success) 13%, transparent); color: var(--success); border-color: color-mix(in oklch, var(--success) 28%, transparent); }
+.ks-rel.no { background: color-mix(in oklch, var(--destructive) 12%, transparent); color: var(--destructive); border-color: color-mix(in oklch, var(--destructive) 26%, transparent); }
+.ks-rel.none { color: var(--muted-foreground); }
+.ks-rel-low { display: block; margin-top: 3px; font-size: 10px; font-weight: 700; color: var(--warning); }
+.ks-rel-conf { display: block; margin-top: 2px; font-size: 10.5px; color: var(--muted-foreground); font-family: var(--font-mono); }
 
 /* --- 페이저 --- */
 .ks-pager {
@@ -605,18 +681,8 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* --- 산출 조건 스냅샷 — 언론에 나간 숫자를 방어하는 근거. 화면·엑셀 동일 문구 --- */
-.ks-snapshot {
-  margin: 0 22px 16px; padding: 10px 14px;
-  background: var(--muted); border-radius: var(--radius);
-  font-size: 12px; line-height: 1.75; color: var(--muted-foreground);
-  font-family: var(--font-mono);
-}
-.ks-snapshot div + div { margin-top: 1px; }
-.ks-delta-note { font-size: 11px; color: var(--muted-foreground); font-weight: 400; margin-left: 5px; }
-
 /* --- 상세 검색 조건 (좌측 패널) --- */
-.ks-layout { display: grid; grid-template-columns: 212px minmax(0, 1fr); gap: 12px; margin-top: 12px; align-items: start; }
+.ks-layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 12px; margin-top: 12px; align-items: start; }
 .ks-main { min-width: 0; }
 .ks-main > *:first-child { margin-top: 0 !important; }
 
@@ -658,10 +724,113 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 .ks-facet.on .ks-facet-name { font-weight: 600; }
 .ks-facet-n { margin-left: auto; font-size: 11px; color: var(--muted-foreground); font-family: var(--font-mono); flex: none; }
 
-@media (max-width: 1100px) {
+/* 좌측 패널(232px)을 붙인 채로는 1495px 이하에서 표가 잘린다 —
+   그 아래에서는 상세 조건을 표 위로 올려 표에 폭을 전부 준다. */
+@media (max-width: 1495px) {
   .ks-layout { grid-template-columns: 1fr; }
-  .ks-filters { position: static; max-height: none; }
+  /* 세 섹션을 가로로 편다. 항목을 한 줄로 늘어놓으면 분야의 2단 트리(상품군 > 대분류)가
+     평평해져 무엇이 무엇의 하위인지 사라지므로, 세로 목록은 그대로 두고 2단으로만 흘린다. */
+  .ks-filters {
+    position: static; max-height: none;
+    display: grid; grid-template-columns: minmax(190px, 240px) 1fr 1fr; align-items: start;
+  }
+  .ks-filter-head { grid-column: 1 / -1; }
+  .ks-filter-sec + .ks-filter-sec { border-top: none; border-left: 1px solid var(--border); }
+  .ks-filters .ks-facets { display: block; column-count: 2; column-gap: 18px; }
+  .ks-filters .ks-facet { break-inside: avoid; }
+}
+
+@media (max-width: 900px) {
+  .ks-filters { grid-template-columns: 1fr; }
+  .ks-filter-sec + .ks-filter-sec { border-left: none; border-top: 1px solid var(--border); }
+  .ks-filters .ks-facets { column-count: 1; }
 }
 .ks-facet.sub { padding-left: 18px; }
 .ks-facet.sub .ks-facet-name { color: var(--muted-foreground); font-size: 12px; }
 .ks-facet.sub.on .ks-facet-name { color: var(--foreground); }
+
+/* =====================================================
+   마무리 — 폭·간격 정리
+   ===================================================== */
+/* 콘텐츠는 화면 폭을 그대로 쓴다. 표 컬럼이 많아 상한을 두면 가로 스크롤이 생긴다. */
+.page-content { max-width: 100%; overflow-x: hidden; padding: 1rem 1.25rem 2rem; }
+.ks-result-card { margin-bottom: 12px; }
+.ks-result-card .ks-pager { padding-top: 12px; }
+.ks-tilde { color: var(--muted-foreground); }
+.chip.on { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); font-weight: 600; }
+
+/* 버튼 안에서도 쓰이는 스피너 */
+.btn .spin { width: 13px; height: 13px; border-width: 2px; border-top-color: currentColor; }
+span.spin { display: inline-block; }
+
+/* 작은 노트북 — 해시태그는 부가 정보라 먼저 접는다 (엑셀에는 그대로 나간다).
+   태그 열이 244px 라 이 아래에서는 태그 3개를 한 줄에 세울 폭이 나오지 않는다. */
+@media (max-width: 1260px) { .ks-table .ks-col-tags { display: none; } }
+
+@media (max-width: 1000px) {
+  .page-content { padding-left: 1rem; padding-right: 1rem; }
+  .ks-export-bar { margin-left: 16px; margin-right: 16px; }
+  .ks-ai-result { margin-left: 16px; margin-right: 16px; }
+}
+
+/* =====================================================
+   본문 가독성 — 한 단계 확대 (+1px)
+   앱 셸(사이드바·상단 헤더)은 플랫폼 기준을 그대로 두고,
+   page-content 안의 본문 텍스트만 키운다.
+   (ebook_solo_pub 과 같은 방식)
+   ===================================================== */
+
+/* 페이지 헤딩 · 카드 */
+.page-subtitle { font-size: 15px; }
+.card-title { font-size: 17px; }
+.card-description { font-size: 14.5px; }
+.btn { font-size: 15px; }
+.btn-sm { font-size: 13px; }
+.badge { font-size: 12.5px; }
+.empty h2 { font-size: 18px; }
+.empty p { font-size: 14.5px; }
+.ai-thinking { font-size: 15px; }
+
+/* 검색줄 */
+.ks-field-label { font-size: 12.5px; }
+.ks-field-kw .poc-input { font-size: 15px; }
+.ks-select, .ks-date { font-size: 14px; }
+.chip { font-size: 13.5px; }
+
+/* 상세 조건 */
+.ks-filter-head { font-size: 14px; }
+.ks-filter-title { font-size: 13px; }
+.ks-filter-reset { font-size: 12.5px; }
+.ks-refine { font-size: 13.5px; }
+.ks-facet { font-size: 13.5px; }
+.ks-facet-n { font-size: 12px; }
+.ks-facet.sub .ks-facet-name { font-size: 13px; }
+
+/* 결과 카드 헤더 · 내보내기 바 · AI 결과 */
+.ks-count { font-size: 13.5px; }
+.ks-inline-field > span { font-size: 13.5px; }
+.ks-check-text b { font-size: 14px; }
+.ks-check-text em { font-size: 12.5px; }
+.ks-ai-summary { font-size: 14px; }
+.ks-ai-note { font-size: 12.5px; }
+.ks-ai-meta { font-size: 12px; }
+.ks-switch { font-size: 14px; }
+
+/* 표 */
+.ks-table { font-size: 14px; }
+.ks-table thead th { font-size: 13px; }
+.ks-rank { font-size: 15px; }
+.ks-sub { font-size: 12.5px; }
+.ks-subtitle { font-size: 13px; }
+.ks-reason { font-size: 12.5px; }
+.ks-table td.ks-col-date { font-size: 13px; }
+.ks-idlink { font-size: 13px; }
+.ks-tag { font-size: 12px; }
+.ks-no-tag { font-size: 12.5px; }
+.ks-rel { font-size: 12.5px; }
+.ks-rel-low { font-size: 11px; }
+.ks-rel-conf { font-size: 11.5px; }
+
+/* 페이저 · 토스트 */
+.ks-page-info, .ks-page, .ks-page-size, .ks-page-gap { font-size: 13.5px; }
+.ks-toast { font-size: 14px; }

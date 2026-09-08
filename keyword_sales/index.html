@@ -91,51 +91,58 @@
         <div class="page-heading-left">
           <div>
             <h1 class="page-title">키워드 판매 분석</h1>
-            <p class="page-subtitle">키워드로 검색된 상품의 기간별 판매량·순위·매출을 한 화면에서 확인하고 엑셀로 내려받습니다.</p>
+            <p class="page-subtitle">키워드로 검색된 상품의 기간별 판매량·매출을 확인하고, 대외 제공용 엑셀로 내려받습니다.</p>
           </div>
         </div>
       </div>
 
-      <!-- ===== 검색 · 기간 ===== -->
-      <div class="card">
-        <div class="card-content">
-          <div class="ks-ctrl-row">
+      <!-- ===== 검색 · 기간 (한 줄) ===== -->
+      <div class="card ks-search-card">
+        <div class="card-content ks-search-row">
+          <div class="ks-field ks-field-kw">
+            <label class="ks-field-label" for="q">키워드</label>
             <div class="poc-input-wrap">
               <svg class="poc-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input class="poc-input" id="q" type="text" value="필사" placeholder="키워드를 입력하세요" autocomplete="off" />
             </div>
-            <button class="btn btn-primary" id="btnSearch">검색</button>
-            <div class="poc-chips" id="chips" style="margin-left:auto"></div>
           </div>
 
-          <div class="ks-ctrl-row">
-            <span class="ks-ctrl-label">기간</span>
-            <input class="ks-date" id="dFrom" type="date" aria-label="시작일" />
-            <span style="color:var(--muted-foreground)">~</span>
-            <input class="ks-date" id="dTo" type="date" aria-label="종료일" />
-            <div class="ks-sep"></div>
-            <div class="poc-chips" id="quick">
-              <button class="chip" data-preset="ytd">올해</button>
-              <button class="chip" data-preset="1y">최근 1년</button>
-              <button class="chip" data-preset="3y">최근 3년</button>
-              <button class="chip" data-preset="10y">최근 10년</button>
+          <div class="ks-field-sep"></div>
+
+          <div class="ks-field ks-field-period">
+            <span class="ks-field-label">조회 기간</span>
+            <div class="ks-period">
+              <input class="ks-date" id="dFrom" type="date" aria-label="시작일" />
+              <span class="ks-tilde">~</span>
+              <input class="ks-date" id="dTo" type="date" aria-label="종료일" />
+              <div class="ks-quick" id="quick">
+                <button class="chip" data-preset="ytd">올해</button>
+                <button class="chip" data-preset="1y">1년</button>
+                <button class="chip" data-preset="3y">3년</button>
+                <button class="chip" data-preset="10y">10년</button>
+              </div>
             </div>
           </div>
+
+          <button class="btn btn-primary ks-search-btn" id="btnSearch">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            검색
+          </button>
         </div>
       </div>
 
       <!-- ===== 검색 실패 ===== -->
-      <div class="card hidden" id="errBox" style="margin-top:12px">
+      <div class="card hidden" id="errBox">
         <div class="card-content">
           <div class="empty" style="padding:44px 20px">
             <h2 id="errMsg"></h2>
-            <p>목업 키워드는 <b>인공지능 · 필사 · 클로드 · 파이썬</b> 4종입니다. 위 칩을 눌러 확인하세요.</p>
+            <p id="errHint"></p>
           </div>
         </div>
       </div>
 
       <!-- ===== 로딩 ===== -->
-      <div class="card hidden" id="skeleton" style="margin-top:12px">
+      <div class="card hidden" id="skeleton">
         <div class="card-content">
           <div class="ai-thinking">
             <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
@@ -177,82 +184,81 @@
 
         <div class="ks-main">
 
-        <!-- AI 관련성 필터 -->
-        <div class="ai-brief" style="margin-top:12px">
-          <div class="ai-brief-top"></div>
-          <div class="ai-brief-head">
-            <span class="ai-badge"><span class="dot"></span>AI 관련성 판정</span>
-            <span class="ai-brief-meta" id="aiMeta"></span>
+        <!-- 목록 -->
+        <div class="card ks-result-card">
+          <div class="card-header ks-result-head">
+            <div>
+              <div class="card-title">상품 목록 <span class="ks-count" id="resCount">0종</span></div>
+              <div class="card-description" id="resDesc"></div>
+            </div>
+            <label class="ks-inline-field">
+              <span>상품 정렬</span>
+              <select class="ks-select" id="sortSel" aria-label="상품 정렬 조건">
+                <optgroup label="판매 기준">
+                  <option value="qty">판매량순</option>
+                  <option value="amount">매출순</option>
+                </optgroup>
+                <optgroup label="상품 기준">
+                  <option value="POPULAR">인기도순</option>
+                  <option value="RELATION">정확도순</option>
+                  <option value="RECENT">신상품순</option>
+                  <option value="REG_DTS">등록일순</option>
+                  <option value="PRICE_ASC">최저가순</option>
+                  <option value="PRICE_DESC">최고가순</option>
+                  <option value="SCORE">평점순</option>
+                  <option value="REVIEW">리뷰순</option>
+                </optgroup>
+              </select>
+            </label>
           </div>
-          <div class="ks-ai-bar">
-            <div class="ks-ai-summary" id="aiSummary"></div>
+
+          <!-- 내보내기 바 -->
+          <div class="ks-export-bar">
+            <label class="ks-check" for="aiJudge">
+              <input type="checkbox" id="aiJudge" checked />
+              <span class="ks-check-box" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              <span class="ks-check-text">
+                <b>검색어 관련성 AI 판별</b>
+                <em>다운로드 직전 LLM이 &ldquo;<span id="aiKw">필사</span>&rdquo;와 실제로 관련된 상품인지 판별해 무관한 상품을 파일에서 뺍니다. 해제하면 검색 결과 전건이 그대로 저장됩니다.</em>
+              </span>
+            </label>
+            <div class="ks-export-actions">
+              <button class="btn btn-primary btn-sm" id="btnXlsx">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                엑셀 다운로드
+              </button>
+            </div>
+          </div>
+
+          <!-- AI 판별 결과 -->
+          <div class="ks-ai-result hidden" id="aiResult">
+            <span class="ai-badge"><span class="dot"></span>AI 관련성 판별</span>
+            <span class="ks-ai-summary" id="aiSummary"></span>
             <div class="ks-ai-actions">
               <label class="ks-switch">
-                <input type="checkbox" id="aiToggle" checked />
+                <input type="checkbox" id="hideIrrel" />
                 <span class="ks-track"></span>
-                <span>AI 관련성 필터</span>
+                <span>무관 상품 숨기기</span>
               </label>
+              <span class="ks-ai-meta" id="aiMeta"></span>
             </div>
           </div>
-          <div class="ks-snapshot" id="snapshot"></div>
-        </div>
 
-        <!-- KPI -->
-        <div class="grid grid-4" style="margin-top:12px">
-          <div class="stat-card">
-            <div class="stat-head"><h4 id="kpiCountLabel">관련 상품</h4></div>
-            <div class="stat-num" id="kpiCount">0</div>
-            <div class="stat-sub" id="kpiCountSub"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-head"><h4>총 판매량</h4></div>
-            <div class="stat-num" id="kpiQty">0</div>
-            <div class="stat-sub" id="kpiQtySub"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-head"><h4>총 매출</h4></div>
-            <div class="stat-num" id="kpiAmt">0</div>
-            <div class="stat-sub" id="kpiAmtSub"></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-head"><h4>1위 상품</h4></div>
-            <div class="stat-num" id="kpiTop" style="font-size:15px;line-height:1.35">—</div>
-            <div class="stat-sub" id="kpiTopSub"></div>
-          </div>
-        </div>
-
-        <!-- 차트 -->
-
-        <!-- 테이블 -->
-        <div class="card" style="margin-top:12px">
-          <div class="card-header">
-            <div class="ks-tabs" style="margin-right:auto">
-              <button class="ks-tab active" id="tabRelevant">관련</button>
-              <button class="ks-tab" id="tabExcluded">제외</button>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px"><select class="ks-select" id="xlsxMode" aria-label="엑셀 내보내기 범위" style="height:32px;font-size:12.5px"><option value="public">대외 제공용</option><option value="internal">내부 확인용</option></select>
-            <button class="btn btn-outline btn-sm" id="btnXlsx">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              엑셀 다운로드
-            </button>
-            </div>
-          </div>
           <div class="ks-table-wrap">
             <table class="ks-table">
               <thead>
                 <tr>
-                  <th class="ks-c-center">순위</th>
+                  <th class="ks-c-center ks-col-no" id="thRank">순위</th>
                   <th class="ks-col-id">상품번호</th>
-                  <th class="ks-col-title">도서명</th>
-                  <th class="ks-col-sub">부제</th>
+                  <th class="ks-col-title">도서명 · 부제</th>
                   <th class="ks-col-tags">해시태그</th>
-                  <th>출간일</th>
-                  <th class="ks-c-right">판매가</th>
-                  <th class="ks-th-sort ks-c-right on" data-sort="qty">판매량<span class="arrow">↓</span></th>
-                  <th class="ks-th-sort ks-c-right" data-sort="amount">매출<span class="arrow">↓</span></th>
-                  <th class="ks-c-right" id="thBase">전년 동기</th>
-                  <th class="ks-c-right">증감</th>
-                  <th class="ks-c-right"></th>
+                  <th class="ks-col-date">출간일</th>
+                  <th class="ks-c-right ks-col-price">판매가</th>
+                  <th class="ks-th-sort ks-c-right ks-col-qty on" data-sort="qty">판매량<span class="arrow">↓</span></th>
+                  <th class="ks-th-sort ks-c-right ks-col-amt" data-sort="amount">매출<span class="arrow">↓</span></th>
+                  <th class="ks-c-center ks-col-rel hidden" id="thRel">관련성</th>
                 </tr>
               </thead>
               <tbody id="tbody"></tbody>
