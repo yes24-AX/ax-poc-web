@@ -769,3 +769,73 @@ sup.ref {
   font-size: 9px; font-weight: 700; color: var(--info); margin-left: 2px; vertical-align: super;
   font-family: var(--font-selected); cursor: help;
 }
+
+/* ===================================================
+   데일리 성과 v2 — 종합 점수 기준
+   =================================================== */
+.ver-tag {
+  display: inline-block; margin-left: 8px; padding: 2px 9px; border-radius: 999px; vertical-align: 4px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.02em; font-family: var(--font-mono);
+  color: var(--primary-foreground); background: var(--primary);
+}
+.nav-ver { margin-left: auto; font-size: 10px; font-weight: 700; font-family: var(--font-mono); color: var(--muted-foreground); }
+
+/* 매출 비중 선택 (0% 기준안 · 5% · 10% 시험안) */
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius); background: var(--muted); border: 1px solid var(--border); height: 34px; }
+.seg button {
+  border: 0; background: transparent; font-family: var(--font-selected); font-size: 12.5px; padding: 0 11px;
+  border-radius: calc(var(--radius) - 2px); cursor: pointer; color: var(--muted-foreground); white-space: nowrap;
+}
+.seg button[aria-pressed="true"] { background: var(--card); color: var(--foreground); font-weight: 700; box-shadow: var(--shadow-sm); }
+
+/* 종합 점수 셀 */
+.score-cell { display: flex; align-items: center; gap: 7px; justify-content: flex-end; }
+.score-num { font-family: var(--font-mono); font-weight: 800; font-size: 13.5px; min-width: 34px; text-align: right; }
+.score-bar { width: 46px; height: 6px; border-radius: 4px; background: var(--border); overflow: hidden; flex-shrink: 0; }
+.score-bar > i { display: block; height: 100%; border-radius: 4px; background: var(--accent-color, var(--foreground)); }
+.list-score { --accent-color: var(--info); }
+
+.rev-ref { color: var(--muted-foreground); }
+.rev-rank { display: block; font-size: 10.5px; color: var(--muted-foreground); margin-top: 2px; font-family: var(--font-selected); }
+.rev-rank.gap { color: var(--warning); font-weight: 700; }
+
+.rank-move { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+.rank-move.up { color: var(--success); }
+.rank-move.down { color: var(--destructive); }
+.rank-move.same { color: var(--muted-foreground); font-weight: 500; }
+.low-sample {
+  display: inline-block; margin-left: 5px; padding: 0 6px; border-radius: 999px; font-size: 10px; font-weight: 700;
+  color: var(--warning); background: color-mix(in oklch, var(--warning) 13%, transparent);
+  border: 1px solid color-mix(in oklch, var(--warning) 30%, transparent); font-family: var(--font-selected);
+}
+
+/* 점수 구성 (안내 카드 · 드로어) */
+.weight-row { display: grid; grid-template-columns: 92px 1fr 54px; gap: 10px; align-items: center; margin-bottom: 8px; font-size: 12.5px; }
+.weight-row .wl { font-weight: 700; }
+.weight-row .wd { color: var(--muted-foreground); font-size: 12px; }
+.weight-row .ww { font-family: var(--font-mono); font-weight: 800; text-align: right; }
+.weight-row.rev-row .wl, .weight-row.rev-row .ww { color: var(--muted-foreground); }
+
+.score-hero { display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap; }
+.score-hero .big { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-family: var(--font-mono); }
+.score-hero .big small { font-size: 14px; font-weight: 600; color: var(--muted-foreground); margin-left: 3px; font-family: var(--font-selected); }
+.score-hero .side { font-size: 12.5px; color: var(--muted-foreground); line-height: 1.7; padding-bottom: 3px; }
+.score-hero .side b { color: var(--foreground); }
+
+.comp-row { display: grid; grid-template-columns: 84px 96px minmax(70px, 1fr) 58px 58px; gap: 9px; align-items: center; margin-bottom: 9px; font-size: 12px; }
+.comp-row .k { color: var(--muted-foreground); }
+.comp-row .raw { font-family: var(--font-mono); font-size: 11.5px; text-align: right; }
+.comp-row .p { font-family: var(--font-mono); font-size: 11.5px; text-align: right; color: var(--muted-foreground); }
+.comp-row .c { font-family: var(--font-mono); font-size: 11.5px; text-align: right; font-weight: 700; }
+.comp-row.off { opacity: 0.45; }
+.comp-head { font-size: 10.5px; color: var(--muted-foreground); font-weight: 600; margin-bottom: 6px; }
+
+.ref-box { border: 1px dashed var(--border); border-radius: var(--radius); padding: 12px 14px; background: var(--background); }
+.ref-box .ref-line { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; padding: 3px 0; }
+.ref-box .ref-line .v { font-family: var(--font-mono); font-weight: 700; }
+.ref-box .ref-note { font-size: 11.5px; color: var(--muted-foreground); margin-top: 8px; line-height: 1.6; }
+
+table.tbl.tbl-v2 { min-width: 1060px; }
+table.tbl.tbl-v2 .col-ev { min-width: 196px; }
+.score-bar { width: 40px; }
+#weightRows { max-width: 760px; }
