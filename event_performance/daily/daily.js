@@ -152,7 +152,7 @@ function renderFunnel(r) {
   const hidden = r.badCandidates.length - r.badTop.length;
   $('#funnelNote').innerHTML = hidden
     ? `개선 필요 후보 ${r.badCandidates.length}건 중 <b>${hidden}건은 이 화면에 뜨지 않습니다</b> —
-       <a class="inline-link" href="search.html?status=badHidden">이벤트 성과 조회에서 보기 →</a>`
+       <a class="inline-link" href="../search/?status=badHidden">이벤트 성과 조회에서 보기 →</a>`
     : '개선 필요 후보가 모두 이 화면에 노출됩니다.';
 
   const ex = r.excluded;
