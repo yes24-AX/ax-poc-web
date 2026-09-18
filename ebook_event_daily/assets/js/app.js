@@ -93,6 +93,9 @@ const METRICS = [
 const LOWER_PCT = 30;   // 하위 30%
 const MIN_DAYS  = 3;    // 운영 3일 이상만 평가
 
+/* 현재 조회 결과 — 드로어에서 이벤트를 id로 찾을 때 쓴다 */
+const STATE = { baseDate: BASE_DATE, poolSize: 0, byId: {}, rank: { bad: {}, grow: {}, rev: {} } };
+
 /* ---------------------------------------------------------
    유틸
    --------------------------------------------------------- */
@@ -196,7 +199,7 @@ function commonCells(e) {
     <td class="nowrap">${esc(e.f)}</td>
     <td>
       <div class="ev-name">
-        <span class="txt" title="${esc(e.n)}">${esc(e.n)}</span>
+        <span class="txt" title="${esc(e.n)} — 클릭 시 이벤트 상세" data-ev="${esc(e.id)}">${esc(e.n)}</span>
         <a class="ev-link" href="#" title="이벤트 랜딩 바로가기 (${esc(e.id)})" aria-label="이벤트 랜딩 바로가기" data-link="1">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
@@ -249,7 +252,9 @@ function renderBad(list) {
 
   tb.querySelectorAll('.data-row').forEach(tr => {
     tr.addEventListener('click', ev => {
+      // 바로가기 링크·이벤트명(상세 드로어)은 행 펼침과 분리한다
       if (ev.target.closest('[data-link]')) { ev.preventDefault(); return; }
+      if (ev.target.closest('[data-ev]')) return;
       const detail = tb.querySelector(`[data-detail="${tr.dataset.idx}"]`);
       const open = detail.classList.toggle('hidden');
       tr.classList.toggle('open', !open);
@@ -289,6 +294,10 @@ function detailPanel(e) {
       <div class="detail-block">
         <h5>권장 액션</h5>
         <ul class="action-list">${actions}</ul>
+        <button type="button" class="detail-more" data-ev="${esc(e.id)}">
+          이벤트 상세 보기 (추이 · 전체 지표)
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
       </div>
     </div>`;
 }
@@ -393,6 +402,16 @@ function refresh() {
     `기준일 ${baseDate}(${dow}) 전일 실적 · 매일 1회 자동 집계 · ${cond} · 진행 중 이벤트 ${r.running.length}건`;
   $('#filterMeta').innerHTML =
     `<span class="badge badge-secondary">비교 모집단 ${r.evaluable.length}건</span> 백분위는 조회 조건 안의 이벤트끼리 상대 비교합니다.`;
+
+  // 드로어가 참조할 상태 — 화면에 보이는 모든 이벤트를 id로 찾을 수 있게 둔다
+  STATE.baseDate = baseDate;
+  STATE.poolSize = r.evaluable.length;
+  STATE.byId = {};
+  r.running.forEach(e => { STATE.byId[e.id] = e; });
+  STATE.rank = { bad: {}, grow: {}, rev: {} };
+  r.badTop.forEach((e, i) => { STATE.rank.bad[e.id] = i + 1; });
+  r.growTop.forEach((e, i) => { STATE.rank.grow[e.id] = i + 1; });
+  r.revTop.forEach((e, i) => { STATE.rank.rev[e.id] = i + 1; });
 }
 
 /* ---------------------------------------------------------
@@ -427,6 +446,22 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#ruleBadge').textContent = open ? '접기' : '펼치기';
   });
 
+  // 이벤트 상세 드로어 — 이벤트명 / "이벤트 상세 보기" 버튼
+  document.addEventListener('click', ev => {
+    const trigger = ev.target.closest('[data-ev]');
+    if (!trigger) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    openDrawer(trigger.dataset.ev);
+  });
+  $('#drawerClose').addEventListener('click', closeDrawer);
+  $('#drawerCloseBtn').addEventListener('click', closeDrawer);
+  $('#drawerBack').addEventListener('click', closeDrawer);
+  $('#drawerLink').addEventListener('click', ev => ev.preventDefault());
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape' && $('#drawer').classList.contains('open')) closeDrawer();
+  });
+
   // 다크모드 토글
   $('#themeToggle').addEventListener('click', () => {
     const dark = document.documentElement.classList.toggle('dark');
@@ -434,3 +469,241 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#iconSun').classList.toggle('hidden', !dark);
   });
 });
+
+/* =========================================================
+   이벤트 상세 드로어
+   TOP 5 어느 리스트에서든 이벤트명을 클릭하면 같은 패널이 열린다.
+   (화면 이동 없음 — 닫으면 보던 자리 그대로)
+   ========================================================= */
+
+const DETAIL_DAYS = 14;   // 추이 차트 최대 일수
+
+/* 이벤트별로 고정된 일자별 추이를 만든다 (id 해시 시드 → 새로고침해도 동일) */
+function hashSeed(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function seededRandom(seed) {
+  let x = seed >>> 0;
+  return () => { x = (Math.imul(x, 1664525) + 1013904223) >>> 0; return x / 4294967296; };
+}
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function dailySeries(e, baseDate) {
+  const n = Math.min(e.days, DETAIL_DAYS);
+  const rnd = seededRandom(hashSeed(e.id));
+  const baseRev = e.hasBase ? e.aRev : e.rev;
+  const baseOrd = e.hasBase ? e.aOrd : e.ord;
+  const baseUv  = e.hasBase ? e.aUv  : e.uv;
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const day = addDays(baseDate, -i);
+    if (i === 0) {
+      out.push({ day, rev: e.rev, ord: e.ord, uv: e.uv, cvr: e.cvr, last: true });
+    } else {
+      const f = 0.78 + rnd() * 0.44;
+      const g = 0.85 + rnd() * 0.30;
+      const uv = Math.max(Math.round(baseUv * g / 10) * 10, 10);
+      const ord = Math.max(Math.round(baseOrd * f), 1);
+      out.push({ day, rev: Math.round(baseRev * f / 1000) * 1000, ord, uv, cvr: (ord / uv) * 100 });
+    }
+  }
+  return out;
+}
+
+/* ---------- SVG 차트 (색은 전부 CSS 클래스 → 다크모드 자동 대응) ---------- */
+function barChart(series, valueOf, { w = 620, h = 132, avg = null, fmt }) {
+  const pad = 20, top = 16;
+  const vals = series.map(valueOf);
+  const max = Math.max(...vals, avg || 0) * 1.18 || 1;
+  const bw = (w - 6) / series.length;
+  const y = v => h - pad - (v / max) * (h - pad - top);
+
+  const bars = series.map((d, i) => {
+    const v = valueOf(d);
+    const bh = Math.max(h - pad - y(v), 1.5);
+    return `<rect class="${d.last ? 'bar-cur' : 'bar-prev'}" x="${(3 + i * bw + bw * 0.16).toFixed(1)}" y="${y(v).toFixed(1)}" width="${(bw * 0.68).toFixed(1)}" height="${bh.toFixed(1)}" rx="2"/>`;
+  }).join('');
+
+  // 일평균 라벨은 왼쪽, 전일 값 라벨은 마지막 막대 위 — 우측에서 겹치지 않게 분리한다
+  const avgY = avg ? Math.max(y(avg), 12) : 0;
+  const avgLine = avg
+    ? `<line class="avg-line" x1="3" y1="${avgY.toFixed(1)}" x2="${w - 3}" y2="${avgY.toFixed(1)}"/>
+       <text class="avg-label" x="3" y="${(avgY - 4).toFixed(1)}" text-anchor="start">일평균 ${fmt(avg)}</text>`
+    : '';
+
+  const last = series[series.length - 1];
+  const lastX = Math.min(3 + (series.length - 1) * bw + bw * 0.5, w - 14);
+  const lastY = Math.max(y(valueOf(last)) - 6, 11);
+  const lastLabel = `<text class="chart-val line-primary" x="${lastX.toFixed(1)}" y="${lastY.toFixed(1)}" text-anchor="middle">${fmt(valueOf(last))}</text>`;
+
+  const ticks = series.map((d, i) => {
+    if (i !== 0 && i !== series.length - 1 && i !== Math.floor((series.length - 1) / 2)) return '';
+    const anchor = i === 0 ? 'start' : i === series.length - 1 ? 'end' : 'middle';
+    const x = i === 0 ? 3 : i === series.length - 1 ? w - 3 : 3 + i * bw + bw * 0.5;
+    return `<text class="chart-label" x="${x.toFixed(1)}" y="${h - 6}" text-anchor="${anchor}">${d.day.slice(5).replace('-', '/')}</text>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 ${w} ${h}" role="img">
+    <line class="chart-axis" x1="0" y1="${h - pad}" x2="${w}" y2="${h - pad}"/>
+    ${bars}${avgLine}${lastLabel}${ticks}
+  </svg>`;
+}
+
+function lineChart(series, valueOf, { w = 300, h = 118, fmt }) {
+  const pad = 20, top = 18, left = 2;
+  const vals = series.map(valueOf);
+  const max = Math.max(...vals) * 1.2 || 1;
+  const min = Math.min(...vals) * 0.8;
+  const span = (max - min) || 1;
+  const px = i => left + (i / Math.max(series.length - 1, 1)) * (w - left * 2);
+  const py = v => h - pad - ((v - min) / span) * (h - pad - top);
+
+  const pts = series.map((d, i) => `${px(i).toFixed(1)},${py(valueOf(d)).toFixed(1)}`).join(' ');
+  const area = `${px(0).toFixed(1)},${h - pad} ${pts} ${px(series.length - 1).toFixed(1)},${h - pad}`;
+  const lastI = series.length - 1;
+
+  return `<svg viewBox="0 0 ${w} ${h}" role="img">
+    <line class="chart-axis" x1="0" y1="${h - pad}" x2="${w}" y2="${h - pad}"/>
+    <polygon class="chart-area line-primary" points="${area}"/>
+    <polyline class="chart-line line-primary" points="${pts}"/>
+    <circle class="chart-dot dot-fill line-primary" cx="${px(lastI).toFixed(1)}" cy="${py(valueOf(series[lastI])).toFixed(1)}" r="3.2"/>
+    <text class="chart-val line-primary" x="${w - 2}" y="${Math.max(py(valueOf(series[lastI])) - 8, 10).toFixed(1)}" text-anchor="end">${fmt(valueOf(series[lastI]))}</text>
+    <text class="chart-label" x="2" y="${h - 6}">${series[0].day.slice(5).replace('-', '/')}</text>
+    <text class="chart-label" x="${w - 2}" y="${h - 6}" text-anchor="end">${series[lastI].day.slice(5).replace('-', '/')}</text>
+  </svg>`;
+}
+
+/* ---------- 드로어 렌더 ---------- */
+function deltaSpan(cur, base, fmt) {
+  if (!base) return '<span class="delta flat">비교 없음</span>';
+  const p = ((cur - base) / base) * 100;
+  const cls = p > 0.5 ? 'up' : p < -0.5 ? 'down' : 'flat';
+  return `<span class="delta ${cls}">${p > 0 ? '+' : ''}${p.toFixed(1)}%</span>`;
+}
+
+function openDrawer(id) {
+  const e = STATE.byId[id];
+  if (!e) return;
+  const series = dailySeries(e, STATE.baseDate);
+
+  $('#drawerTitle').textContent = e.n;
+  $('#drawerId').textContent = `${e.id} · ${e.s} 시작 · 기준일 ${STATE.baseDate} (D+${e.days})`;
+  $('#drawerLink').title = `이벤트 랜딩 바로가기 (${e.id})`;
+
+  const ranks = [];
+  if (STATE.rank.bad[id])  ranks.push(`<span class="badge badge-danger">개선 필요 ${STATE.rank.bad[id]}위</span>`);
+  if (STATE.rank.grow[id]) ranks.push(`<span class="badge badge-success">전일 성장 ${STATE.rank.grow[id]}위</span>`);
+  if (STATE.rank.rev[id])  ranks.push(`<span class="badge badge-primary">전일 매출 ${STATE.rank.rev[id]}위</span>`);
+  $('#drawerPills').innerHTML = `
+    <span class="pill">${esc(e.f)}</span>
+    <span class="pill pill-md">담당 ${esc(e.md)}</span>
+    <span class="pill">운영 D+${e.days}</span>
+    ${ranks.join('')}`;
+
+  /* 전일 지표 */
+  const kpi = `
+    <div class="kpi-strip">
+      <div class="kpi-cell"><div class="k">전일 매출</div><div class="v">${fmtWon(e.rev)}<small>원</small></div><div class="d">${deltaSpan(e.rev, e.aRev)}</div></div>
+      <div class="kpi-cell"><div class="k">주문건수</div><div class="v">${fmtNum(e.ord)}</div><div class="d">${deltaSpan(e.ord, e.aOrd)}</div></div>
+      <div class="kpi-cell"><div class="k">UV</div><div class="v">${fmtNum(e.uv)}</div><div class="d">${deltaSpan(e.uv, e.aUv)}</div></div>
+      <div class="kpi-cell"><div class="k">신규 구매</div><div class="v">${fmtNum(e.nb)}</div><div class="d">${deltaSpan(e.nb, e.aNb)}</div></div>
+      <div class="kpi-cell"><div class="k">구매전환율</div><div class="v">${e.cvr.toFixed(2)}%</div><div class="d">${deltaSpan(e.cvr, e.aCvr)}</div></div>
+    </div>`;
+
+  /* 추이 */
+  const charts = `
+    <div class="chart-box">
+      <div class="cb-head"><span class="cb-title">일별 매출</span><span class="cb-note">최근 ${series.length}일 · 진한 막대가 전일</span></div>
+      ${barChart(series, d => d.rev, { avg: e.hasBase ? e.aRev : null, fmt: v => fmtMoneyShort(v) })}
+    </div>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="cb-head"><span class="cb-title">일별 UV</span></div>
+        ${barChart(series, d => d.uv, { w: 300, h: 118, avg: e.hasBase ? e.aUv : null, fmt: v => fmtNum(Math.round(v)) })}
+      </div>
+      <div class="chart-box">
+        <div class="cb-head"><span class="cb-title">일별 구매전환율</span></div>
+        ${lineChart(series, d => d.cvr, { fmt: v => v.toFixed(2) + '%' })}
+      </div>
+    </div>`;
+
+  /* 백분위 · 판정 */
+  let judge, bars = '';
+  if (!e.pct) {
+    judge = `<div class="verdict neutral">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span class="body"><b>평가 제외</b> — ${e.days < MIN_DAYS ? `운영 ${e.days}일차로 시작 후 3일이 지나지 않았습니다.` : '비교 가능한 과거 데이터가 없습니다.'} 지표가 안정된 뒤 개선 필요 · 성장 평가에 포함됩니다.</span>
+    </div>`;
+  } else {
+    bars = METRICS.map(m => {
+      const p = e.pct[m.key];
+      const isLow = p <= LOWER_PCT;
+      const raw = m.key === 'rev' ? e.aRev : m.key === 'cvr' ? e.aCvr : m.key === 'uv' ? e.aUv : e.aNb;
+      return `<div class="pct-row">
+        <span class="k">${m.label}</span>
+        <span class="raw">${m.fmt(raw)}</span>
+        <span class="pct-track"><span class="pct-fill ${isLow ? 'low' : ''}" style="width:${Math.max(p, 3).toFixed(0)}%"></span></span>
+        <span class="v ${isLow ? 'low' : ''}">하위 ${p.toFixed(0)}%</span>
+      </div>`;
+    }).join('');
+
+    if (e.low.length >= 2) {
+      judge = `<div class="verdict bad">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="body"><b>개선 필요</b> — ${e.low.map(k => ACTION_MAP[k].label).join(' · ')} (4개 중 ${e.low.length}개 지표가 하위 30%)</span>
+      </div>`;
+    } else if (e.low.length === 1) {
+      judge = `<div class="verdict neutral">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="body"><b>관찰 필요</b> — ${ACTION_MAP[e.low[0]].label} 1개만 하위 30%라 개선 필요로는 분류되지 않았습니다. 하나만 더 내려가면 대상이 됩니다.</span>
+      </div>`;
+    } else {
+      const worst = METRICS.reduce((a, b) => (e.pct[a.key] <= e.pct[b.key] ? a : b));
+      judge = `<div class="verdict good">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        <span class="body"><b>개선 필요 아님</b> — 하위 30%에 걸린 지표가 없습니다. 가장 낮은 지표는 ${worst.label}(하위 ${e.pct[worst.key].toFixed(0)}%)입니다.</span>
+      </div>`;
+    }
+  }
+
+  const actions = (e.pct && e.low.length)
+    ? `<ul class="action-list">${e.low.map(k => `
+        <li>
+          <div class="action-cause">${ACTION_MAP[k].label}</div>
+          <ul class="action-steps">${ACTION_MAP[k].steps.map((s, i) => `<li><span class="n">${i + 1}</span>${esc(s)}</li>`).join('')}</ul>
+        </li>`).join('')}</ul>`
+    : '';
+
+  $('#drawerBody').innerHTML = `
+    <div class="drawer-sec">
+      <h4>전일 실적<span class="hint">비교 기준 ${e.hasBase ? (e.days >= 7 ? '최근 7일' : '시작일~전일') + ' 일평균 대비' : '없음'}</span></h4>
+      ${kpi}
+    </div>
+    <div class="drawer-sec">
+      <h4>일자별 추이</h4>
+      ${charts}
+    </div>
+    <div class="drawer-sec">
+      <h4>전체 진행 이벤트 중 위치<span class="hint">비교 모집단 ${STATE.poolSize}건</span></h4>
+      ${bars}
+      <div style="margin-top:${bars ? '12px' : '0'}">${judge}</div>
+      ${actions}
+    </div>`;
+
+  $('#drawer').classList.add('open');
+  $('#drawerBack').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  $('#drawerClose').focus();
+}
+
+function closeDrawer() {
+  $('#drawer').classList.remove('open');
+  $('#drawerBack').classList.remove('open');
+  document.body.style.overflow = '';
+}
