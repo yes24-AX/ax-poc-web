@@ -166,7 +166,7 @@
             <div class="req-row" data-req="R9 R4"></div>
           </div>
           <div class="card-content">
-            <div class="chart-wrap"><svg id="trend" viewBox="0 0 560 250" role="img" aria-label="최근 14영업일 출고지연 미출고 주문 수 추이"></svg></div>
+            <div class="chart-wrap trend-wrap"><div class="trend-tip" id="trendTip" role="tooltip" hidden></div><svg id="trend" viewBox="0 0 560 250" role="img" aria-label="최근 14영업일 출고지연 미출고 주문 수 추이"></svg></div>
             <div class="chart-legend">
               <span><i class="sw-d1"></i>1일</span><span><i class="sw-d2"></i>2일</span><span><i class="sw-d3"></i>3일 이상</span>
             </div>
@@ -223,8 +223,11 @@
             </select>
             <select class="form-select" id="fShip" aria-label="출고상태">
               <option value="">출고상태 전체</option>
-              <option value="wait">상품준비중</option>
-              <option value="done">출하지시</option>
+              <option value="주문접수">주문접수</option>
+              <option value="결제확인">결제확인</option>
+              <option value="출하지시">출하지시</option>
+              <option value="출고완료">출고완료</option>
+              <option value="배송완료">배송완료</option>
             </select>
             <input class="form-input" id="fQ" type="search" placeholder="상품번호 · 상품명 · 쿠팡/자사 주문번호" aria-label="검색" />
           </div>
@@ -264,8 +267,8 @@
         <summary>시안 메모 — 구현 조건과 판정 규칙</summary>
         <div class="memo-body">
           <ul>
-            <li><b>데이터 원천:</b> 쿠팡 발주서 목록 API(상품준비중). 출고예정일=<span class="mono">estimatedShippingDate</span>, 자사 상품번호=<span class="mono">externalVendorSkuCode</span>, 출고일=<span class="mono">inTrasitDateTime</span>.</li>
-            <li><b>당일 출고 대상</b> = 출고예정일이 오늘이고 아직 상품준비중인 주문. <b>출고 지연</b> = 출고예정일이 지났는데 출고되지 않았거나, 지연된 뒤 출고된 주문.</li>
+            <li><b>데이터 원천:</b> 쿠팡 발주서 목록 API(미출고 발주서, INSTRUCT). 출고예정일=<span class="mono">estimatedShippingDate</span>, 자사 상품번호=<span class="mono">externalVendorSkuCode</span>, 출고일=<span class="mono">inTrasitDateTime</span>.</li>
+            <li><b>당일 출고 대상</b> = 출고예정일이 오늘이고 아직 출고되지 않은 주문. <b>출고 지연</b> = 출고예정일이 지났는데 출고되지 않았거나, 지연된 뒤 출고된 주문.</li>
             <li><b>지연일수</b> = 기준일 − 주문시 출고예정일(달력일). 영업일로 셀지는 요청 부서 확인 필요.</li>
             <li><b>자사 주문번호·공개주문번호:</b> 쿠팡 API에는 없어 <b>사내 주문번호 조회 API(신규)</b>로 채웁니다. 쿠팡 주문번호 목록을 넘기면 자사 주문(PR_ORD_M)의 제휴사주문ID로 찾아 주문번호·공개주문번호를 돌려주는 방식입니다. 매핑이 늦은 주문은 다음 집계에서 채웁니다.</li>
             <li><b>일자별 추이·AI의 반복 지연 판단:</b> 집계 이력이 쌓여야 정확해집니다.</li>

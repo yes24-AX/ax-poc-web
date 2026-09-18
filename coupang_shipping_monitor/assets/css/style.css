@@ -565,8 +565,12 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 /* 출고상태 */
 .ship-status { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; white-space: nowrap; }
 .ship-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.ship-status.wait { color: var(--warning); }
-.ship-status.done { color: var(--success); }
+/* 자사 주문상태 5종 — 미출고(주문접수·결제확인·출하지시) / 출고(출고완료·배송완료) */
+.ship-status.st-received { color: var(--muted-foreground); }
+.ship-status.st-paid { color: var(--info); }
+.ship-status.st-instructed { color: var(--warning); }
+.ship-status.st-shipped { color: var(--success); }
+.ship-status.st-delivered { color: var(--success); opacity: 0.75; }
 
 /* 페이지네이션 (ax-labs .pagination 이식) */
 .pagination { display: flex; align-items: center; justify-content: center; gap: 0.25rem; padding: 14px 0 18px; flex-wrap: wrap; }
@@ -694,3 +698,21 @@ details.trace-card > summary::-webkit-details-marker { display: none; }
 .trace-chevron { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; color: var(--muted-foreground); transition: transform var(--transition); }
 details.trace-card[open] .trace-chevron { transform: rotate(90deg); }
 details.trace-card:not([open]) > summary { padding-bottom: 18px; }
+
+/* 일자별 출고지연 추이 — 마우스 오버 */
+.trend-wrap { position: relative; }
+.trend-hit { fill: transparent; cursor: pointer; outline: none; }
+.trend-col.is-hover .trend-hit { fill: color-mix(in oklab, var(--foreground) 6%, transparent); }
+.trend-hit:focus-visible { stroke: var(--ring); stroke-width: 1.5; }
+#trend rect[class^="bar-"] { pointer-events: none; transition: opacity 0.12s ease; }
+#trend.has-hover .trend-col:not(.is-hover) rect[class^="bar-"] { opacity: 0.35; }
+.trend-tip { position: absolute; z-index: 5; pointer-events: none; min-width: 150px; padding: 9px 11px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow-md); font-size: 12px; line-height: 1.5; }
+.trend-tip[hidden] { display: none; }
+.tt-date { font-weight: 700; margin-bottom: 5px; color: var(--foreground); white-space: nowrap; }
+.tt-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; color: var(--muted-foreground); }
+.tt-row span { display: inline-flex; align-items: center; gap: 6px; }
+.tt-row i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.tt-row b { color: var(--foreground); }
+.tt-sum { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--border); }
+.tt-delta { margin-top: 3px; color: var(--muted-foreground); white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { #trend rect[class^="bar-"] { transition: none; } }

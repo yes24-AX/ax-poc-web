@@ -147,6 +147,11 @@
     return PRODUCTS[0];
   }
 
+  // 현재 출고상태 = 자사 주문상태 (사내 API). 값은 이 5종뿐이다.
+  var SHIP_STATUS = ['주문접수', '결제확인', '출하지시', '출고완료', '배송완료'];
+  var SHIP_CLASS = { '주문접수': 'st-received', '결제확인': 'st-paid', '출하지시': 'st-instructed', '출고완료': 'st-shipped', '배송완료': 'st-delivered' };
+  var rndS = rng(3061);   // 상태 배정 전용 — 기존 예시 수치가 바뀌지 않게 난수열을 분리
+
   var rows = [];
   for (var i = 0; i < 360; i++) {
     var p = pick(), late;
@@ -156,9 +161,12 @@
     if (late === -1) continue;
     var due = late === null ? null : addDays(TODAY, -late);
     var ordered = late === null ? addDays(TODAY, -Math.floor(rnd() * 20)) : addDays(due, -(1 + Math.floor(rnd() * 3)));
-    // 08:00 이후 14:00 전에 출고된 주문 → 14:00 집계에서 '출하지시'
+    // 08:00 이후 14:00 전에 출고된 주문 → 14:00 집계에서 '출고완료'
     var shipped = late !== null && rnd() < (late === 0 ? .45 : .2)
       ? ymd(TODAY) + ' ' + pad(9 + Math.floor(rnd() * 5)) + ':' + pad(Math.floor(rnd() * 60)) : null;
+    // 미출고 상태: 곧 출고될 주문은 출하지시, 나머지는 출하지시·결제확인·주문접수 중 하나
+    var sr = rndS();
+    var openStatus = shipped ? '출하지시' : sr < .78 ? '출하지시' : sr < .95 ? '결제확인' : '주문접수';
     rows.push({
       p: p,
       orderId: String(2 + Math.floor(rnd() * 25)) + String(10236000 + i * 7) + pad(Math.floor(rnd() * 100)) + pad(Math.floor(rnd() * 100)),
@@ -167,7 +175,8 @@
       ordered: ymd(ordered) + ' ' + pad(Math.floor(rnd() * 24)) + ':' + pad(Math.floor(rnd() * 60)),
       due: due ? ymd(due) : null,
       late: late,
-      shippedAt: shipped
+      shippedAt: shipped,
+      openStatus: openStatus
     });
   }
 
@@ -177,6 +186,7 @@
   var PREV_DAY_14 = { late: 131, d1: 58, d2: 41, d3: 32 };   // 전일 14:00 집계 (예시)
 
   function isShipped(r, snap) { return snap === '14' && !!r.shippedAt; }
+  function statusOf(r, snap) { return isShipped(r, snap) ? '출고완료' : r.openStatus; }
   function bucket(late) { return late >= 3 ? 'd3' : 'd' + late; }
 
   function summarize(snap) {
@@ -247,18 +257,81 @@
     }
     TREND.forEach(function (o, i) {
       var x = L + i * bw + bw * .18, w = bw * .64, acc = 0, isLast = i === TREND.length - 1;
+      out += '<g class="trend-col" data-i="' + i + '">' +
+        '<rect class="trend-hit" x="' + (L + i * bw).toFixed(1) + '" y="' + T + '" width="' + bw.toFixed(1) + '" height="' + (H - T - B) + '"' +
+        ' tabindex="0" role="img" aria-label="' + trendLabel(i) + '"/>';
       ['d1', 'd2', 'd3'].forEach(function (k) {
         var h = (H - T - B) * o[k] / top;
         acc += o[k];
-        out += '<rect class="bar-' + k + '" x="' + x.toFixed(1) + '" y="' + y(acc).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '">' +
-          '<title>' + ymd(o.date) + ' · ' + (k === 'd3' ? '3일 이상' : k.slice(1) + '일') + ' ' + o[k] + '건</title></rect>';
+        out += '<rect class="bar-' + k + '" x="' + x.toFixed(1) + '" y="' + y(acc).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '"/>';
       });
+      out += '</g>';
       var label = isLast ? (state.snap === '14' ? '오늘' : '오늘 08시') : (o.date.getMonth() + 1) + '/' + o.date.getDate();
       out += '<text class="chart-label' + (isLast ? ' is-today' : '') + '" x="' + (x + w / 2) + '" y="' + (H - B + 16) + '" text-anchor="middle">' + label + '</text>';
       if (isLast || i === 0) out += '<text class="chart-total" x="' + (x + w / 2) + '" y="' + (y(acc) - 5) + '" text-anchor="middle">' + acc + '</text>';
     });
     $('trend').innerHTML = out;
+    hideTrendTip();
   }
+
+  // ── 추이 차트 마우스 오버 ──
+  var DOW = ['일', '월', '화', '수', '목', '금', '토'];
+  function trendDateLabel(i) {
+    var o = TREND[i], isLast = i === TREND.length - 1;
+    return (o.date.getMonth() + 1) + '/' + o.date.getDate() + '(' + DOW[o.date.getDay()] + ') ' + (isLast ? state.snap : '14') + ':00 집계';
+  }
+  function trendLabel(i) {
+    var o = TREND[i];
+    return trendDateLabel(i) + ' 출고지연 ' + (o.d1 + o.d2 + o.d3) + '건 (1일 ' + o.d1 + ', 2일 ' + o.d2 + ', 3일 이상 ' + o.d3 + ')';
+  }
+  function showTrendTip(i) {
+    var o = TREND[i], sum = o.d1 + o.d2 + o.d3, tip = $('trendTip'), svg = $('trend');
+    var prev = i > 0 ? TREND[i - 1] : null, prevSum = prev ? prev.d1 + prev.d2 + prev.d3 : null;
+    tip.innerHTML =
+      '<div class="tt-date">' + trendDateLabel(i) + '</div>' +
+      [['d1', '1일'], ['d2', '2일'], ['d3', '3일 이상']].map(function (b) {
+        return '<div class="tt-row"><span><i class="sw-' + b[0] + '"></i>' + b[1] + '</span><b class="num">' + o[b[0]] + '</b></div>';
+      }).join('') +
+      '<div class="tt-row tt-sum"><span>합계</span><b class="num">' + sum + '건</b></div>' +
+      (prev ? '<div class="tt-delta">전 영업일 대비 ' + deltaHtml(sum, prevSum) + '</div>' : '');
+    Array.prototype.forEach.call(svg.querySelectorAll('.trend-col'), function (g) {
+      g.classList.toggle('is-hover', +g.dataset.i === i);
+    });
+    svg.classList.add('has-hover');
+    // 막대 위에 공간이 있으면 위에, 없으면(긴 막대) 막대 옆에 띄운다 — 막대를 가리지 않게
+    tip.hidden = false;
+    var wrap = tip.parentNode.getBoundingClientRect();
+    var col = svg.querySelector('.trend-col[data-i="' + i + '"]').getBoundingClientRect();
+    var barTop = svg.querySelector('.trend-col[data-i="' + i + '"] .bar-d3').getBoundingClientRect().top - wrap.top;
+    var tw = tip.offsetWidth, th = tip.offsetHeight, gap = 8;
+    var left, top;
+    if (barTop - gap >= th) {
+      left = Math.min(Math.max(col.left + col.width / 2 - wrap.left - tw / 2, 0), wrap.width - tw);
+      top = barTop - gap - th;
+    } else {
+      var right = col.right - wrap.left + gap;
+      left = right + tw <= wrap.width ? right : col.left - wrap.left - gap - tw;
+      top = Math.max(barTop, 0);
+    }
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  function hideTrendTip() {
+    var tip = $('trendTip'), svg = $('trend');
+    if (tip) tip.hidden = true;
+    if (svg) {
+      svg.classList.remove('has-hover');
+      Array.prototype.forEach.call(svg.querySelectorAll('.trend-col.is-hover'), function (g) { g.classList.remove('is-hover'); });
+    }
+  }
+  function trendIndexOf(e) {
+    var g = e.target.closest ? e.target.closest('.trend-col') : null;
+    return g ? +g.dataset.i : -1;
+  }
+  $('trend').addEventListener('mouseover', function (e) { var i = trendIndexOf(e); if (i >= 0) showTrendTip(i); });
+  $('trend').addEventListener('mouseleave', hideTrendTip);
+  $('trend').addEventListener('focusin', function (e) { var i = trendIndexOf(e); if (i >= 0) showTrendTip(i); });
+  $('trend').addEventListener('focusout', hideTrendTip);
 
   function productStats(snap) {
     var m = {};
@@ -300,8 +373,7 @@
       if (state.tab === 'late' && state.days) {
         if (state.days === '3' ? r.late < 3 : String(r.late) !== state.days) return false;
       }
-      if (state.ship === 'wait' && shipped) return false;
-      if (state.ship === 'done' && !shipped) return false;
+      if (state.ship && statusOf(r, state.snap) !== state.ship) return false;
       if (q && (r.p.no + ' ' + r.p.name + ' ' + r.orderId + ' ' + r.ownOrderNo + ' ' + r.pubOrderNo).toLowerCase().indexOf(q) < 0) return false;
       return true;
     }).sort(function (a, b) { return b.late - a.late || a.ordered.localeCompare(b.ordered); });
@@ -332,7 +404,7 @@
         '<td class="num col-nowrap">' + r.ordered + '</td>' +
         '<td class="num col-nowrap">' + r.due + '</td>' +
         '<td class="col-num col-nowrap num">' + days + '</td>' +
-        '<td class="col-nowrap">' + (shipped ? '<span class="ship-status done">출하지시</span>' : '<span class="ship-status wait">상품준비중</span>') + '</td>' +
+        '<td class="col-nowrap"><span class="ship-status ' + SHIP_CLASS[statusOf(r, state.snap)] + '">' + statusOf(r, state.snap) + '</span></td>' +
         '<td class="num col-nowrap">' + (shipped ? r.shippedAt : '<span class="muted">—</span>') + '</td>' +
         '</tr>';
     }).join('') : '<tr><td colspan="10" class="col-center muted">조건에 맞는 주문이 없습니다.</td></tr>';
