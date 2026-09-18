@@ -159,7 +159,7 @@
         <div class="stat-card">
           <div class="stat-head"><h4>개선 필요 이벤트</h4><span class="badge badge-danger">조치 필요</span></div>
           <div class="stat-num danger" id="kpiBad">0<span class="unit">건</span></div>
-          <div class="stat-sub" id="kpiBadSub">핵심 4지표 중 2개 이상 하위 30%</div>
+          <div class="stat-sub" id="kpiBadSub">평소 종합 점수 하위 30%</div>
         </div>
       </div>
 
@@ -215,27 +215,24 @@
           <div class="section-title"><span class="no">3</span><h3>개선 필요 TOP 5 선정 과정</h3></div>
           <div class="funnel" id="funnel"></div>
 
-          <div class="section-title"><span class="no">4</span><h3>리스트별 선정 기준</h3></div>
-          <table class="rule-tbl">
-            <thead><tr><th class="w-narrow">리스트</th><th>선정 기준</th><th>비교 기준</th></tr></thead>
+          <div class="section-title"><span class="no">4</span><h3>세 리스트는 같은 종합 점수에서 나옵니다</h3></div>
+          <div class="basis">
+            <div class="basis-formula">
+              <span class="bf-set">전일 점수</span><span class="bf-op">·</span>
+              <span class="bf-set">평소 점수</span><span class="bf-op">·</span>
+              <span class="bf-set">변화 = 전일 − 평소</span>
+            </div>
+            <div class="basis-note">모든 이벤트에 <b>같은 산식으로 점수 3종</b>을 매기고, 세 표 모두 이 3칸을 똑같이 보여줍니다. 리스트마다 <b>정렬에 쓰는 칸만 다르며</b> 그 칸을 굵게 강조합니다.</div>
+          </div>
+          <table class="rule-tbl" style="margin-top:12px">
+            <thead><tr><th class="w-narrow">리스트</th><th style="width:170px">정렬에 쓰는 점수</th><th>선정 기준</th><th>대상</th></tr></thead>
             <tbody>
-              <tr>
-                <td><b style="color:var(--destructive)">개선 필요 TOP 5</b></td>
-                <td>유입 · 행동 반응 · 구매 전환 · 구매 규모 <b>핵심 4지표 중 2개 이상이 하위 30%</b>인 이벤트를 평소 종합 점수가 낮은 순으로 최대 5건. <b>매출은 판정에 쓰지 않음</b></td>
-                <td>운영 7일 이상은 최근 7일, 운영 3~6일은 시작일~전일 평균. 운영 1~2일은 평가 제외</td>
-              </tr>
-              <tr>
-                <td><b style="color:var(--success)">전일 성장 TOP 5</b></td>
-                <td><b>평소 종합 점수 대비 전일 점수 상승폭(pt)</b>이 큰 순. 평소 클릭 집계가 하위 30%인 이벤트는 제외(극소 표본 왜곡 방지)</td>
-                <td>평소 점수 = 비교 기간 일평균 지표로 매긴 점수. 오픈 당일은 대상 제외</td>
-              </tr>
-              <tr>
-                <td><b style="color:var(--info)">전일 성과 TOP 5</b></td>
-                <td><b>전일 종합 점수 1~5위</b>. 매출 비중을 5% · 10% 로 바꾸면 0% 기준안 대비 순위 변동을 함께 표시</td>
-                <td>진행 중 전체 이벤트 안에서 전일 지표의 백분위</td>
-              </tr>
+              <tr><td><b style="color:var(--info)">전일 성과 TOP 5</b></td><td><b>전일 점수</b> 높은 순</td><td>전일 지표로 매긴 종합 점수 1~5위. 매출 비중을 5% · 10% 로 바꾸면 성과 순위 옆에 0%안 대비 변동(▲▼) 표시</td><td>진행 중 전체</td></tr>
+              <tr><td><b style="color:var(--success)">전일 성장 TOP 5</b></td><td><b>변화</b> 큰 순</td><td>전일 점수 − 평소 점수. 평소 클릭 집계가 하위 30%인 이벤트는 제외(극소 표본 왜곡 방지)</td><td>비교 데이터가 있는 이벤트 (오픈 당일 제외)</td></tr>
+              <tr><td><b style="color:var(--destructive)">개선 필요 TOP 5</b></td><td><b>평소 점수</b> 낮은 순</td><td>평소 점수가 평가 대상 중 <b>하위 30%</b>인 이벤트를 낮은 순으로 최대 5건. 일시적 부진이 아니라 <b>지속 부진</b>을 잡기 위해 평소 점수 사용</td><td>운영 3일 이상</td></tr>
             </tbody>
           </table>
+          <div class="excluded-note"><b>평소 점수</b> = 비교 기간(운영 7일 이상은 최근 7일, 3~6일은 시작일~전일)의 일평균 지표로 매긴 점수. 오픈 당일 이벤트는 비교 데이터가 없어 평소 점수 · 변화가 <b>—</b> 로 표시됩니다. 마지막 칸 <b>하위 30% 지표</b>는 선정 기준이 아니라 점수가 낮은 원인을 보여주는 설명입니다.</div>
 
           <div class="section-title"><span class="no">5</span><h3>개선 필요 사유별 권장 액션</h3></div>
           <table class="rule-tbl">
@@ -258,7 +255,7 @@
             <span class="dot-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
             <div>
               <h3>개선 필요 TOP 5</h3>
-              <div class="list-criteria">핵심 4지표(유입 · 반응 · 전환 · 구매) 중 2개 이상 하위 30% · 운영 3일 이상 · 평소 종합 점수가 낮은 순 · 이벤트명 클릭 시 상세</div>
+              <div class="list-criteria"><b>평소 점수</b>가 하위 30%인 이벤트를 낮은 순으로 · 운영 3일 이상 · 이벤트명 클릭 시 상세</div>
             </div>
           </div>
           <span class="badge badge-danger" id="badgeBad">0건</span>
@@ -269,18 +266,20 @@
               <thead>
                 <tr>
                   <th style="width:44px">순위</th>
-                  <th style="width:62px">담당자</th>
-                  <th style="width:82px">분야</th>
+                  <th style="width:56px">담당자</th>
+                  <th style="width:74px">분야</th>
                   <th class="col-ev">이벤트명</th>
-                  <th style="width:58px">운영일차</th>
-                  <th class="num" style="width:100px" title="행동·참여 지표를 백분위로 바꿔 비중대로 더한 값 (0~100)">종합 점수</th>
-                  <th class="num" style="width:66px">방문자</th>
-                  <th class="num" style="width:70px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
-                  <th class="num" style="width:70px">구매 집계</th>
-                  <th class="num" style="width:64px" title="클릭 집계 ÷ 방문자">반응률</th>
-                  <th class="num" style="width:76px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
-                  <th class="num" style="width:94px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
-                  <th style="width:106px">개선 필요 사유</th>
+                  <th style="width:54px">운영일차</th>
+                  <th class="num" style="width:66px" title="전일 지표로 매긴 종합 점수 (0~100) · 아래는 전체 중 성과 순위">전일 점수</th>
+                  <th class="num" style="width:60px" title="비교 기간(최근 7일 또는 시작일~전일) 일평균 지표로 매긴 종합 점수">평소 점수</th>
+                  <th class="num" style="width:58px" title="전일 점수 − 평소 점수 (pt)">변화</th>
+                  <th class="num" style="width:60px">방문자</th>
+                  <th class="num" style="width:64px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
+                  <th class="num" style="width:62px">구매 집계</th>
+                  <th class="num" style="width:58px" title="클릭 집계 ÷ 방문자">반응률</th>
+                  <th class="num" style="width:72px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
+                  <th class="num" style="width:88px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
+                  <th style="width:90px" title="평소 지표가 하위 30%인 항목 — 점수가 낮은 원인">하위 30% 지표</th>
                 </tr>
               </thead>
               <tbody id="tbodyBad"></tbody>
@@ -295,7 +294,7 @@
             <span class="dot-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
             <div>
               <h3>전일 성장 TOP 5</h3>
-              <div class="list-criteria">평소 종합 점수 대비 전일 점수 상승폭이 큰 순 · 평소 클릭 집계 하위 30% 제외 · 이벤트명 클릭 시 상세</div>
+              <div class="list-criteria"><b>변화</b>(전일 점수 − 평소 점수)가 큰 순 · 평소 클릭 집계 하위 30% 제외 · 이벤트명 클릭 시 상세</div>
             </div>
           </div>
           <span class="badge badge-success" id="badgeGrow">0건</span>
@@ -306,18 +305,20 @@
               <thead>
                 <tr>
                   <th style="width:44px">순위</th>
-                  <th style="width:62px">담당자</th>
-                  <th style="width:82px">분야</th>
+                  <th style="width:56px">담당자</th>
+                  <th style="width:74px">분야</th>
                   <th class="col-ev">이벤트명</th>
-                  <th style="width:58px">운영일차</th>
-                  <th class="num" style="width:100px" title="행동·참여 지표를 백분위로 바꿔 비중대로 더한 값 (0~100)">종합 점수</th>
-                  <th class="num" style="width:66px">방문자</th>
-                  <th class="num" style="width:70px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
-                  <th class="num" style="width:70px">구매 집계</th>
-                  <th class="num" style="width:64px" title="클릭 집계 ÷ 방문자">반응률</th>
-                  <th class="num" style="width:76px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
-                  <th class="num" style="width:94px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
-                  <th class="num" style="width:106px">점수 변화</th>
+                  <th style="width:54px">운영일차</th>
+                  <th class="num" style="width:66px" title="전일 지표로 매긴 종합 점수 (0~100) · 아래는 전체 중 성과 순위">전일 점수</th>
+                  <th class="num" style="width:60px" title="비교 기간(최근 7일 또는 시작일~전일) 일평균 지표로 매긴 종합 점수">평소 점수</th>
+                  <th class="num" style="width:58px" title="전일 점수 − 평소 점수 (pt)">변화</th>
+                  <th class="num" style="width:60px">방문자</th>
+                  <th class="num" style="width:64px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
+                  <th class="num" style="width:62px">구매 집계</th>
+                  <th class="num" style="width:58px" title="클릭 집계 ÷ 방문자">반응률</th>
+                  <th class="num" style="width:72px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
+                  <th class="num" style="width:88px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
+                  <th style="width:90px" title="평소 지표가 하위 30%인 항목 — 점수가 낮은 원인">하위 30% 지표</th>
                 </tr>
               </thead>
               <tbody id="tbodyGrow"></tbody>
@@ -332,7 +333,7 @@
             <span class="dot-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
             <div>
               <h3>전일 성과 TOP 5</h3>
-              <div class="list-criteria">전일 종합 점수 1~5위 · 매출은 참고 표시 · 매출 순위와 크게 다른 이벤트는 주황색으로 표시</div>
+              <div class="list-criteria"><b>전일 점수</b>가 높은 순 1~5위 · 매출은 참고 표시 · 매출 순위와 크게 다른 이벤트는 주황색으로 표시</div>
             </div>
           </div>
           <span class="badge badge-primary" id="badgeScore">0건</span>
@@ -343,18 +344,20 @@
               <thead>
                 <tr>
                   <th style="width:44px">순위</th>
-                  <th style="width:62px">담당자</th>
-                  <th style="width:82px">분야</th>
+                  <th style="width:56px">담당자</th>
+                  <th style="width:74px">분야</th>
                   <th class="col-ev">이벤트명</th>
-                  <th style="width:58px">운영일차</th>
-                  <th class="num" style="width:100px" title="행동·참여 지표를 백분위로 바꿔 비중대로 더한 값 (0~100)">종합 점수</th>
-                  <th class="num" style="width:66px">방문자</th>
-                  <th class="num" style="width:70px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
-                  <th class="num" style="width:70px">구매 집계</th>
-                  <th class="num" style="width:64px" title="클릭 집계 ÷ 방문자">반응률</th>
-                  <th class="num" style="width:76px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
-                  <th class="num" style="width:94px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
-                  <th class="num" style="width:106px" id="moveHead">비중안</th>
+                  <th style="width:54px">운영일차</th>
+                  <th class="num" style="width:66px" title="전일 지표로 매긴 종합 점수 (0~100) · 아래는 전체 중 성과 순위">전일 점수</th>
+                  <th class="num" style="width:60px" title="비교 기간(최근 7일 또는 시작일~전일) 일평균 지표로 매긴 종합 점수">평소 점수</th>
+                  <th class="num" style="width:58px" title="전일 점수 − 평소 점수 (pt)">변화</th>
+                  <th class="num" style="width:60px">방문자</th>
+                  <th class="num" style="width:64px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
+                  <th class="num" style="width:62px">구매 집계</th>
+                  <th class="num" style="width:58px" title="클릭 집계 ÷ 방문자">반응률</th>
+                  <th class="num" style="width:72px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
+                  <th class="num" style="width:88px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
+                  <th style="width:90px" title="평소 지표가 하위 30%인 항목 — 점수가 낮은 원인">하위 30% 지표</th>
                 </tr>
               </thead>
               <tbody id="tbodyScore"></tbody>

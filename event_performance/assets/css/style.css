@@ -839,3 +839,9 @@ table.tbl.tbl-v2 { min-width: 1060px; }
 table.tbl.tbl-v2 .col-ev { min-width: 196px; }
 .score-bar { width: 40px; }
 #weightRows { max-width: 760px; }
+
+/* v2 — 세 표 공통 점수 3칸, 리스트별 정렬 칸만 강조 */
+table.tbl td.sort-col { background: color-mix(in oklch, var(--accent-color) 7%, transparent); }
+table.tbl td.sort-col .score-num, table.tbl td.sort-col .delta { font-size: 14px; font-weight: 800; }
+table.tbl td:not(.sort-col) > .score-num { font-weight: 600; color: var(--muted-foreground); min-width: 0; }
+.score-num { min-width: 0; }

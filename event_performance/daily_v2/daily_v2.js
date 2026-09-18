@@ -164,19 +164,16 @@ function buildV2(baseDate, cat, field, md, revWeight) {
     e.aClkPct = A.clk(e.id);
   });
 
-  // ---- 개선 필요: 운영 3일 이상 · 핵심 4지표(평소 기준) 중 2개 이상 하위 30%
+  // 하위 30% 지표 — 선정 기준이 아니라 '왜 점수가 낮은지' 설명용. 평소 지표 기준으로 통일
+  based.forEach(e => { e.low2 = JUDGE_KEYS.filter(k => e.aPct2[k] <= LOWER_PCT); });
+
+  // ---- 세 리스트 모두 같은 종합 점수에서 나온다
+  //   전일 성과 = 전일 점수 상위 / 전일 성장 = 전일 − 평소 상승폭 / 개선 필요 = 평소 점수 하위
+  // ---- 개선 필요: 운영 3일 이상 · 평소 종합 점수가 하위 30%
   const evaluable = based.filter(e => e.days >= MIN_DAYS);
-  const J = {
-    uv:  pctOf(evaluable, e => e.aUv),
-    rr:  pctOf(evaluable, e => e.aRr),
-    br:  pctOf(evaluable, e => e.aBr),
-    buy: pctOf(evaluable, e => e.aBuy)
-  };
-  evaluable.forEach(e => {
-    e.jPct = { uv: J.uv(e.id), rr: J.rr(e.id), br: J.br(e.id), buy: J.buy(e.id) };
-    e.low2 = JUDGE_KEYS.filter(k => e.jPct[k] <= LOWER_PCT);
-  });
-  const badCandidates = evaluable.filter(e => e.low2.length >= 2).sort((a, b) => a.aScore - b.aScore);
+  const aScorePct = pctOf(evaluable, e => e.aScore);
+  evaluable.forEach(e => { e.aScorePct = aScorePct(e.id); });
+  const badCandidates = evaluable.filter(e => e.aScorePct <= LOWER_PCT).sort((a, b) => a.aScore - b.aScore);
   const badTop = badCandidates.slice(0, 5);
 
   // ---- 전일 성장: 평소 점수 대비 상승폭 · 평소 클릭 집계 하위 30%는 제외(극소 표본 왜곡 방지)
@@ -199,8 +196,31 @@ function buildV2(baseDate, cat, field, md, revWeight) {
 /* ---------------------------------------------------------
    렌더 — 표
    --------------------------------------------------------- */
-function v2Cells(e) {
+/* 세 표가 같은 컬럼을 쓴다 — 전일 점수 · 평소 점수 · 변화를 항상 함께 보여주고,
+   각 리스트가 정렬에 쓰는 컬럼만 강조한다 (sortKey: 'score' | 'aScore' | 'delta') */
+function scoreCells(e, sortKey) {
+  const hl = k => (k === sortKey ? ' sort-col' : '');
+  const w = V2STATE.revWeight;
+  let move = '';
+  if (w) {
+    const d = e.rank0 - e.rank;
+    move = d > 0 ? ` <span class="rank-move up">▲${d}</span>` : d < 0 ? ` <span class="rank-move down">▼${-d}</span>` : '';
+  }
+  const none = '<span class="dim-cell" title="오픈 당일이라 비교할 평소 데이터가 없습니다">—</span>';
+  const delta = e.hasBase
+    ? `<span class="delta ${e.delta > 0.5 ? 'up' : e.delta < -0.5 ? 'down' : 'flat'}">${e.delta > 0 ? '+' : ''}${e.delta.toFixed(1)}</span>`
+    : none;
+  return `
+    <td class="num${hl('score')}"><span class="score-num">${e.score.toFixed(1)}</span><span class="rev-rank">성과 ${e.rank}위${move}</span></td>
+    <td class="num${hl('aScore')}">${e.hasBase ? `<span class="score-num">${e.aScore.toFixed(1)}</span>` : none}</td>
+    <td class="num${hl('delta')}">${delta}</td>`;
+}
+
+function v2Cells(e, sortKey) {
   const gap = Math.abs(e.revRank - e.rank) >= 8;   // 매출 순위와 성과 순위가 크게 다르면 강조
+  const lows = e.low2 && e.low2.length
+    ? `<div class="reasons">${e.low2.map(k => `<span class="reason-chip" title="${V2_ACTIONS[k].label} (평소 지표 기준)">${V2_ACTIONS[k].short}</span>`).join('')}</div>`
+    : '<span class="dim-cell">—</span>';
   return `
     <td class="nowrap">${esc(e.md)}</td>
     <td class="nowrap">${esc(e.f)}<div class="cat-sub">${esc(e.c)}</div></td>
@@ -214,39 +234,28 @@ function v2Cells(e) {
       <div class="ev-sub">${esc(e.id)} · 대상 상품 ${fmtNum(e.prd)}종${e.clk < LOW_SAMPLE_CLICKS ? '<span class="low-sample" title="전일 클릭 집계가 적어 비율 지표가 크게 흔들릴 수 있습니다">표본 적음</span>' : ''}</div>
     </td>
     <td class="dday">D+${e.days}</td>
-    <td class="num"><div class="score-cell"><span class="score-num">${e.score.toFixed(1)}</span><span class="score-bar"><i style="width:${Math.max(e.score, 2).toFixed(0)}%"></i></span></div></td>
+    ${scoreCells(e, sortKey)}
     <td class="num">${fmtNum(e.uv)}</td>
     <td class="num">${fmtNum(e.clk)}</td>
     <td class="num">${fmtNum(e.buy)}</td>
     <td class="num">${e.rr.toFixed(1)}%</td>
     <td class="num">${e.br.toFixed(1)}%</td>
-    <td class="num rev-ref">${fmtWon(e.rev)}<span class="rev-rank ${gap ? 'gap' : ''}">매출 ${e.revRank}위</span></td>`;
+    <td class="num rev-ref">${fmtWon(e.rev)}<span class="rev-rank ${gap ? 'gap' : ''}">매출 ${e.revRank}위</span></td>
+    <td>${lows}</td>`;
 }
 
 function v2Rank(i) {
   return `<td><span class="rank-badge ${i === 0 ? 'r1' : ''}">${i + 1}</span></td>`;
 }
 
-function v2Table(list, tbodyId, emptyId, badgeId, lastCell, emptyTitle, emptyDesc) {
+function v2Table(list, tbodyId, emptyId, badgeId, sortKey, emptyTitle, emptyDesc) {
   const tb = $(tbodyId);
   $(badgeId).textContent = list.length + '건';
   tb.closest('.tbl-wrap').classList.toggle('hidden', !list.length);
   if (!list.length) { tb.innerHTML = ''; $(emptyId).innerHTML = emptyBox(emptyTitle, emptyDesc); return; }
   $(emptyId).innerHTML = '';
-  tb.innerHTML = list.map((e, i) => `<tr class="data-row">${v2Rank(i)}${v2Cells(e)}${lastCell(e)}</tr>`).join('');
+  tb.innerHTML = list.map((e, i) => `<tr class="data-row">${v2Rank(i)}${v2Cells(e, sortKey)}</tr>`).join('');
   tb.querySelectorAll('[data-link]').forEach(a => a.addEventListener('click', ev => ev.preventDefault()));
-}
-
-const cellReasons = e => `<td><div class="reasons">${e.low2.map(k => `<span class="reason-chip" title="${V2_ACTIONS[k].label}">${V2_ACTIONS[k].short}</span>`).join('')}</div></td>`;
-
-const cellDelta = e => `<td class="num"><span class="delta ${e.delta > 0.5 ? 'up' : e.delta < -0.5 ? 'down' : 'flat'}">${e.delta > 0 ? '+' : ''}${e.delta.toFixed(1)}pt</span><span class="rev-rank">평소 ${e.aScore.toFixed(1)}</span></td>`;
-
-function cellMove(e) {
-  if (!V2STATE.revWeight) return `<td class="num"><span class="rank-move same">기준안</span></td>`;
-  const d = e.rank0 - e.rank;
-  const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'same';
-  const txt = d > 0 ? `▲${d}` : d < 0 ? `▼${-d}` : '변동 없음';
-  return `<td class="num"><span class="rank-move ${cls}">${txt}</span><span class="rev-rank">0%안 ${e.rank0}위</span></td>`;
 }
 
 /* ---------------------------------------------------------
@@ -271,15 +280,15 @@ function renderV2Kpi(r) {
   $('#kpiReactSub').textContent = `클릭 집계 ${fmtNum(clk)} · 구매 집계 ${fmtNum(buy)} · 구매 전환 ${(clk ? (buy / clk) * 100 : 0).toFixed(1)}%`;
 
   $('#kpiBad').innerHTML = fmtNum(r.badCandidates.length) + '<span class="unit">건</span>';
-  $('#kpiBadSub').textContent = `핵심 4지표 중 2개 이상 하위 30% · 부진 상위 ${r.badTop.length}건 노출`;
+  $('#kpiBadSub').textContent = `평소 종합 점수 하위 30% · 부진 상위 ${r.badTop.length}건 노출`;
 }
 
 function renderV2Funnel(r) {
   const steps = [
     { k: '① 집계 대상 추출', v: r.running.length, d: '시작일 ≤ 전일 ≤ 종료일 · 상시(9999-12-31) 이벤트 제외' },
     { k: '② 운영 기간 확인', v: r.evaluable.length, d: `시작 후 3일 이상 경과 · 제외 ${r.excluded.length}건` },
-    { k: '③ 지표별 백분위', v: 4, unit: '개 지표', d: '유입 · 행동 반응 · 구매 전환 · 구매 규모 (매출 제외)' },
-    { k: '④ 하위 30% 판정', v: r.badCandidates.length, d: '핵심 4지표 중 2개 이상 하위 30%' },
+    { k: '③ 평소 종합 점수 산출', v: r.evaluable.length, d: '비교 기간 일평균 지표 → 백분위 × 비중 (매출 0% 기준안)' },
+    { k: '④ 하위 30% 판정', v: r.badCandidates.length, d: '평소 종합 점수가 평가 대상 중 하위 30%' },
     { k: '⑤ 최종 노출', v: r.badTop.length, d: '평소 종합 점수가 낮은 순 최대 5건', last: true }
   ];
   const arrow = `<div class="funnel-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></div>`;
@@ -385,20 +394,17 @@ window.openDrawer = function (id) {
 
   // 판정
   let judge, actions = '';
-  if (!e.jPct) {
-    judge = `<div class="verdict neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-      <span class="body"><b>평가 제외</b> — ${e.days < MIN_DAYS ? `운영 ${e.days}일차로 시작 후 3일이 지나지 않았습니다.` : '비교 가능한 과거 데이터가 없습니다.'} 전일 성과 점수만 참고하세요.</span></div>`;
-  } else if (e.low2.length >= 2) {
-    judge = `<div class="verdict bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="body"><b>개선 필요</b> — ${e.low2.map(k => V2_ACTIONS[k].label).join(' · ')} (핵심 4지표 중 ${e.low2.length}개가 하위 30%)</span></div>`;
-  } else if (e.low2.length === 1) {
-    judge = `<div class="verdict neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span class="body"><b>관찰 필요</b> — ${V2_ACTIONS[e.low2[0]].label} 1개만 하위 30%입니다.</span></div>`;
+  const lowTxt = e.low2 && e.low2.length ? e.low2.map(k => V2_ACTIONS[k].label).join(' · ') : '';
+  if (e.aScorePct === undefined || e.aScorePct === null) {
+    judge = `<div class="verdict neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span class="body"><b>평가 제외</b> — ${e.days < MIN_DAYS ? `운영 ${e.days}일차로 시작 후 3일이 지나지 않았습니다.` : '비교 가능한 과거 데이터가 없습니다.'} 전일 점수만 참고하세요.</span></div>`;
+  } else if (e.aScorePct <= LOWER_PCT) {
+    judge = `<div class="verdict bad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="body"><b>개선 필요</b> — 평소 종합 점수 ${e.aScore.toFixed(1)}점 · 평가 대상 ${V2STATE.poolSize}건 중 하위 30% 이내${lowTxt ? ' · 원인 지표: ' + lowTxt : ''}</span></div>`;
+  } else if (lowTxt) {
+    judge = `<div class="verdict neutral"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span class="body"><b>관찰 필요</b> — 평소 종합 점수(${e.aScore.toFixed(1)}점)는 하위 30% 밖이지만 ${lowTxt} 지표가 하위 30%입니다.</span></div>`;
   } else {
-    judge = `<div class="verdict good"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-      <span class="body"><b>개선 필요 아님</b> — 핵심 4지표 중 하위 30%에 걸린 지표가 없습니다.</span></div>`;
+    judge = `<div class="verdict good"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span class="body"><b>개선 필요 아님</b> — 평소 종합 점수 ${e.aScore.toFixed(1)}점, 하위 30%에 걸린 지표도 없습니다.</span></div>`;
   }
-  if (e.jPct && e.low2.length) {
+  if (e.low2 && e.low2.length) {
     actions = `<ul class="action-list">${e.low2.map(k => `
       <li><div class="action-cause">${V2_ACTIONS[k].label}</div>
       <ul class="action-steps">${V2_ACTIONS[k].steps.map((s, i) => `<li><span class="n">${i + 1}</span>${esc(s)}</li>`).join('')}</ul></li>`).join('')}</ul>`;
@@ -468,11 +474,11 @@ function v2Refresh() {
   renderV2Funnel(r);
   renderWeights();
 
-  v2Table(r.badTop, '#tbodyBad', '#emptyBad', '#badgeBad', cellReasons,
-    '개선이 필요한 이벤트가 없습니다', '선택한 조건에서 핵심 4지표 중 2개 이상이 하위 30%인 이벤트가 없습니다.');
-  v2Table(r.growTop, '#tbodyGrow', '#emptyGrow', '#badgeGrow', cellDelta,
+  v2Table(r.badTop, '#tbodyBad', '#emptyBad', '#badgeBad', 'aScore',
+    '개선이 필요한 이벤트가 없습니다', '선택한 조건에서 평소 종합 점수가 하위 30%인 이벤트가 없습니다.');
+  v2Table(r.growTop, '#tbodyGrow', '#emptyGrow', '#badgeGrow', 'delta',
     '성장 TOP 대상 이벤트가 없습니다', '비교 가능한 과거 데이터가 있고 평소 클릭 집계가 하위 30%가 아닌 이벤트가 없습니다.');
-  v2Table(r.scoreTop, '#tbodyScore', '#emptyScore', '#badgeScore', cellMove,
+  v2Table(r.scoreTop, '#tbodyScore', '#emptyScore', '#badgeScore', 'score',
     '전일 성과가 집계된 이벤트가 없습니다', '선택한 조건에 해당하는 진행 중 이벤트가 없습니다.');
 
   const dt = new Date(baseDate + 'T00:00:00');
@@ -484,7 +490,6 @@ function v2Refresh() {
     `<span class="badge badge-secondary">비교 모집단 ${r.evaluable.length}건</span>
      <span class="badge ${w ? 'badge-warning' : 'badge-primary'}">매출 비중 ${w}% ${w ? '시험안' : '기준안'}</span>
      점수는 <b>같은 대분류 · 조회 조건 안의 이벤트끼리</b> 백분위로 매깁니다.`;
-  $('#moveHead').textContent = w ? '0%안 대비' : '비중안';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
