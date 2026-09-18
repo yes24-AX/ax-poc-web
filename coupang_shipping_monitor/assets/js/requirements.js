@@ -112,6 +112,19 @@
     if (d && d.type === 'ax-req-focus') focusItem(d.id);
   });
 
+  // 배경 블록 — 이 창 안에서는 태그를 누르면 해당 항목으로 바로 이동
+  var ITEM = {};
+  DATA.items.forEach(function (r) { ITEM[r.id] = r; });
+  function chip(id) {
+    var r = ITEM[id];
+    return r ? '<button type="button" class="req" data-req-id="' + r.id + '" title="' + esc(r.text) + '"><b>' + r.id + '</b>' + esc(r.short) + '</button>' : '';
+  }
+  $('reqBg').innerHTML = window.AX_REQ_BG.html(chip);
+  $('reqBg').addEventListener('click', function (e) {
+    var b = e.target.closest('.req[data-req-id]');
+    if (b) focusItem(b.dataset.reqId);
+  });
+
   renderHead();
   syncThemeIcon();
   renderList();

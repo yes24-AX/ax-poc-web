@@ -257,17 +257,18 @@
     }
     TREND.forEach(function (o, i) {
       var x = L + i * bw + bw * .18, w = bw * .64, acc = 0, isLast = i === TREND.length - 1;
+      var label = isLast ? (state.snap === '14' ? '오늘' : '오늘 08시') : (o.date.getMonth() + 1) + '/' + o.date.getDate();
       out += '<g class="trend-col" data-i="' + i + '">' +
-        '<rect class="trend-hit" x="' + (L + i * bw).toFixed(1) + '" y="' + T + '" width="' + bw.toFixed(1) + '" height="' + (H - T - B) + '"' +
-        ' tabindex="0" role="img" aria-label="' + trendLabel(i) + '"/>';
+        '<rect class="trend-label-bg" x="' + (L + i * bw + 1).toFixed(1) + '" y="' + (H - B + 3) + '" width="' + (bw - 2).toFixed(1) + '" height="19" rx="6"/>';
       ['d1', 'd2', 'd3'].forEach(function (k) {
         var h = (H - T - B) * o[k] / top;
         acc += o[k];
         out += '<rect class="bar-' + k + '" x="' + x.toFixed(1) + '" y="' + y(acc).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '"/>';
       });
-      out += '</g>';
-      var label = isLast ? (state.snap === '14' ? '오늘' : '오늘 08시') : (o.date.getMonth() + 1) + '/' + o.date.getDate();
-      out += '<text class="chart-label' + (isLast ? ' is-today' : '') + '" x="' + (x + w / 2) + '" y="' + (H - B + 16) + '" text-anchor="middle">' + label + '</text>';
+      out += '<text class="chart-label trend-x' + (isLast ? ' is-today' : '') + '" x="' + (x + w / 2) + '" y="' + (H - B + 16) + '" text-anchor="middle">' + label + '</text>' +
+        '<rect class="trend-hit" x="' + (L + i * bw).toFixed(1) + '" y="' + T + '" width="' + bw.toFixed(1) + '" height="' + (H - T) + '"' +
+        ' tabindex="0" role="img" aria-label="' + trendLabel(i) + '"/>' +
+        '</g>';
       if (isLast || i === 0) out += '<text class="chart-total" x="' + (x + w / 2) + '" y="' + (y(acc) - 5) + '" text-anchor="middle">' + acc + '</text>';
     });
     $('trend').innerHTML = out;
@@ -284,43 +285,67 @@
     var o = TREND[i];
     return trendDateLabel(i) + ' 출고지연 ' + (o.d1 + o.d2 + o.d3) + '건 (1일 ' + o.d1 + ', 2일 ' + o.d2 + ', 3일 이상 ' + o.d3 + ')';
   }
+  function fmtPct(v) { return v.toFixed(1) + '%'; }
+  function deltaPp(cur, prev) {
+    var d = Math.round((cur - prev) * 10) / 10;
+    if (d === 0) return '<span class="delta flat">±0.0%p</span>';
+    return '<span class="delta ' + (d > 0 ? 'up' : 'down') + '">' + (d > 0 ? '+' : '') + d.toFixed(1) + '%p</span>';
+  }
+  function deltaCnt(cur, prev) {
+    var d = cur - prev;
+    return '<b class="' + (d > 0 ? 'up' : d < 0 ? 'down' : '') + '">' + (d > 0 ? '+' : '') + d + '건</b>';
+  }
+
   function showTrendTip(i) {
     var o = TREND[i], sum = o.d1 + o.d2 + o.d3, tip = $('trendTip'), svg = $('trend');
-    var prev = i > 0 ? TREND[i - 1] : null, prevSum = prev ? prev.d1 + prev.d2 + prev.d3 : null;
+    var prev = i > 0 ? TREND[i - 1] : null, prevSum = prev ? prev.d1 + prev.d2 + prev.d3 : 0;
+    var buckets = [['d1', '1일 지연'], ['d2', '2일 지연'], ['d3', '3일 이상 지연']];
+    var topKey = buckets.reduce(function (a, b) { return o[b[0]] > o[a[0]] ? b : a; })[0];
+    var o0 = TREND[i];
     tip.innerHTML =
-      '<div class="tt-date">' + trendDateLabel(i) + '</div>' +
-      [['d1', '1일'], ['d2', '2일'], ['d3', '3일 이상']].map(function (b) {
-        return '<div class="tt-row"><span><i class="sw-' + b[0] + '"></i>' + b[1] + '</span><b class="num">' + o[b[0]] + '</b></div>';
-      }).join('') +
-      '<div class="tt-row tt-sum"><span>합계</span><b class="num">' + sum + '건</b></div>' +
-      (prev ? '<div class="tt-delta">전 영업일 대비 ' + deltaHtml(sum, prevSum) + '</div>' : '');
+      '<div class="tt-head"><span class="tt-title">' + (o0.date.getMonth() + 1) + '/' + o0.date.getDate() + '(' + DOW[o0.date.getDay()] + ')</span>' +
+        '<span class="tt-total"><b class="num">' + fmt(sum) + '</b> 건</span></div>' +
+      '<div class="tt-sub">' + (i === TREND.length - 1 ? state.snap : '14') + ':00 집계 · 출고예정일 경과 미출고' +
+        (prev ? ' · 전 영업일 대비 ' + deltaCnt(sum, prevSum) : '') + ' · 막대는 구성비, 우측은 전 영업일 대비 증감</div>' +
+      buckets.map(function (b) {
+        var share = sum ? o[b[0]] / sum * 100 : 0;
+        var prevShare = prev && prevSum ? prev[b[0]] / prevSum * 100 : null;
+        return '<div class="tt-item">' +
+          '<div class="tt-line"><span class="tt-name"><i class="sw-' + b[0] + '"></i>' + b[1] +
+            (b[0] === topKey ? '<span class="tt-rank">최다</span>' : '') + '</span>' +
+            '<span class="tt-val"><b class="num">' + fmtPct(share) + '</b>' + (prevShare != null ? deltaPp(share, prevShare) : '') + '</span></div>' +
+          '<div class="tt-bar"><i class="sw-' + b[0] + '" data-w="' + share.toFixed(1) + '"></i></div>' +
+          '<div class="tt-meta"><span>주문 <b class="num">' + o[b[0]] + '</b>건</span>' +
+            (prev ? '<span>전 영업일 대비 ' + deltaCnt(o[b[0]], prev[b[0]]) + '</span>' : '<span></span>') + '</div>' +
+        '</div>';
+      }).join('');
+    Array.prototype.forEach.call(tip.querySelectorAll('.tt-bar i'), function (el) { el.style.width = el.dataset.w + '%'; });
     Array.prototype.forEach.call(svg.querySelectorAll('.trend-col'), function (g) {
       g.classList.toggle('is-hover', +g.dataset.i === i);
     });
-    svg.classList.add('has-hover');
-    // 막대 위에 공간이 있으면 위에, 없으면(긴 막대) 막대 옆에 띄운다 — 막대를 가리지 않게
+
+    // 막대 꼭대기 위에 꼬리를 두고 띄운다. 카드 폭 안으로 좌우를 붙잡고, 꼬리는 늘 막대 중심을 가리킨다.
     tip.hidden = false;
+    tip.classList.remove('is-below');
     var wrap = tip.parentNode.getBoundingClientRect();
-    var col = svg.querySelector('.trend-col[data-i="' + i + '"]').getBoundingClientRect();
-    var barTop = svg.querySelector('.trend-col[data-i="' + i + '"] .bar-d3').getBoundingClientRect().top - wrap.top;
-    var tw = tip.offsetWidth, th = tip.offsetHeight, gap = 8;
-    var left, top;
-    if (barTop - gap >= th) {
-      left = Math.min(Math.max(col.left + col.width / 2 - wrap.left - tw / 2, 0), wrap.width - tw);
-      top = barTop - gap - th;
-    } else {
-      var right = col.right - wrap.left + gap;
-      left = right + tw <= wrap.width ? right : col.left - wrap.left - gap - tw;
-      top = Math.max(barTop, 0);
+    var col = svg.querySelector('.trend-col[data-i="' + i + '"] .trend-hit').getBoundingClientRect();
+    var barTop = svg.querySelector('.trend-col[data-i="' + i + '"] .bar-d3').getBoundingClientRect().top;
+    var tw = tip.offsetWidth, th = tip.offsetHeight, gap = 10, header = 62;
+    var cx = col.left + col.width / 2 - wrap.left;
+    var left = Math.min(Math.max(cx - tw / 2, 0), wrap.width - tw);
+    var top = barTop - wrap.top - gap - th;
+    if (barTop - gap - th < header) {            // 화면 위쪽(고정 헤더)에 가리면 막대 아래로 뒤집는다
+      tip.classList.add('is-below');
+      top = barTop - wrap.top + gap;
     }
     tip.style.left = left + 'px';
     tip.style.top = top + 'px';
+    tip.style.setProperty('--caret-x', Math.min(Math.max(cx - left, 14), tw - 14) + 'px');
   }
   function hideTrendTip() {
     var tip = $('trendTip'), svg = $('trend');
     if (tip) tip.hidden = true;
     if (svg) {
-      svg.classList.remove('has-hover');
       Array.prototype.forEach.call(svg.querySelectorAll('.trend-col.is-hover'), function (g) { g.classList.remove('is-hover'); });
     }
   }
@@ -538,6 +563,7 @@
   setReqVisible(savedReq !== '0');
 
   renderReqTags();
+  $('traceBg').innerHTML = window.AX_REQ_BG.html(reqChip);   // 배경 블록 — 태그는 누르면 요구사항 창으로
   renderTrace();
   renderAll();
 })();
