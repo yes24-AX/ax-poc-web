@@ -186,7 +186,7 @@ img { max-width: 100%; }
 .theme-toggle svg { width: 17px; height: 17px; }
 
 /* page body */
-.page-content { padding: 1rem 1.5rem 2rem; max-width: 1180px; width: 100%; }
+.page-content { padding: 1rem 1.5rem 2rem; width: 100%; }
 .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 1.1rem; }
 .page-heading-left { display: flex; align-items: center; gap: 0.6rem; }
 h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
@@ -462,7 +462,7 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
    (토큰만 사용 — 하드코딩 색 없음)
    =================================================== */
 
-.page-content { max-width: 1400px; margin: 0 auto; padding-left: 1.75rem; padding-right: 1.75rem; }
+.page-content { padding-left: 1.75rem; padding-right: 1.75rem; }
 
 /* ---- 조회 바 ---- */
 .filter-bar { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
@@ -522,6 +522,9 @@ table.tbl td.nowrap { white-space: nowrap; }
 }
 .rank-badge.r1 { background: var(--accent-color); color: var(--background); border-color: var(--accent-color); }
 
+/* 컬럼 폭 — 좁은 화면에서 이벤트명이 뭉개지지 않게 하한만 준다.
+   상한은 width:100% 테이블에서 무효(남는 폭이 이 컬럼으로 몰림) */
+.col-ev { min-width: 230px; }
 .ev-name { display: flex; align-items: center; gap: 6px; min-width: 0; font-weight: 600; }
 .ev-name .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; display: inline-block; }
 .ev-link { display: inline-flex; color: var(--muted-foreground); flex-shrink: 0; }
