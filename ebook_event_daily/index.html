@@ -31,15 +31,15 @@
             </a>
           </li>
           <li>
-            <a class="nav-item-btn" href="#">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              <span class="nav-item-text">단독 선출간 후보 추천</span>
+            <a class="nav-item-btn" href="search.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span class="nav-item-text">이벤트 성과 조회</span>
             </a>
           </li>
           <li>
             <a class="nav-item-btn" href="#">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-              <span class="nav-item-text">eBook 시장 점유 리포트</span>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              <span class="nav-item-text">단독 선출간 후보 추천</span>
             </a>
           </li>
           <li>
@@ -97,6 +97,10 @@
         <div class="page-header-actions">
           <span class="badge badge-secondary">집계 기준 · 전일 데이터</span>
           <span class="badge badge-secondary">매일 1회 08:00</span>
+          <a class="btn btn-outline btn-sm" href="search.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            TOP 5에 없는 이벤트 찾기
+          </a>
         </div>
       </div>
 
@@ -173,6 +177,7 @@
 
           <div class="section-title" style="margin-top:0"><span class="no">1</span><h3>개선 필요 TOP 5 선정 과정</h3></div>
           <div class="funnel" id="funnel"></div>
+          <div class="funnel-note" id="funnelNote"></div>
 
           <div class="section-title"><span class="no">2</span><h3>리스트별 선정 기준</h3></div>
           <table class="rule-tbl">
@@ -335,32 +340,7 @@
   </div>
 </div>
 
-<!-- ===================== 이벤트 상세 드로어 ===================== -->
-<div class="drawer-backdrop" id="drawerBack"></div>
-<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
-  <header class="drawer-head">
-    <div class="drawer-head-top">
-      <div>
-        <div class="drawer-title" id="drawerTitle">—</div>
-        <div class="drawer-id" id="drawerId"></div>
-      </div>
-      <button class="drawer-close" id="drawerClose" title="닫기 (ESC)" aria-label="닫기">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="drawer-pills" id="drawerPills"></div>
-  </header>
-  <div class="drawer-body" id="drawerBody"></div>
-  <footer class="drawer-foot">
-    <a class="btn btn-outline btn-sm" id="drawerLink" href="#">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      이벤트 랜딩 바로가기
-    </a>
-    <span class="spacer"></span>
-    <button class="btn btn-primary btn-sm" id="drawerCloseBtn">닫기</button>
-  </footer>
-</aside>
-
-<script src="assets/js/app.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/daily.js"></script>
 </body>
 </html>

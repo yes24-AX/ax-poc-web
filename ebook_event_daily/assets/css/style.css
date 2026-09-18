@@ -710,3 +710,13 @@ table.tbl.tbl-improve { min-width: 1080px; }
 /* 다크모드에서 과거 막대가 너무 어두워지지 않게 */
 .chart-box .bar-prev { opacity: 0.45; }
 .dark .chart-box .bar-prev { opacity: 0.55; }
+
+/* ---- 이벤트 성과 조회 화면 ---- */
+.list-neutral { --accent-color: var(--muted-foreground); }
+table.tbl.tbl-search { min-width: 1080px; }
+.shown-in { font-size: 10.5px; color: var(--muted-foreground); margin-top: 4px; font-family: var(--font-mono); }
+.dim-cell { color: var(--muted-foreground); opacity: 0.6; }
+.poc-chips .chip[data-quick] { font-family: var(--font-selected); }
+.funnel-note { font-size: 12px; color: var(--muted-foreground); margin-top: 10px; line-height: 1.6; }
+.funnel-note b { color: var(--destructive); font-weight: 700; }
+.inline-link { color: var(--primary); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }

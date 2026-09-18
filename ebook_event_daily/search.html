@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eBook 이벤트 성과 조회 — AX Datahub</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <nav class="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="index.html">
+        <span class="sidebar-logo">AX</span>
+        <span class="sidebar-brand">Datahub</span>
+      </a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">eBook 운영</span>
+        <ul class="sidebar-menu">
+          <li>
+            <a class="nav-item-btn" href="index.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span class="nav-item-text">이벤트 데일리 성과</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn active" href="search.html">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span class="nav-item-text">이벤트 성과 조회</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              <span class="nav-item-text">단독 선출간 후보 추천</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span class="nav-item-text">리포트 메일 레이아웃</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn">
+        <span class="user-avatar">이</span>
+        <div>
+          <div class="user-name">이지은</div>
+          <div class="user-dept">eBook팀 · MD</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main-wrapper">
+
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">eBook 운영</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current">이벤트 성과 조회</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <span class="model-pill">datahub · daily 08:00</span>
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title">이벤트 성과 조회</h1>
+            <p class="page-subtitle" id="pageSubtitle">TOP 5에 없는 이벤트도 여기서 찾습니다 · 이벤트명을 클릭하면 데일리 리포트와 같은 상세가 열립니다</p>
+          </div>
+        </div>
+        <div class="page-header-actions">
+          <a class="btn btn-outline btn-sm" href="index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            데일리 성과 리포트
+          </a>
+        </div>
+      </div>
+
+      <!-- ============ 조회 조건 ============ -->
+      <div class="card">
+        <div class="card-content" style="padding-top:18px">
+          <div class="filter-bar">
+            <div class="field-group">
+              <label class="field-label" for="fBaseDate">기준일 (전일)</label>
+              <input class="field-ctl" type="date" id="fBaseDate" value="2026-09-17" />
+            </div>
+            <div class="field-group" style="flex:1; min-width:220px; max-width:300px">
+              <label class="field-label" for="fQuery">이벤트명 · 이벤트번호</label>
+              <div class="poc-input-wrap" style="max-width:none">
+                <svg class="poc-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="poc-input" type="text" id="fQuery" placeholder="예: 에세이 / EV24168" autocomplete="off" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="fField">분야</label>
+              <select class="field-ctl" id="fField"><option value="">전체 분야</option></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="fMd">담당자</label>
+              <select class="field-ctl" id="fMd"><option value="">전체 담당자</option></select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="fStatus">판정</label>
+              <select class="field-ctl" id="fStatus">
+                <option value="">전체</option>
+                <option value="bad">개선 필요 후보</option>
+                <option value="badHidden">개선 필요 후보 · 데일리 미노출</option>
+                <option value="watch">관찰 필요</option>
+                <option value="ok">양호</option>
+                <option value="excluded">평가 제외</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="fSort">정렬</label>
+              <select class="field-ctl" id="fSort">
+                <option value="revDesc">전일 매출 높은 순</option>
+                <option value="badScore">부진 정도가 큰 순</option>
+                <option value="growthDesc">증감률 높은 순</option>
+                <option value="growthAsc">증감률 낮은 순</option>
+                <option value="cvrAsc">구매전환율 낮은 순</option>
+                <option value="daysDesc">운영일차 긴 순</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">&nbsp;</label>
+              <button class="btn btn-primary" id="btnSearch">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                조회
+              </button>
+            </div>
+            <div class="field-group">
+              <label class="field-label">&nbsp;</label>
+              <button class="btn btn-outline" id="btnReset">초기화</button>
+            </div>
+          </div>
+          <div class="poc-chips">
+            <span class="label">빠른 조건</span>
+            <button class="chip" data-quick="badHidden">데일리에 안 뜬 개선 필요 후보</button>
+            <button class="chip" data-quick="watch">관찰 필요</button>
+            <button class="chip" data-quick="excluded">평가 제외</button>
+            <button class="chip" data-quick="cvrAsc">구매전환율 낮은 순</button>
+          </div>
+          <div class="filter-meta" id="filterMeta" style="padding-bottom:0; margin-top:10px"></div>
+        </div>
+      </div>
+
+      <!-- ============ 결과 요약 ============ -->
+      <div class="grid grid-4" style="margin-top:14px">
+        <div class="stat-card">
+          <div class="stat-head"><h4>조회 결과</h4><span class="badge badge-secondary">전일 기준</span></div>
+          <div class="stat-num" id="sumTotal">0<span class="unit">건</span></div>
+          <div class="stat-sub" id="sumTotalSub">진행 중 이벤트</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head"><h4>개선 필요 후보</h4><span class="badge badge-danger">조치 필요</span></div>
+          <div class="stat-num danger" id="sumBad">0<span class="unit">건</span></div>
+          <div class="stat-sub" id="sumBadSub">2개 이상 하위 30%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head"><h4>관찰 필요</h4><span class="badge badge-warning">1개 하위</span></div>
+          <div class="stat-num" id="sumWatch">0<span class="unit">건</span></div>
+          <div class="stat-sub">하나만 더 내려가면 개선 필요</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head"><h4>평가 제외</h4></div>
+          <div class="stat-num" id="sumExcluded">0<span class="unit">건</span></div>
+          <div class="stat-sub">운영 1~2일 · 비교 데이터 없음</div>
+        </div>
+      </div>
+
+      <!-- ============ 결과 목록 ============ -->
+      <div class="card list-card list-neutral">
+        <div class="card-header">
+          <div class="list-title">
+            <span class="dot-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
+            <div>
+              <h3>조회 결과</h3>
+              <div class="list-criteria">이벤트명을 클릭하면 상세(추이 · 백분위 · 권장 액션)가 열립니다 · 판정은 조회 조건 안의 이벤트끼리 상대 비교한 결과입니다</div>
+            </div>
+          </div>
+          <span class="badge badge-secondary" id="badgeCount">0건</span>
+        </div>
+        <div class="card-content">
+          <div class="tbl-wrap">
+            <table class="tbl tbl-search">
+              <thead>
+                <tr>
+                  <th style="width:112px">판정</th>
+                  <th style="width:62px">담당자</th>
+                  <th style="width:82px">분야</th>
+                  <th>이벤트명</th>
+                  <th style="width:58px">운영일차</th>
+                  <th class="num" style="width:92px">전일 매출</th>
+                  <th class="num" style="width:68px">주문건수</th>
+                  <th class="num" style="width:66px">UV</th>
+                  <th class="num" style="width:70px">신규 구매</th>
+                  <th class="num" style="width:76px">구매전환율</th>
+                  <th class="num" style="width:76px">증감률</th>
+                  <th style="width:130px">하위 30% 지표</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyResult"></tbody>
+            </table>
+          </div>
+          <div id="emptyResult"></div>
+        </div>
+      </div>
+
+      <p class="foot-note">
+        POC · 샘플 데이터로 동작하는 정적 화면입니다. 판정 기준은 데일리 리포트와 동일하며,
+        데일리 리포트는 이 중 상위 5건만 보여줍니다.
+      </p>
+
+    </main>
+  </div>
+</div>
+
+<script src="assets/js/common.js"></script>
+<script src="assets/js/search.js"></script>
+</body>
+</html>
