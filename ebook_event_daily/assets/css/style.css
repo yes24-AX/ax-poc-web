@@ -720,3 +720,7 @@ table.tbl.tbl-search { min-width: 1080px; }
 .funnel-note { font-size: 12px; color: var(--muted-foreground); margin-top: 10px; line-height: 1.6; }
 .funnel-note b { color: var(--destructive); font-weight: 700; }
 .inline-link { color: var(--primary); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---- 대분류 표기 ---- */
+.cat-sub { font-size: 10.5px; color: var(--muted-foreground); margin-top: 3px; font-weight: 500; }
+.pill-cat { background: color-mix(in oklch, var(--info) 12%, transparent); color: var(--info); border-color: color-mix(in oklch, var(--info) 25%, transparent); font-weight: 700; }

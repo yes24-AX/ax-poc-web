@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>eBook 이벤트 데일리 성과 리포트 — AX Datahub</title>
+  <title>이벤트 데일리 성과 리포트 — AX Datahub</title>
   <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -22,7 +22,7 @@
     </div>
     <div class="sidebar-content">
       <div class="sidebar-group">
-        <span class="sidebar-group-label">eBook 운영</span>
+        <span class="sidebar-group-label">이벤트 운영</span>
         <ul class="sidebar-menu">
           <li>
             <a class="nav-item-btn active" href="#">
@@ -39,7 +39,7 @@
           <li>
             <a class="nav-item-btn" href="#">
               <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              <span class="nav-item-text">단독 선출간 후보 추천</span>
+              <span class="nav-item-text">이벤트 등록·관리</span>
             </a>
           </li>
           <li>
@@ -56,7 +56,7 @@
         <span class="user-avatar">이</span>
         <div>
           <div class="user-name">이지은</div>
-          <div class="user-dept">eBook팀 · MD</div>
+          <div class="user-dept">이벤트기획 · MD</div>
         </div>
       </div>
     </div>
@@ -71,7 +71,7 @@
       </button>
       <div class="header-separator"></div>
       <div class="header-breadcrumb">
-        <span class="header-breadcrumb-group">eBook 운영</span>
+        <span class="header-breadcrumb-group">이벤트 운영</span>
         <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
         <span class="header-breadcrumb-current">이벤트 데일리 성과 리포트</span>
       </div>
@@ -90,8 +90,8 @@
       <div class="page-heading">
         <div class="page-heading-left">
           <div>
-            <h1 class="page-title">eBook 이벤트 데일리 성과 리포트</h1>
-            <p class="page-subtitle" id="pageSubtitle">전일 기준 매일 1회 집계 · 진행 중 eBook 이벤트의 개선 필요 / 성장 / 매출 TOP 5</p>
+            <h1 class="page-title">이벤트 데일리 성과 리포트</h1>
+            <p class="page-subtitle" id="pageSubtitle">전일 기준 매일 1회 집계 · 진행 중 이벤트의 개선 필요 / 성장 / 매출 TOP 5</p>
           </div>
         </div>
         <div class="page-header-actions">
@@ -111,6 +111,10 @@
             <div class="field-group">
               <label class="field-label" for="fBaseDate">기준일 (전일)</label>
               <input class="field-ctl" type="date" id="fBaseDate" value="2026-09-17" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="fCat">대분류</label>
+              <select class="field-ctl" id="fCat"><option value="">전체</option></select>
             </div>
             <div class="field-group">
               <label class="field-label" for="fField">분야</label>

@@ -166,9 +166,10 @@ function renderFunnel(r) {
    --------------------------------------------------------- */
 function refresh() {
   const baseDate = $('#fBaseDate').value || BASE_DATE;
+  const cat = $('#fCat').value;
   const field = $('#fField').value;
   const md = $('#fMd').value;
-  const r = buildReport(baseDate, field, md);
+  const r = buildReport(baseDate, cat, field, md);
 
   renderKpi(r);
   renderFunnel(r);
@@ -180,11 +181,12 @@ function refresh() {
 
   const dt = new Date(baseDate + 'T00:00:00');
   const dow = ['일', '월', '화', '수', '목', '금', '토'][dt.getDay()];
-  const cond = [field || '전체 분야', md || '전체 담당자'].join(' · ');
+  const cond = [cat || '전체 대분류', field || '전체 분야', md || '전체 담당자'].join(' · ');
   $('#pageSubtitle').textContent =
     `기준일 ${baseDate}(${dow}) 전일 실적 · 매일 1회 자동 집계 · ${cond} · 진행 중 이벤트 ${r.running.length}건`;
   $('#filterMeta').innerHTML =
-    `<span class="badge badge-secondary">비교 모집단 ${r.evaluable.length}건</span> 백분위는 조회 조건 안의 이벤트끼리 상대 비교합니다.`;
+    `<span class="badge badge-secondary">비교 모집단 ${r.evaluable.length}건</span>
+     백분위는 <b>같은 대분류 · 조회 조건 안의 이벤트끼리</b> 상대 비교합니다. 대분류를 고르면 그 안에서만 순위가 매겨집니다.`;
 
   // 드로어가 참조할 상태 — 화면에 보이는 모든 이벤트를 id로 찾을 수 있게 둔다
   STATE.baseDate = baseDate;
@@ -201,6 +203,7 @@ function refresh() {
    초기화
    --------------------------------------------------------- */
 function initFilters() {
+  $('#fCat').insertAdjacentHTML('beforeend', CATEGORIES.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(''));
   const fields = [...new Set(EVENTS.map(e => e.f))].sort((a, b) => a.localeCompare(b, 'ko'));
   const mds = [...new Set(EVENTS.map(e => e.md))].sort((a, b) => a.localeCompare(b, 'ko'));
   $('#fField').insertAdjacentHTML('beforeend', fields.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(''));
@@ -213,11 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
   refresh();
 
   $('#btnSearch').addEventListener('click', refresh);
+  $('#fCat').addEventListener('change', refresh);
   $('#fField').addEventListener('change', refresh);
   $('#fMd').addEventListener('change', refresh);
   $('#fBaseDate').addEventListener('change', refresh);
   $('#btnReset').addEventListener('click', () => {
     $('#fBaseDate').value = BASE_DATE;
+    $('#fCat').value = '';
     $('#fField').value = '';
     $('#fMd').value = '';
     refresh();

@@ -90,7 +90,7 @@ function renderSummary(rows, r, cond) {
 
   $('#filterMeta').innerHTML =
     `<span class="badge badge-secondary">비교 모집단 ${r.evaluable.length}건</span>
-     백분위·판정은 <b>분야·담당자 조건 안의 이벤트끼리</b> 상대 비교합니다. 검색어와 판정 필터는 표시만 거릅니다.`;
+     백분위·판정은 <b>대분류·분야·담당자 조건 안의 이벤트끼리</b> 상대 비교합니다. 검색어와 판정 필터는 표시만 거릅니다.`;
 }
 
 /* ---------------------------------------------------------
@@ -98,6 +98,7 @@ function renderSummary(rows, r, cond) {
    --------------------------------------------------------- */
 function searchRefresh() {
   const baseDate = $('#fBaseDate').value || BASE_DATE;
+  const cat = $('#fCat').value;
   const field = $('#fField').value;
   const md = $('#fMd').value;
   const q = $('#fQuery').value.trim().toLowerCase();
@@ -105,7 +106,7 @@ function searchRefresh() {
   const sort = $('#fSort').value;
 
   // 판정은 데일리 리포트와 같은 집계를 그대로 쓴다
-  const r = buildReport(baseDate, field, md);
+  const r = buildReport(baseDate, cat, field, md);
 
   STATE.baseDate = baseDate;
   STATE.poolSize = r.evaluable.length;
@@ -129,7 +130,7 @@ function searchRefresh() {
 
   const dt = new Date(baseDate + 'T00:00:00');
   const dow = ['일', '월', '화', '수', '목', '금', '토'][dt.getDay()];
-  const cond = [field || '전체 분야', md || '전체 담당자'].join(' · ') + (q ? ` · "${q}"` : '');
+  const cond = [cat || '전체 대분류', field || '전체 분야', md || '전체 담당자'].join(' · ') + (q ? ` · "${q}"` : '');
 
   renderSummary(scoped, r, cond);
   renderResult(rows);
@@ -142,6 +143,7 @@ function searchRefresh() {
    초기화
    --------------------------------------------------------- */
 function initSearchFilters() {
+  $('#fCat').insertAdjacentHTML('beforeend', CATEGORIES.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(''));
   const fields = [...new Set(EVENTS.map(e => e.f))].sort((a, b) => a.localeCompare(b, 'ko'));
   const mds = [...new Set(EVENTS.map(e => e.md))].sort((a, b) => a.localeCompare(b, 'ko'));
   $('#fField').insertAdjacentHTML('beforeend', fields.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(''));
@@ -151,12 +153,14 @@ function initSearchFilters() {
 /* 데일리 리포트에서 넘어온 조건 (예: search.html?status=badHidden) */
 function applyQueryParams() {
   const p = new URLSearchParams(location.search);
+  const cat = p.get('cat');
   const status = p.get('status');
   const sort = p.get('sort');
   const q = p.get('q');
   if (status && [...$('#fStatus').options].some(o => o.value === status)) $('#fStatus').value = status;
   if (sort && [...$('#fSort').options].some(o => o.value === sort)) $('#fSort').value = sort;
   if (q) $('#fQuery').value = q;
+  if (cat && CATEGORIES.includes(cat)) $('#fCat').value = cat;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -165,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
   searchRefresh();
 
   $('#btnSearch').addEventListener('click', searchRefresh);
-  ['#fField', '#fMd', '#fStatus', '#fSort', '#fBaseDate'].forEach(sel =>
+  ['#fCat', '#fField', '#fMd', '#fStatus', '#fSort', '#fBaseDate'].forEach(sel =>
     $(sel).addEventListener('change', searchRefresh));
   $('#fQuery').addEventListener('input', searchRefresh);
   $('#fQuery').addEventListener('keydown', ev => { if (ev.key === 'Enter') searchRefresh(); });
@@ -173,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#btnReset').addEventListener('click', () => {
     $('#fBaseDate').value = BASE_DATE;
     $('#fQuery').value = '';
+    $('#fCat').value = '';
     $('#fField').value = '';
     $('#fMd').value = '';
     $('#fStatus').value = '';
