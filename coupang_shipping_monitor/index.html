@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>쿠팡 정시출고 모니터링</title>
+  <meta name="description" content="AX 요구사항 #306 화면 프로토타입 — 쿠팡 주문시 출고예정일 기준 당일 출고 대상·출고지연 모니터링 (예시 데이터)" />
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script>
+    // 첫 페인트 전에 테마 결정 (뷰어 테마 표시 → 시스템 설정 순)
+    (function () {
+      var r = document.documentElement, t = r.getAttribute('data-theme');
+      var dark = t ? t === 'dark' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) r.classList.add('dark');
+    })();
+  </script>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <nav class="sidebar" id="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="#">
+        <span class="sidebar-logo">AX</span>
+        <span class="sidebar-brand">Labs</span>
+      </a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">제휴 모니터링</span>
+        <ul class="sidebar-menu">
+          <li>
+            <a class="nav-item-btn active" href="#" aria-current="page">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              <span class="nav-item-text">쿠팡 정시출고 모니터링</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span class="nav-item-text">네이버 주문·배송 지표</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item-btn" href="#">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span class="nav-item-text">주문 출고 물류센터</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn">
+        <span class="user-avatar">제</span>
+        <div>
+          <div class="user-name">제휴영업팀</div>
+          <div class="user-dept">도서사업본부</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main-wrapper">
+
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" id="sidebarToggle" type="button" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">제휴 모니터링</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current">쿠팡 정시출고 모니터링</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="banner banner--info" role="note">
+        <svg class="banner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div class="banner-body">
+          <span><b>프로토타입 · AX 요구사항 #306.</b> 수치·상품·주문번호는 모두 예시 데이터이며 실제 쿠팡 주문과 무관합니다.</span>
+          <span><i class="legend-conv"></i>점선 박스는 요구서에 없지만 편의를 위해 제안하는 기능입니다. 박스 밖은 모두 요구서 항목입니다.</span>
+          <span><span class="pending-tag">연동 확인 필요</span> 표시는 요구서 항목이지만 자사 데이터 원천이 확정돼야 채울 수 있는 칸입니다.</span>
+          <span><span class="req"><b>R1</b> 요구사항</span> 태그는 그 UI가 표현하는 요구서 항목입니다. 전체 항목과 반영 여부는 맨 아래 「요구사항 반영 점검」에 있습니다.</span>
+          <span class="banner-actions"><button type="button" class="btn btn-outline btn-sm" id="reqToggle" aria-pressed="true">요구사항 태그 숨기기</button></span>
+        </div>
+      </div>
+
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title">쿠팡 정시출고 모니터링</h1>
+            <p class="page-subtitle">자사 상품출발예정일이 아니라 <b>쿠팡 WING의 주문시 출고예정일</b>을 기준으로 당일 출고 대상과 출고지연 주문을 보여줍니다.</p>
+            <div class="heading-meta">
+              <span class="badge badge-secondary">판정 기준 · WING 주문시 출고예정일</span>
+              <span>집계 <span class="num" id="snapTime">2026-09-17 14:00</span></span>
+              <span>· 영업일 08:00 · 14:00 자동 갱신</span>
+            </div>
+            <div class="req-row" data-req="R1 R18 R19 R20"></div>
+          </div>
+        </div>
+        <div class="page-header-actions">
+          <div class="conv">
+            <span class="conv-tag">편의 기능 · R8·R18 보조</span>
+            <span class="snap-label">지난 집계 보기</span>
+            <div class="seg" role="group" aria-label="집계 시점">
+              <button type="button" id="snap08" aria-pressed="false">09/17 08:00</button>
+              <button type="button" id="snap14" aria-pressed="true">09/17 14:00</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ① 주요 현황 -->
+      <div class="section-title">
+        <span class="no">1</span><h3>주요 현황</h3>
+        <span class="section-desc" id="deltaBasis">증감은 직전 집계(08:00) 대비</span>
+      </div>
+
+      <section class="kpi-grid" aria-label="주요 현황 지표">
+        <div class="stat-card">
+          <div class="stat-head"><h4>오늘 출고예정 · 미출고</h4></div>
+          <div class="stat-num num" id="kToday">-</div>
+          <div class="stat-kinds">상품 <b class="num" id="kTodayKinds">-</b>종</div>
+          <div class="req-row" data-req="R2 R5"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head"><h4>출고예정일 경과 · 미출고</h4><span class="delta" id="kLateDelta"></span></div>
+          <div class="stat-num num alert" id="kLate">-</div>
+          <div class="stat-kinds">상품 <b class="num" id="kLateKinds">-</b>종</div>
+          <div class="req-row" data-req="R3 R6 R8"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head"><h4>지연일수별 미출고 주문</h4></div>
+          <div class="bucket-row" id="kBuckets"></div>
+          <div class="req-row" data-req="R4 R7 R8"></div>
+        </div>
+        <div class="conv">
+          <span class="conv-tag">편의 기능 · R24 보조</span>
+          <div class="stat-card">
+            <div class="stat-head"><h4>출고예정일 없음</h4></div>
+            <div class="stat-num num" id="kNone">-</div>
+            <div class="stat-sub">예약판매 등 쿠팡이 예정일을 비워 둔 주문. 지연 판정에서 제외</div>
+            <div class="req-row" data-req="R24"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="overview-grid">
+        <div class="card">
+          <div class="card-header card-header-col">
+            <span class="card-title">일자별 출고지연 추이</span>
+            <span class="card-description">영업일 14:00 집계의 출고예정일 경과 미출고 주문 수</span>
+            <div class="req-row" data-req="R9 R4"></div>
+          </div>
+          <div class="card-content">
+            <div class="chart-wrap"><svg id="trend" viewBox="0 0 560 250" role="img" aria-label="최근 14영업일 출고지연 미출고 주문 수 추이"></svg></div>
+            <div class="chart-legend">
+              <span><i class="sw-d1"></i>1일</span><span><i class="sw-d2"></i>2일</span><span><i class="sw-d3"></i>3일 이상</span>
+            </div>
+            <p class="chart-note">운영 시작일부터 집계가 쌓입니다. 시작 전 기간은 주문 이력(출고예정일·출고일)으로 근사 재구성합니다.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header card-header-col">
+            <span class="card-title">주요 출고지연 상품</span>
+            <span class="card-description">출고예정일 경과 미출고 주문이 많은 순</span>
+            <div class="req-row" data-req="R10 R21 R4"></div>
+          </div>
+          <div class="card-content flush">
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <thead><tr>
+                  <th class="col-center">순위</th><th>자사 상품번호</th><th>상품명</th>
+                  <th class="col-num">지연 주문</th><th class="col-num">1일</th><th class="col-num">2일</th><th class="col-num">3일 이상</th>
+                </tr></thead>
+                <tbody id="topBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② 상세 목록 -->
+      <div class="section-title">
+        <span class="no">2</span><h3>상세 목록</h3>
+        <span class="section-desc">엑셀 다운로드 가능</span>
+      </div>
+
+      <div class="card">
+        <div class="list-head">
+          <div class="tabs" role="tablist" aria-label="주문 구분">
+            <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="today">당일 출고 대상 <span class="tab-count" id="cntToday">0</span></button>
+            <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="late">출고 지연 <span class="tab-count" id="cntLate">0</span></button>
+          </div>
+          <div class="req-row" data-req="R2 R3 R11 R12"></div>
+          <button type="button" class="btn btn-outline btn-sm" id="btnExcel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            엑셀 다운로드
+          </button>
+        </div>
+
+        <div class="conv list-filters">
+          <span class="conv-tag">편의 기능 · R4·R11 보조</span>
+          <div class="filter-row">
+            <select class="form-select" id="fDays" aria-label="지연일수">
+              <option value="">지연일수 전체</option>
+              <option value="1">1일</option>
+              <option value="2">2일</option>
+              <option value="3">3일 이상</option>
+            </select>
+            <select class="form-select" id="fShip" aria-label="출고상태">
+              <option value="">출고상태 전체</option>
+              <option value="wait">상품준비중</option>
+              <option value="done">출고됨</option>
+            </select>
+            <input class="form-input" id="fQ" type="search" placeholder="상품번호 · 상품명 · 쿠팡 주문번호" aria-label="검색" />
+          </div>
+        </div>
+
+        <div class="list-count" id="listCount"></div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th class="col-nowrap">자사 상품번호</th>
+              <th>상품명</th>
+              <th class="col-nowrap">쿠팡 주문번호</th>
+              <th class="col-nowrap">자사 주문번호<span class="pending-tag">연동 확인 필요</span></th>
+              <th class="col-nowrap">자사 공개주문번호<span class="pending-tag">연동 확인 필요</span></th>
+              <th class="col-nowrap">주문일</th>
+              <th class="col-nowrap">쿠팡 주문시 출고예정일</th>
+              <th class="col-num col-nowrap">지연일수</th>
+              <th class="col-nowrap">현재 출고상태</th>
+              <th class="col-nowrap">실제 출고일</th>
+            </tr></thead>
+            <tbody id="listBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pager"></div>
+      </div>
+
+      <!-- ③ AI 분석 -->
+      <div class="section-title">
+        <span class="no">3</span><h3>AI 분석</h3>
+        <span class="ai-tag">AI</span>
+        <span class="section-desc">집계가 끝날 때마다 자동 생성</span>
+      </div>
+
+      <div class="ai-brief" id="aiBrief"></div>
+
+      <details class="card proto-memo" open>
+        <summary>시안 메모 — 구현 조건과 판정 규칙</summary>
+        <div class="memo-body">
+          <ul>
+            <li><b>데이터 원천:</b> 쿠팡 발주서 목록 API(상품준비중). 출고예정일=<span class="mono">estimatedShippingDate</span>, 자사 상품번호=<span class="mono">externalVendorSkuCode</span>, 출고일=<span class="mono">inTrasitDateTime</span>.</li>
+            <li><b>당일 출고 대상</b> = 출고예정일이 오늘이고 아직 상품준비중인 주문. <b>출고 지연</b> = 출고예정일이 지났는데 출고되지 않았거나, 지연된 뒤 출고된 주문.</li>
+            <li><b>지연일수</b> = 기준일 − 주문시 출고예정일(달력일). 영업일로 셀지는 요청 부서 확인 필요.</li>
+            <li><b>자사 주문번호·공개주문번호:</b> 쿠팡 API에 없어 자사 매핑 원천이 정해져야 채웁니다.</li>
+            <li><b>일자별 추이·AI의 반복 지연 판단:</b> 집계 이력이 쌓여야 정확해집니다.</li>
+            <li><b>AI의 상품군:</b> 쿠팡 카테고리(<span class="mono">productCategoryLevel1/2</span>) 기준입니다. 실제 값은 첫 수집 후 확인합니다.</li>
+            <li><b>갱신 주기:</b> 요청서의 1순위는 10~30분 간격입니다. 30분 수집이 가능한지는 영업관리시스템과 함께 쓰는 API 호출 한도를 확인한 뒤 정합니다.</li>
+            <li>구매자·수취인 정보는 수집 즉시 버리고 저장하지 않습니다. 별도 알림(메일·메신저)은 두지 않습니다(요청서 기준).</li>
+          </ul>
+        </div>
+      </details>
+
+      <section class="card" id="trace" aria-labelledby="traceTitle">
+        <div class="card-header card-header-col">
+          <span class="card-title" id="traceTitle">요구사항 반영 점검</span>
+          <span class="card-description">AX 요구사항 #306의 본문(목적·AS-IS·TO-BE·산출물·사용 주체·완료 기준·데이터소스)과 댓글 답변을 항목으로 나눠, 이 시안에서 어디에 어떻게 표현했는지 정리했습니다.</span>
+        </div>
+        <div class="card-content">
+          <p class="trace-verdict" id="traceVerdict"></p>
+          <div class="trace-summary" id="traceSummary"></div>
+          <div class="data-table-wrap">
+            <table class="data-table trace-table">
+              <thead><tr><th>번호</th><th>요구사항</th><th>출처</th><th>시안에서 표현한 위치</th><th>상태</th></tr></thead>
+              <tbody id="traceBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <p class="foot-note">AX Labs · 쿠팡 정시출고 모니터링 시안 · 예시 데이터</p>
+    </main>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast" role="status"></div>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

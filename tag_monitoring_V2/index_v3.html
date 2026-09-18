@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>태그 모니터링 (V3) — AX Labs</title>
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+
+  <nav class="sidebar" aria-label="주 메뉴">
+    <div class="sidebar-header">
+      <a class="sidebar-header-link" href="#"><span class="sidebar-logo">AX</span><span class="sidebar-brand">Labs</span></a>
+    </div>
+    <div class="sidebar-content">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">태그 운영</span>
+        <ul class="sidebar-menu">
+          <li><a class="nav-item-btn active" href="#">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41 12 22l-9-9V3h10z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>
+            <span class="nav-item-text">태그 모니터링</span></a></li>
+          <li><a class="nav-item-btn" href="#">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span class="nav-item-text">태그 대시보드</span></a></li>
+          <li><a class="nav-item-btn" href="#">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            <span class="nav-item-text">리포트 스케줄 관리</span></a></li>
+        </ul>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">이전 시안</span>
+        <ul class="sidebar-menu">
+          <li><a class="nav-item-btn" href="index.html"><span class="nav-item-text" style="margin-left:27px">V1 · 발송 콘솔</span></a></li>
+          <li><a class="nav-item-btn" href="index_v2.html"><span class="nav-item-text" style="margin-left:27px">V2 · 목적별 3탭</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-btn">
+        <span class="user-avatar">정송</span>
+        <div><div class="user-name">정송</div><div class="user-dept">도서사업본부 컨텐츠팀</div></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main-wrapper">
+    <header class="top-header">
+      <button class="btn btn-icon btn-outline btn-sm" title="사이드바 토글" aria-label="사이드바 토글">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
+      <div class="header-separator"></div>
+      <div class="header-breadcrumb">
+        <span class="header-breadcrumb-group">태그 운영</span>
+        <span class="header-breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <span class="header-breadcrumb-current">태그 모니터링</span>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-actions">
+        <span class="model-pill">POC · 목업 V3</span>
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="page-heading">
+        <div class="page-heading-left">
+          <div>
+            <h1 class="page-title">태그 모니터링</h1>
+            <p class="page-subtitle">주간 태그 클릭 트렌드와 미태깅 상품 현황을 확인합니다. · 요구사항 #282</p>
+          </div>
+        </div>
+        <div class="page-header-actions">
+          <select class="poc-select" id="weekSelect">
+            <option selected>2026-08-24 ~ 2026-08-30</option>
+            <option disabled>2026-08-17 ~ 2026-08-23</option>
+          </select>
+          <span class="badge badge-warning" id="upChip">첨부 미등록</span>
+          <span class="badge badge-secondary">매주 월 14:00 발송</span>
+          <a class="btn btn-outline btn-sm" href="#" id="btnSchedule">스케줄 관리 ↗</a>
+        </div>
+      </div>
+
+      <div class="goal-tabs" id="goalTabs">
+        <button class="goal-tab active" data-goal="g1">주간 리포트 <span class="gt-sub">클릭 트렌드</span></button>
+        <button class="goal-tab" data-goal="g2">태그 작업 큐 <span class="gt-sub">미태깅 상품</span> <span class="gt-cnt" id="tabCnt">-</span></button>
+        <button class="goal-tab" data-goal="g3">첨부 원본 <span class="gt-sub">엑셀 5개 항목</span></button>
+      </div>
+
+      <!-- ==================== ① 주간 리포트 ==================== -->
+      <section id="g1">
+        <div class="grid grid-4">
+          <div class="stat-card">
+            <div class="stat-head"><h4>신규 생성 태그</h4></div>
+            <div class="stat-num">3<span class="unit">건</span></div>
+            <div class="stat-sub" id="kpiNewSub">연결상품 0건 1개 포함</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head"><h4>태그 클릭</h4></div>
+            <div class="stat-num" id="kpiTag">-</div>
+            <div class="stat-sub">상위 20개 태그 합계</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head"><h4>연결상품 클릭</h4></div>
+            <div class="stat-num" id="kpiProd">-</div>
+            <div class="stat-sub">상위 20개 태그 합계</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head"><h4>전환 배율</h4><span class="delta up">+0.3</span></div>
+            <div class="stat-num" id="kpiRatio">-</div>
+            <div class="stat-sub">태그 클릭 1회당 상품 탐색</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">태그 퍼널 · 클릭 대비 상품 탐색</div>
+              <div class="card-description">태그 클릭(관심)과 연결상품 클릭(행동)을 나란히 비교합니다. 상위 20개 전체가 표에 있습니다.</div>
+            </div>
+            <label class="chk"><input type="checkbox" id="onlyLow"> 전환 낮은 태그만</label>
+          </div>
+          <div class="card-content">
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th class="num">순위</th><th>태그명</th><th class="num">태그 클릭</th><th class="num">상품 클릭</th><th>비교</th><th>전환</th></tr></thead>
+                <tbody id="tblFunnel"></tbody>
+              </table>
+            </div>
+            <div class="chart-legend">
+              <span><i style="background:var(--muted-foreground);opacity:.55"></i> 태그 클릭</span>
+              <span><i style="background:var(--primary)"></i> 연결상품 클릭</span>
+              <span>전환 <b>낮음</b> = 태그는 눌리는데 상품으로 이어지지 않음 → 연결 상품 구성 점검</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">관리분류별 연결상품 클릭</div>
+              <div class="card-description">태그를 타고 실제로 열람된 상품이 어느 분류에 몰렸는지</div>
+            </div>
+          </div>
+          <div class="card-content" id="catBars"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">국내도서 일간 클릭 BEST</div>
+              <div class="card-description">색이 진할수록 그 주에 여러 날 상위권에 오른 태그입니다.</div>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="tbl-wrap">
+              <table class="tbl tm-matrix" id="tblMatrix"></table>
+            </div>
+            <div class="matrix-note">연한 칸 = 그 주에 하루만 등장한 태그. 짙은 칸은 상시 태그로, 트렌드 신호는 연한 칸에 있습니다.</div>
+            <div class="matrix-hint" id="trackHint">칸에 마우스를 올리면 <b>같은 태그가 있는 요일이 모두 표시</b>되고, 순위 이동을 아래에서 확인할 수 있습니다.</div>
+            <div id="trackInfo"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">신규 생성 태그</div><div class="card-description">연결 상품이 없는 태그는 만들다 만 상태입니다.</div></div>
+          </div>
+          <div class="card-content">
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead><tr><th class="num">태그번호</th><th>태그명</th><th>등록자</th><th>등록일</th><th class="num">연결상품</th><th></th></tr></thead>
+                <tbody id="tblNew"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ② 태그 작업 큐 ==================== -->
+      <section id="g2" class="hidden">
+        <div class="grid grid-3">
+          <div class="stat-card">
+            <div class="stat-head"><h4>태그를 달아야 할 상품</h4><span class="badge badge-warning">조치</span></div>
+            <div class="headline"><span class="hl-num" id="hlMiss">-</span><span class="hl-unit">건</span></div>
+            <div class="hl-sub" id="hlMissSub"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head"><h4>지난주에도 요청한 상품</h4></div>
+            <div class="headline"><span class="hl-num" id="hlCarry">-</span><span class="hl-unit">건</span></div>
+            <div class="hl-sub" id="hlCarrySub"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head"><h4>이번 주 처리</h4></div>
+            <div class="headline ok"><span class="hl-num" id="hlDone">-</span><span class="hl-unit">건</span></div>
+            <div class="hl-sub">태그 등록 완료 · 다음 리포트에서 제외됩니다</div>
+          </div>
+        </div>
+
+        <div class="drop-strip" id="dropZone" style="margin-bottom:12px">
+          <span class="ds-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+          <div>
+            <div class="ds-text">메인 업데이트 도서 첨부를 여기에 끌어다 놓으세요</div>
+            <div class="ds-sub">.xlsx · 최대 60MB · 첨부가 없으면 발송 시각에 <b>4. 메인 업데이트 도서 태그 현황</b>이 비어 있는 채로 나갑니다</div>
+          </div>
+          <div class="ds-right">
+            <span id="upState"><span class="badge badge-warning">첨부 미등록</span></span>
+            <button class="btn btn-outline btn-sm" id="btnPick">파일 선택</button>
+            <button class="btn btn-ghost btn-sm" id="btnDemo">샘플로 시연</button>
+          </div>
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="hidden" />
+        <div id="upBanner"></div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">관리분류별 미태깅</div>
+              <div class="card-description">어느 분류가 태그 사각지대인지 보여줍니다.</div>
+            </div>
+          </div>
+          <div class="card-content" id="missBars"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">태그 작업 목록 <span class="badge badge-secondary" id="queueCount">0건</span></div>
+              <div class="card-description">주황색 행이 태그를 달아야 할 상품입니다. 오래 이월된 순으로 정렬됩니다.</div>
+            </div>
+            <div class="poc-search-row">
+              <button class="btn btn-outline btn-sm" id="btnCopy">상품번호 복사</button>
+              <button class="btn btn-outline btn-sm" id="btnExport">목록 내려받기</button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="filter-bar">
+              <select class="poc-select" id="fScope"><option value="miss" selected>미태깅만</option><option value="all">전체</option></select>
+              <select class="poc-select" id="fSrc"><option value="all">전체 출처</option><option value="main">메인 업데이트</option><option value="best">종합베스트 100</option></select>
+              <select class="poc-select" id="fTeam"><option value="">담당팀 전체</option><option>도서사업1팀</option><option>도서사업2팀</option></select>
+              <label class="chk"><input type="checkbox" id="fCarry"> 이월된 상품만</label>
+              <span class="spacer"></span>
+              <span class="src-count" id="listNote"></span>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead>
+                  <tr><th style="width:34px"></th><th>상태</th><th>출처</th><th>관리분류명</th><th class="num">상품번호</th><th>상품명</th><th>보유 태그</th><th>담당팀</th><th></th></tr>
+                </thead>
+                <tbody id="tblQueue"></tbody>
+              </table>
+            </div>
+            <div class="legend">
+              <span><i class="sw-notag"></i> 태그 없음 · 청년패스(9203)만 달린 상품 포함</span>
+            </div>
+            <div class="assume-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+              <span><b>이월 추적</b> — 지난주 목록과 대조해 같은 상품번호가 다시 잡히면 <b>이월 N주차</b>로 표시합니다. 태그가 등록되면 자동으로 <b>처리됨</b>이 되고 다음 주 리포트에서 빠집니다. 현재 수동 프로세스에는 없는 정보입니다.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ③ 첨부 원본 ==================== -->
+      <section id="g3" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">첨부 엑셀 원본</div>
+              <div class="card-description">발송될 <span class="mono">태그현황_20260824-0830.xlsx</span> 와 동일 구성 · 1개 시트에 5개 항목 적층</div>
+            </div>
+            <button class="btn btn-outline btn-sm" id="btnDownload">엑셀 내려받기</button>
+          </div>
+          <div class="card-content">
+            <div class="stack-note">가공하지 않은 원본입니다. 발송 전 첨부 파일과 1:1로 대조하는 용도입니다.</div>
+
+            <div class="sheet-label"><span class="n">1</span> 생성 태그</div>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th class="num">태그번호</th><th>태그명</th><th>등록자</th><th>등록일</th><th class="num">연결 상품수</th></tr></thead>
+              <tbody id="rawNew"></tbody>
+            </table></div>
+
+            <div class="sheet-label"><span class="n">2</span> 국내도서 일간 클릭 BEST</div>
+            <div class="tbl-wrap"><table class="tbl tm-matrix" id="rawMatrix"></table></div>
+
+            <div class="sheet-label"><span class="n">3</span> 기간 중 클릭 BEST</div>
+            <div class="subtabs" id="subtabs" style="margin-bottom:10px">
+              <button class="subtab active" data-tab="t1">(1) 태그 클릭</button>
+              <button class="subtab" data-tab="t2">(2) 연결 상품 클릭</button>
+              <button class="subtab" data-tab="t3">(3) 연결 상품 상세</button>
+            </div>
+            <div class="tbl-wrap sub-panel" id="t1"><table class="tbl">
+              <thead><tr><th class="num">순위</th><th>태그명</th><th class="num">클릭수</th></tr></thead><tbody id="rawT1"></tbody></table></div>
+            <div class="tbl-wrap sub-panel hidden" id="t2"><table class="tbl">
+              <thead><tr><th class="num">순위</th><th>태그명</th><th class="num">클릭수</th></tr></thead><tbody id="rawT2"></tbody></table></div>
+            <div class="tbl-wrap sub-panel hidden" id="t3"><table class="tbl">
+              <thead><tr><th class="num">순위</th><th>태그명</th><th class="num">상품번호</th><th>상품명</th><th>관리분류명</th><th class="num">클릭수</th></tr></thead><tbody id="rawT3"></tbody></table></div>
+
+            <div class="sheet-label"><span class="n">4</span> 메인 업데이트 도서 태그 현황 <span id="raw4State"></span></div>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>관리분류명</th><th class="num">상품번호</th><th>상품명</th><th>태그1</th><th>태그2</th><th>태그3</th><th>태그4</th><th>태그5</th><th>태그6</th></tr></thead>
+              <tbody id="rawMain"></tbody>
+            </table></div>
+
+            <div class="sheet-label"><span class="n">5</span> 종합베스트 100위 도서 태그 현황</div>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th class="num">순위</th><th>관리분류명</th><th class="num">상품번호</th><th>상품명</th><th>태그1</th><th>태그2</th><th>태그3</th><th>태그4</th><th>태그5</th><th>태그6</th><th>태그7</th><th>태그8</th></tr></thead>
+              <tbody id="rawBest"></tbody>
+            </table></div>
+            <div class="legend">
+              <span><i class="sw-notag"></i> 태그 없음 · 청년패스(9203)만 보유 (엑셀 주황 하이라이트 FCE4D6)</span>
+              <span>목업에서는 5번을 20건만 표시</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <p class="foot-note">AX Labs POC 목업 V3 · 요구사항 #282 · 발송·수신인·이력은 리포트 스케줄 관리 메뉴에 위임 · 데이터는 예시값입니다.</p>
+    </main>
+  </div>
+</div>
+
+<!-- 첨부 미리보기(등록 전 확인) -->
+<div class="modal-back hidden" id="mdPreview">
+  <div class="modal">
+    <div class="modal-head">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <h3>첨부 미리보기</h3>
+      <button class="btn btn-ghost btn-sm" data-close>닫기</button>
+    </div>
+    <div class="modal-body">
+      <div class="file-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <b id="pvName">-</b><span class="meta" id="pvMeta"></span></div>
+      <div class="parse-result">
+        <div class="parse-box"><div class="k">읽은 행</div><div class="v" id="pvRead">-</div></div>
+        <div class="parse-box"><div class="k">유효 상품번호</div><div class="v" id="pvValid">-</div></div>
+        <div class="parse-box"><div class="k">중복 제외</div><div class="v warn" id="pvDup">-</div></div>
+        <div class="parse-box"><div class="k">미태깅</div><div class="v bad" id="pvMiss">-</div></div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:12px;max-height:240px;overflow-y:auto">
+        <table class="tbl">
+          <thead><tr><th class="num">행</th><th class="num">상품번호</th><th>상품명</th><th>관리분류명</th><th>태그</th></tr></thead>
+          <tbody id="pvRows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" data-close>취소</button>
+      <button class="btn btn-primary btn-sm" id="btnCommit">등록하고 작업 목록에 반영</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+/* ================== 더미 데이터 (2026-08-24 ~ 08-30) ================== */
+const YOUTH = '청년패스';
+
+const NEW_TAGS = [
+  [9291, '북세서리', '정송', '2026-08-25 10:27', 9],
+  [9292, '가을엔에세이', '김하늘', '2026-08-26 14:02', 24],
+  [9293, '노벨문학상후보', '이지훈', '2026-08-28 09:41', 0]
+];
+
+// [태그, 태그클릭, 연결상품클릭]
+const FUNNEL = [
+  ['청년패스', 2572, 1839], ['크레마클럽에있어요', 408, 1296], ['배송비채우기', 357, 974], ['분철', 341, 902],
+  ['독서지도안', 296, 811], ['기간한정특가', 271, 1186], ['구매를부르는잡지부록', 248, 655], ['올해의책', 214, 612],
+  ['영화드라마원작', 198, 702], ['2025문구기프트BEST', 186, 764], ['그리스로마신화', 171, 540], ['카리나가읽은책', 164, 512],
+  ['사랑의형태', 152, 455], ['페이커가읽은책', 147, 401], ['서울대권장도서', 133, 377], ['가을엔에세이', 126, 88],
+  ['웹소설', 118, 428], ['한국BL', 109, 62], ['산리오', 102, 486], ['뉴욕타임즈_21세기_100대도서', 98, 51]
+];
+
+const DAY_LABEL = ['08-24 (월)', '08-25 (화)', '08-26 (수)', '08-27 (목)', '08-28 (금)', '08-29 (토)', '08-30 (일)'];
+const DAILY = [
+  ['청년패스', '크레마클럽에있어요', '분철', '배송비채우기', '독서지도안', '가을엔에세이', '구매를부르는잡지부록', '올해의책', '영화드라마원작', '그리스로마신화'],
+  ['청년패스', '크레마클럽에있어요', '분철', '배송비채우기', '독서지도안', '북세서리', '올해의책', '사랑의형태', '카리나가읽은책', '구매를부르는잡지부록'],
+  ['청년패스', '분철', '배송비채우기', '크레마클럽에있어요', '독서지도안', '서울대권장도서', '구매를부르는잡지부록', '올해의책', '그리스로마신화', '영화드라마원작'],
+  ['청년패스', '크레마클럽에있어요', '배송비채우기', '분철', '독서지도안', '페이커가읽은책', '사랑의형태', '기간한정특가', '영화드라마원작', '구매를부르는잡지부록'],
+  ['청년패스', '크레마클럽에있어요', '분철', '배송비채우기', '독서지도안', '노벨문학상후보', '올해의책', '구매를부르는잡지부록', '한국BL', '뉴욕타임즈_21세기_100대도서'],
+  ['청년패스', '배송비채우기', '크레마클럽에있어요', '분철', '2025문구기프트BEST', '기간한정특가', '영화드라마원작', 'EBS스페이스공감선정100대명반', '웹소설', '올해의책'],
+  ['청년패스', '배송비채우기', '크레마클럽에있어요', '분철', '2025문구기프트BEST', '기간한정특가', '독서지도안', '카리나가읽은책', '구매를부르는잡지부록', '산리오']
+];
+
+const PROD_DETAIL = [
+  ['키티러버_키티라', 190418250, 'かぎ針で編む ハロ-キティ', '재봉/바느질', 309],
+  ['그리스로마신화', 194511329, '오뒷세이아', '인문', 294],
+  ['크레마클럽에있어요', 145242086, '오디세이', '소설', 271],
+  ['청년패스', 152840113, '불변의 법칙', '경제경영', 258],
+  ['기간한정특가', 138902741, '세이노의 가르침', '자기계발', 241],
+  ['2025문구기프트BEST', 161207755, '모나미 153 골드 리미티드', '문구', 233],
+  ['분철', 149330218, '수학의 정석 실력편', '수험서', 215],
+  ['독서지도안', 155621904, '초등 문해력 수업', '가정/육아', 204],
+  ['영화드라마원작', 172004613, '파과', '소설', 196],
+  ['카리나가읽은책', 167712880, '아주 희미한 빛으로도', '소설', 188],
+  ['배송비채우기', 143008812, '문학동네 시인선 100', '시/에세이', 177],
+  ['올해의책', 176450233, '소년이 온다', '소설', 169]
+];
+
+// 관리분류별 연결상품 클릭
+const CAT_CLICKS = [['소설', 2140], ['자기계발', 1284], ['경제경영', 1102], ['인문', 946], ['시/에세이', 812], ['문구', 764], ['수험서', 521], ['가정/육아', 448], ['어린이', 386], ['만화', 274]];
+
+// 종합베스트 100위 (목업 20건) [순위, 관리분류, 상품번호, 상품명, 태그[], 담당팀, 이월주차, 처리]
+const BEST = [
+  [1, '자기계발', 138902741, '세이노의 가르침', ['청년패스', '올해의책', '배송비채우기', '분철', '독서지도안', '기간한정특가', '크레마클럽에있어요', '서울대권장도서'], '도서사업1팀', 0, false],
+  [2, '소설', 172004613, '파과', ['영화드라마원작', '올해의책'], '도서사업1팀', 0, false],
+  [3, '경제경영', 152840113, '불변의 법칙', ['청년패스', '기간한정특가', '크레마클럽에있어요'], '도서사업1팀', 0, false],
+  [4, '소설', 176450233, '소년이 온다', [YOUTH], '도서사업1팀', 1, false],
+  [5, '시/에세이', 190330755, '작별인사', ['가을엔에세이', '영화드라마원작', '크레마클럽에있어요'], '도서사업2팀', 0, false],
+  [6, '장르소설', 181993027, '전지적 독자 시점 1', ['웹소설', '영화드라마원작'], '도서사업2팀', 0, false],
+  [7, '가정/육아', 155621904, '초등 문해력 수업', ['독서지도안'], '도서사업1팀', 0, false],
+  [8, '만화', 187341902, '체인소 맨 17', [], '도서사업2팀', 3, false],
+  [9, '인문', 194511329, '오뒷세이아', ['그리스로마신화', '서울대권장도서'], '도서사업1팀', 0, false],
+  [10, '문구', 161207755, '모나미 153 골드 리미티드', ['2025문구기프트BEST'], '도서사업2팀', 0, false],
+  [11, '외국어', 168220455, 'HACKERS TOEIC READING', ['분철', '배송비채우기'], '도서사업1팀', 0, false],
+  [12, '수험서', 149330218, '수학의 정석 실력편', [], '도서사업1팀', 2, false],
+  [13, '어린이', 159008117, '흔한남매 20', ['독서지도안'], '도서사업2팀', 0, false],
+  [15, '여행', 191002388, '유럽 소도시 기행', [], '도서사업2팀', 2, false],
+  [17, '건강', 183009127, '진짜 근육 만들기', [YOUTH], '도서사업2팀', 1, false],
+  [19, '예술', 178330922, '방구석 미술관', [], '도서사업2팀', 1, false],
+  [23, '자기계발', 156220914, '아주 작은 습관의 힘', [], '도서사업1팀', 0, false],
+  [31, '경제경영', 147880220, '돈의 심리학', [], '도서사업1팀', 0, false],
+  [44, '어린이', 193220741, '마법천자문 60', [], '도서사업2팀', 0, false],
+  [57, '인문', 138009922, '사피엔스', [YOUTH], '도서사업1팀', 0, true]
+];
+
+// 첨부(메인 업데이트) — 업로드 전에는 비어 있다
+const MAIN_SAMPLE = [
+  ['소설', 194511329, '오뒷세이아', ['그리스로마신화', '올해의책', '크레마클럽에있어요', '서울대권장도서'], '도서사업1팀', 0, false],
+  ['경제경영', 152840113, '불변의 법칙', ['청년패스', '기간한정특가', '크레마클럽에있어요'], '도서사업1팀', 0, false],
+  ['자기계발', 138902741, '세이노의 가르침', ['청년패스', '올해의책', '배송비채우기', '분철', '독서지도안', '기간한정특가'], '도서사업1팀', 0, false],
+  ['시/에세이', 190330755, '작별인사', ['가을엔에세이', '영화드라마원작'], '도서사업2팀', 0, false],
+  ['가정/육아', 155621904, '초등 문해력 수업', ['독서지도안'], '도서사업1팀', 0, true],
+  ['소설', 172004613, '파과', [], '도서사업1팀', 2, false],
+  ['문구', 161207755, '모나미 153 골드 리미티드', ['2025문구기프트BEST', '기간한정특가'], '도서사업2팀', 0, false],
+  ['수험서', 149330218, '수학의 정석 실력편', [], '도서사업1팀', 3, false],
+  ['만화', 187341902, '체인소 맨 17', [], '도서사업2팀', 1, false],
+  ['여행', 191002388, '유럽 소도시 기행', [], '도서사업2팀', 1, false],
+  ['요리', 165772014, '백종원의 셀프 레시피', [], '도서사업2팀', 0, false],
+  ['건강', 183009127, '진짜 근육 만들기', [YOUTH], '도서사업2팀', 1, false],
+  ['역사', 144220876, '총 균 쇠', ['서울대권장도서', '올해의책'], '도서사업1팀', 0, false],
+  ['예술', 178330922, '방구석 미술관', ['크레마클럽에있어요', '영화드라마원작'], '도서사업2팀', 0, false]
+];
+
+let MAIN = [];          // 업로드 전 비어 있음
+let uploaded = false;
+let pending = null;     // preview 단계 데이터
+
+/* ================== 공통 ================== */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const nf = (n) => n.toLocaleString('ko-KR');
+let toastTimer;
+function toast(msg) {
+  $('#toastMsg').textContent = msg;
+  $('#toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 2600);
+}
+// 미태깅 판정: 태그 없음 또는 청년패스(9203)만
+const isMiss = (tags) => tags.length === 0 || (tags.length === 1 && tags[0] === YOUTH);
+const tagChips = (tags) => tags.length
+  ? tags.map((t) => `<span class="tag-chip ${t === YOUTH ? 'is-youth' : ''}">${esc(t)}</span>`).join(' ')
+  : '<span class="tag-empty">없음</span>';
+
+/* ================== ① 주간 리포트 ================== */
+const sumTag = FUNNEL.reduce((a, f) => a + f[1], 0);
+const sumProd = FUNNEL.reduce((a, f) => a + f[2], 0);
+$('#kpiTag').textContent = nf(sumTag);
+$('#kpiProd').textContent = nf(sumProd);
+$('#kpiRatio').innerHTML = (sumProd / sumTag).toFixed(1) + '<span class="unit">x</span>';
+$('#kpiNewSub').textContent = `연결상품 0건 ${NEW_TAGS.filter((t) => t[4] === 0).length}개 포함`;
+
+function renderFunnel() {
+  const only = $('#onlyLow').checked;
+  const maxV = Math.max(...FUNNEL.map((f) => Math.max(f[1], f[2])));
+  const rows = FUNNEL.map((f, i) => [...f, i + 1]).filter((f) => !only || f[2] / f[1] < 1);
+  $('#tblFunnel').innerHTML = rows.map((f) => {
+    const ratio = f[2] / f[1];
+    const cls = ratio < 1 ? 'gap-low' : ratio < 2.5 ? 'gap-mid' : 'gap-high';
+    const label = ratio < 1 ? '낮음' : ratio < 2.5 ? '보통' : '높음';
+    return `
+    <tr>
+      <td class="num rank-cell ${f[3] <= 3 ? 'top' : ''}">${f[3]}</td>
+      <td><span class="tag-chip ${f[0] === YOUTH ? 'is-youth' : ''}">${esc(f[0])}</span></td>
+      <td class="num">${nf(f[1])}</td>
+      <td class="num">${nf(f[2])}</td>
+      <td><div class="funnel-cell"><div class="funnel-bars">
+        <div class="fb tag"><i style="width:${(f[1] / maxV * 100).toFixed(1)}%"></i></div>
+        <div class="fb goods"><i style="width:${(f[2] / maxV * 100).toFixed(1)}%"></i></div>
+      </div></div></td>
+      <td><span class="gap-badge ${cls}">${label} ×${ratio.toFixed(1)}</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="tag-empty" style="text-align:center;padding:24px">해당 태그가 없습니다.</td></tr>';
+}
+$('#onlyLow').addEventListener('change', renderFunnel);
+
+// 관리분류별 막대
+function renderBars(el, rows, warn) {
+  const max = Math.max(...rows.map((r) => r[1]));
+  el.innerHTML = rows.map((r) => `
+    <div class="hbar">
+      <span class="hb-k">${esc(r[0])}</span>
+      <span class="hb-bar"><i class="${warn ? 'warn' : ''}" style="width:${(r[1] / max * 100).toFixed(1)}%"></i></span>
+      <span class="hb-v">${nf(r[1])}${warn ? '건' : ''}</span>
+    </div>`).join('');
+}
+
+// 일간 BEST 매트릭스
+function renderMatrix() {
+  const count = {};
+  DAILY.forEach((day) => day.forEach((t) => { count[t] = (count[t] || 0) + 1; }));
+  let html = '<thead><tr><th class="num">순위</th>' + DAY_LABEL.map((d) => `<th style="text-align:center">${d}</th>`).join('') + '</tr></thead><tbody>';
+  for (let r = 0; r < 10; r++) {
+    html += `<tr><td class="rk">${r + 1}</td>`;
+    DAILY.forEach((day) => {
+      const t = day[r];
+      const pct = (count[t] / 7 * 26).toFixed(0);
+      html += `<td><span class="hm-cell" data-tag="${esc(t)}" style="background:color-mix(in oklch, var(--primary) ${pct}%, transparent)" title="${esc(t)} · 주 ${count[t]}일 등장">${esc(t)}</span></td>`;
+    });
+    html += '</tr>';
+  }
+  $('#tblMatrix').innerHTML = html + '</tbody>';
+}
+
+// 같은 태그 추적 — 칸에 올리면 그 태그가 있는 요일이 모두 강조되고 순위 이동을 보여준다
+function trackTag(tag) {
+  const tbl = $('#tblMatrix');
+  const cells = [...tbl.querySelectorAll('.hm-cell')];
+  if (!tag) {
+    tbl.classList.remove('has-hl');
+    cells.forEach((c) => c.classList.remove('hl'));
+    $('#trackInfo').innerHTML = '';
+    return;
+  }
+  tbl.classList.add('has-hl');
+  cells.forEach((c) => c.classList.toggle('hl', c.dataset.tag === tag));
+
+  // 요일별 순위 시퀀스
+  const seq = DAILY.map((day) => day.indexOf(tag) + 1); // 0 = 미진입
+  const parts = seq.map((rk, i) => {
+    if (rk === 0) return '<span style="opacity:.35">-</span>';
+    const prev = i > 0 ? seq[i - 1] : 0;
+    let cls = '';
+    if (prev > 0 && rk < prev) cls = 'up';
+    else if (prev > 0 && rk > prev) cls = 'down';
+    return `<span class="${cls}">${rk}</span>`;
+  });
+  const days = seq.filter((r) => r > 0).length;
+  const bestRank = Math.min(...seq.filter((r) => r > 0));
+  $('#trackInfo').innerHTML = `
+    <span class="track-info">
+      <b>${esc(tag)}</b>
+      <span class="ti-seq">${parts.join(' › ')}</span>
+      <span style="color:var(--muted-foreground);font-weight:500">주 ${days}일 · 최고 ${bestRank}위</span>
+    </span>`;
+}
+
+let pinned = null;
+$('#tblMatrix').addEventListener('mouseover', (e) => {
+  const c = e.target.closest('.hm-cell');
+  if (c && !pinned) trackTag(c.dataset.tag);
+});
+$('#tblMatrix').addEventListener('mouseleave', () => { if (!pinned) trackTag(null); });
+$('#tblMatrix').addEventListener('click', (e) => {
+  const c = e.target.closest('.hm-cell');
+  if (!c) return;
+  pinned = pinned === c.dataset.tag ? null : c.dataset.tag;
+  trackTag(pinned || c.dataset.tag);
+  $('#trackHint').innerHTML = pinned
+    ? `<b>${esc(pinned)}</b> 고정됨 — 다시 클릭하면 해제됩니다.`
+    : '칸에 마우스를 올리면 <b>같은 태그가 있는 요일이 모두 표시</b>되고, 순위 이동을 아래에서 확인할 수 있습니다.';
+});
+
+$('#tblNew').innerHTML = NEW_TAGS.map((t) => `
+  <tr class="${t[4] === 0 ? 'row-notag' : ''}">
+    <td class="num code">${t[0]}</td>
+    <td><span class="tag-chip">${esc(t[1])}</span></td>
+    <td>${esc(t[2])}</td>
+    <td class="code">${t[3]}</td>
+    <td class="num">${t[4]}</td>
+    <td>${t[4] === 0 ? '<span class="badge badge-warning">연결 0건</span>' : ''}</td>
+  </tr>`).join('');
+
+/* ================== ② 태그 작업 큐 ================== */
+// 통합 목록: [출처, 순위|null, 관리분류, 상품번호, 상품명, 태그[], 담당팀, 이월주차, 처리]
+function allItems() {
+  const m = MAIN.map((r) => ['main', null, r[0], r[1], r[2], r[3], r[4], r[5], r[6]]);
+  const b = BEST.map((r) => ['best', r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7]]);
+  return [...m, ...b];
+}
+const openMiss = () => allItems().filter((r) => isMiss(r[5]) && !r[8]);
+
+function renderHeadline() {
+  const miss = openMiss();
+  const main = miss.filter((r) => r[0] === 'main').length;
+  const best = miss.filter((r) => r[0] === 'best').length;
+  const carry = miss.filter((r) => r[7] >= 1).length;
+  const done = allItems().filter((r) => r[8]).length;
+  const bestTotal = BEST.length;
+
+  $('#hlMiss').textContent = miss.length;
+  $('#hlMissSub').innerHTML = uploaded
+    ? `메인 업데이트 <b>${main}건</b> / ${MAIN.length}종 (태깅률 ${Math.round((1 - main / MAIN.length) * 100)}%) · 종합베스트 <b>${best}건</b> / ${bestTotal}종 (태깅률 ${Math.round((1 - best / bestTotal) * 100)}%)`
+    : `종합베스트 <b>${best}건</b> / ${bestTotal}종 · 메인 업데이트는 <b>첨부 대기 중</b>`;
+  $('#hlCarry').textContent = carry;
+  $('#hlCarrySub').innerHTML = carry
+    ? `가장 오래된 건 <b>${Math.max(...miss.map((r) => r[7])) + 1}주차</b>입니다.`
+    : '이월된 상품이 없습니다.';
+  $('#hlDone').textContent = done;
+  $('#tabCnt').textContent = miss.length;
+
+  // 관리분류별 미태깅
+  const byCat = {};
+  miss.forEach((r) => { byCat[r[2]] = (byCat[r[2]] || 0) + 1; });
+  const rows = Object.entries(byCat).sort((a, b2) => b2[1] - a[1]).slice(0, 8);
+  renderBars($('#missBars'), rows.length ? rows : [['(없음)', 0]], true);
+}
+
+const stateCell = (weeks, done) => {
+  if (done) return '<span class="state-pill state-done">처리됨</span>';
+  if (weeks === 0) return '<span class="state-pill state-new">신규</span>';
+  if (weeks >= 3) return `<span class="state-pill state-old">이월 ${weeks + 1}주차</span>`;
+  return `<span class="state-pill state-carry">이월 ${weeks + 1}주차</span>`;
+};
+
+function renderQueue() {
+  const scope = $('#fScope').value, src = $('#fSrc').value, team = $('#fTeam').value, carry = $('#fCarry').checked;
+  const rows = allItems().filter((r) => {
+    if (scope === 'miss' && !(isMiss(r[5]) && !r[8])) return false;
+    if (src !== 'all' && r[0] !== src) return false;
+    if (team && r[6] !== team) return false;
+    if (carry && r[7] === 0) return false;
+    return true;
+  }).sort((a, b) => b[7] - a[7] || (a[1] || 0) - (b[1] || 0));
+
+  $('#tblQueue').innerHTML = rows.map((r) => {
+    const idx = r[0] === 'main' ? MAIN.findIndex((m) => m[1] === r[3]) : BEST.findIndex((b) => b[2] === r[3] && b[0] === r[1]);
+    const cls = r[8] ? 'is-done' : (isMiss(r[5]) ? (r[5].length ? 'row-youth' : 'row-notag') : '');
+    return `
+    <tr class="${cls}">
+      <td><input type="checkbox" data-src="${r[0]}" data-i="${idx}" ${r[8] ? 'checked' : ''} title="태그 등록 완료로 표시" /></td>
+      <td>${stateCell(r[7], r[8])}</td>
+      <td><span class="src-pill ${r[0] === 'main' ? 'main' : 'best'}">${r[0] === 'main' ? '메인 업데이트' : '베스트 ' + r[1] + '위'}</span></td>
+      <td>${esc(r[2])}</td>
+      <td class="num code">${r[3]}</td>
+      <td class="name">${esc(r[4])}</td>
+      <td>${tagChips(r[5])}</td>
+      <td>${esc(r[6])}</td>
+      <td><a class="btn btn-ghost btn-sm" href="#" data-open="${r[3]}">태그관리 열기</a></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" class="tag-empty" style="text-align:center;padding:28px">해당 조건의 상품이 없습니다. 필터를 바꾸거나 첨부를 등록해 보세요.</td></tr>';
+
+  $('#queueCount').textContent = rows.length + '건';
+  $('#listNote').textContent = uploaded
+    ? `메인 업데이트 ${MAIN.length}종 + 종합베스트 ${BEST.length}종 기준`
+    : `종합베스트 ${BEST.length}종 기준 · 메인 업데이트 첨부 대기 중`;
+  renderHeadline();
+}
+
+['#fScope', '#fSrc', '#fTeam', '#fCarry'].forEach((s) => $(s).addEventListener('change', renderQueue));
+$('#tblQueue').addEventListener('change', (e) => {
+  const t = e.target;
+  if (!t.dataset.src) return;
+  const i = Number(t.dataset.i);
+  if (t.dataset.src === 'main') MAIN[i][6] = t.checked; else BEST[i][8] = t.checked;
+  renderQueue();
+  renderRaw();
+  toast(t.checked ? '태그 등록 완료로 표시했습니다.' : '처리 표시를 해제했습니다.');
+});
+$('#tblQueue').addEventListener('click', (e) => {
+  const a = e.target.closest('[data-open]');
+  if (!a) return;
+  e.preventDefault();
+  toast(`태그관리에서 상품번호 ${a.dataset.open} 를 엽니다. (목업)`);
+});
+$('#btnCopy').addEventListener('click', () => toast(`미태깅 상품번호 ${openMiss().length}건을 클립보드에 복사했습니다.`));
+$('#btnExport').addEventListener('click', () => toast('작업 목록을 엑셀로 내려받았습니다.'));
+
+/* ---------- 첨부 업로드: preview → commit 2단계 ---------- */
+const pickFile = () => $('#fileInput').click();
+$('#btnPick').addEventListener('click', (e) => { e.stopPropagation(); pickFile(); });
+$('#btnDemo').addEventListener('click', (e) => { e.stopPropagation(); preview({ name: '메인업데이트도서_20260831.xlsx', size: 43008 }); });
+const zone = $('#dropZone');
+zone.addEventListener('click', pickFile);
+zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', (e) => { e.preventDefault(); e.stopPropagation(); zone.classList.remove('drag'); preview(e.dataTransfer.files[0]); });
+$('#fileInput').addEventListener('change', (e) => { preview(e.target.files[0]); e.target.value = ''; });
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer?.files?.length) preview(e.dataTransfer.files[0]); });
+
+function preview(file) {
+  if (!file) return;
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!['xlsx', 'xls', 'csv'].includes(ext)) { toast('.xlsx 파일만 등록할 수 있습니다.'); return; }
+  if (file.size > 60 * 1024 * 1024) { toast('파일이 너무 큽니다. (최대 60MB)'); return; }
+
+  const items = MAIN_SAMPLE.map((r) => [...r]);
+  pending = { file, items };
+  $('#pvName').textContent = file.name;
+  $('#pvMeta').textContent = `${Math.round(file.size / 1024)}KB · 등록 전 미리보기`;
+  $('#pvRead').textContent = items.length + 2;
+  $('#pvValid').textContent = items.length;
+  $('#pvDup').textContent = 1;
+  $('#pvMiss').textContent = items.filter((r) => isMiss(r[3])).length;
+  $('#pvRows').innerHTML = items.map((r, i) => `
+    <tr class="${isMiss(r[3]) ? 'row-notag' : ''}">
+      <td class="num">${i + 2}</td><td class="num code">${r[1]}</td><td class="name">${esc(r[2])}</td>
+      <td>${esc(r[0])}</td><td>${tagChips(r[3])}</td>
+    </tr>`).join('');
+  $('#mdPreview').classList.remove('hidden');
+}
+
+$('#btnCommit').addEventListener('click', () => {
+  MAIN = pending.items;
+  uploaded = true;
+  $('#mdPreview').classList.add('hidden');
+  $('#upChip').className = 'badge badge-success';
+  $('#upChip').textContent = '첨부 등록됨';
+  $('#upState').innerHTML = `<div class="file-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><b>${esc(pending.file.name)}</b><span class="meta">${MAIN.length}종 · 방금 등록 · 정송</span></div>`;
+  $('#upBanner').innerHTML = `
+    <div class="up-banner">
+      <span class="ub-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+      <div class="ub-main">
+        <div class="ub-title">${esc(pending.file.name)} · 상품 ${MAIN.length}종을 작업 목록에 반영했습니다</div>
+        <div class="ub-sub">미태깅 ${MAIN.filter((r) => isMiss(r[3])).length}건 · 4번 항목이 첨부 엑셀에 채워집니다.</div>
+      </div>
+      <div class="ub-actions"><button class="btn btn-outline btn-sm" id="btnUndo">되돌리기</button></div>
+    </div>`;
+  $('#btnUndo').addEventListener('click', undo);
+  renderQueue();
+  renderRaw();
+  toast(`첨부를 등록했습니다. 미태깅 ${MAIN.filter((r) => isMiss(r[3])).length}건이 작업 목록에 추가되었습니다.`);
+});
+
+function undo() {
+  MAIN = [];
+  uploaded = false;
+  $('#upChip').className = 'badge badge-warning';
+  $('#upChip').textContent = '첨부 미등록';
+  $('#upState').innerHTML = '<span class="badge badge-warning">첨부 미등록</span>';
+  $('#upBanner').innerHTML = '';
+  renderQueue();
+  renderRaw();
+  toast('첨부 등록을 되돌렸습니다.');
+}
+
+/* ================== ③ 첨부 원본 ================== */
+const tagCells = (tags, n) => {
+  let out = '';
+  for (let i = 0; i < n; i++) {
+    const t = tags[i];
+    out += t ? `<td class="tag-cell"><span class="tag-chip ${t === YOUTH ? 'is-youth' : ''}">${esc(t)}</span></td>` : '<td class="tag-cell tag-empty">-</td>';
+  }
+  return out;
+};
+
+$('#rawNew').innerHTML = NEW_TAGS.map((t) => `
+  <tr><td class="num code">${t[0]}</td><td>${esc(t[1])}</td><td>${esc(t[2])}</td><td class="code">${t[3]}</td><td class="num">${t[4]}</td></tr>`).join('');
+
+$('#rawT1').innerHTML = FUNNEL.map((f, i) => `<tr><td class="num rank-cell">${i + 1}</td><td>${esc(f[0])}</td><td class="num">${nf(f[1])}</td></tr>`).join('');
+$('#rawT2').innerHTML = [...FUNNEL].sort((a, b) => b[2] - a[2]).map((f, i) => `<tr><td class="num rank-cell">${i + 1}</td><td>${esc(f[0])}</td><td class="num">${nf(f[2])}</td></tr>`).join('');
+$('#rawT3').innerHTML = PROD_DETAIL.map((r, i) => `
+  <tr><td class="num rank-cell">${i + 1}</td><td>${esc(r[0])}</td><td class="num code">${r[1]}</td><td class="name">${esc(r[2])}</td><td>${esc(r[3])}</td><td class="num">${nf(r[4])}</td></tr>`).join('');
+
+// 원본 탭의 2번은 엑셀과 동일한 매트릭스 (색 강조 없음)
+$('#rawMatrix').innerHTML =
+  '<thead><tr><th class="num">순위</th>' + DAY_LABEL.map((d) => `<th style="text-align:center">${d}</th>`).join('') + '</tr></thead><tbody>' +
+  Array.from({ length: 10 }, (_, r) =>
+    `<tr><td class="rk">${r + 1}</td>` + DAILY.map((day) => `<td>${esc(day[r])}</td>`).join('') + '</tr>'
+  ).join('') + '</tbody>';
+
+function renderRaw() {
+  $('#raw4State').innerHTML = uploaded
+    ? `<span class="badge badge-success" style="margin-left:6px">첨부 ${MAIN.length}종</span>`
+    : '<span class="badge badge-warning" style="margin-left:6px">첨부 미등록 · 이 항목은 비어 있는 채로 발송됩니다</span>';
+  $('#rawMain').innerHTML = MAIN.length
+    ? MAIN.map((r) => `<tr class="${isMiss(r[3]) ? (r[3].length ? 'row-youth' : 'row-notag') : ''}">
+        <td>${esc(r[0])}</td><td class="num code">${r[1]}</td><td class="name">${esc(r[2])}</td>${tagCells(r[3], 6)}</tr>`).join('')
+    : '<tr><td colspan="9" class="tag-empty" style="text-align:center;padding:24px">첨부가 등록되지 않아 비어 있습니다.</td></tr>';
+
+  $('#rawBest').innerHTML = BEST.map((r) => `
+    <tr class="${isMiss(r[4]) ? (r[4].length ? 'row-youth' : 'row-notag') : ''}">
+      <td class="num rank-cell">${r[0]}</td><td>${esc(r[1])}</td><td class="num code">${r[2]}</td><td class="name">${esc(r[3])}</td>${tagCells(r[4], 8)}
+    </tr>`).join('');
+}
+
+$('#subtabs').addEventListener('click', (e) => {
+  const b = e.target.closest('.subtab');
+  if (!b) return;
+  document.querySelectorAll('.subtab').forEach((t) => t.classList.toggle('active', t === b));
+  document.querySelectorAll('.sub-panel').forEach((p) => p.classList.toggle('hidden', p.id !== b.dataset.tab));
+});
+
+/* ================== 탭 · 기타 ================== */
+$('#goalTabs').addEventListener('click', (e) => {
+  const b = e.target.closest('.goal-tab');
+  if (!b) return;
+  document.querySelectorAll('.goal-tab').forEach((t) => t.classList.toggle('active', t === b));
+  ['g1', 'g2', 'g3'].forEach((id) => $('#' + id).classList.toggle('hidden', id !== b.dataset.goal));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+document.querySelectorAll('.modal-back').forEach((m) => {
+  m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('[data-close]')) m.classList.add('hidden'); });
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.modal-back').forEach((m) => m.classList.add('hidden')); });
+$('#btnSchedule').addEventListener('click', (e) => { e.preventDefault(); toast('리포트 스케줄 관리로 이동합니다. 발송 주기·수신인·이력은 그 화면에서 관리합니다.'); });
+$('#btnDownload').addEventListener('click', () => toast('태그현황_20260824-0830.xlsx 를 내려받았습니다.'));
+$('#themeToggle').addEventListener('click', () => {
+  const dark = document.documentElement.classList.toggle('dark');
+  $('#iconMoon').classList.toggle('hidden', dark);
+  $('#iconSun').classList.toggle('hidden', !dark);
+});
+
+/* ================== 초기 렌더 ================== */
+renderFunnel();
+renderBars($('#catBars'), CAT_CLICKS, false);
+renderMatrix();
+renderQueue();
+renderRaw();
+</script>
+</body>
+</html>

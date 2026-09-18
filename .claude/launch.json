@@ -24,6 +24,15 @@
         "."
       ],
       "port": 8941
+    },
+    {
+      "name": "node-static",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "serve.js",
+        "8942"
+      ],
+      "port": 8942
     }
   ]
 }

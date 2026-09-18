@@ -1,0 +1,174 @@
+<section class="page-content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">태그 모니터링</h1>
+      <p class="page-subtitle">주간 태그 클릭 트렌드와 미태깅 상품 현황을 확인합니다.</p>
+    </div>
+    <div class="page-header-actions">
+      <select class="form-select" id="tmPeriod" aria-label="조회 주차">
+        <option>2026-08-24 ~ 2026-08-30</option>
+        <option disabled>2026-08-17 ~ 2026-08-23</option>
+      </select>
+      <span class="badge badge-warning" id="tmUploadChip">첨부 미등록</span>
+      <span class="badge badge-outline">매주 월 14:00 발송</span>
+      <a class="btn btn-outline btn-sm" href="#" id="tmScheduleLink">스케줄 관리 ↗</a>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="report">주간 리포트</button>
+    <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="queue">태그 작업 큐</button>
+  </div>
+
+  <div id="tmReport" role="tabpanel">
+    <div class="grid grid-cols-4 tm-mb">
+      <div class="card stat-card">
+        <div class="card-header"><h3 class="card-title">신규 생성 태그</h3></div>
+        <div class="card-content"><div class="stat-value" id="kpiNewTags">-</div><div class="stat-change" id="kpiNewTagsSub"></div></div>
+      </div>
+      <div class="card stat-card">
+        <div class="card-header"><h3 class="card-title">태그 클릭</h3></div>
+        <div class="card-content"><div class="stat-value" id="kpiTagClicks">-</div><div class="stat-change">상위 20개 태그 합계</div></div>
+      </div>
+      <div class="card stat-card">
+        <div class="card-header"><h3 class="card-title">연결상품 클릭</h3></div>
+        <div class="card-content"><div class="stat-value" id="kpiProdClicks">-</div><div class="stat-change">상위 20개 태그 합계</div></div>
+      </div>
+      <div class="card stat-card">
+        <div class="card-header"><h3 class="card-title">전환 배율</h3></div>
+        <div class="card-content"><div class="stat-value" id="kpiRatio">-</div><div class="stat-change positive">태그 클릭 1회당 상품 탐색</div></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 tm-mb">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">태그 퍼널 · 클릭 대비 상품 탐색</h3>
+            <p class="card-description" id="funnelDesc">점선 위쪽은 한 번 눌릴 때 상품을 깊게 파는 태그, 아래쪽은 태그만 눌리고 마는 태그입니다.</p>
+          </div>
+        </div>
+        <div class="card-content"><div class="tm-canvas"><canvas id="chFunnel"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">요일별 순위 변동</h3>
+            <p class="card-description">국내도서 일간 클릭 BEST 10위 안에 3일 이상 머문 태그입니다.</p>
+          </div>
+        </div>
+        <div class="card-content"><div class="tm-canvas"><canvas id="chBump"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="card tm-mb">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">관리분류별 연결상품 클릭</h3>
+          <p class="card-description">태그를 타고 실제로 열람된 상품이 어느 분류에 몰렸는지 보여줍니다.</p>
+        </div>
+      </div>
+      <div class="card-content"><div class="tm-canvas tm-canvas-sm"><canvas id="chCat"></canvas></div></div>
+    </div>
+
+    <div class="grid grid-cols-2 tm-mb">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">태그 클릭 순위</h3></div>
+        <div class="card-content tm-flush"><div class="table-wrapper"><table class="data-table" id="tblTagClicks"></table></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">연결상품 클릭 순위</h3></div>
+        <div class="card-content tm-flush"><div class="table-wrapper"><table class="data-table" id="tblProdClicks"></table></div></div>
+      </div>
+    </div>
+
+    <div class="card tm-mb">
+      <div class="card-header"><h3 class="card-title">연결상품 클릭 상위 도서</h3></div>
+      <div class="card-content tm-flush"><div class="table-wrapper"><table class="data-table" id="tblProdDetail"></table></div></div>
+    </div>
+
+    <div class="card tm-mb">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">국내도서 일간 클릭 BEST</h3>
+          <p class="card-description">색이 진할수록 그 주에 여러 날 상위권에 오른 태그입니다.</p>
+        </div>
+      </div>
+      <div class="card-content tm-flush"><div class="table-wrapper"><table class="data-table tm-matrix" id="tblDaily"></table></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">신규 생성 태그</h3></div>
+      <div class="card-content tm-flush"><div class="table-wrapper"><table class="data-table" id="tblNewTags"></table></div></div>
+    </div>
+  </div>
+
+  <div id="tmQueue" class="hidden" role="tabpanel">
+    <div class="tm-dropzone tm-mb" id="tmDropzone" tabindex="0" role="button" aria-label="메인 업데이트 도서 첨부 업로드">
+      <svg class="tm-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      <div class="tm-dropzone-title">메인 업데이트 도서 첨부를 올려주세요</div>
+      <div class="tm-dropzone-sub">.xlsx · 최대 60MB · 끌어놓거나 클릭</div>
+      <div class="tm-dropzone-note">첨부가 없으면 발송 시각에 리포트의 <b>4. 메인 업데이트 도서 태그 현황</b>이 비어 있는 채로 나갑니다.</div>
+      <input type="file" id="tmFileInput" accept=".xlsx" class="hidden">
+    </div>
+
+    <div class="banner banner--success hidden tm-mb tm-banner-row" id="tmUploadDone" role="status">
+      <span id="tmUploadDoneText"></span>
+      <button type="button" class="btn btn-ghost btn-sm" id="tmUploadReset">되돌리기</button>
+    </div>
+
+    <div class="grid grid-cols-3 tm-mb">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">메인 업데이트 도서</h3></div>
+        <div class="card-content tm-center">
+          <div class="tm-donut"><canvas id="chCovMain"></canvas><span class="tm-donut-label" id="covMainPct">—</span></div>
+          <div class="stat-change" id="covMainSub">첨부 대기 중</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">종합베스트 100위</h3></div>
+        <div class="card-content tm-center">
+          <div class="tm-donut"><canvas id="chCovBest"></canvas><span class="tm-donut-label" id="covBestPct">—</span></div>
+          <div class="stat-change" id="covBestSub"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">관리분류별 미태깅</h3>
+            <p class="card-description">어느 분류가 태그 사각지대인지 보여줍니다.</p>
+          </div>
+        </div>
+        <div class="card-content"><div class="tm-canvas tm-canvas-sm"><canvas id="chMissCat"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3 class="card-title">태그 작업 목록 <span class="badge badge-secondary" id="tmQueueCount">0건</span></h3>
+          <p class="card-description">주황색 행이 태그를 달아야 할 상품입니다.</p>
+        </div>
+        <div class="page-header-actions">
+          <button type="button" class="btn btn-outline btn-sm active" data-scope="all">전체</button>
+          <button type="button" class="btn btn-outline btn-sm" data-scope="miss">미태깅만</button>
+          <select class="form-select" id="tmSrcFilter" aria-label="출처 필터">
+            <option value="all">전체 출처</option>
+            <option value="main">메인 업데이트</option>
+            <option value="best">종합베스트 100</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-content tm-flush">
+        <div class="table-wrapper"><table class="data-table" id="tblQueue"></table></div>
+        <div class="empty-state hidden" id="tmQueueEmpty">
+          <div class="empty-state-title">해당 조건의 상품이 없습니다</div>
+          <div class="empty-state-desc">필터를 바꾸거나 첨부를 등록해 보세요.</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="tm-legend"><span class="tm-swatch" aria-hidden="true"></span> 태그 없음 · 청년패스(9203)만 달린 상품 포함</span>
+      </div>
+    </div>
+  </div>
+</section>
