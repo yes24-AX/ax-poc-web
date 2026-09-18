@@ -106,8 +106,11 @@ function tipAttr(key) { return TIPS[key] ? ` data-tip-key="${key}"` : ''; }
     const bw = b.offsetWidth, bh = b.offsetHeight;
     let x = r.left + r.width / 2 - bw / 2;
     x = Math.max(8, Math.min(x, window.innerWidth - bw - 8));
-    let y = r.bottom + 8;
-    if (y + bh > window.innerHeight - 8) y = r.top - bh - 8;
+    // KPI 제목은 바로 아래가 숫자라 가리지 않게 위쪽을 우선한다
+    const preferTop = !!target.closest('.stat-head');
+    let y = preferTop ? r.top - bh - 8 : r.bottom + 8;
+    if (preferTop && y < 8) y = r.bottom + 8;
+    if (!preferTop && y + bh > window.innerHeight - 8) y = r.top - bh - 8;
     b.style.left = Math.round(x) + 'px';
     b.style.top = Math.round(Math.max(8, y)) + 'px';
   }

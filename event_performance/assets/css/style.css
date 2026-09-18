@@ -869,3 +869,18 @@ th[data-tip-key], .field-label[data-tip-key], .stat-head h4[data-tip-key],
   background: color-mix(in oklch, var(--background) 16%, transparent);
 }
 .tipbox .tip-d { margin-top: 6px; opacity: 0.86; }
+
+/* 툴팁 표식 — KPI 제목·조회 조건 라벨은 점선 대신 물음표 아이콘 */
+.stat-head h4[data-tip-key], .field-label[data-tip-key] {
+  text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
+}
+.stat-head h4[data-tip-key]::after, .field-label[data-tip-key]::after {
+  content: "?"; flex-shrink: 0; width: 14px; height: 14px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9.5px; font-weight: 800; line-height: 1; font-family: var(--font-selected);
+  color: var(--muted-foreground); background: var(--muted); border: 1px solid var(--border);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.stat-head h4[data-tip-key]:hover::after, .field-label[data-tip-key]:hover::after {
+  color: var(--primary-foreground); background: var(--primary); border-color: var(--primary);
+}
