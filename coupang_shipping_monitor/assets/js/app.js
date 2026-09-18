@@ -23,52 +23,19 @@
   function fmt(n) { return Number(n).toLocaleString('ko-KR'); }
   function $(id) { return document.getElementById(id); }
 
-  // ── 요구사항 항목 (AX 요구사항 #306 본문·댓글을 항목으로 분해) ──
-  // status: ui 반영 · cond 반영(조건부) · partial 일부 반영 · pending 2단계(자사 데이터 필요) · excluded 미반영(확인 필요) · offscreen 화면 외
-  var REQ = [
-    { id: 'R1', text: '출고지연은 자사 상품출발예정일이 아니라 WING 주문시 출고예정일 기준으로 판단', short: 'WING 출고예정일 기준 판정', src: '산출물 · 완료 기준 · 댓글 답변 1', where: '헤더 판정 기준 배지, 모든 집계', status: 'ui' },
-    { id: 'R2', text: '당일 출고 대상(오늘이 출고예정일인데 미출고) 주문을 엑셀 없이 자동 확인', short: '당일 출고 대상 자동 확인', src: 'TO-BE', where: '주요 현황 첫 카드, 상세 목록 「당일 출고 대상」 탭', status: 'ui' },
-    { id: 'R3', text: '출고 지연(출고예정일 경과 미출고) 주문을 자동 확인', short: '출고 지연 자동 확인', src: 'TO-BE', where: '주요 현황 둘째 카드, 상세 목록 「출고 지연」 탭', status: 'ui' },
-    { id: 'R4', text: '출고예정일 대비 지연일수를 자동 산출해 1일·2일·3일 이상으로 구분', short: '지연일수 산출·1/2/3일+ 구분', src: 'TO-BE', where: '지연일수별 카드, 추이 차트 색, 상품 표, 목록 지연일수 컬럼', status: 'ui' },
-    { id: 'R5', text: '오늘 출고예정 미출고 주문 수 / 상품 종수', short: '오늘 출고예정 미출고 수·종수', src: '산출물 › 주요 현황', where: '주요 현황 첫 카드', status: 'ui' },
-    { id: 'R6', text: '출고예정일 경과 미출고 주문 수 / 상품 종수', short: '경과 미출고 수·종수', src: '산출물 › 주요 현황', where: '주요 현황 둘째 카드', status: 'ui' },
-    { id: 'R7', text: '1일 / 2일 / 3일 이상 지연 주문 수', short: '1/2/3일+ 지연 주문 수', src: '산출물 › 주요 현황', where: '지연일수별 카드', status: 'ui' },
-    { id: 'R8', text: '직전 집계 대비 지연 증감', short: '직전 집계 대비 지연 증감', src: '산출물 › 주요 현황', where: '둘째·셋째 카드의 ▲▼ 표시', status: 'cond', note: '집계를 저장해 비교하므로 운영 후 두 번째 집계부터 표시' },
-    { id: 'R9', text: '일자별 추이', short: '일자별 추이', src: '산출물 › 주요 현황', where: '일자별 출고지연 추이 차트', status: 'cond', note: '운영 시작일부터 누적. 이전 기간은 주문 이력으로 근사 재구성' },
-    { id: 'R10', text: '주요 출고지연 상품', short: '주요 출고지연 상품', src: '산출물 › 주요 현황', where: '주요 출고지연 상품 표', status: 'ui' },
-    { id: 'R11', text: '상세목록: 자사 상품번호 / 상품명 / 쿠팡·자사·자사 공개 주문번호 / 주문일 / 주문시 출고예정일 / 지연일수 / 현재 출고상태 / 실제 출고일', short: '상세목록 10개 컬럼', src: '산출물 › 상세목록', where: '상세 목록 표', status: 'partial', note: '자사 주문번호·자사 공개주문번호는 쿠팡 API에 없어 자사 매핑 원천 확정 후 채움' },
-    { id: 'R12', text: '상세목록 엑셀 다운로드', short: '엑셀 다운로드', src: '산출물 › 상세목록', where: '상세 목록 「엑셀 다운로드」 버튼', status: 'ui' },
-    { id: 'R13', text: 'AI 분석: 최근 대비 지연 급증', short: 'AI · 지연 급증', src: '산출물 › AI 분석', where: 'AI 분석 「주요 패턴」', status: 'cond', note: '비교할 집계 이력이 쌓여야 정확' },
-    { id: 'R14', text: 'AI 분석: 반복 지연 상품', short: 'AI · 반복 지연 상품', src: '산출물 › AI 분석', where: 'AI 분석 「주요 패턴」', status: 'cond', note: '상품별 일자 이력이 쌓여야 판단 가능' },
-    { id: 'R15', text: 'AI 분석: 특정 상품·상품군 지연 집중', short: 'AI · 상품·상품군 집중', src: '산출물 › AI 분석', where: 'AI 분석 「주요 패턴」', status: 'cond', note: '상품군은 쿠팡 카테고리 기준(자사 분류가 필요하면 추가 조회)' },
-    { id: 'R16', text: 'AI 분석: 기타 기존 추이와 다른 이상 패턴', short: 'AI · 기타 이상 패턴', src: '산출물 › AI 분석', where: 'AI 분석 「주요 패턴」', status: 'ui' },
-    { id: 'R17', text: '누적 데이터로 주요 패턴을 AI가 요약해 우선 확인 대상을 빠르게 파악', short: 'AI 요약·우선 확인 대상', src: 'TO-BE', where: 'AI 요약 문단, 「우선 확인 대상」', status: 'ui' },
-    { id: 'R18', text: '자동 갱신: 실시간(10·30분 단위) 희망, 호출 제한상 어려우면 영업일 08시·14시', short: '자동 갱신 주기', src: 'TO-BE', where: '헤더 갱신 안내, 집계 시각', status: 'partial', note: '시안은 08시·14시안. 30분 수집은 영업관리시스템과 함께 쓰는 API 호출 한도 확인 후 결정' },
-    { id: 'R19', text: '별도 알림(메일·메신저) 없이 담당자가 화면을 직접 열어 확인', short: '알림 없음·화면 확인', src: '산출물 › 알림 · 댓글 답변 2', where: '알림 기능을 두지 않음', status: 'ui' },
-    { id: 'R20', text: '엑셀 작업 없이 As-Is 1~3단계를 자동으로 확인할 수 있는 상태', short: 'As-Is 1~3단계 자동화', src: 'TO-BE', where: '화면 전체', status: 'partial', note: '1~2단계(주문 다운로드·선별)와 3단계 중 자사 상품번호 확인은 반영. 3단계의 자사 유통상태·주문번호 대조는 R22·R23 참고' },
-    { id: 'R21', text: '업체상품코드로 자사 상품번호를 확인해 출고지연이 많은 상품 파악', short: '자사 상품번호로 지연 상품 파악', src: 'AS-IS 3단계', where: '주요 출고지연 상품 표, 목록 자사 상품번호', status: 'ui' },
-    { id: 'R22', text: '자사 상품번호 기준 유통상태(품절·일시품절·절판·예약판매)와 발매예정일 확인', short: '자사 유통상태·발매예정일', src: 'AS-IS 3단계 · 댓글 답변 3', where: '— (화면에 없음)', status: 'pending', note: '산출물 목록엔 없지만 TO-BE가 1~3단계 자동화를 언급. 자사 상품 데이터 연동이 필요해 2단계로 분리' },
-    { id: 'R23', text: '자사 주문번호 기준 출고상태·상품출발예정일로 자사 기준 지연 확인', short: '자사 기준 출고상태·출발예정일', src: 'AS-IS 3단계 · 댓글 답변 3', where: '— (화면에 없음)', status: 'excluded', note: '판정은 WING 기준으로 한다는 답변(R1)에 따라 제외. 자사 기준 값도 함께 볼지 요청 부서 확인 필요' },
-    { id: 'R24', text: '예약판매·업체배송·반품불가 등 일부 상품은 쿠팡 출고예정일이 공란', short: '출고예정일 공란 처리', src: 'AS-IS 주석', where: '「출고예정일 없음」 카드(편의), 지연 판정에서 제외', status: 'ui' },
-    { id: 'R25', text: '사용 주체: 제휴영업팀 2명(실무 1명)·팀장, 수시 사용, 별도 모니터링 담당자 없음', short: '사용 주체·주기', src: '사용 주체 · 사용 주기', where: '메뉴 권한 설정', status: 'offscreen' },
-    { id: 'R26', text: '쿠팡 API 초당 5회 이상 호출 시 차단, SECRET KEY 6개월 교체(영업관리시스템 제휴 암호키관리)', short: 'API 호출 제한·키 교체', src: '데이터소스', where: '수집 배치 설계', status: 'offscreen' },
-    { id: 'R27', text: '완료 기준: 3주 연속 정상 집계, 담당자 수기 확인 60분 → 0', short: '완료 기준(3주·수기 0)', src: '완료 기준', where: '운영 검증', status: 'offscreen' }
-  ];
+  // ── 요구사항 항목 (assets/js/requirements-data.js 공용 정의) ──
+  var REQ = window.AX_REQ.items;
   var REQ_MAP = {};
   REQ.forEach(function (r) { REQ_MAP[r.id] = r; });
-  var STATUS = {
-    ui: ['반영', 'badge-success'],
-    cond: ['반영 · 조건부', 'badge-info'],
-    partial: ['일부 반영', 'badge-warning'],
-    pending: ['2단계 · 자사 데이터 필요', 'badge-warning'],
-    excluded: ['미반영 · 확인 필요', 'badge-danger'],
-    offscreen: ['화면 외 (수집·운영)', 'badge-secondary']
-  };
+  var STATUS = {};
+  Object.keys(window.AX_REQ.statuses).forEach(function (k) {
+    STATUS[k] = [window.AX_REQ.statuses[k].label, window.AX_REQ.statuses[k].badge];
+  });
 
   function reqChip(id) {
     var r = REQ_MAP[id];
     if (!r) return '';
-    return '<span class="req" title="' + esc(r.id + ' · ' + r.text + ' (' + r.src + ')') + '"><b>' + r.id + '</b>' + esc(r.short) + '</span>';
+    return '<button type="button" class="req" data-req-id="' + r.id + '" title="' + esc(r.id + ' · ' + r.text + ' (' + r.src + ') — 눌러서 상세 보기') + '"><b>' + r.id + '</b>' + esc(r.short) + '</button>';
   }
   function reqRow(ids) {
     return '<div class="req-row">' + ids.split(' ').map(reqChip).join('') + '</div>';
@@ -87,19 +54,69 @@
     $('traceVerdict').innerHTML =
       '요구사항 ' + REQ.length + '개 중 화면에 해당하는 ' + screenReqs + '개 가운데 <b>' + shown + '개를 표현</b>했습니다. ' +
       '빠진 항목은 <b>' + ((cnt.pending || 0) + (cnt.excluded || 0)) + '개</b>(R22 자사 유통상태·발매예정일, R23 자사 기준 출고상태)이고, ' +
-      (cnt.offscreen || 0) + '개는 수집·운영에서 다룹니다. 일부 반영 ' + (cnt.partial || 0) + '개는 자사 주문번호 연동과 갱신 주기 확인이 남아 있습니다.';
+      (cnt.offscreen || 0) + '개는 수집·운영에서 다룹니다. 일부 반영 ' + (cnt.partial || 0) + '개(' +
+      REQ.filter(function (r) { return r.status === 'partial'; }).map(function (r) { return r.id; }).join('·') + ')는 남은 일을 점검표에서 확인하세요.';
     $('traceSummary').innerHTML = Object.keys(STATUS).filter(function (k) { return cnt[k]; }).map(function (k) {
       return '<span class="badge ' + STATUS[k][1] + '">' + STATUS[k][0] + ' ' + cnt[k] + '</span>';
     }).join('');
     $('traceBody').innerHTML = REQ.map(function (r) {
       var st = STATUS[r.status];
-      return '<tr><td class="num col-nowrap"><b>' + r.id + '</b></td>' +
+      return '<tr class="trace-row" data-req-id="' + r.id + '" tabindex="0"><td class="num col-nowrap"><b>' + r.id + '</b></td>' +
         '<td>' + esc(r.text) + '</td>' +
         '<td class="src">' + esc(r.src) + '</td>' +
         '<td>' + esc(r.where) + (r.note ? '<span class="note">' + esc(r.note) + '</span>' : '') + '</td>' +
         '<td class="col-nowrap"><span class="badge ' + st[1] + '">' + st[0] + '</span></td></tr>';
     }).join('');
   }
+
+  // ── 요구사항 상세 보기 (별도 창, 막히면 화면 안 모달) ──
+  var reqWin = null;
+  function openReq(id) {
+    var url = 'requirements.html' + (id ? '?id=' + encodeURIComponent(id) : '');
+    if (reqWin && !reqWin.closed) {
+      try {
+        reqWin.focus();
+        if (id) reqWin.postMessage({ type: 'ax-req-focus', id: id }, location.origin);
+        return;
+      } catch (e) { reqWin = null; }
+    }
+    var feat = 'width=620,height=920,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes';
+    try { reqWin = window.open(url, 'axReq306', feat); } catch (e) { reqWin = null; }
+    if (!reqWin) { showReqModal(id); return; }     // 팝업 차단 등 — 화면 안에서 보여준다
+    try { reqWin.focus(); } catch (e) { /* 무시 */ }
+  }
+
+  function reqDetailHtml(r) {
+    var st = STATUS[r.status];
+    return '<div class="req-item-head"><span class="req-id">' + r.id + '</span>' +
+      '<h2 class="req-item-title">' + esc(r.short) + '</h2>' +
+      '<span class="badge ' + st[1] + '">' + st[0] + '</span></div>' +
+      '<div class="req-item-body">' + (r.text !== r.short ? '<p class="req-text">' + esc(r.text) + '</p>' : '') +
+      (r.quote && r.quote !== r.text ? '<blockquote class="req-quote">' + esc(r.quote) + '<cite>요구서 ' + esc(r.src) + '</cite></blockquote>' : '') +
+      '<dl class="req-dl"><div><dt>시안에서</dt><dd>' + esc(r.where) + '</dd></div>' +
+      (r.data ? '<div><dt>데이터</dt><dd>' + esc(r.data) + '</dd></div>' : '') +
+      (r.note ? '<div><dt>남은 일</dt><dd>' + esc(r.note) + '</dd></div>' : '') + '</dl></div>';
+  }
+
+  function showReqModal(id) {
+    var r = REQ_MAP[id];
+    $('reqModalBody').innerHTML = r ? reqDetailHtml(r) :
+      '<p class="req-text">요구사항 목록을 별도 창으로 열지 못했습니다. 아래 「요구사항 반영 점검」 표에서 전체 항목을 볼 수 있습니다.</p>';
+    $('reqModal').hidden = false;
+    $('reqModalClose').focus();
+  }
+  function closeReqModal() { $('reqModal').hidden = true; }
+
+  document.addEventListener('click', function (e) {
+    var tag = e.target.closest('.req[data-req-id]') || e.target.closest('.trace-row[data-req-id]');
+    if (tag) { openReq(tag.dataset.reqId); return; }
+    if (e.target.closest('#reqModalClose') || e.target.closest('.req-modal-backdrop')) closeReqModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !$('reqModal').hidden) closeReqModal();
+    var row = e.target.closest ? e.target.closest('.trace-row[data-req-id]') : null;
+    if (row && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openReq(row.dataset.reqId); }
+  });
 
   // ── 예시 데이터 ──
   var rnd = rng(306);
@@ -139,12 +156,14 @@
     if (late === -1) continue;
     var due = late === null ? null : addDays(TODAY, -late);
     var ordered = late === null ? addDays(TODAY, -Math.floor(rnd() * 20)) : addDays(due, -(1 + Math.floor(rnd() * 3)));
-    // 08:00 이후 14:00 전에 출고된 주문 → 14:00 집계에서 '출고됨'
+    // 08:00 이후 14:00 전에 출고된 주문 → 14:00 집계에서 '출하지시'
     var shipped = late !== null && rnd() < (late === 0 ? .45 : .2)
       ? ymd(TODAY) + ' ' + pad(9 + Math.floor(rnd() * 5)) + ':' + pad(Math.floor(rnd() * 60)) : null;
     rows.push({
       p: p,
       orderId: String(2 + Math.floor(rnd() * 25)) + String(10236000 + i * 7) + pad(Math.floor(rnd() * 100)) + pad(Math.floor(rnd() * 100)),
+      ownOrderNo: String(152300000 + i * 131 + Math.floor(rnd() * 97)),                 // 자사 주문번호 (예시)
+      pubOrderNo: 'Y' + ymd(ordered).slice(2).replace(/-/g, '') + String(1000 + Math.floor(rnd() * 8999)),  // 공개주문번호 Y+10자리 (예시)
       ordered: ymd(ordered) + ' ' + pad(Math.floor(rnd() * 24)) + ':' + pad(Math.floor(rnd() * 60)),
       due: due ? ymd(due) : null,
       late: late,
@@ -283,7 +302,7 @@
       }
       if (state.ship === 'wait' && shipped) return false;
       if (state.ship === 'done' && !shipped) return false;
-      if (q && (r.p.no + ' ' + r.p.name + ' ' + r.orderId).toLowerCase().indexOf(q) < 0) return false;
+      if (q && (r.p.no + ' ' + r.p.name + ' ' + r.orderId + ' ' + r.ownOrderNo + ' ' + r.pubOrderNo).toLowerCase().indexOf(q) < 0) return false;
       return true;
     }).sort(function (a, b) { return b.late - a.late || a.ordered.localeCompare(b.ordered); });
     return { list: list, counts: counts };
@@ -308,12 +327,12 @@
         '<td class="num col-nowrap">' + r.p.no + '</td>' +
         '<td class="cell-title" title="' + esc(r.p.name) + '">' + esc(r.p.name) + '</td>' +
         '<td class="num col-nowrap">' + r.orderId + '</td>' +
-        '<td class="col-nowrap cell-pending">—</td>' +
-        '<td class="col-nowrap cell-pending">—</td>' +
+        '<td class="num col-nowrap">' + r.ownOrderNo + '</td>' +
+        '<td class="num col-nowrap">' + r.pubOrderNo + '</td>' +
         '<td class="num col-nowrap">' + r.ordered + '</td>' +
         '<td class="num col-nowrap">' + r.due + '</td>' +
         '<td class="col-num col-nowrap num">' + days + '</td>' +
-        '<td class="col-nowrap">' + (shipped ? '<span class="ship-status done">출고됨(배송지시)</span>' : '<span class="ship-status wait">상품준비중</span>') + '</td>' +
+        '<td class="col-nowrap">' + (shipped ? '<span class="ship-status done">출하지시</span>' : '<span class="ship-status wait">상품준비중</span>') + '</td>' +
         '<td class="num col-nowrap">' + (shipped ? r.shippedAt : '<span class="muted">—</span>') + '</td>' +
         '</tr>';
     }).join('') : '<tr><td colspan="10" class="col-center muted">조건에 맞는 주문이 없습니다.</td></tr>';
@@ -415,6 +434,9 @@
     var t = $('toast'); t.textContent = msg; t.classList.remove('hidden');
     clearTimeout(toast.timer); toast.timer = setTimeout(function () { t.classList.add('hidden'); }, 2600);
   }
+  $('reqOpen').addEventListener('click', function () { openReq(''); });
+  // summary 안의 버튼 — 눌러도 접힘/펼침이 바뀌지 않게 기본 동작을 막는다
+  $('traceOpen').addEventListener('click', function (e) { e.preventDefault(); openReq(''); });
   $('btnExcel').addEventListener('click', function () {
     toast('시안이라 파일은 만들지 않습니다. 실제 화면은 현재 탭·필터 그대로 xlsx로 내려받습니다.');
   });

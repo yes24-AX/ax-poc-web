@@ -8,14 +8,6 @@
   <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
-  <script>
-    // 첫 페인트 전에 테마 결정 (뷰어 테마 표시 → 시스템 설정 순)
-    (function () {
-      var r = document.documentElement, t = r.getAttribute('data-theme');
-      var dark = t ? t === 'dark' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-      if (dark) r.classList.add('dark');
-    })();
-  </script>
 </head>
 <body>
 
@@ -94,9 +86,15 @@
         <div class="banner-body">
           <span><b>프로토타입 · AX 요구사항 #306.</b> 수치·상품·주문번호는 모두 예시 데이터이며 실제 쿠팡 주문과 무관합니다.</span>
           <span><i class="legend-conv"></i>점선 박스는 요구서에 없지만 편의를 위해 제안하는 기능입니다. 박스 밖은 모두 요구서 항목입니다.</span>
-          <span><span class="pending-tag">연동 확인 필요</span> 표시는 요구서 항목이지만 자사 데이터 원천이 확정돼야 채울 수 있는 칸입니다.</span>
-          <span><span class="req"><b>R1</b> 요구사항</span> 태그는 그 UI가 표현하는 요구서 항목입니다. 전체 항목과 반영 여부는 맨 아래 「요구사항 반영 점검」에 있습니다.</span>
-          <span class="banner-actions"><button type="button" class="btn btn-outline btn-sm" id="reqToggle" aria-pressed="true">요구사항 태그 숨기기</button></span>
+          <span><b>자사 주문번호·공개주문번호</b>는 사내 주문번호 조회 API(신규)로 쿠팡 주문번호를 매핑해 채운다고 가정했습니다.</span>
+          <span><span class="req req-static"><b>R1</b> 요구사항</span> 태그는 그 UI가 표현하는 요구서 항목입니다. <b>태그를 누르면</b> 별도 창에서 그 요구사항의 원문과 반영 상태가 열립니다.</span>
+          <span class="banner-actions">
+            <button type="button" class="btn btn-primary btn-sm" id="reqOpen">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              요구사항 정리 창 열기
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="reqToggle" aria-pressed="true">요구사항 태그 숨기기</button>
+          </span>
         </div>
       </div>
 
@@ -226,9 +224,9 @@
             <select class="form-select" id="fShip" aria-label="출고상태">
               <option value="">출고상태 전체</option>
               <option value="wait">상품준비중</option>
-              <option value="done">출고됨</option>
+              <option value="done">출하지시</option>
             </select>
-            <input class="form-input" id="fQ" type="search" placeholder="상품번호 · 상품명 · 쿠팡 주문번호" aria-label="검색" />
+            <input class="form-input" id="fQ" type="search" placeholder="상품번호 · 상품명 · 쿠팡/자사 주문번호" aria-label="검색" />
           </div>
         </div>
 
@@ -239,8 +237,8 @@
               <th class="col-nowrap">자사 상품번호</th>
               <th>상품명</th>
               <th class="col-nowrap">쿠팡 주문번호</th>
-              <th class="col-nowrap">자사 주문번호<span class="pending-tag">연동 확인 필요</span></th>
-              <th class="col-nowrap">자사 공개주문번호<span class="pending-tag">연동 확인 필요</span></th>
+              <th class="col-nowrap">자사 주문번호</th>
+              <th class="col-nowrap">자사 공개주문번호</th>
               <th class="col-nowrap">주문일</th>
               <th class="col-nowrap">쿠팡 주문시 출고예정일</th>
               <th class="col-num col-nowrap">지연일수</th>
@@ -269,7 +267,7 @@
             <li><b>데이터 원천:</b> 쿠팡 발주서 목록 API(상품준비중). 출고예정일=<span class="mono">estimatedShippingDate</span>, 자사 상품번호=<span class="mono">externalVendorSkuCode</span>, 출고일=<span class="mono">inTrasitDateTime</span>.</li>
             <li><b>당일 출고 대상</b> = 출고예정일이 오늘이고 아직 상품준비중인 주문. <b>출고 지연</b> = 출고예정일이 지났는데 출고되지 않았거나, 지연된 뒤 출고된 주문.</li>
             <li><b>지연일수</b> = 기준일 − 주문시 출고예정일(달력일). 영업일로 셀지는 요청 부서 확인 필요.</li>
-            <li><b>자사 주문번호·공개주문번호:</b> 쿠팡 API에 없어 자사 매핑 원천이 정해져야 채웁니다.</li>
+            <li><b>자사 주문번호·공개주문번호:</b> 쿠팡 API에는 없어 <b>사내 주문번호 조회 API(신규)</b>로 채웁니다. 쿠팡 주문번호 목록을 넘기면 자사 주문(PR_ORD_M)의 제휴사주문ID로 찾아 주문번호·공개주문번호를 돌려주는 방식입니다. 매핑이 늦은 주문은 다음 집계에서 채웁니다.</li>
             <li><b>일자별 추이·AI의 반복 지연 판단:</b> 집계 이력이 쌓여야 정확해집니다.</li>
             <li><b>AI의 상품군:</b> 쿠팡 카테고리(<span class="mono">productCategoryLevel1/2</span>) 기준입니다. 실제 값은 첫 수집 후 확인합니다.</li>
             <li><b>갱신 주기:</b> 요청서의 1순위는 10~30분 간격입니다. 30분 수집이 가능한지는 영업관리시스템과 함께 쓰는 API 호출 한도를 확인한 뒤 정합니다.</li>
@@ -278,14 +276,18 @@
         </div>
       </details>
 
-      <section class="card" id="trace" aria-labelledby="traceTitle">
-        <div class="card-header card-header-col">
-          <span class="card-title" id="traceTitle">요구사항 반영 점검</span>
-          <span class="card-description">AX 요구사항 #306의 본문(목적·AS-IS·TO-BE·산출물·사용 주체·완료 기준·데이터소스)과 댓글 답변을 항목으로 나눠, 이 시안에서 어디에 어떻게 표현했는지 정리했습니다.</span>
-        </div>
+      <details class="card trace-card" id="trace">
+        <summary class="card-header trace-head">
+          <svg class="trace-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"/></svg>
+          <div class="trace-head-text">
+            <span class="card-title" id="traceTitle">요구사항 반영 점검</span>
+            <span class="card-description">AX 요구사항 #306의 본문(목적·AS-IS·TO-BE·산출물·사용 주체·완료 기준·데이터소스)과 댓글 답변을 항목으로 나눠, 이 시안에서 어디에 어떻게 표현했는지 정리했습니다. 펼치면 항목별 표가 나오고, 행을 누르면 원문이 별도 창에서 열립니다.</span>
+            <div class="trace-summary" id="traceSummary"></div>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="traceOpen">별도 창으로 보기</button>
+        </summary>
         <div class="card-content">
           <p class="trace-verdict" id="traceVerdict"></p>
-          <div class="trace-summary" id="traceSummary"></div>
           <div class="data-table-wrap">
             <table class="data-table trace-table">
               <thead><tr><th>번호</th><th>요구사항</th><th>출처</th><th>시안에서 표현한 위치</th><th>상태</th></tr></thead>
@@ -293,7 +295,7 @@
             </table>
           </div>
         </div>
-      </section>
+      </details>
 
       <p class="foot-note">AX Labs · 쿠팡 정시출고 모니터링 시안 · 예시 데이터</p>
     </main>
@@ -302,6 +304,19 @@
 
 <div class="toast hidden" id="toast" role="status"></div>
 
+<div class="req-modal" id="reqModal" role="dialog" aria-modal="true" aria-labelledby="reqModalTitle" hidden>
+  <div class="req-modal-backdrop"></div>
+  <div class="req-modal-panel card">
+    <div class="req-modal-head">
+      <span class="card-title" id="reqModalTitle">요구사항 상세</span>
+      <button type="button" class="btn btn-ghost btn-sm" id="reqModalClose" aria-label="닫기">닫기</button>
+    </div>
+    <div class="req-modal-body" id="reqModalBody"></div>
+    <p class="req-modal-note">브라우저가 팝업 창을 막아 화면 안에서 보여 줍니다. 팝업을 허용하면 별도 창으로 나란히 볼 수 있습니다.</p>
+  </div>
+</div>
+
+<script src="assets/js/requirements-data.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

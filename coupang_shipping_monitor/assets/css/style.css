@@ -490,7 +490,6 @@ h1.page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; lin
 
 /* 연동 확인 필요 (요구사항이지만 원천 확정 전) */
 .pending-tag { display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 999px; font-size: 10.5px; font-weight: 700; color: var(--warning); background: color-mix(in oklab, var(--warning) 12%, transparent); border: 1px solid color-mix(in oklab, var(--warning) 28%, transparent); vertical-align: 1px; }
-.cell-pending { color: var(--muted-foreground); opacity: 0.6; }
 
 /* 헤딩 보조 */
 .heading-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted-foreground); margin-top: 8px; }
@@ -623,3 +622,75 @@ button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible
 .trace-table td.src { color: var(--muted-foreground); white-space: nowrap; }
 .trace-table .note { display: block; color: var(--muted-foreground); font-size: 11.5px; margin-top: 2px; }
 .badge-info { background: color-mix(in oklab, var(--info) 12%, transparent); color: var(--info); border-color: color-mix(in oklab, var(--info) 28%, transparent); }
+
+/* =====================================================
+   요구사항 상세 — 태그 버튼 · 별도 창 · 화면 안 대체 모달
+   ===================================================== */
+
+/* 태그는 이제 버튼 */
+button.req { font-family: inherit; cursor: pointer; transition: background var(--transition), border-color var(--transition); }
+button.req:hover { background: color-mix(in oklab, var(--violet) 16%, transparent); border-color: color-mix(in oklab, var(--violet) 40%, transparent); }
+button.req:active { transform: translateY(0.5px); }
+.req.req-static { cursor: default; }
+.trace-row { cursor: pointer; }
+.trace-head { align-items: flex-start; }
+.trace-head > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+/* 요구사항 항목 카드 (별도 창·모달 공용) */
+.req-id { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 22px; padding: 0 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--violet); background: color-mix(in oklab, var(--violet) 10%, transparent); border: 1px solid color-mix(in oklab, var(--violet) 24%, transparent); }
+.req-item-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 14px 18px 0; }
+.req-item-title { font-size: 15px; font-weight: 700; margin: 0; flex: 1; min-width: 0; }
+.req-item-body { padding: 10px 18px 16px; display: flex; flex-direction: column; gap: 10px; }
+.req-text { font-size: 13.5px; line-height: 1.65; }
+.req-quote { margin: 0; padding: 10px 14px; border-radius: var(--radius); background: var(--muted); color: var(--muted-foreground); font-size: 13px; line-height: 1.7; }
+.req-quote cite { display: block; margin-top: 6px; font-size: 11.5px; font-style: normal; opacity: 0.8; }
+.req-dl { margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.req-dl > div { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; align-items: start; }
+.req-dl dt { color: var(--muted-foreground); font-weight: 600; font-size: 12.5px; }
+.req-dl dd { margin: 0; line-height: 1.6; }
+
+/* 별도 창 레이아웃 */
+body.req-window { padding: 0; }
+.req-top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px; padding: 12px 18px; background: color-mix(in oklab, var(--background) 88%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.req-top-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.req-top-title { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.req-main { padding: 16px 18px 40px; display: flex; flex-direction: column; gap: 12px; max-width: 820px; margin: 0 auto; }
+.req-meta { font-size: 12.5px; color: var(--muted-foreground); }
+.req-filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.req-filters .form-input { width: 200px; }
+.filter-badge { cursor: pointer; font-family: inherit; }
+.filter-badge[aria-pressed="true"] { outline: 2px solid var(--ring); outline-offset: 1px; }
+.req-list { display: flex; flex-direction: column; gap: 10px; }
+.req-item { margin: 0; scroll-margin-top: 72px; }
+.req-item:focus { outline: none; }
+/* 태그로 지정해 연 항목 — 다른 항목을 고르기 전까지 빨간 박스 유지 */
+.req-item.is-selected { border-color: var(--destructive); box-shadow: 0 0 0 1px var(--destructive), 0 0 0 5px color-mix(in oklab, var(--destructive) 14%, transparent); }
+.req-item.is-selected .req-id { color: var(--destructive); background: color-mix(in oklab, var(--destructive) 10%, transparent); border-color: color-mix(in oklab, var(--destructive) 30%, transparent); }
+
+/* 팝업이 막혔을 때의 화면 안 상세 */
+.req-modal { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 16px; }
+/* display:flex 가 hidden 속성의 기본 display:none 을 이기므로 명시적으로 되돌린다 */
+.req-modal[hidden] { display: none; }
+/* ax-labs .modal-overlay 와 같은 스크림 — 테마 무관하게 어둡게 (foreground 를 섞으면 다크모드에서 흰 막이 됨) */
+.req-modal-backdrop { position: absolute; inset: 0; background: rgb(0 0 0 / 0.5); }
+.req-modal-panel { position: relative; width: min(560px, 100%); max-height: 84vh; overflow-y: auto; margin: 0; }
+.req-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 18px 0; }
+.req-modal-note { padding: 0 18px 16px; font-size: 12px; color: var(--muted-foreground); }
+
+@media (max-width: 680px) {
+  .req-main { padding: 14px 16px 32px; }
+  .req-dl > div { grid-template-columns: 1fr; gap: 2px; }
+  .req-filters .form-input { width: 100%; }
+}
+
+
+/* 요구사항 반영 점검 — 접힘/펼침 (기본 접힘) */
+details.trace-card > summary { list-style: none; cursor: pointer; }
+details.trace-card > summary::-webkit-details-marker { display: none; }
+.trace-head { align-items: flex-start; gap: 12px; }
+.trace-head:hover .card-title { text-decoration: underline; text-underline-offset: 3px; }
+.trace-head-text { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.trace-head-text .trace-summary { margin: 4px 0 0; }
+.trace-chevron { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; color: var(--muted-foreground); transition: transform var(--transition); }
+details.trace-card[open] .trace-chevron { transform: rotate(90deg); }
+details.trace-card:not([open]) > summary { padding-bottom: 18px; }

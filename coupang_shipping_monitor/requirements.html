@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>요구사항 정리 — 쿠팡 정시출고 모니터링</title>
+  <meta name="description" content="AX 요구사항 #306 항목별 원문과 시안 반영 상태" />
+  <link rel="icon" href="https://image.yes24.com/sysimage/renew/gnb/favicon_n.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="req-window">
+
+<header class="req-top">
+  <div class="req-top-main">
+    <span class="badge badge-primary">AX 요구사항 #306</span>
+    <h1 class="req-top-title" id="reqTitle">요구사항 정리</h1>
+  </div>
+  <button class="theme-toggle" id="themeToggle" type="button" title="다크/라이트 모드 전환" aria-label="다크모드 전환">
+    <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <svg id="iconSun" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
+</header>
+
+<main class="req-main">
+  <p class="req-meta" id="reqMeta"></p>
+  <p class="trace-verdict" id="reqVerdict"></p>
+  <div class="req-filters">
+    <div class="trace-summary" id="reqCounts" role="group" aria-label="상태별 건수 필터"></div>
+    <input class="form-input" id="reqSearch" type="search" placeholder="요구사항 검색" aria-label="요구사항 검색" />
+  </div>
+  <div class="req-list" id="reqList"></div>
+  <p class="foot-note">화면의 <span class="req req-static"><b>R1</b> 요구사항</span> 태그를 누르면 이 창에서 해당 항목이 열립니다.</p>
+</main>
+
+<script src="assets/js/requirements-data.js"></script>
+<script src="assets/js/requirements.js"></script>
+</body>
+</html>
