@@ -93,11 +93,11 @@
         <div class="card-content" style="padding-top:18px">
           <div class="filter-bar">
             <div class="field-group">
-              <label class="field-label" for="fBaseDate">기준일 (전일)</label>
+              <label class="field-label" for="fBaseDate" data-tip-key="baseDate">기준일 (전일)</label>
               <input class="field-ctl" type="date" id="fBaseDate" value="2026-09-17" />
             </div>
             <div class="field-group">
-              <label class="field-label" for="fCat">대분류</label>
+              <label class="field-label" for="fCat" data-tip-key="cat">대분류</label>
               <select class="field-ctl" id="fCat"><option value="">전체</option></select>
             </div>
             <div class="field-group">
@@ -109,7 +109,7 @@
               <select class="field-ctl" id="fMd"><option value="">전체 담당자</option></select>
             </div>
             <div class="field-group">
-              <label class="field-label">매출 비중 (점수 반영)</label>
+              <label class="field-label" data-tip-key="revWeight">매출 비중 (점수 반영)</label>
               <div class="seg" id="revSeg" role="group" aria-label="매출 비중">
                 <button type="button" data-w="0" aria-pressed="true">0% 기준안</button>
                 <button type="button" data-w="5" aria-pressed="false">5% 시험</button>
@@ -135,22 +135,22 @@
       <!-- ============ KPI ============ -->
       <div class="grid grid-4" style="margin-top:14px">
         <div class="stat-card">
-          <div class="stat-head"><h4>진행 중 이벤트</h4><span class="badge badge-secondary">전일 기준</span></div>
+          <div class="stat-head"><h4 data-tip-key="running">진행 중 이벤트</h4><span class="badge badge-secondary">전일 기준</span></div>
           <div class="stat-num" id="kpiRunning">0<span class="unit">건</span></div>
           <div class="stat-sub" id="kpiRunningSub">상시 이벤트 제외</div>
         </div>
         <div class="stat-card">
-          <div class="stat-head"><h4>전일 방문자</h4><span class="delta" id="kpiUvDelta"></span></div>
+          <div class="stat-head"><h4 data-tip-key="kpiUv">전일 방문자</h4><span class="delta" id="kpiUvDelta"></span></div>
           <div class="stat-num" id="kpiUv">0<span class="unit">명</span></div>
           <div class="stat-sub" id="kpiUvSub">최근 일평균 합계 대비</div>
         </div>
         <div class="stat-card">
-          <div class="stat-head"><h4>평균 반응률</h4></div>
+          <div class="stat-head"><h4 data-tip-key="kpiReact">평균 반응률</h4></div>
           <div class="stat-num" id="kpiReact">0<span class="unit">%</span></div>
           <div class="stat-sub" id="kpiReactSub">클릭 집계 ÷ 방문자</div>
         </div>
         <div class="stat-card">
-          <div class="stat-head"><h4>개선 필요 이벤트</h4><span class="badge badge-danger">조치 필요</span></div>
+          <div class="stat-head"><h4 data-tip-key="kpiBad">개선 필요 이벤트</h4><span class="badge badge-danger">조치 필요</span></div>
           <div class="stat-num danger" id="kpiBad">0<span class="unit">건</span></div>
           <div class="stat-sub" id="kpiBadSub">평소 종합 점수 하위 30%</div>
         </div>
@@ -262,17 +262,17 @@
                   <th style="width:56px">담당자</th>
                   <th style="width:74px">분야</th>
                   <th class="col-ev">이벤트명</th>
-                  <th style="width:54px">운영일차</th>
-                  <th class="num" style="width:66px" title="전일 지표로 매긴 종합 점수 (0~100) · 아래는 전체 중 성과 순위">전일 점수</th>
-                  <th class="num" style="width:60px" title="비교 기간(최근 7일 또는 시작일~전일) 일평균 지표로 매긴 종합 점수">평소 점수</th>
-                  <th class="num" style="width:58px" title="전일 점수 − 평소 점수 (pt)">변화</th>
-                  <th class="num" style="width:60px">방문자</th>
-                  <th class="num" style="width:64px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
-                  <th class="num" style="width:62px">구매 집계</th>
-                  <th class="num" style="width:58px" title="클릭 집계 ÷ 방문자">반응률</th>
-                  <th class="num" style="width:72px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
-                  <th class="num" style="width:88px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
-                  <th style="width:90px" title="평소 지표가 하위 30%인 항목 — 점수가 낮은 원인">하위 30% 지표</th>
+                  <th style="width:54px" data-tip-key="dday">운영일차</th>
+                  <th class="num" style="width:66px" data-tip-key="score">전일 점수</th>
+                  <th class="num" style="width:60px" data-tip-key="aScore">평소 점수</th>
+                  <th class="num" style="width:58px" data-tip-key="delta">변화</th>
+                  <th class="num" style="width:60px" data-tip-key="uv">방문자</th>
+                  <th class="num" style="width:64px" data-tip-key="clk">클릭 집계</th>
+                  <th class="num" style="width:62px" data-tip-key="buy">구매 집계</th>
+                  <th class="num" style="width:58px" data-tip-key="rr">반응률</th>
+                  <th class="num" style="width:72px" data-tip-key="br">구매 전환율</th>
+                  <th class="num" style="width:88px" data-tip-key="revRef">참고 매출<sup class="ref">참고</sup></th>
+                  <th style="width:90px" data-tip-key="low30">하위 30% 지표</th>
                 </tr>
               </thead>
               <tbody id="tbodyBad"></tbody>
@@ -301,17 +301,17 @@
                   <th style="width:56px">담당자</th>
                   <th style="width:74px">분야</th>
                   <th class="col-ev">이벤트명</th>
-                  <th style="width:54px">운영일차</th>
-                  <th class="num" style="width:66px" title="전일 지표로 매긴 종합 점수 (0~100) · 아래는 전체 중 성과 순위">전일 점수</th>
-                  <th class="num" style="width:60px" title="비교 기간(최근 7일 또는 시작일~전일) 일평균 지표로 매긴 종합 점수">평소 점수</th>
-                  <th class="num" style="width:58px" title="전일 점수 − 평소 점수 (pt)">변화</th>
-                  <th class="num" style="width:60px">방문자</th>
-                  <th class="num" style="width:64px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
-                  <th class="num" style="width:62px">구매 집계</th>
-                  <th class="num" style="width:58px" title="클릭 집계 ÷ 방문자">반응률</th>
-                  <th class="num" style="width:72px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
-                  <th class="num" style="width:88px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
-                  <th style="width:90px" title="평소 지표가 하위 30%인 항목 — 점수가 낮은 원인">하위 30% 지표</th>
+                  <th style="width:54px" data-tip-key="dday">운영일차</th>
+                  <th class="num" style="width:66px" data-tip-key="score">전일 점수</th>
+                  <th class="num" style="width:60px" data-tip-key="aScore">평소 점수</th>
+                  <th class="num" style="width:58px" data-tip-key="delta">변화</th>
+                  <th class="num" style="width:60px" data-tip-key="uv">방문자</th>
+                  <th class="num" style="width:64px" data-tip-key="clk">클릭 집계</th>
+                  <th class="num" style="width:62px" data-tip-key="buy">구매 집계</th>
+                  <th class="num" style="width:58px" data-tip-key="rr">반응률</th>
+                  <th class="num" style="width:72px" data-tip-key="br">구매 전환율</th>
+                  <th class="num" style="width:88px" data-tip-key="revRef">참고 매출<sup class="ref">참고</sup></th>
+                  <th style="width:90px" data-tip-key="low30">하위 30% 지표</th>
                 </tr>
               </thead>
               <tbody id="tbodyGrow"></tbody>
@@ -340,17 +340,17 @@
                   <th style="width:56px">담당자</th>
                   <th style="width:74px">분야</th>
                   <th class="col-ev">이벤트명</th>
-                  <th style="width:54px">운영일차</th>
-                  <th class="num" style="width:66px" title="전일 지표로 매긴 종합 점수 (0~100) · 아래는 전체 중 성과 순위">전일 점수</th>
-                  <th class="num" style="width:60px" title="비교 기간(최근 7일 또는 시작일~전일) 일평균 지표로 매긴 종합 점수">평소 점수</th>
-                  <th class="num" style="width:58px" title="전일 점수 − 평소 점수 (pt)">변화</th>
-                  <th class="num" style="width:60px">방문자</th>
-                  <th class="num" style="width:64px" title="상품 · 장바구니 · 주문 버튼 클릭 집계">클릭 집계</th>
-                  <th class="num" style="width:62px">구매 집계</th>
-                  <th class="num" style="width:58px" title="클릭 집계 ÷ 방문자">반응률</th>
-                  <th class="num" style="width:72px" title="구매 집계 ÷ 클릭 집계">구매 전환율</th>
-                  <th class="num" style="width:88px" title="클릭·구매 상품 매출(참고) — 점수·순위에 쓰지 않습니다(0% 기준안). 이벤트가 발생시킨 매출이 아닙니다.">참고 매출<sup class="ref">참고</sup></th>
-                  <th style="width:90px" title="평소 지표가 하위 30%인 항목 — 점수가 낮은 원인">하위 30% 지표</th>
+                  <th style="width:54px" data-tip-key="dday">운영일차</th>
+                  <th class="num" style="width:66px" data-tip-key="score">전일 점수</th>
+                  <th class="num" style="width:60px" data-tip-key="aScore">평소 점수</th>
+                  <th class="num" style="width:58px" data-tip-key="delta">변화</th>
+                  <th class="num" style="width:60px" data-tip-key="uv">방문자</th>
+                  <th class="num" style="width:64px" data-tip-key="clk">클릭 집계</th>
+                  <th class="num" style="width:62px" data-tip-key="buy">구매 집계</th>
+                  <th class="num" style="width:58px" data-tip-key="rr">반응률</th>
+                  <th class="num" style="width:72px" data-tip-key="br">구매 전환율</th>
+                  <th class="num" style="width:88px" data-tip-key="revRef">참고 매출<sup class="ref">참고</sup></th>
+                  <th style="width:90px" data-tip-key="low30">하위 30% 지표</th>
                 </tr>
               </thead>
               <tbody id="tbodyScore"></tbody>
@@ -369,6 +369,7 @@
   </div>
 </div>
 
+<script src="../assets/js/tips.js"></script>
 <script src="../assets/js/common.js"></script>
 <script src="daily_v2.js"></script>
 </body>
