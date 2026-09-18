@@ -159,19 +159,78 @@
           <div style="display:flex; align-items:center; gap:8px">
             <svg class="collapse-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             <div>
-              <div class="card-title">TOP 5 선정 기준 · 개선 필요 판정 과정</div>
-              <div class="card-description">어떤 이벤트가 왜 뽑혔는지 확인합니다.</div>
+              <div class="card-title">매출 기준 · TOP 5 선정 기준 · 개선 필요 판정 과정</div>
+              <div class="card-description">이 화면의 &lsquo;매출&rsquo;이 무엇을 세는 값인지, 어떤 이벤트가 왜 뽑혔는지 확인합니다.</div>
             </div>
           </div>
           <span class="badge badge-secondary" id="ruleBadge">펼치기</span>
         </div>
         <div class="card-content collapse-body">
 
-          <div class="section-title" style="margin-top:0"><span class="no">1</span><h3>개선 필요 TOP 5 선정 과정</h3></div>
+          <div class="section-title" style="margin-top:0"><span class="no">1</span><h3>매출 기준 — 무엇을 세는 값인가</h3><span class="ai-tag">확정 전</span></div>
+
+          <div class="basis">
+            <div class="basis-formula">
+              <span class="bf-set">구매 전환 상품</span>
+              <span class="bf-op">∪</span>
+              <span class="bf-set">반응 전환 상품</span>
+              <span class="bf-arrow">→</span>
+              <span class="bf-out">대상 상품의 매출 합계</span>
+            </div>
+            <div class="basis-note">두 집합을 <b>합집합</b>으로 모읍니다. 금액을 더하는 게 아니라 <b>상품을 중복 없이 모읍니다</b> — 상품번호 기준.</div>
+          </div>
+
+          <table class="rule-tbl" style="margin-top:14px">
+            <thead><tr><th class="w-narrow">구분</th><th>기준</th><th style="width:250px">출처</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><b>구매 전환 상품</b></td>
+                <td>이벤트에 연결된 상품 중 <b>구매 집계 수 &gt; 0</b> 인 상품</td>
+                <td><code>/api/cvr/events_v2/{eventNo}/assocs</code><span class="src-note">상품번호 · 상품명 · 클릭 수 · 구매 집계 수</span></td>
+              </tr>
+              <tr>
+                <td><b>반응 전환 상품</b></td>
+                <td>이벤트에 연결된 상품 중 <b>클릭 수 &gt; 0</b> 인 상품 — 상품 클릭 · 장바구니 담기 · 주문 버튼 클릭 등 행동 반응</td>
+                <td><code>/api/cvr/events_v2/{eventNo}</code><span class="src-note">진입 · 상품/장바구니/주문 버튼 클릭 집계</span></td>
+              </tr>
+              <tr>
+                <td><b>매출</b></td>
+                <td>위에서 모은 <b>대상 상품</b>이 같은 날짜 · 같은 판매 범위에서 기록한 <b>상품별 매출의 합계</b></td>
+                <td><span class="pending-src">조회 원천 확정 필요</span><span class="src-note">취소 · 환불 반영 기준도 미확정</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="basis-warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <b>이 매출은 &lsquo;이벤트가 발생시킨 매출&rsquo;이 아닙니다.</b>
+              이벤트에서 반응을 받은 상품의 <b>판매 규모</b>이며, 다른 고객 · 다른 경로에서 발생한 구매도 포함될 수 있습니다.
+              정식 표시명은 <b>클릭·구매 상품 매출(참고)</b> 입니다.
+            </div>
+          </div>
+
+          <table class="rule-tbl" style="margin-top:12px">
+            <thead><tr><th class="w-narrow">이렇게 세지 않습니다</th><th>이유</th></tr></thead>
+            <tbody>
+              <tr><td>클릭 횟수 &times; 상품 가격</td><td>클릭은 구매 수량이 아님. 5회 클릭이 5개 판매를 뜻하지 않음</td></tr>
+              <tr><td>같은 상품 중복 합산</td><td>클릭 목록과 구매 목록에 모두 있어도 <b>한 번만</b> 합산</td></tr>
+              <tr><td>여러 이벤트 매출의 총합</td><td>같은 상품이 여러 이벤트에 등장 가능. 이벤트별 참고 매출을 더해 전체 매출로 표시하지 않음</td></tr>
+              <tr><td>기존 OLAP 이벤트 주문 매출</td><td>이전 기준의 값이라 새 기준 순위로 재사용하지 않음</td></tr>
+            </tbody>
+          </table>
+
+          <div class="excluded-note" style="margin-top:12px">
+            <b>확정 전 항목</b> — 상품별 매출 조회 원천 · 취소/환불 반영 기준 · 일별 상품 선정과 기간 집계 기준 ·
+            성과 점수에서 매출이 갖는 비중(0% · 5% · 10% 비교 검토 중).
+            <b>이 화면의 매출 수치는 샘플이며, 위 기준이 확정되기 전까지 순위의 근거로 사용할 수 없습니다.</b>
+          </div>
+
+          <div class="section-title"><span class="no">2</span><h3>개선 필요 TOP 5 선정 과정</h3></div>
           <div class="funnel" id="funnel"></div>
           <div class="funnel-note" id="funnelNote"></div>
 
-          <div class="section-title"><span class="no">2</span><h3>리스트별 선정 기준</h3></div>
+          <div class="section-title"><span class="no">3</span><h3>리스트별 선정 기준</h3></div>
           <table class="rule-tbl">
             <thead>
               <tr><th class="w-narrow">리스트</th><th>선정 기준</th><th>비교 기준</th></tr>
@@ -195,7 +254,7 @@
             </tbody>
           </table>
 
-          <div class="section-title"><span class="no">3</span><h3>개선 필요 사유별 권장 액션</h3></div>
+          <div class="section-title"><span class="no">4</span><h3>개선 필요 사유별 권장 액션</h3></div>
           <table class="rule-tbl">
             <thead><tr><th class="w-narrow">하위 지표</th><th>권장 액션</th></tr></thead>
             <tbody>
@@ -232,7 +291,7 @@
                   <th style="width:82px">분야</th>
                   <th class="col-ev">이벤트명</th>
                   <th style="width:58px">운영일차</th>
-                  <th class="num" style="width:92px">전일 매출</th>
+                  <th class="num" style="width:92px" title="클릭·구매 상품 매출(참고) — 이벤트에 연결된 상품 중 구매 전환 또는 반응 전환이 있는 상품의 전일 매출 합계. 이벤트가 발생시킨 매출이 아닙니다.">전일 매출<sup class="ref">참고</sup></th>
                   <th class="num" style="width:68px">주문건수</th>
                   <th class="num" style="width:66px">UV</th>
                   <th class="num" style="width:70px">신규 구매</th>
@@ -271,7 +330,7 @@
                   <th style="width:82px">분야</th>
                   <th class="col-ev">이벤트명</th>
                   <th style="width:58px">운영일차</th>
-                  <th class="num" style="width:92px">전일 매출</th>
+                  <th class="num" style="width:92px" title="클릭·구매 상품 매출(참고) — 이벤트에 연결된 상품 중 구매 전환 또는 반응 전환이 있는 상품의 전일 매출 합계. 이벤트가 발생시킨 매출이 아닙니다.">전일 매출<sup class="ref">참고</sup></th>
                   <th class="num" style="width:68px">주문건수</th>
                   <th class="num" style="width:66px">UV</th>
                   <th class="num" style="width:70px">신규 구매</th>
@@ -308,7 +367,7 @@
                   <th style="width:82px">분야</th>
                   <th class="col-ev">이벤트명</th>
                   <th style="width:58px">운영일차</th>
-                  <th class="num" style="width:92px">전일 매출</th>
+                  <th class="num" style="width:92px" title="클릭·구매 상품 매출(참고) — 이벤트에 연결된 상품 중 구매 전환 또는 반응 전환이 있는 상품의 전일 매출 합계. 이벤트가 발생시킨 매출이 아닙니다.">전일 매출<sup class="ref">참고</sup></th>
                   <th class="num" style="width:68px">주문건수</th>
                   <th class="num" style="width:66px">UV</th>
                   <th class="num" style="width:70px">신규 구매</th>
@@ -324,7 +383,9 @@
       </div>
 
       <p class="foot-note">
-        POC · 샘플 데이터로 동작하는 정적 화면입니다. 실제 구현 시 이벤트 매출은 MSTR &lt;이벤트_매출금액 리스트&gt;,
+        POC · 샘플 데이터로 동작하는 정적 화면입니다.
+        <b>매출은 이벤트에 연결된 상품 중 구매 전환(구매 집계) 또는 반응 전환(클릭·장바구니·주문 버튼)이 있는 상품의 매출 합계</b>이며,
+        조회 원천과 취소·환불 반영 기준은 확정 전입니다 — 위 <b>매출 기준</b>을 펼쳐 확인하세요.
         UV·신규 구매 고객은 GA4 / 루커스튜디오 집계를 전일 기준 1회 적재해 사용합니다.
       </p>
 

@@ -730,3 +730,42 @@ table.tbl.tbl-search { min-width: 1080px; }
 
 /* 판정 배지는 한 줄 유지 — 좁은 폭에서 줄바꿈 방지 */
 table.tbl .badge { white-space: nowrap; }
+
+/* ---- 매출 기준 설명 ---- */
+.basis {
+  border: 1px solid color-mix(in oklch, var(--info) 28%, var(--border));
+  background: color-mix(in oklch, var(--info) 5%, transparent);
+  border-radius: calc(var(--radius) + 2px); padding: 14px 16px;
+}
+.basis-formula { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.bf-set, .bf-out {
+  display: inline-flex; align-items: center; padding: 6px 13px; border-radius: 999px;
+  font-size: 13px; font-weight: 700; border: 1px solid var(--border); background: var(--card);
+}
+.bf-set { color: var(--info); border-color: color-mix(in oklch, var(--info) 32%, transparent); }
+.bf-out { color: var(--primary-foreground); background: var(--primary); border-color: var(--primary); }
+.bf-op { font-family: var(--font-mono); font-size: 16px; font-weight: 800; color: var(--muted-foreground); }
+.bf-arrow { font-size: 15px; color: var(--muted-foreground); }
+.basis-note { font-size: 12.5px; color: var(--muted-foreground); margin-top: 10px; line-height: 1.6; }
+.basis-note b { color: var(--foreground); font-weight: 700; }
+
+.basis-warn {
+  display: flex; align-items: flex-start; gap: 10px; margin-top: 12px; padding: 13px 15px;
+  border-radius: var(--radius); font-size: 13px; line-height: 1.7;
+  background: color-mix(in oklch, var(--destructive) 7%, transparent);
+  border: 1px solid color-mix(in oklch, var(--destructive) 26%, transparent);
+  color: var(--foreground);
+}
+.basis-warn svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 3px; color: var(--destructive); }
+.basis-warn b { color: var(--destructive); font-weight: 700; }
+
+.src-note { display: block; font-size: 11px; color: var(--muted-foreground); margin-top: 3px; line-height: 1.5; }
+.pending-src {
+  display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
+  color: var(--warning); background: color-mix(in oklch, var(--warning) 13%, transparent);
+  border: 1px solid color-mix(in oklch, var(--warning) 30%, transparent);
+}
+sup.ref {
+  font-size: 9px; font-weight: 700; color: var(--info); margin-left: 2px; vertical-align: super;
+  font-family: var(--font-selected); cursor: help;
+}
