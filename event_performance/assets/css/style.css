@@ -727,3 +727,6 @@ table.tbl.tbl-search { min-width: 1080px; }
 /* ---- 대분류 표기 ---- */
 .cat-sub { font-size: 10.5px; color: var(--muted-foreground); margin-top: 3px; font-weight: 500; }
 .pill-cat { background: color-mix(in oklch, var(--info) 12%, transparent); color: var(--info); border-color: color-mix(in oklch, var(--info) 25%, transparent); font-weight: 700; }
+
+/* 판정 배지는 한 줄 유지 — 좁은 폭에서 줄바꿈 방지 */
+table.tbl .badge { white-space: nowrap; }

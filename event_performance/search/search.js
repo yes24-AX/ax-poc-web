@@ -5,7 +5,7 @@
    ========================================================= */
 
 const STATUS = {
-  bad:      { label: '개선 필요 후보', cls: 'badge-danger' },
+  bad:      { label: '개선 필요', cls: 'badge-danger' },   // 컬럼 폭 112px — '후보'는 요약 카드·필터에만
   watch:    { label: '관찰 필요',      cls: 'badge-warning' },
   ok:       { label: '양호',           cls: 'badge-success' },
   excluded: { label: '평가 제외',      cls: 'badge-secondary' }
