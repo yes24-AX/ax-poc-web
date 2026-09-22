@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>베스트 도서 컨텐츠 모니터링 메일</title>
+<style>
+:root {
+  --background: oklch(0.965 0.004 240);
+  --foreground: oklch(0.18 0.03 250);
+  --card: oklch(1 0 0);
+  --primary: oklch(0.57 0.2 255);
+  --primary-foreground: oklch(1 0 0);
+  --muted: oklch(0.955 0.006 240);
+  --muted-foreground: oklch(0.5 0.03 250);
+  --border: oklch(0.9 0.01 240);
+  --warn: oklch(0.6 0.15 60);
+  --radius: 0.5rem;
+  /* 메일 본문 색 — #284 ContentMonitorReportService 와 같은 값. 메일은 테마와 무관하게 흰 바탕으로 보인다 */
+  --mail-page: #eceeed;
+  --mail-paper: #ffffff;
+  --mail-ink: #15181a;
+  --mail-muted: #7a827f;
+  --mail-line: #bfbfbf;
+  --mail-head: #F4F6F9;
+  --mail-miss: #FCE4D6;
+  --mail-tag: #B4C7E7;
+  --mail-green: #E2EFDA;
+  --mail-gray: #D9D9D9;
+  --mail-link: #1a5fb4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: oklch(0.2 0.015 250);
+    --foreground: oklch(0.94 0.01 240);
+    --card: oklch(0.23 0.025 250);
+    --primary: oklch(0.66 0.17 255);
+    --muted: oklch(0.26 0.025 250);
+    --muted-foreground: oklch(0.7 0.03 250);
+    --border: oklch(0.33 0.03 250);
+    --mail-page: oklch(0.27 0.02 250);
+  }
+}
+:root[data-theme="dark"] {
+  --background: oklch(0.2 0.015 250);
+  --foreground: oklch(0.94 0.01 240);
+  --card: oklch(0.23 0.025 250);
+  --primary: oklch(0.66 0.17 255);
+  --muted: oklch(0.26 0.025 250);
+  --muted-foreground: oklch(0.7 0.03 250);
+  --border: oklch(0.33 0.03 250);
+  --mail-page: oklch(0.27 0.02 250);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--background); color: var(--foreground);
+  font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  font-size: 0.875rem; line-height: 1.55;
+  padding-inline: 16px; padding-block: 20px 56px;
+}
+.wrap { max-width: 1180px; margin-inline: auto; display: grid; gap: 20px; }
+button { font: inherit; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* 안내 머리 */
+.intro { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+.eyebrow { font-size: 0.75rem; letter-spacing: .04em; color: var(--muted-foreground); }
+.intro h1 { margin: 2px 0 4px; font-size: 1.375rem; text-wrap: balance; }
+.intro p { margin: 0; color: var(--muted-foreground); max-width: 70ch; }
+.proto { font-size: 0.75rem; border: 1px dashed var(--warn); color: var(--warn); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.facts > dl { background: var(--card); padding: 10px 14px; }
+.facts dt { font-size: 0.75rem; color: var(--muted-foreground); }
+.facts dd { margin: 0; font-weight: 500; font-variant-numeric: tabular-nums; }
+.facts > dl { margin: 0; }
+
+/* 메일 창 */
+.client { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 2px oklch(0.2 0.03 250 / .06), 0 8px 24px oklch(0.2 0.03 250 / .06); }
+.client-h { padding: 16px 20px; border-bottom: 1px solid var(--border); display: grid; gap: 10px; }
+.subject { font-size: 1.125rem; font-weight: 700; }
+.meta { display: grid; grid-template-columns: 64px 1fr; gap: 3px 10px; font-size: 0.8125rem; }
+.meta dt { color: var(--muted-foreground); }
+.meta dd { margin: 0; }
+.attach { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--border); background: var(--muted); border-radius: var(--radius); padding: 7px 12px; cursor: pointer; color: var(--foreground); max-width: 100%; text-align: left; }
+.attach:hover { border-color: var(--primary); }
+.xls { flex: none; width: 26px; height: 30px; border-radius: 3px; background: #1d6f42; color: #fff; font-size: 0.625rem; font-weight: 700; display: grid; place-items: center; }
+.attach b { font-weight: 500; display: block; word-break: break-all; }
+.attach small { color: var(--muted-foreground); }
+.mode-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.8125rem; color: var(--muted-foreground); }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.seg button { border: 0; background: var(--card); color: var(--muted-foreground); padding: 5px 12px; cursor: pointer; }
+.seg button.active { background: var(--primary); color: var(--primary-foreground); }
+
+/* 메일 본문 — ReportLetter 레터형 껍데기 */
+.mail-page { background: var(--mail-page); padding: 20px 12px; }
+.letter { background: var(--mail-paper); color: var(--mail-ink); max-width: 1040px; margin: 0 auto; padding: 36px 40px 30px;
+  font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
+.l-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.l-title h2 { margin: 0; font-size: 24px; letter-spacing: -.5px; }
+.l-title span { font-size: 12.5px; color: var(--mail-muted); white-space: nowrap; }
+.l-rule { height: 3px; background: var(--mail-ink); margin: 14px 0 20px; }
+.l-lead { margin: 0 0 12px; font-size: 13.5px; }
+.l-sum { border-collapse: collapse; margin-bottom: 18px; font-size: 12.5px; }
+.l-sum td { border: 1px solid var(--mail-line); padding: 5px 12px; text-align: center; }
+.l-sum td.k { background: var(--mail-head); font-weight: 600; }
+.l-sum td.hot { color: #b3261e; font-weight: 700; }
+.mtable-wrap { overflow-x: auto; }
+table.m { border-collapse: collapse; font-size: 12px; color: var(--mail-ink); font-variant-numeric: tabular-nums; }
+.m th, .m td { border: 1px solid var(--mail-line); vertical-align: middle; }
+.m th { background: var(--mail-head); font-weight: 600; text-align: center; padding: 3px 6px; }
+.m th.n { width: 16px; max-width: 16px; padding: 3px 2px; word-break: break-all; line-height: 1.15; }
+.m th.au { background: var(--mail-green); }
+.m td { padding: 2px 4px; }
+.m td.c { text-align: center; }
+.m td.nw { white-space: nowrap; }
+.m td.title { min-width: 200px; }
+.m .miss { background: var(--mail-miss); }
+.m .tagx { background: var(--mail-tag); }
+.m td.same { color: var(--mail-muted); background: #f7f8f8; }
+.m a { color: var(--mail-link); }
+.m .rk { font-size: 11px; color: var(--mail-muted); white-space: nowrap; }
+.l-legend { margin-top: 8px; font-size: 11px; color: #6b7280; line-height: 1.7; }
+.l-legend i { display: inline-block; width: 14px; height: 10px; vertical-align: -1px; margin-right: 3px; border: 1px solid var(--mail-line); }
+.l-foot { margin-top: 28px; padding-top: 14px; border-top: 1px solid #e6e8e7; font-size: 12px; color: #8d938f; line-height: 1.8; }
+
+/* 확인 요청 */
+.ask { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }
+.ask h3 { margin: 0 0 10px; font-size: 1rem; }
+.ask ol { margin: 0; padding-left: 1.25em; display: grid; gap: 8px; }
+.ask li { max-width: 80ch; }
+.ask li span { display: block; color: var(--muted-foreground); font-size: 0.8125rem; }
+.ask .links a { color: var(--primary); word-break: break-all; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 20px; }
+
+/* 엑셀 미리보기 모달 */
+.backdrop { position: fixed; inset: 0; background: oklch(0.15 0.02 250 / .5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 40; }
+.modal { background: var(--card); color: var(--foreground); border-radius: 12px; width: min(1180px, 100%); min-width: 0; height: var(--sheet-h, auto); max-height: calc(100vh - 32px); display: flex; flex-direction: column; }
+.modal-h { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); gap: 12px; }
+.modal-h h2 { margin: 0; font-size: 1rem; word-break: break-all; }
+.x { border: 0; background: none; font-size: 1.375rem; line-height: 1; cursor: pointer; color: var(--muted-foreground); }
+.sheet { flex: 1; min-height: 0; overflow: auto; background: #fff; color: #1f2328; }
+.sheet table { border-collapse: collapse; font-family: 'Malgun Gothic', sans-serif; font-size: 11px; }
+.sheet td, .sheet th { border: 1px solid #d0d4d9; padding: 2px 5px; white-space: nowrap; }
+.sheet .rh { background: #f3f4f6; color: #6b7280; text-align: center; min-width: 30px; position: sticky; left: 0; }
+.sheet .t { font-size: 14px; font-weight: 700; border-color: transparent; }
+.sheet .lg { border-color: transparent; color: #374151; }
+.sheet .hd { background: var(--mail-head); font-weight: 700; text-align: center; }
+.sheet .hd.au { background: var(--mail-green); }
+.sheet .vt { writing-mode: vertical-rl; height: 70px; padding: 4px 2px; }
+.sheet .c { text-align: center; }
+.sheet .miss { background: var(--mail-miss); }
+.sheet .tagx { background: var(--mail-tag); }
+.sheet .gray { background: var(--mail-gray); }
+.sheet .dim { color: #9aa19e; }
+.sheet a { color: var(--mail-link); }
+.tabs { display: flex; gap: 2px; padding: 0 12px; border-top: 1px solid var(--border); background: var(--muted); overflow-x: auto; border-radius: 0 0 12px 12px; }
+.tabs button { border: 0; background: none; padding: 8px 14px; cursor: pointer; color: var(--muted-foreground); border-top: 2px solid transparent; white-space: nowrap; }
+.tabs button.active { background: var(--card); color: #1d6f42; border-top-color: #1d6f42; font-weight: 600; }
+
+@media (max-width: 640px) {
+  .letter { padding: 22px 16px; }
+  .l-title h2 { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="intro">
+    <div>
+      <div class="eyebrow">요구사항 #310 · 메일 시안</div>
+      <h1>베스트 도서 컨텐츠 모니터링 메일</h1>
+      <p>회차마다 이 메일 한 통이 자동 발송됩니다. 본문에는 예스24 기준 축약표가 들어가고, 교보문고 판정까지 담긴 45열 전체 비교표는 엑셀로 첨부됩니다(업데이트도서 컨텐츠 모니터링과 같은 형식). 별도 화면(메뉴)은 만들지 않습니다.</p>
+    </div>
+    <span class="proto">프로토타입 · 더미 데이터</span>
+  </header>
+
+  <div class="facts">
+    <dl><dt>발송 일정</dt><dd>평일 하루 4회 · 00:30 · 10:30 · 13:30 · 15:30</dd></dl>
+    <dl><dt>모니터링 대상</dt><dd>예스24 · 알라딘 · 교보 실시간 베스트 각 10위</dd></dl>
+    <dl><dt>비교 기준</dt><dd>예스24 ↔ 교보문고 상세페이지</dd></dl>
+    <dl><dt>수신인</dt><dd>e-cp@yes24.com</dd></dl>
+  </div>
+
+  <article class="client">
+    <div class="client-h">
+      <div class="subject">[업무] 베스트 도서 컨텐츠 모니터링 메일 드립니다. (13:30)</div>
+      <dl class="meta">
+        <dt>보낸 사람</dt><dd>AX-Labs 리포트</dd>
+        <dt>받는 사람</dt><dd>e-cp@yes24.com</dd>
+        <dt>날짜</dt><dd>2026-09-22 (화) 13:30</dd>
+      </dl>
+      <div><button class="attach" id="btnAttach" type="button"><span class="xls">XLSX</span><span><b>20260922_1330_베스트도서_컨텐츠모니터링.xlsx</b><small>클릭하면 첨부 엑셀 미리보기 · 시트 4개</small></span></button></div>
+    </div>
+    <div class="mail-page">
+      <div class="letter">
+        <div class="l-title"><h2>베스트 도서 컨텐츠 모니터링</h2><span>2026-09-22 (화) 13:30 회차</span></div>
+        <div class="l-rule"></div>
+        <p class="l-lead" id="lead"></p>
+        <table class="l-sum" id="sum"></table>
+        <div class="mtable-wrap"><table class="m" id="mtable"></table></div>
+        <div class="l-legend">
+          <i class="miss-sw"></i>누락(교보에는 있고 예스24에 없는 항목)과 그 도서 ·
+          <i class="tag-sw"></i>예스24 태그 없음(X), 태그만 없는 도서 ·
+          <i class="au-sw"></i>작가 하위 항목<br>
+          O 등록 · X 미등록 · - 조회 실패로 판정 불가 · 태그는 9203·숨김 태그 제외<br>
+          연결종수·저 작가수·교보 판정은 첨부 엑셀에서 확인하세요.
+        </div>
+        <div class="l-foot">이 메일은 AX-Labs에서 자동 발송되었습니다. 다음 발송: 2026-09-22 15:30</div>
+      </div>
+    </div>
+  </article>
+
+  <div class="cols">
+    <section class="ask">
+      <h3>확정 사항 (2026-09-22)</h3>
+      <ol>
+        <li>앞 회차에서 확인한 도서는 메일 본문에 '동일'만 표기합니다(B안).<span>상품번호·상품명·관리분류명과 베스트 순위만 보이고 판정값은 생략합니다. 첨부 엑셀에는 전체 값과 비고 '동일(확인 회차)'이 들어갑니다.</span></li>
+        <li>평일만 발송합니다.<span>토·일요일 회차는 수집·발송하지 않습니다. 월요일 00:30 회차부터 발송합니다.</span></li>
+        <li>하루 4회(00:30 · 10:30 · 13:30 · 15:30) 발송합니다.</li>
+        <li>메일 제목 끝에 회차 시간을 붙입니다.<span>예: [업무] 베스트 도서 컨텐츠 모니터링 메일 드립니다. (00:30)</span></li>
+        <li>세트 상품도 비교 대상에 넣습니다.<span>교보에 없으면 '교보미입고'로 표시합니다(예: 포켓츠 대본집 세트).</span></li>
+      </ol>
+    </section>
+    <section class="ask">
+      <h3>이 시안이 정한 규칙</h3>
+      <ol>
+        <li>모니터링 대상은 3사 실시간 베스트 각 10위입니다.<span class="links">예스24 <a href="https://m.yes24.com/home/best?dispNo=001&amp;tab=2" target="_blank" rel="noopener">m.yes24.com/home/best</a><br>알라딘 <a href="https://www.aladin.co.kr/shop/common/wbest.aspx?BranchType=1&amp;BestType=NowBest" target="_blank" rel="noopener">aladin.co.kr 지금 베스트</a><br>교보문고 <a href="https://store.kyobobook.co.kr/bestseller/realtime" target="_blank" rel="noopener">store.kyobobook.co.kr/bestseller/realtime</a></span></li>
+        <li>알라딘은 베스트 순위 수집에만 씁니다. 비교는 예스24와 교보문고 사이에서만 합니다.</li>
+        <li>음반·LP 등 리소스키가 없는 상품은 제외합니다. 여러 사이트에 오른 도서는 ISBN 기준으로 1행에 합칩니다.</li>
+        <li>'동일' 기준은 같은 날 앞 회차에서 확인한 도서입니다. 날짜가 바뀌면 모두 새로 확인합니다.</li>
+        <li>색 규칙은 업데이트도서 모니터링과 같습니다. 누락 칸은 연한 주황, 예스24 태그 없음은 파랑입니다.</li>
+      </ol>
+    </section>
+  </div>
+</div>
+
+<div class="backdrop" id="xlModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="xlTitle">
+    <div class="modal-h"><h2 id="xlTitle">20260922_1330_베스트도서_컨텐츠모니터링.xlsx</h2><button class="x" type="button" data-close aria-label="닫기">×</button></div>
+    <div class="sheet" id="sheet"></div>
+    <div class="tabs" id="sheetTabs">
+      <button type="button" data-s="mon" class="active">모니터링</button>
+      <button type="button" data-s="sum">요약</button>
+      <button type="button" data-s="col">베스트 수집</button>
+      <button type="button" data-s="fail">수집실패</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.l-legend .miss-sw { background: var(--mail-miss); }
+.l-legend .tag-sw { background: var(--mail-tag); }
+.l-legend .au-sw { background: var(--mail-green); }
+</style>
+
+<script id="data" type="application/json">{"date":"2026-09-22","round":"13:30","summary":{"collected":30,"excluded":2,"dup":9,"target":19,"fresh":4,"same":15,"missBooks":12,"missCells":22,"noKyobo":1,"failBooks":1},"books":[{"id":"b1","goods":"195812044","title":"세네카, 오늘을 빼앗기고 있는 당신에게","cat":"인문","isbn":"9791167372147","yAuthor":"세네카","kAuthor":"세네카","sel":"NAME","y":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"X","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":6,"auCnt":1},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":5,"auCnt":1},"orig":null,"same":"00:30","note":"","missing":["rec"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217340000","ranks":["예스24 1","알라딘 4","교보문고 2"]},{"id":"b2","goods":"195790316","title":"니체의 초월자","cat":"인문","isbn":"9791193184202","yAuthor":"한도윤","kAuthor":"한도윤","sel":"NAME","y":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"X","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":3,"auCnt":1},"k":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":3,"auCnt":1},"orig":null,"same":"00:30","note":"","missing":["auPic"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217343917","ranks":["예스24 2"]},{"id":"b3","goods":"195633870","title":"쇼펜하우어 인생수업 (30만 부 기념 개정증보판)","cat":"인문","isbn":"9791192820613","yAuthor":"아르투어 쇼펜하우어","kAuthor":"아르투어 쇼펜하우어","sel":"NAME","y":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":6,"auCnt":1},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"O","tag":"","links":5,"auCnt":1},"orig":null,"same":"00:30","note":"","missing":[],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217347834","ranks":["예스24 3"]},{"id":"b4","goods":"195844512","title":"그랬다고 적었다","cat":"에세이","isbn":"9791171173921","yAuthor":"서하림","kAuthor":"서하림","sel":"NAME","y":{"pv":"O","mv":"X","card":"X","dimg":"X","au":"O","auPic":"O","rec":"X","series":"X","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"O","tag":"X","links":2,"auCnt":1},"k":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"O","rec":"X","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":2,"auCnt":1},"orig":null,"same":"10:30","note":"","missing":["dimg","inside"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217351751","ranks":["예스24 4"]},{"id":"b5","goods":"195702281","title":"뻥총 사육 준수 사항","cat":"소설/시/희곡","isbn":"9791168124554","yAuthor":"문지안","kAuthor":"문지안","sel":"NAME","y":{"pv":"O","mv":"O","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":4,"auCnt":1},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":4,"auCnt":1},"orig":null,"same":"00:30","note":"","missing":[],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217355668","ranks":["예스24 5","알라딘 2","교보문고 3"]},{"id":"b6","goods":"195861027","title":"경찰 헌법도약 [ 제7판 ]","cat":"수험서 자격증","isbn":"9791169873307","yAuthor":"정우석","kAuthor":"정우석","sel":"NAME","y":{"pv":"X","mv":"X","card":"X","dimg":"X","au":"O","auPic":"X","rec":"X","series":"O","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"O","tag":"O","links":6,"auCnt":1},"k":{"pv":"-","mv":"-","card":"-","dimg":"-","au":"O","auPic":"X","rec":"X","series":"O","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"X","tag":"","links":5,"auCnt":1},"orig":null,"same":"10:30","note":"교보 미리보기·동영상·카드뉴스·상세이미지 조회 시간 초과","missing":[],"fail":true,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217359585","ranks":["예스24 6"]},{"id":"b7","goods":"195418733","title":"싯다르타","cat":"소설/시/희곡","isbn":"9788937482212","yAuthor":"헤르만 헤세","kAuthor":"헤르만 헤세","sel":"NAME","y":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"O","rec":"O","series":"O","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":6,"auCnt":1},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"O","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":5,"auCnt":1},"orig":["189233104","Siddhartha"],"same":"00:30","note":"","missing":["card"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217363502","ranks":["예스24 7","알라딘 7","교보문고 5"]},{"id":"b8","goods":"195873905","title":"사이언스 2027","cat":"자연과학","isbn":"9791194012276","yAuthor":"과학문화연구소","kAuthor":"과학문화연구소","sel":"NAME","y":{"pv":"X","mv":"X","card":"X","dimg":"X","au":"O","auPic":"X","rec":"X","series":"O","cover":"O","intro":"O","toc":"X","inside":"X","pubRev":"O","tag":"X","links":0,"auCnt":1},"k":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"X","rec":"X","series":"O","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"O","tag":"","links":0,"auCnt":1},"orig":null,"same":null,"note":"예약판매(9/30 발송)","missing":["pv","dimg","toc"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217367419","ranks":["예스24 8","알라딘 5"]},{"id":"b9","goods":"195527640","title":"마음의 어휘력","cat":"에세이","isbn":"9791164051182","yAuthor":"유선경","kAuthor":"유선경","sel":"NAME","y":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"X","links":5,"auCnt":1},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":5,"auCnt":1},"orig":null,"same":"00:30","note":"태그 9203 1개만 있음","missing":[],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217371336","ranks":["예스24 9","교보문고 4"]},{"id":"b10","goods":"195880462","title":"문해내공","cat":"청소년","isbn":"9791191558036","yAuthor":"이재훈","kAuthor":"이재훈","sel":"NAME","y":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"X","rec":"X","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":2,"auCnt":1},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"X","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":3,"auCnt":1},"orig":null,"same":null,"note":"","missing":["card","auPic"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217375253","ranks":["예스24 10"]},{"id":"b11","goods":"195755018","title":"박완서의 낱말들","cat":"에세이","isbn":"9791160407723","yAuthor":"박완서","kAuthor":"박완서","sel":"NAME","y":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":6,"auCnt":1},"k":{"pv":"O","mv":"O","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":5,"auCnt":1},"orig":null,"same":"00:30","note":"","missing":["mv"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217379170","ranks":["알라딘 3"]},{"id":"b12","goods":"195690327","title":"한국사 이상현상 연구원","cat":"어린이","isbn":"9791169516044","yAuthor":"윤서진","kAuthor":"윤서진","sel":"TOP","y":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"X","series":"O","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":3,"auCnt":2},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"X","series":"O","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":3,"auCnt":2},"orig":null,"same":"00:30","note":"","missing":[],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217383087","ranks":["알라딘 6","교보문고 8"]},{"id":"b13","goods":"195664195","title":"시대예보: 수고인류의 시간","cat":"사회 정치","isbn":"9791155402863","yAuthor":"송길영","kAuthor":"송길영","sel":"NAME","y":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"O","tag":"O","links":4,"auCnt":1},"k":{"pv":"O","mv":"O","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":4,"auCnt":1},"orig":null,"same":"00:30","note":"","missing":["mv","inside"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217387004","ranks":["알라딘 8"]},{"id":"b14","goods":"195869851","title":"포켓츠 대본집 세트 - 전2권","cat":"예술 대중문화","isbn":"9791193981023","yAuthor":"김은서","kAuthor":"","sel":"","y":{"pv":"X","mv":"X","card":"X","dimg":"X","au":"O","auPic":"X","rec":"X","series":"O","cover":"O","intro":"O","toc":"X","inside":"X","pubRev":"O","tag":"X","links":0,"auCnt":1},"k":null,"orig":null,"same":null,"note":"세트상품","missing":[],"fail":false,"kyoboUrl":"","ranks":["알라딘 9"]},{"id":"b15","goods":"195887210","title":"판매의 법칙","cat":"경제 경영","isbn":"9791162549049","yAuthor":"로버트 캘러웨이","kAuthor":"로버트 캘러웨이","sel":"NAME","y":{"pv":"X","mv":"X","card":"X","dimg":"X","au":"O","auPic":"X","rec":"X","series":"X","cover":"O","intro":"O","toc":"X","inside":"X","pubRev":"O","tag":"X","links":0,"auCnt":1},"k":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"X","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":2,"auCnt":1},"orig":["194877310","The Laws of Selling"],"same":null,"note":"예약판매(9/28 출고)","missing":["pv","card","dimg","auPic","toc","inside"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217394838","ranks":["교보문고 1"]},{"id":"b16","goods":"195833476","title":"칼맛 알아","cat":"만화","isbn":"9791168533707","yAuthor":"고은별","kAuthor":"고은별","sel":"NAME","y":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"O","rec":"X","series":"O","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"X","tag":"O","links":3,"auCnt":1},"k":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"O","rec":"X","series":"O","cover":"O","intro":"O","toc":"O","inside":"X","pubRev":"O","tag":"","links":2,"auCnt":1},"orig":null,"same":"10:30","note":"","missing":["pubRev"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217398755","ranks":["교보문고 6"]},{"id":"b17","goods":"195799612","title":"머니 트렌드 2027","cat":"경제 경영","isbn":"9791170619352","yAuthor":"김도윤","kAuthor":"김도윤","sel":"TOP","y":{"pv":"O","mv":"X","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":5,"auCnt":1},"k":{"pv":"O","mv":"O","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":5,"auCnt":3},"orig":null,"same":"00:30","note":"","missing":["mv"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217402672","ranks":["교보문고 7"]},{"id":"b18","goods":"195720988","title":"흔한남매 23","cat":"어린이","isbn":"9791169447126","yAuthor":"백난도","kAuthor":"흔한남매","sel":"TOP","y":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"X","rec":"X","series":"O","cover":"O","intro":"O","toc":"X","inside":"X","pubRev":"O","tag":"O","links":6,"auCnt":1},"k":{"pv":"O","mv":"X","card":"X","dimg":"O","au":"O","auPic":"O","rec":"X","series":"O","cover":"O","intro":"O","toc":"X","inside":"X","pubRev":"O","tag":"","links":5,"auCnt":1},"orig":null,"same":"00:30","note":"","missing":["auPic"],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217406589","ranks":["교보문고 9"]},{"id":"b19","goods":"195605343","title":"아주 작은 습관의 힘 (50만 부 기념 스페셜 에디션)","cat":"자기계발","isbn":"9791162545805","yAuthor":"제임스 클리어","kAuthor":"제임스 클리어","sel":"NAME","y":{"pv":"O","mv":"O","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"O","links":6,"auCnt":1},"k":{"pv":"O","mv":"O","card":"O","dimg":"O","au":"O","auPic":"O","rec":"O","series":"X","cover":"O","intro":"O","toc":"O","inside":"O","pubRev":"O","tag":"","links":5,"auCnt":1},"orig":["67433285","Atomic Habits"],"same":"00:30","note":"","missing":[],"fail":false,"kyoboUrl":"https://product.kyobobook.co.kr/detail/S000217410506","ranks":["교보문고 10"]}],"collectRows":[{"site":"예스24","rank":1,"title":"세네카, 오늘을 빼앗기고 있는 당신에게","goods":"195812044","isbn":"9791167372147","state":"동일 · 00:30 확인"},{"site":"예스24","rank":2,"title":"니체의 초월자","goods":"195790316","isbn":"9791193184202","state":"동일 · 00:30 확인"},{"site":"예스24","rank":3,"title":"쇼펜하우어 인생수업 (30만 부 기념 개정증보판)","goods":"195633870","isbn":"9791192820613","state":"동일 · 00:30 확인"},{"site":"예스24","rank":4,"title":"그랬다고 적었다","goods":"195844512","isbn":"9791171173921","state":"동일 · 10:30 확인"},{"site":"예스24","rank":5,"title":"뻥총 사육 준수 사항","goods":"195702281","isbn":"9791168124554","state":"동일 · 00:30 확인"},{"site":"예스24","rank":6,"title":"경찰 헌법도약 [ 제7판 ]","goods":"195861027","isbn":"9791169873307","state":"동일 · 10:30 확인"},{"site":"예스24","rank":7,"title":"싯다르타","goods":"195418733","isbn":"9788937482212","state":"동일 · 00:30 확인"},{"site":"예스24","rank":8,"title":"사이언스 2027","goods":"195873905","isbn":"9791194012276","state":"신규 비교"},{"site":"예스24","rank":9,"title":"마음의 어휘력","goods":"195527640","isbn":"9791164051182","state":"동일 · 00:30 확인"},{"site":"예스24","rank":10,"title":"문해내공","goods":"195880462","isbn":"9791191558036","state":"신규 비교"},{"site":"알라딘","rank":1,"title":"유라 - EP앨범 Brush [180g Clear LP]","goods":"","isbn":"","state":"제외 · 음반(리소스키 없음)"},{"site":"알라딘","rank":2,"title":"뻥총 사육 준수 사항","goods":"195702281","isbn":"9791168124554","state":"중복 · 예스24 5위"},{"site":"알라딘","rank":3,"title":"박완서의 낱말들","goods":"195755018","isbn":"9791160407723","state":"동일 · 00:30 확인"},{"site":"알라딘","rank":4,"title":"세네카, 오늘을 빼앗기고 있는 당신에게","goods":"195812044","isbn":"9791167372147","state":"중복 · 예스24 1위"},{"site":"알라딘","rank":5,"title":"사이언스 2027","goods":"195873905","isbn":"9791194012276","state":"중복 · 예스24 8위"},{"site":"알라딘","rank":6,"title":"한국사 이상현상 연구원","goods":"195690327","isbn":"9791169516044","state":"동일 · 00:30 확인"},{"site":"알라딘","rank":7,"title":"싯다르타","goods":"195418733","isbn":"9788937482212","state":"중복 · 예스24 7위"},{"site":"알라딘","rank":8,"title":"시대예보: 수고인류의 시간","goods":"195664195","isbn":"9791155402863","state":"동일 · 00:30 확인"},{"site":"알라딘","rank":9,"title":"포켓츠 대본집 세트 - 전2권","goods":"195869851","isbn":"9791193981023","state":"신규 비교"},{"site":"알라딘","rank":10,"title":"[SET] 엔믹스 - 미니 6집 Strange Muse (LP Ver.)","goods":"","isbn":"","state":"제외 · 음반(리소스키 없음)"},{"site":"교보문고","rank":1,"title":"판매의 법칙","goods":"195887210","isbn":"9791162549049","state":"신규 비교"},{"site":"교보문고","rank":2,"title":"세네카, 오늘을 빼앗기고 있는 당신에게","goods":"195812044","isbn":"9791167372147","state":"중복 · 예스24 1위"},{"site":"교보문고","rank":3,"title":"뻥총 사육 준수 사항","goods":"195702281","isbn":"9791168124554","state":"중복 · 예스24 5위"},{"site":"교보문고","rank":4,"title":"마음의 어휘력","goods":"195527640","isbn":"9791164051182","state":"중복 · 예스24 9위"},{"site":"교보문고","rank":5,"title":"싯다르타","goods":"195418733","isbn":"9788937482212","state":"중복 · 예스24 7위"},{"site":"교보문고","rank":6,"title":"칼맛 알아","goods":"195833476","isbn":"9791168533707","state":"동일 · 10:30 확인"},{"site":"교보문고","rank":7,"title":"머니 트렌드 2027","goods":"195799612","isbn":"9791170619352","state":"동일 · 00:30 확인"},{"site":"교보문고","rank":8,"title":"한국사 이상현상 연구원(일반판)","goods":"195690327","isbn":"9791169516044","state":"중복 · 알라딘 6위"},{"site":"교보문고","rank":9,"title":"흔한남매 23","goods":"195720988","isbn":"9791169447126","state":"동일 · 00:30 확인"},{"site":"교보문고","rank":10,"title":"아주 작은 습관의 힘(50만 부 기념 스페셜 에디션)","goods":"195605343","isbn":"9791162545805","state":"동일 · 00:30 확인"}]}</script>
+<script>
+(function () {
+  'use strict';
+  var D = JSON.parse(document.getElementById('data').textContent);
+  var S = D.summary;
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+  var ALL = [
+    ['pv','미리보기'],['mv','동영상'],['card','카드뉴스'],['dimg','상세이미지'],['au','작가'],['auPic','작가사진',1],
+    ['links','연결종수',1],['auCnt','저 작가수',1],['rec','추천평'],['tag','태그'],['series','시리즈'],['cover','표지'],
+    ['intro','책소개'],['toc','목차'],['inside','책속으로'],['pubRev','출판사리뷰']
+  ];
+  var MAIL = ALL.filter(function (c) { return c[0] !== 'links' && c[0] !== 'auCnt'; });
+  var mode = 'B'; // 확정: 앞 회차 확인 도서는 '동일'만 표기 (엑셀에는 전체 값)
+
+  function keyCls(b) { return b.missing.length ? 'miss' : b.y.tag === 'X' ? 'tagx' : ''; }
+  function yCls(b, k) { return b.missing.indexOf(k) > -1 ? 'miss' : (k === 'tag' && b.y.tag === 'X') ? 'tagx' : ''; }
+
+  // ── 메일 본문 ──
+  $('lead').textContent = '예스24·알라딘·교보문고 실시간 베스트 각 10위를 모아 예스24와 교보문고 상세페이지 컨텐츠를 비교했습니다. ' +
+    '대상 ' + S.target + '권 중 누락이 있는 도서는 ' + S.missBooks + '권입니다.';
+  $('sum').innerHTML =
+    '<tr><td class="k">수집</td><td class="k">제외(음반)</td><td class="k">중복 병합</td><td class="k">대상 도서</td><td class="k">이번 회차 신규</td><td class="k">동일</td><td class="k">누락 도서</td><td class="k">누락 항목</td><td class="k">교보미입고</td></tr>' +
+    '<tr><td>' + S.collected + '</td><td>' + S.excluded + '</td><td>' + S.dup + '</td><td>' + S.target + '</td><td>' + S.fresh + '</td><td>' + S.same + '</td><td class="hot">' + S.missBooks + '</td><td class="hot">' + S.missCells + '</td><td>' + S.noKyobo + '</td></tr>';
+
+  function renderMail() {
+    var h = '<thead><tr><th rowspan="2">상품번호</th><th rowspan="2">상품명</th><th rowspan="2">관리분류명</th>' +
+      '<th colspan="' + MAIL.length + '">예스24</th><th colspan="2">예스24 원서</th><th colspan="3">참고</th></tr><tr>';
+    MAIL.forEach(function (c) { h += '<th class="n' + (c[2] ? ' au' : '') + '">' + c[1] + '</th>'; });
+    h += '<th>원서연결</th><th>원서연결 상품번호</th><th>베스트 순위</th><th>비고</th><th>교보 URL</th></tr></thead><tbody>';
+    D.books.forEach(function (b) {
+      var kc = keyCls(b), sameB = mode === 'B' && b.same;
+      if (sameB) kc = '';
+      h += '<tr><td class="nw ' + kc + '">' + b.goods + '</td><td class="title ' + kc + '">' + esc(b.title) + '</td><td class="nw ' + kc + '">' + esc(b.cat) + '</td>';
+      if (sameB) {
+        h += '<td class="same" colspan="' + (MAIL.length + 2) + '">동일 — ' + b.same + ' 회차에서 확인</td>';
+      } else {
+        MAIL.forEach(function (c) { var cl = yCls(b, c[0]); h += '<td class="c' + (cl ? ' ' + cl : '') + '">' + b.y[c[0]] + '</td>'; });
+        h += '<td class="c">' + (b.orig ? 'O' : 'X') + '</td><td class="c nw">' + (b.orig ? b.orig[0] : '') + '</td>';
+      }
+      var note = [];
+      if (b.same && mode === 'A') note.push('동일(' + b.same + ')');
+      if (!b.k) note.push('교보미입고');
+      if (b.note && !sameB) note.push(esc(b.note));
+      h += '<td class="rk">' + esc(b.ranks.join(' · ')) + '</td><td class="nw">' + note.join(' / ') + '</td>';
+      h += '<td class="c nw">' + (b.kyoboUrl ? '<a href="#" data-kyobo>교보링크</a>' : '') + '</td></tr>';
+    });
+    $('mtable').innerHTML = h + '</tbody>';
+  }
+
+  // ── 첨부 엑셀 미리보기 ──
+  function colName(n) { var s = ''; while (n > 0) { var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; }
+  function grid(rows, ncol) {
+    var h = '<table><tr><th class="rh"></th>';
+    for (var i = 1; i <= ncol; i++) h += '<th class="rh">' + colName(i) + '</th>';
+    h += '</tr>';
+    rows.forEach(function (r, i) { h += '<tr><td class="rh">' + (i + 1) + '</td>' + r + '</tr>'; });
+    return h + '</table>';
+  }
+  var LEGEND = [
+    '연한 주황 셀: 교보문고에는 있고 예스24에는 없는 항목(누락) / 파란 셀: 예스24 태그 없음(X) / 상품번호·상품명·관리분류명: 누락이 하나라도 있으면 연한 주황, 태그만 없으면 파랑(주황 우선)',
+    'O 등록 / X 미등록 / - 조회 실패로 판정 불가 / 교보미입고: 교보문고에 상품 없음',
+    '태그: 예스24만 확인(9203·숨김 태그 제외), 교보는 수집하지 않아 회색 / 녹색 머리글: 작가 하위 항목',
+    '연결종수: 화면에 노출되는 작가의 다른 작품 수 (교보 최대 5, 예스24 최대 6) — 색상 비교 안 함',
+    "저 작가수: 교보는 역할이 '저자'로 시작하는 작가, 예스24는 저(01)·글(06)·글그림(29) 작가 — 색상 비교 안 함",
+    '누락 항목 수: 그 행의 연한 주황(누락) 칸 개수 (연결종수·저 작가수·태그·원서·판정 불가는 세지 않음)',
+    "대상: 예스24·알라딘·교보문고 실시간 베스트 각 10위 (음반 등 리소스키 없는 상품 제외, ISBN 기준 중복 1행) / 비고 '동일': 오늘 앞 회차에서 확인한 도서"
+  ];
+  var SEL = { NAME: '동일 이름', TOP: '예스24 저·글·글그림 최상단' };
+  var sheets = {
+    mon: function () {
+      var rows = ['<td class="t" colspan="10">베스트 도서 컨텐츠 모니터링 (' + D.date + ' ' + D.round + ')</td><td colspan="35" class="lg"></td>'];
+      LEGEND.forEach(function (l, i) { rows.push('<td class="lg">' + (i === 0 ? '<span class="miss">■</span>' : '') + '</td><td class="lg" colspan="44">' + esc(l) + '</td>'); });
+      rows.push('<td colspan="45" class="lg"></td>');
+      var g = '';
+      ['상품번호','상품명','관리분류명','바코드'].forEach(function (x) { g += '<td class="hd" rowspan="2">' + x + '</td>'; });
+      g += '<td class="hd" colspan="16">예스24</td><td class="hd" colspan="3">예스24 원서</td><td class="hd" colspan="16">교보문고</td><td class="hd" colspan="6">참고</td>';
+      rows.push(g);
+      var s = '';
+      ALL.forEach(function (c) { s += '<td class="hd vt' + (c[2] ? ' au' : '') + '">' + c[1] + '</td>'; });
+      ['원서연결','원서연결 상품번호','원서명'].forEach(function (x) { s += '<td class="hd">' + x + '</td>'; });
+      ALL.forEach(function (c) { s += '<td class="hd vt' + (c[2] ? ' au' : '') + '">' + c[1] + '</td>'; });
+      ['예스24 기준 작가','교보 기준 작가','작가 선정','누락 항목 수','비고','교보 URL'].forEach(function (x) { s += '<td class="hd">' + x + '</td>'; });
+      rows.push(s);
+      D.books.forEach(function (b) {
+        var kc = keyCls(b), r = '<td class="' + kc + '">' + b.goods + '</td><td class="' + kc + '">' + esc(b.title) + '</td><td class="' + kc + '">' + esc(b.cat) + '</td><td>' + b.isbn + '</td>';
+        ALL.forEach(function (c) { r += '<td class="c ' + yCls(b, c[0]) + '">' + b.y[c[0]] + '</td>'; });
+        r += '<td class="c">' + (b.orig ? 'O' : 'X') + '</td><td>' + (b.orig ? b.orig[0] : '') + '</td><td>' + (b.orig ? esc(b.orig[1]) : '') + '</td>';
+        if (!b.k) r += '<td colspan="16" class="c dim">교보미입고</td>';
+        else ALL.forEach(function (c) { r += '<td class="c' + (c[0] === 'tag' ? ' gray' : '') + '">' + b.k[c[0]] + '</td>'; });
+        var note = []; if (b.same) note.push('동일(' + b.same + ' 확인)'); if (b.note) note.push(esc(b.note));
+        r += '<td>' + esc(b.yAuthor) + '</td><td>' + esc(b.kAuthor) + '</td><td>' + (SEL[b.sel] || '') + '</td><td class="c">' + b.missing.length + '</td><td>' + note.join(' / ') + '</td><td class="c">' + (b.kyoboUrl ? '<a href="#" data-kyobo>교보링크</a>' : '') + '</td>';
+        rows.push(r);
+      });
+      return grid(rows, 45);
+    },
+    sum: function () {
+      var rows = [], items = [['회차', D.date + ' ' + D.round], ['수집', S.collected], ['제외(음반 등)', S.excluded], ['중복 병합', S.dup], ['대상 도서', S.target],
+        ['이번 회차 신규', S.fresh], ['동일(앞 회차 확인)', S.same], ['누락 도서', S.missBooks], ['누락 항목', S.missCells], ['교보미입고', S.noKyobo], ['판정불가 포함 도서', S.failBooks]];
+      items.forEach(function (x) { rows.push('<td><b>' + x[0] + '</b></td><td>' + x[1] + '</td>'); });
+      rows.push('<td></td><td></td>');
+      rows.push('<td class="hd">항목</td><td class="hd">누락 도서 수</td>');
+      ALL.filter(function (c) { return ['links','auCnt','tag'].indexOf(c[0]) < 0; }).forEach(function (c) {
+        rows.push('<td>' + c[1] + '</td><td>' + D.books.filter(function (b) { return b.missing.indexOf(c[0]) > -1; }).length + '</td>');
+      });
+      return grid(rows, 2);
+    },
+    col: function () {
+      var rows = ['<td class="hd">사이트</td><td class="hd">순위</td><td class="hd">상품명(사이트 표기)</td><td class="hd">예스24 상품번호</td><td class="hd">바코드</td><td class="hd">처리</td>'];
+      D.collectRows.forEach(function (r) {
+        var d = r.state.indexOf('제외') === 0 ? ' class="dim"' : '';
+        rows.push('<td' + d + '>' + r.site + '</td><td' + d + '>' + r.rank + '</td><td' + d + '>' + esc(r.title) + '</td><td' + d + '>' + r.goods + '</td><td' + d + '>' + r.isbn + '</td><td' + d + '>' + esc(r.state) + '</td>');
+      });
+      return grid(rows, 6);
+    },
+    fail: function () {
+      var rows = ['<td class="hd">상품번호</td><td class="hd">상품명</td><td class="hd">바코드</td><td class="hd">예스24 상태</td><td class="hd">교보 상태</td><td class="hd">사유</td>'];
+      D.books.filter(function (b) { return b.fail; }).forEach(function (b) {
+        rows.push('<td>' + b.goods + '</td><td>' + esc(b.title) + '</td><td>' + b.isbn + '</td><td>OK</td><td>PARTIAL</td><td>' + esc(b.note) + '</td>');
+      });
+      return grid(rows, 6);
+    }
+  };
+  function showSheet(key) {
+    $('sheet').innerHTML = sheets[key]();
+    document.querySelectorAll('#sheetTabs button').forEach(function (x) { x.classList.toggle('active', x.dataset.s === key); });
+  }
+
+  // ── 이벤트 ──
+  var modal = $('xlModal');
+  // 팝업 크기는 '모니터링' 시트를 연 크기로 고정한다 — 작은 시트로 바꿔도 줄어들지 않게
+  var box = modal.querySelector('.modal');
+  function lockSize() {
+    box.style.removeProperty('--sheet-h');
+    showSheet('mon');
+    box.style.setProperty('--sheet-h', box.offsetHeight + 'px');
+  }
+  $('btnAttach').addEventListener('click', function () { modal.hidden = false; lockSize(); });
+  window.addEventListener('resize', function () { if (!modal.hidden) { var cur = document.querySelector('#sheetTabs .active').dataset.s; lockSize(); showSheet(cur); } });
+  $('sheetTabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) showSheet(b.dataset.s); });
+  modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-close]')) modal.hidden = true; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') modal.hidden = true; });
+  document.addEventListener('click', function (e) { if (e.target.closest('[data-kyobo]')) e.preventDefault(); });
+
+  renderMail();
+})();
+</script>
+
+</body>
+</html>
