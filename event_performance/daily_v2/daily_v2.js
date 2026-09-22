@@ -204,14 +204,14 @@ function scoreCells(e, sortKey) {
   let move = '';
   if (w) {
     const d = e.rank0 - e.rank;
-    move = d > 0 ? ` <span class="rank-move up">▲${d}</span>` : d < 0 ? ` <span class="rank-move down">▼${-d}</span>` : '';
+    move = d > 0 ? ` <span class="rank-move up" data-tip-key="move">▲${d}</span>` : d < 0 ? ` <span class="rank-move down" data-tip-key="move">▼${-d}</span>` : '';
   }
-  const none = '<span class="dim-cell" title="오픈 당일이라 비교할 평소 데이터가 없습니다">—</span>';
+  const none = '<span class="dim-cell" data-tip-key="noBase">—</span>';
   const delta = e.hasBase
     ? `<span class="delta ${e.delta > 0.5 ? 'up' : e.delta < -0.5 ? 'down' : 'flat'}">${e.delta > 0 ? '+' : ''}${e.delta.toFixed(1)}</span>`
     : none;
   return `
-    <td class="num${hl('score')}"><span class="score-num">${e.score.toFixed(1)}</span><span class="rev-rank">성과 ${e.rank}위${move}</span></td>
+    <td class="num${hl('score')}"><span class="score-num">${e.score.toFixed(1)}</span><span class="rev-rank"><span data-tip-key="rank">성과 ${e.rank}위</span>${move}</span></td>
     <td class="num${hl('aScore')}">${e.hasBase ? `<span class="score-num">${e.aScore.toFixed(1)}</span>` : none}</td>
     <td class="num${hl('delta')}">${delta}</td>`;
 }
@@ -219,7 +219,7 @@ function scoreCells(e, sortKey) {
 function v2Cells(e, sortKey) {
   const gap = Math.abs(e.revRank - e.rank) >= 8;   // 매출 순위와 성과 순위가 크게 다르면 강조
   const lows = e.low2 && e.low2.length
-    ? `<div class="reasons">${e.low2.map(k => `<span class="reason-chip" title="${V2_ACTIONS[k].label} (평소 지표 기준)">${V2_ACTIONS[k].short}</span>`).join('')}</div>`
+    ? `<div class="reasons">${e.low2.map(k => `<span class="reason-chip" data-tip-key="low_${k}">${V2_ACTIONS[k].short}</span>`).join('')}</div>`
     : '<span class="dim-cell">—</span>';
   return `
     <td class="nowrap">${esc(e.md)}</td>
@@ -231,7 +231,7 @@ function v2Cells(e, sortKey) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
       </div>
-      <div class="ev-sub">${esc(e.id)} · 대상 상품 ${fmtNum(e.prd)}종${e.clk < LOW_SAMPLE_CLICKS ? '<span class="low-sample" title="전일 클릭 집계가 적어 비율 지표가 크게 흔들릴 수 있습니다">표본 적음</span>' : ''}</div>
+      <div class="ev-sub">${esc(e.id)} · <span data-tip-key="prd">대상 상품 ${fmtNum(e.prd)}종</span>${e.clk < LOW_SAMPLE_CLICKS ? '<span class="low-sample" data-tip-key="lowSample">표본 적음</span>' : ''}</div>
     </td>
     <td class="dday">D+${e.days}</td>
     ${scoreCells(e, sortKey)}
@@ -240,7 +240,7 @@ function v2Cells(e, sortKey) {
     <td class="num">${fmtNum(e.buy)}</td>
     <td class="num">${e.rr.toFixed(1)}%</td>
     <td class="num">${e.br.toFixed(1)}%</td>
-    <td class="num rev-ref">${fmtWon(e.rev)}<span class="rev-rank ${gap ? 'gap' : ''}">매출 ${e.revRank}위</span></td>
+    <td class="num rev-ref">${fmtWon(e.rev)}<span class="rev-rank ${gap ? 'gap' : ''}" data-tip-key="revRank">매출 ${e.revRank}위</span></td>
     <td>${lows}</td>`;
 }
 
@@ -309,13 +309,13 @@ function renderWeights() {
   const w = V2STATE.revWeight;
   const rows = COMPONENTS.map(c => `
     <div class="weight-row">
-      <span class="wl">${c.label}</span>
+      <span class="wl" data-tip-key="w_${c.key}">${c.label}</span>
       <span class="wd">${c.desc}</span>
       <span class="ww">${(c.w * (100 - w) / 100).toFixed(c.w * (100 - w) % 100 ? 1 : 0)}%</span>
     </div>`).join('');
   $('#weightRows').innerHTML = rows + `
     <div class="weight-row rev-row">
-      <span class="wl">매출(참고)</span>
+      <span class="wl" data-tip-key="w_rev">매출(참고)</span>
       <span class="wd">클릭·구매 상품 매출 — ${w ? `시험안 ${w}% 반영 중` : '화면에는 표시하되 점수에는 반영하지 않음 (기준안)'}</span>
       <span class="ww">${w}%</span>
     </div>`;
@@ -368,14 +368,14 @@ window.openDrawer = function (id) {
     }
     const eff = (c.w / sumW) * (100 - w);              // 재정규화 + 매출 비중 반영 후 실제 비중
     return `<div class="comp-row">
-      <span class="k">${c.label} <span style="opacity:.7">${eff.toFixed(0)}%</span></span>
+      <span class="k" data-tip-key="w_${c.key}">${c.label} <span style="opacity:.7">${eff.toFixed(0)}%</span></span>
       <span class="raw">${c.fmt(rawOf(c.key))}</span>
       <span class="pct-track"><span class="pct-fill ${p <= LOWER_PCT ? 'low' : ''}" style="width:${Math.max(p, 3).toFixed(0)}%"></span></span>
       <span class="p">상위 ${(100 - p).toFixed(0)}%</span>
       <span class="c">+${(eff * p / 100).toFixed(1)}</span>
     </div>`;
   }).join('') + `<div class="comp-row ${w ? '' : 'off'}">
-      <span class="k">매출(참고) <span style="opacity:.7">${w}%</span></span>
+      <span class="k" data-tip-key="w_rev">매출(참고) <span style="opacity:.7">${w}%</span></span>
       <span class="raw">${fmtMoneyShort(e.rev)}원</span>
       <span class="pct-track"><span class="pct-fill" style="width:${Math.max(e.revPct, 3).toFixed(0)}%"></span></span>
       <span class="p">상위 ${(100 - e.revPct).toFixed(0)}%</span>
@@ -412,12 +412,12 @@ window.openDrawer = function (id) {
 
   $('#drawerBody').innerHTML = `
     <div class="drawer-sec">
-      <h4>전일 종합 점수</h4>
+      <h4><span data-tip-key="score">전일 종합 점수</span></h4>
       ${hero}
     </div>
     <div class="drawer-sec">
       <h4>점수 구성<span class="hint">지표별 백분위 × 비중 — ${e.isComment ? '댓글형이라 참여 지표 포함' : '댓글형이 아니라 참여 지표는 빼고 재정규화'}</span></h4>
-      <div class="comp-head" style="display:grid;grid-template-columns:84px 96px minmax(70px,1fr) 58px 58px;gap:9px"><span>지표 · 비중</span><span style="text-align:right">전일 값</span><span>전체 대비 위치</span><span style="text-align:right">백분위</span><span style="text-align:right">기여</span></div>
+      <div class="comp-head" style="display:grid;grid-template-columns:84px 96px minmax(70px,1fr) 58px 58px;gap:9px"><span>지표 · 비중</span><span style="text-align:right">전일 값</span><span>전체 대비 위치</span><span style="text-align:right" data-tip-key="pct">백분위</span><span style="text-align:right" data-tip-key="contrib">기여</span></div>
       ${comp}
     </div>
     <div class="drawer-sec">
@@ -434,9 +434,9 @@ window.openDrawer = function (id) {
     <div class="drawer-sec">
       <h4>참고 정보<span class="hint">점수·순위에 쓰지 않는 값</span></h4>
       <div class="ref-box">
-        <div class="ref-line"><span>클릭·구매 상품 매출(참고)</span><span class="v">${fmtWon(e.rev)}원 · 매출 ${e.revRank}위</span></div>
-        <div class="ref-line"><span>대상 상품 수</span><span class="v">${fmtNum(e.prd)}종</span></div>
-        <div class="ref-line"><span>쿠폰·상품권 비용</span><span class="v">${e.cost ? fmtWon(e.cost) + '원' : '없음'}</span></div>
+        <div class="ref-line"><span data-tip-key="revRef">클릭·구매 상품 매출(참고)</span><span class="v">${fmtWon(e.rev)}원 · 매출 ${e.revRank}위</span></div>
+        <div class="ref-line"><span data-tip-key="prd">대상 상품 수</span><span class="v">${fmtNum(e.prd)}종</span></div>
+        <div class="ref-line"><span data-tip-key="cost">쿠폰·상품권 비용</span><span class="v">${e.cost ? fmtWon(e.cost) + '원' : '없음'}</span></div>
         <div class="ref-note">매출은 이벤트에서 반응을 받은 상품의 판매 규모이며 이벤트가 발생시킨 매출이 아닙니다. 쿠폰·상품권 비용은 대상 주문 범위가 같다는 근거가 없어 매출에서 차감하지 않고 나란히만 표시합니다.</div>
       </div>
     </div>
@@ -487,8 +487,8 @@ function v2Refresh() {
   $('#pageSubtitle').textContent =
     `기준일 ${baseDate}(${dow}) 전일 실적 · 매일 1회 자동 집계 · ${cond} · 진행 중 이벤트 ${r.running.length}건`;
   $('#filterMeta').innerHTML =
-    `<span class="badge badge-secondary">비교 모집단 ${r.evaluable.length}건</span>
-     <span class="badge ${w ? 'badge-warning' : 'badge-primary'}">매출 비중 ${w}% ${w ? '시험안' : '기준안'}</span>
+    `<span class="badge badge-secondary" data-tip-key="pool">비교 모집단 ${r.evaluable.length}건</span>
+     <span class="badge ${w ? 'badge-warning' : 'badge-primary'}" data-tip-key="revWeight">매출 비중 ${w}% ${w ? '시험안' : '기준안'}</span>
      점수는 <b>같은 대분류 · 조회 조건 안의 이벤트끼리</b> 백분위로 매깁니다.`;
 }
 

@@ -58,13 +58,13 @@ function renderResult(rows) {
     const st = statusOf(e);
     const tags = shownIn(e);
     const lows = e.pct && e.low.length
-      ? `<div class="reasons">${e.low.map(k => `<span class="reason-chip" title="${ACTION_MAP[k].label}">${ACTION_MAP[k].short}</span>`).join('')}</div>`
+      ? `<div class="reasons">${e.low.map(k => `<span class="reason-chip" data-tip-key="s_low">${ACTION_MAP[k].short}</span>`).join('')}</div>`
       : '<span class="dim-cell">—</span>';
     return `
       <tr class="data-row">
         <td>
-          <span class="badge ${STATUS[st].cls}">${STATUS[st].label}</span>
-          <div class="shown-in">${tags.length ? '데일리 ' + tags.join(' · ') : '데일리 미노출'}</div>
+          <span class="badge ${STATUS[st].cls}" data-tip-key="s_${st}">${STATUS[st].label}</span>
+          <div class="shown-in" data-tip-key="s_shown">${tags.length ? '데일리 ' + tags.join(' · ') : '데일리 미노출'}</div>
         </td>
         ${commonCells(e)}
         <td>${lows}</td>
@@ -89,7 +89,7 @@ function renderSummary(rows, r, cond) {
   $('#sumExcluded').innerHTML = fmtNum(counts.excluded) + '<span class="unit">건</span>';
 
   $('#filterMeta').innerHTML =
-    `<span class="badge badge-secondary">비교 모집단 ${r.evaluable.length}건</span>
+    `<span class="badge badge-secondary" data-tip-key="pool">비교 모집단 ${r.evaluable.length}건</span>
      백분위·판정은 <b>대분류·분야·담당자 조건 안의 이벤트끼리</b> 상대 비교합니다. 검색어와 판정 필터는 표시만 거릅니다.`;
 }
 

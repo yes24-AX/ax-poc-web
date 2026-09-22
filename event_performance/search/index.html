@@ -95,7 +95,7 @@
         <div class="card-content" style="padding-top:18px">
           <div class="filter-bar">
             <div class="field-group">
-              <label class="field-label" for="fBaseDate">기준일 (전일)</label>
+              <label class="field-label" for="fBaseDate" data-tip-key="baseDate">기준일 (전일)</label>
               <input class="field-ctl" type="date" id="fBaseDate" value="2026-09-17" />
             </div>
             <div class="field-group" style="flex:1; min-width:220px; max-width:300px">
@@ -106,7 +106,7 @@
               </div>
             </div>
             <div class="field-group">
-              <label class="field-label" for="fCat">대분류</label>
+              <label class="field-label" for="fCat" data-tip-key="cat">대분류</label>
               <select class="field-ctl" id="fCat"><option value="">전체</option></select>
             </div>
             <div class="field-group">
@@ -118,7 +118,7 @@
               <select class="field-ctl" id="fMd"><option value="">전체 담당자</option></select>
             </div>
             <div class="field-group">
-              <label class="field-label" for="fStatus">판정</label>
+              <label class="field-label" for="fStatus" data-tip-key="s_status">판정</label>
               <select class="field-ctl" id="fStatus">
                 <option value="">전체</option>
                 <option value="bad">개선 필요 후보</option>
@@ -165,22 +165,22 @@
       <!-- ============ 결과 요약 ============ -->
       <div class="grid grid-4" style="margin-top:14px">
         <div class="stat-card">
-          <div class="stat-head"><h4>조회 결과</h4><span class="badge badge-secondary">전일 기준</span></div>
+          <div class="stat-head"><h4 data-tip-key="running">조회 결과</h4><span class="badge badge-secondary">전일 기준</span></div>
           <div class="stat-num" id="sumTotal">0<span class="unit">건</span></div>
           <div class="stat-sub" id="sumTotalSub">진행 중 이벤트</div>
         </div>
         <div class="stat-card">
-          <div class="stat-head"><h4>개선 필요 후보</h4><span class="badge badge-danger">조치 필요</span></div>
+          <div class="stat-head"><h4 data-tip-key="s_bad">개선 필요 후보</h4><span class="badge badge-danger">조치 필요</span></div>
           <div class="stat-num danger" id="sumBad">0<span class="unit">건</span></div>
           <div class="stat-sub" id="sumBadSub">2개 이상 하위 30%</div>
         </div>
         <div class="stat-card">
-          <div class="stat-head"><h4>관찰 필요</h4><span class="badge badge-warning">1개 하위</span></div>
+          <div class="stat-head"><h4 data-tip-key="s_watch">관찰 필요</h4><span class="badge badge-warning">1개 하위</span></div>
           <div class="stat-num" id="sumWatch">0<span class="unit">건</span></div>
           <div class="stat-sub">하나만 더 내려가면 개선 필요</div>
         </div>
         <div class="stat-card">
-          <div class="stat-head"><h4>평가 제외</h4></div>
+          <div class="stat-head"><h4 data-tip-key="s_excluded">평가 제외</h4></div>
           <div class="stat-num" id="sumExcluded">0<span class="unit">건</span></div>
           <div class="stat-sub">운영 1~2일 · 비교 데이터 없음</div>
         </div>
@@ -203,18 +203,18 @@
             <table class="tbl tbl-search">
               <thead>
                 <tr>
-                  <th style="width:112px">판정</th>
+                  <th style="width:112px" data-tip-key="s_status">판정</th>
                   <th style="width:62px">담당자</th>
                   <th style="width:82px">분야</th>
                   <th class="col-ev">이벤트명</th>
-                  <th style="width:58px">운영일차</th>
-                  <th class="num" style="width:92px" title="클릭·구매 상품 매출(참고) — 이벤트에 연결된 상품 중 구매 전환 또는 반응 전환이 있는 상품의 전일 매출 합계. 이벤트가 발생시킨 매출이 아닙니다.">전일 매출<sup class="ref">참고</sup></th>
-                  <th class="num" style="width:68px">주문건수</th>
-                  <th class="num" style="width:66px">UV</th>
-                  <th class="num" style="width:70px">신규 구매</th>
-                  <th class="num" style="width:76px">구매전환율</th>
-                  <th class="num" style="width:76px">증감률</th>
-                  <th style="width:130px">하위 30% 지표</th>
+                  <th style="width:58px" data-tip-key="dday">운영일차</th>
+                  <th class="num" style="width:92px" data-tip-key="s_rev">전일 매출<sup class="ref">참고</sup></th>
+                  <th class="num" style="width:68px" data-tip-key="s_ord">주문건수</th>
+                  <th class="num" style="width:66px" data-tip-key="uv">UV</th>
+                  <th class="num" style="width:70px" data-tip-key="s_nb">신규 구매</th>
+                  <th class="num" style="width:76px" data-tip-key="s_cvr">구매전환율</th>
+                  <th class="num" style="width:76px" data-tip-key="s_growth">증감률</th>
+                  <th style="width:130px" data-tip-key="s_low">하위 30% 지표</th>
                 </tr>
               </thead>
               <tbody id="tbodyResult"></tbody>
@@ -235,6 +235,7 @@
   </div>
 </div>
 
+<script src="../assets/js/tips.js"></script>
 <script src="../assets/js/common.js"></script>
 <script src="search.js"></script>
 </body>

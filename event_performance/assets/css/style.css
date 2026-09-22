@@ -845,3 +845,42 @@ table.tbl td.sort-col { background: color-mix(in oklch, var(--accent-color) 7%, 
 table.tbl td.sort-col .score-num, table.tbl td.sort-col .delta { font-size: 14px; font-weight: 800; }
 table.tbl td:not(.sort-col) > .score-num { font-weight: 600; color: var(--muted-foreground); min-width: 0; }
 .score-num { min-width: 0; }
+
+/* ===================================================
+   용어·산식 툴팁 (tips.js)
+   =================================================== */
+[data-tip-key] { cursor: help; }
+th[data-tip-key], .field-label[data-tip-key], .stat-head h4[data-tip-key],
+.weight-row .wl[data-tip-key], .comp-row .k[data-tip-key], .comp-head [data-tip-key],
+.ref-line [data-tip-key], .drawer-sec h4 [data-tip-key], .kpi-cell .k[data-tip-key] {
+  text-decoration: underline dotted; text-decoration-color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+  text-underline-offset: 3px;
+}
+.tipbox {
+  position: fixed; z-index: 90; left: 0; top: 0; width: max-content; max-width: 300px; padding: 10px 12px; border-radius: var(--radius);
+  background: var(--foreground); color: var(--background);
+  box-shadow: var(--shadow-md); font-size: 12px; line-height: 1.55;
+  opacity: 0; visibility: hidden; transition: opacity 0.12s ease; pointer-events: none;
+}
+.tipbox.on { opacity: 1; visibility: visible; }
+.tipbox .tip-t { font-weight: 700; font-size: 12.5px; }
+.tipbox .tip-f {
+  margin-top: 6px; padding: 5px 8px; border-radius: 5px; font-family: var(--font-mono); font-size: 11.5px;
+  background: color-mix(in oklch, var(--background) 16%, transparent);
+}
+.tipbox .tip-d { margin-top: 6px; opacity: 0.86; }
+
+/* 툴팁 표식 — KPI 제목·조회 조건 라벨은 점선 대신 물음표 아이콘 */
+.stat-head h4[data-tip-key], .field-label[data-tip-key] {
+  text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
+}
+.stat-head h4[data-tip-key]::after, .field-label[data-tip-key]::after {
+  content: "?"; flex-shrink: 0; width: 14px; height: 14px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9.5px; font-weight: 800; line-height: 1; font-family: var(--font-selected);
+  color: var(--muted-foreground); background: var(--muted); border: 1px solid var(--border);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.stat-head h4[data-tip-key]:hover::after, .field-label[data-tip-key]:hover::after {
+  color: var(--primary-foreground); background: var(--primary); border-color: var(--primary);
+}
