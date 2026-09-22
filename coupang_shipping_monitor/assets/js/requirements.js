@@ -27,7 +27,8 @@
     var shown = (c.ui || 0) + (c.cond || 0) + (c.partial || 0);
     $('reqVerdict').innerHTML = '요구사항 ' + DATA.items.length + '개 중 화면에 해당하는 ' + screenReqs +
       '개 가운데 <b>' + shown + '개를 시안에 표현</b>했습니다. 남은 ' + ((c.pending || 0) + (c.excluded || 0)) +
-      '개(R22·R23)는 자사 데이터 연동과 요청 부서 확인이 필요하고, ' + (c.offscreen || 0) + '개는 수집·운영에서 다룹니다.';
+      '개(' + DATA.items.filter(function (r) { return r.status === 'pending' || r.status === 'excluded'; }).map(function (r) { return r.id; }).join('·') +
+      ')는 자사 데이터 연동이 필요하고, ' + (c.offscreen || 0) + '개는 수집·운영에서 다룹니다.';
     $('reqCounts').innerHTML = Object.keys(DATA.statuses).filter(function (k) { return c[k]; }).map(function (k) {
       return '<button type="button" class="badge ' + DATA.statuses[k].badge + ' filter-badge" data-status="' + k + '" aria-pressed="false">' +
         DATA.statuses[k].label + ' ' + c[k] + '</button>';
@@ -54,7 +55,8 @@
         '</div>' +
         '<div class="req-item-body">' +
           (r.text !== r.short ? '<p class="req-text">' + esc(r.text) + '</p>' : '') +
-          (r.quote && r.quote !== r.text ? '<blockquote class="req-quote">' + esc(r.quote) + '<cite>요구서 ' + esc(r.src) + '</cite></blockquote>' : '') +
+          (r.quote && r.quote !== r.text ? '<blockquote class="req-quote">' + esc(r.quote) + '<cite>요구서 ' + esc(r.src.replace(/ · 추가 요구.*$/, '')) + '</cite></blockquote>' : '') +
+          (r.reply ? '<blockquote class="req-quote req-reply">' + esc(r.reply) + '<cite>추가 요구 · 요청 부서 (2026-09-22)</cite></blockquote>' : '') +
           '<dl class="req-dl">' +
             '<div><dt>시안에서</dt><dd>' + esc(r.where) + '</dd></div>' +
             (r.data ? '<div><dt>데이터</dt><dd>' + esc(r.data) + '</dd></div>' : '') +

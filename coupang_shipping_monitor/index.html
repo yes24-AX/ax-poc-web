@@ -86,7 +86,7 @@
         <div class="banner-body">
           <span><b>프로토타입 · AX 요구사항 #306.</b> 수치·상품·주문번호는 모두 예시 데이터이며 실제 쿠팡 주문과 무관합니다.</span>
           <span><i class="legend-conv"></i>점선 박스는 요구서에 없지만 편의를 위해 제안하는 기능입니다. 박스 밖은 모두 요구서 항목입니다.</span>
-          <span><b>자사 주문번호·공개주문번호</b>는 사내 주문번호 조회 API(신규)로 쿠팡 주문번호를 매핑해 채운다고 가정했습니다.</span>
+          <span><b>자사 주문번호·공개주문번호·자사 출고예정일</b>은 사내 주문번호 조회 API(신규)로, <b>물류센터</b>는 기존 사내 API(출고 물류센터 조회)로 채운다고 가정했습니다.</span>
           <span><span class="req req-static"><b>R1</b> 요구사항</span> 태그는 그 UI가 표현하는 요구서 항목입니다. <b>태그를 누르면</b> 별도 창에서 그 요구사항의 원문과 반영 상태가 열립니다.</span>
           <span class="banner-actions">
             <button type="button" class="btn btn-primary btn-sm" id="reqOpen">
@@ -102,7 +102,7 @@
         <div class="page-heading-left">
           <div>
             <h1 class="page-title">쿠팡 정시출고 모니터링</h1>
-            <p class="page-subtitle">자사 상품출발예정일이 아니라 <b>쿠팡 WING의 주문시 출고예정일</b>을 기준으로 당일 출고 대상과 출고지연 주문을 보여줍니다.</p>
+            <p class="page-subtitle">자사 출고예정일이 아니라 <b>쿠팡 WING의 주문시 출고예정일</b>을 기준으로 당일 출고 대상과 출고지연 주문을 보여줍니다.</p>
             <div class="heading-meta">
               <span class="badge badge-secondary">판정 기준 · WING 주문시 출고예정일</span>
               <span>집계 <span class="num" id="snapTime">2026-09-17 14:00</span></span>
@@ -145,16 +145,13 @@
         <div class="stat-card">
           <div class="stat-head"><h4>지연일수별 미출고 주문</h4></div>
           <div class="bucket-row" id="kBuckets"></div>
-          <div class="req-row" data-req="R4 R7 R8"></div>
+          <div class="req-row" data-req="R4 R7 R8 R32"></div>
         </div>
-        <div class="conv">
-          <span class="conv-tag">편의 기능 · R24 보조</span>
-          <div class="stat-card">
-            <div class="stat-head"><h4>출고예정일 없음</h4></div>
-            <div class="stat-num num" id="kNone">-</div>
-            <div class="stat-sub">예약판매 등 쿠팡이 예정일을 비워 둔 주문. 지연 판정에서 제외</div>
-            <div class="req-row" data-req="R24"></div>
-          </div>
+        <div class="stat-card">
+          <div class="stat-head"><h4>출고예정일 없음</h4></div>
+          <div class="stat-num num" id="kNone">-</div>
+          <div class="stat-sub">예약판매 등 쿠팡이 예정일을 비워 둔 주문. 지연 판정에서 제외</div>
+          <div class="req-row" data-req="R28 R24"></div>
         </div>
       </section>
 
@@ -205,15 +202,14 @@
             <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="today">당일 출고 대상 <span class="tab-count" id="cntToday">0</span></button>
             <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="late">출고 지연 <span class="tab-count" id="cntLate">0</span></button>
           </div>
-          <div class="req-row" data-req="R2 R3 R11 R12"></div>
+          <div class="req-row" data-req="R2 R3 R11 R12 R23 R31"></div>
           <button type="button" class="btn btn-outline btn-sm" id="btnExcel">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             엑셀 다운로드
           </button>
         </div>
 
-        <div class="conv list-filters">
-          <span class="conv-tag">편의 기능 · R4·R11 보조</span>
+        <div class="list-filters">
           <div class="filter-row">
             <select class="form-select" id="fDays" aria-label="지연일수">
               <option value="">지연일수 전체</option>
@@ -230,7 +226,18 @@
               <option value="배송완료">배송완료</option>
             </select>
             <input class="form-input" id="fQ" type="search" placeholder="상품번호 · 상품명 · 쿠팡/자사 주문번호" aria-label="검색" />
+            <label class="check-chip" for="fBoth"><input type="checkbox" id="fBoth" /> 쿠팡·자사 모두 경과만 <span class="tab-count" id="bothCnt">0</span></label>
+            <span class="conv conv-inline-box">
+              <span class="conv-tag">편의 기능 · R31 보조</span>
+              <select class="form-select" id="fCenter" aria-label="물류센터">
+                <option value="">물류센터 전체</option>
+                <option value="SLC">SLC</option>
+                <option value="파주">파주</option>
+                <option value="영남">영남</option>
+              </select>
+            </span>
           </div>
+          <div class="req-row" data-req="R29 R30 R23"></div>
         </div>
 
         <div class="list-count" id="listCount"></div>
@@ -242,8 +249,10 @@
               <th class="col-nowrap">쿠팡 주문번호</th>
               <th class="col-nowrap">자사 주문번호</th>
               <th class="col-nowrap">자사 공개주문번호</th>
+              <th class="col-nowrap">물류센터</th>
               <th class="col-nowrap">주문일</th>
               <th class="col-nowrap">쿠팡 주문시 출고예정일</th>
+              <th class="col-nowrap">자사 출고예정일</th>
               <th class="col-num col-nowrap">지연일수</th>
               <th class="col-nowrap">현재 출고상태</th>
               <th class="col-nowrap">실제 출고일</th>
@@ -269,7 +278,9 @@
           <ul>
             <li><b>데이터 원천:</b> 쿠팡 발주서 목록 API(미출고 발주서, INSTRUCT). 출고예정일=<span class="mono">estimatedShippingDate</span>, 자사 상품번호=<span class="mono">externalVendorSkuCode</span>, 출고일=<span class="mono">inTrasitDateTime</span>.</li>
             <li><b>당일 출고 대상</b> = 출고예정일이 오늘이고 아직 출고되지 않은 주문. <b>출고 지연</b> = 출고예정일이 지났는데 출고되지 않았거나, 지연된 뒤 출고된 주문.</li>
-            <li><b>지연일수</b> = 기준일 − 주문시 출고예정일(달력일). 영업일로 셀지는 요청 부서 확인 필요.</li>
+            <li><b>지연일수 (쿠팡 방식):</b> 출고예정일 다음 날부터 실제 출고일(미출고면 기준일)까지 세되 <b>토요일은 포함, 일요일·공휴일은 제외</b>, 단 출고일이 일요일이면 그날은 포함. 예) 9/11(금)→9/13(일) 출고 = 2일, 9/10(목)→9/16(수) 출고 = 5일.</li>
+            <li><b>물류센터:</b> 기존 사내 API <span class="mono">/orders/fulfillment-centers/resolve</span>(자사 주문번호 → 출고 센터, 1회 최대 1만 건). 001 파주 · 003 영남 · 004 SLC.</li>
+            <li><b>쿠팡·자사 모두 경과:</b> 쿠팡 주문시 출고예정일과 자사 출고예정일이 모두 지난 미출고 주문 — 물류팀 공유용 목록.</li>
             <li><b>자사 주문번호·공개주문번호:</b> 쿠팡 API에는 없어 <b>사내 주문번호 조회 API(신규)</b>로 채웁니다. 쿠팡 주문번호 목록을 넘기면 자사 주문(PR_ORD_M)의 제휴사주문ID로 찾아 주문번호·공개주문번호를 돌려주는 방식입니다. 매핑이 늦은 주문은 다음 집계에서 채웁니다.</li>
             <li><b>일자별 추이·AI의 반복 지연 판단:</b> 집계 이력이 쌓여야 정확해집니다.</li>
             <li><b>AI의 상품군:</b> 쿠팡 카테고리(<span class="mono">productCategoryLevel1/2</span>) 기준입니다. 실제 값은 첫 수집 후 확인합니다.</li>

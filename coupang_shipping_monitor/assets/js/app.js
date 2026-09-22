@@ -53,7 +53,8 @@
     var shown = (cnt.ui || 0) + (cnt.cond || 0) + (cnt.partial || 0);
     $('traceVerdict').innerHTML =
       '요구사항 ' + REQ.length + '개 중 화면에 해당하는 ' + screenReqs + '개 가운데 <b>' + shown + '개를 표현</b>했습니다. ' +
-      '빠진 항목은 <b>' + ((cnt.pending || 0) + (cnt.excluded || 0)) + '개</b>(R22 자사 유통상태·발매예정일, R23 자사 기준 출고상태)이고, ' +
+      '빠진 항목은 <b>' + ((cnt.pending || 0) + (cnt.excluded || 0)) + '개</b>(' +
+      REQ.filter(function (r) { return r.status === 'pending' || r.status === 'excluded'; }).map(function (r) { return r.id + ' ' + r.short; }).join(', ') + ')이고, ' +
       (cnt.offscreen || 0) + '개는 수집·운영에서 다룹니다. 일부 반영 ' + (cnt.partial || 0) + '개(' +
       REQ.filter(function (r) { return r.status === 'partial'; }).map(function (r) { return r.id; }).join('·') + ')는 남은 일을 점검표에서 확인하세요.';
     $('traceSummary').innerHTML = Object.keys(STATUS).filter(function (k) { return cnt[k]; }).map(function (k) {
@@ -93,6 +94,7 @@
       '<span class="badge ' + st[1] + '">' + st[0] + '</span></div>' +
       '<div class="req-item-body">' + (r.text !== r.short ? '<p class="req-text">' + esc(r.text) + '</p>' : '') +
       (r.quote && r.quote !== r.text ? '<blockquote class="req-quote">' + esc(r.quote) + '<cite>요구서 ' + esc(r.src) + '</cite></blockquote>' : '') +
+      (r.reply ? '<blockquote class="req-quote req-reply">' + esc(r.reply) + '<cite>추가 요구 · 요청 부서 (2026-09-22)</cite></blockquote>' : '') +
       '<dl class="req-dl"><div><dt>시안에서</dt><dd>' + esc(r.where) + '</dd></div>' +
       (r.data ? '<div><dt>데이터</dt><dd>' + esc(r.data) + '</dd></div>' : '') +
       (r.note ? '<div><dt>남은 일</dt><dd>' + esc(r.note) + '</dd></div>' : '') + '</dl></div>';
@@ -152,6 +154,32 @@
   var SHIP_CLASS = { '주문접수': 'st-received', '결제확인': 'st-paid', '출하지시': 'st-instructed', '출고완료': 'st-shipped', '배송완료': 'st-delivered' };
   var rndS = rng(3061);   // 상태 배정 전용 — 기존 예시 수치가 바뀌지 않게 난수열을 분리
 
+  // 쿠팡 방식 지연일수 (요청 부서 확인 2026-09-22)
+  //  · 출고예정일 다음 날부터 출고일(미출고면 기준일)까지 센다
+  //  · 토요일은 포함, 일요일·공휴일은 미출고 가능일이라 제외
+  //  · 단, 출고일이 일요일이면 그 일요일은 포함
+  //  예) 9/11(금)→9/12(토)=1 · →9/13(일)=2 · →9/14(월)=2 · 9/10(목)→9/16(수)=5
+  var HOLIDAYS = {   // 예시 공휴일 표 — 운영에서는 사내 휴일 기준표를 쓴다
+    '2026-09-24': 1, '2026-09-25': 1, '2026-09-26': 1, '2026-10-03': 1, '2026-10-05': 1, '2026-10-09': 1, '2026-12-25': 1
+  };
+  function parseYmd(s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function delayDays(dueStr, end) {
+    var endKey = ymd(end);
+    if (endKey <= dueStr) return 0;
+    var d = parseYmd(dueStr), n = 0;
+    for (;;) {
+      d.setDate(d.getDate() + 1);
+      var key = ymd(d), isEnd = key === endKey, sun = d.getDay() === 0;
+      if (!sun && !HOLIDAYS[key]) n++;
+      else if (isEnd && sun) n++;
+      if (isEnd) return n;
+    }
+  }
+
+  // 물류센터 = 기존 사내 API(/orders/fulfillment-centers/resolve) 값 — 001 파주 · 003 영남 · 004 SLC
+  var rndC = rng(3062), rndD = rng(3063);
+  function pickCenter() { var c = rndC(); return c < .6 ? 'SLC' : c < .9 ? '파주' : '영남'; }
+
   var rows = [];
   for (var i = 0; i < 360; i++) {
     var p = pick(), late;
@@ -160,6 +188,7 @@
     else late = rnd() < .6 ? 0 : -1;               // 0 = 오늘 예정, -1 = 내일 이후(모니터 대상 아님)
     if (late === -1) continue;
     var due = late === null ? null : addDays(TODAY, -late);
+    if (due && due.getDay() === 0) due = addDays(due, -1);   // 쿠팡 출고예정일은 일요일에 잡히지 않는다고 가정
     var ordered = late === null ? addDays(TODAY, -Math.floor(rnd() * 20)) : addDays(due, -(1 + Math.floor(rnd() * 3)));
     // 08:00 이후 14:00 전에 출고된 주문 → 14:00 집계에서 '출고완료'
     var shipped = late !== null && rnd() < (late === 0 ? .45 : .2)
@@ -174,14 +203,27 @@
       pubOrderNo: 'Y' + ymd(ordered).slice(2).replace(/-/g, '') + String(1000 + Math.floor(rnd() * 8999)),  // 공개주문번호 Y+10자리 (예시)
       ordered: ymd(ordered) + ' ' + pad(Math.floor(rnd() * 24)) + ':' + pad(Math.floor(rnd() * 60)),
       due: due ? ymd(due) : null,
-      late: late,
+      late: late === null ? null : delayDays(ymd(due), TODAY),   // 쿠팡 방식으로 다시 센다
       shippedAt: shipped,
-      openStatus: openStatus
+      openStatus: openStatus,
+      center: pickCenter(),
+      ownDepart: ownDepartOf(p, due)
     });
   }
 
+  // 자사 출고예정일 (자사 주문번호 기준, 사내 API) — 예약·해외 상품일수록 쿠팡 예정일보다 늦게 잡힌다
+  function ownDepartOf(p, due) {
+    var r = rndD();
+    if (!due) return ymd(addDays(TODAY, 3 + Math.floor(r * 8)));            // 예정일 없는 예약판매 → 발매일 무렵
+    var off = p.bias >= .7 ? (r < .25 ? 0 : r < .6 ? 1 : r < .85 ? 2 : 4)
+            : p.bias >= .45 ? (r < .5 ? 0 : r < .8 ? 1 : 2)
+            : (r < .2 ? -1 : r < .85 ? 0 : 1);
+    return ymd(addDays(due, off));
+  }
+  function ownOverdue(r) { return !!r.ownDepart && r.ownDepart < ymd(TODAY); }
+
   // ── 상태 ──
-  var state = { snap: '14', tab: 'today', days: '', ship: '', q: '', page: 1 };
+  var state = { snap: '14', tab: 'today', days: '', ship: '', center: '', both: false, q: '', page: 1 };
   var PAGE_SIZE = 12;
   var PREV_DAY_14 = { late: 131, d1: 58, d2: 41, d3: 32 };   // 전일 14:00 집계 (예시)
 
@@ -399,6 +441,8 @@
         if (state.days === '3' ? r.late < 3 : String(r.late) !== state.days) return false;
       }
       if (state.ship && statusOf(r, state.snap) !== state.ship) return false;
+      if (state.center && r.center !== state.center) return false;
+      if (state.both && !(r.late >= 1 && !shipped && ownOverdue(r))) return false;
       if (q && (r.p.no + ' ' + r.p.name + ' ' + r.orderId + ' ' + r.ownOrderNo + ' ' + r.pubOrderNo).toLowerCase().indexOf(q) < 0) return false;
       return true;
     }).sort(function (a, b) { return b.late - a.late || a.ordered.localeCompare(b.ordered); });
@@ -414,7 +458,10 @@
     var pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
     if (state.page > pages) state.page = pages;
     var slice = list.slice((state.page - 1) * PAGE_SIZE, state.page * PAGE_SIZE);
-    $('listCount').innerHTML = '총 <b class="num">' + fmt(list.length) + '</b>건';
+    var bothCnt = rows.filter(function (r) { return r.late >= 1 && !isShipped(r, state.snap) && ownOverdue(r); }).length;
+    $('listCount').innerHTML = '총 <b class="num">' + fmt(list.length) + '</b>건' +
+      '<span class="list-rule">지연일수는 쿠팡 방식(토 포함 · 일·공휴일 제외 · 출고일이 일요일이면 포함)</span>';
+    $('bothCnt').textContent = fmt(bothCnt);
 
     $('listBody').innerHTML = slice.length ? slice.map(function (r) {
       var shipped = isShipped(r, state.snap);
@@ -426,13 +473,16 @@
         '<td class="num col-nowrap">' + r.orderId + '</td>' +
         '<td class="num col-nowrap">' + r.ownOrderNo + '</td>' +
         '<td class="num col-nowrap">' + r.pubOrderNo + '</td>' +
+        '<td class="col-nowrap"><span class="center-chip">' + r.center + '</span></td>' +
         '<td class="num col-nowrap">' + r.ordered + '</td>' +
         '<td class="num col-nowrap">' + r.due + '</td>' +
+        '<td class="num col-nowrap' + (ownOverdue(r) && !shipped ? ' own-overdue' : '') + '"' +
+          (ownOverdue(r) && !shipped ? ' title="자사 출고예정일도 지남"' : '') + '>' + r.ownDepart + '</td>' +
         '<td class="col-num col-nowrap num">' + days + '</td>' +
         '<td class="col-nowrap"><span class="ship-status ' + SHIP_CLASS[statusOf(r, state.snap)] + '">' + statusOf(r, state.snap) + '</span></td>' +
         '<td class="num col-nowrap">' + (shipped ? r.shippedAt : '<span class="muted">—</span>') + '</td>' +
         '</tr>';
-    }).join('') : '<tr><td colspan="10" class="col-center muted">조건에 맞는 주문이 없습니다.</td></tr>';
+    }).join('') : '<tr><td colspan="12" class="col-center muted">조건에 맞는 주문이 없습니다.</td></tr>';
 
     var btn = function (label, page, opts) {
       opts = opts || {};
@@ -521,6 +571,8 @@
   $('fDays').addEventListener('change', function (e) { state.days = e.target.value; state.page = 1; renderList(); });
   $('fShip').addEventListener('change', function (e) { state.ship = e.target.value; state.page = 1; renderList(); });
   $('fQ').addEventListener('input', function (e) { state.q = e.target.value; state.page = 1; renderList(); });
+  $('fCenter').addEventListener('change', function (e) { state.center = e.target.value; state.page = 1; renderList(); });
+  $('fBoth').addEventListener('change', function (e) { state.both = e.target.checked; state.page = 1; renderList(); });
   $('pager').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-page]');
     if (!b) return;
